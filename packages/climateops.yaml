@@ -1,2 +1,2 @@
-climateops: !include_dir_merge_named packages/climateops
-# ClimateOps package loader.
+# ClimateOps package loader (intentionally comment-only).
+# This file exists to validate Home Assistant package include paths.
