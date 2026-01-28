@@ -1,0 +1,11 @@
+template:
+  - binary_sensor:
+      - name: "AC Giorno Is On (proxy)"
+        unique_id: climateops_ac_giorno_is_on
+        state: "{{ is_state('switch.ac_giorno','on') }}"
+        availability: "{{ states('switch.ac_giorno') not in ['unknown','unavailable'] }}"
+
+      - name: "AC Notte Is On (proxy)"
+        unique_id: climateops_ac_notte_is_on
+        state: "{{ is_state('switch.ac_notte','on') }}"
+        availability: "{{ states('switch.ac_notte') not in ['unknown','unavailable'] }}"
