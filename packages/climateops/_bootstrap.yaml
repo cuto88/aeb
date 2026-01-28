@@ -1,0 +1,4 @@
+input_boolean:
+  climateops_enable:
+    name: "ClimateOps Global Enable"
+    icon: mdi:layers-outline
