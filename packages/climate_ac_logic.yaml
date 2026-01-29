@@ -555,3 +555,7 @@ script:
     sequence:
       - service: script.ac_giorno_apply
       - service: script.ac_notte_apply
+  ac_send_command:
+    alias: "AC – Send command (driver wrapper)"
+    mode: single
+    sequence: []
