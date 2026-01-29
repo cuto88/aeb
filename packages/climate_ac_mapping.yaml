@@ -121,16 +121,9 @@ script:
               - service: switch.turn_on
                 target:
                   entity_id: switch.ac_giorno
-      - service: switchbot.send_command
-        data:
-          device: ac_giorno
-          command: setAll
-          parameters: >-
-            {{ states('input_select.ac_giorno_mode') ~
-               ',' ~
-               states('input_number.ac_giorno_setpoint') | int ~
-               ',' ~
-               states('input_select.ac_giorno_fan') }}
+      - service: switchbot.press
+        target:
+          entity_id: switch.ac_giorno
 
   ac_notte_apply:
     alias: AC Notte Apply
@@ -142,13 +135,6 @@ script:
               - service: switch.turn_on
                 target:
                   entity_id: switch.ac_notte
-      - service: switchbot.send_command
-        data:
-          device: ac_notte
-          command: setAll
-          parameters: >-
-            {{ states('input_select.ac_notte_mode') ~
-               ',' ~
-               states('input_number.ac_notte_setpoint') | int ~
-               ',' ~
-               states('input_select.ac_notte_fan') }}
+      - service: switchbot.press
+        target:
+          entity_id: switch.ac_notte
