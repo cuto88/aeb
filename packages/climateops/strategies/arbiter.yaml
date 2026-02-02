@@ -3,34 +3,34 @@ template:
       - name: "Arbiter Suggested Mode"
         unique_id: climateops_arbiter_suggested_mode
         state: >
-          {% set heat = is_state('binary_sensor.climateops_heating_master_is_on','on') %}
-          {% set cool = is_state('binary_sensor.climateops_ac_giorno_is_on','on') or is_state('binary_sensor.climateops_ac_notte_is_on','on') %}
-          {% set vmc = is_state('binary_sensor.climateops_vmc_is_running','on') %}
+          {% set heat = is_state('binary_sensor.heating_master_is_on','on') %}
+          {% set cool = is_state('binary_sensor.ac_giorno_is_on','on') or is_state('binary_sensor.ac_notte_is_on','on') %}
+          {% set vmc = is_state('binary_sensor.vmc_is_running','on') %}
           {% if cool %}COOL
           {% elif heat %}HEAT
           {% elif vmc %}VENT
           {% else %}IDLE
           {% endif %}
         availability: >
-          {{ states('binary_sensor.climateops_heating_master_is_on') not in ['unknown','unavailable']
-             and states('binary_sensor.climateops_vmc_is_running') not in ['unknown','unavailable']
-             and states('binary_sensor.climateops_ac_giorno_is_on') not in ['unknown','unavailable']
-             and states('binary_sensor.climateops_ac_notte_is_on') not in ['unknown','unavailable'] }}
+          {{ states('binary_sensor.heating_master_is_on') not in ['unknown','unavailable']
+             and states('binary_sensor.vmc_is_running') not in ['unknown','unavailable']
+             and states('binary_sensor.ac_giorno_is_on') not in ['unknown','unavailable']
+             and states('binary_sensor.ac_notte_is_on') not in ['unknown','unavailable'] }}
 
       - name: "Arbiter Suggested Reason"
         unique_id: climateops_arbiter_suggested_reason
         state: >
-          {% if is_state('binary_sensor.climateops_ac_giorno_is_on','on') or is_state('binary_sensor.climateops_ac_notte_is_on','on') %}
+          {% if is_state('binary_sensor.ac_giorno_is_on','on') or is_state('binary_sensor.ac_notte_is_on','on') %}
             Cooling active (observed)
-          {% elif is_state('binary_sensor.climateops_heating_master_is_on','on') %}
+          {% elif is_state('binary_sensor.heating_master_is_on','on') %}
             Heating active (observed)
-          {% elif is_state('binary_sensor.climateops_vmc_is_running','on') %}
+          {% elif is_state('binary_sensor.vmc_is_running','on') %}
             VMC running (observed)
           {% else %}
             No active climate actuators (observed)
           {% endif %}
         availability: >
-          {{ states('binary_sensor.climateops_heating_master_is_on') not in ['unknown','unavailable']
-             and states('binary_sensor.climateops_vmc_is_running') not in ['unknown','unavailable']
-             and states('binary_sensor.climateops_ac_giorno_is_on') not in ['unknown','unavailable']
-             and states('binary_sensor.climateops_ac_notte_is_on') not in ['unknown','unavailable'] }}
+          {{ states('binary_sensor.heating_master_is_on') not in ['unknown','unavailable']
+             and states('binary_sensor.vmc_is_running') not in ['unknown','unavailable']
+             and states('binary_sensor.ac_giorno_is_on') not in ['unknown','unavailable']
+             and states('binary_sensor.ac_notte_is_on') not in ['unknown','unavailable'] }}
