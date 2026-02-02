@@ -22,6 +22,9 @@
 # ============================================================================
 # 1) HELPER INPUTS – definiti nel mapping (control interface layer)
 # ============================================================================
+input_boolean:
+  ac_send_command_busy:
+    name: "AC Send Command Busy"
 
 # ============================================================================
 # 2) TEMPLATE – failsafe, blocchi, telemetria e diagnostica
@@ -557,12 +560,17 @@ script:
       - service: script.ac_notte_apply
   ac_send_command:
     alias: "AC – Send command (driver wrapper)"
-    mode: queued
+    mode: single
     fields:
       target:
         description: "ac_giorno | ac_notte"
         example: "ac_giorno"
     sequence:
+      - condition: template
+        value_template: "{{ not is_state('input_boolean.ac_send_command_busy','on') }}"
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.ac_send_command_busy
       - choose:
           - conditions:
               - condition: template
@@ -575,3 +583,6 @@ script:
             sequence:
               - service: script.ac_notte_apply
         default: []
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.ac_send_command_busy
