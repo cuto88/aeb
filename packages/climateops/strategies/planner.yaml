@@ -1,0 +1,21 @@
+template:
+  - sensor:
+      - name: "Planner Recommended Mode"
+        unique_id: climateops_planner_recommended_mode
+        state: >
+          {% if states('sensor.t_in_med')|float(0) < states('input_number.temp_target_risc')|float(20) %}
+            HEAT
+          {% elif states('sensor.t_in_med')|float(0) > (states('input_number.ac_cool_setpoint')|float(25) + 0.5) %}
+            COOL
+          {% else %}
+            IDLE
+          {% endif %}
+        availability: >
+          {{ states('sensor.t_in_med') not in ['unknown','unavailable']
+             and states('input_number.temp_target_risc') not in ['unknown','unavailable']
+             and states('input_number.ac_cool_setpoint') not in ['unknown','unavailable'] }}
+
+      - name: "Planner Reason"
+        unique_id: climateops_planner_reason
+        state: >
+          Planner heuristic based on indoor temperature vs setpoints
