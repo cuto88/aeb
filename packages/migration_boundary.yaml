@@ -1,0 +1,9 @@
+input_boolean:
+  climateops_migration_enabled:
+    name: "ClimateOps Migration Enabled"
+    icon: mdi:swap-horizontal
+
+input_text:
+  climateops_migration_status:
+    name: "ClimateOps Migration Status"
+    max: 255
