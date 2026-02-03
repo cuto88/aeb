@@ -266,7 +266,7 @@ template:
           {% set manual = is_state('input_boolean.vmc_manual','on') and is_state('input_select.vmc_mode','manual') %}
           {% set mode_off = is_state('input_select.vmc_mode','off') %}
           {% if mode_off %}
-            0
+            {% set legacy_target = 0 %}
           {% elif manual %}
             {% set sel = states('input_select.vmc_manual_speed') %}
             {% set map = {
@@ -276,27 +276,42 @@ template:
               'vel_2': 2,
               'vel_3': 3
             } %}
-            {{ map.get(sel,1) }}
+            {% set legacy_target = map.get(sel,1) %}
           {% else %}
             {% set priority = states('sensor.ventilation_priority') %}
             {% if priority in ['P0_failsafe','P0_off'] %}
-              0
+              {% set legacy_target = 0 %}
             {% elif priority == 'P1_boost_bagno' %}
-              3
+              {% set legacy_target = 3 %}
             {% elif priority == 'P1_delta_ur' %}
-              2
+              {% set legacy_target = 2 %}
             {% elif priority == 'P1_anti_secco' %}
-              1
+              {% set legacy_target = 1 %}
             {% elif priority == 'P2_freecooling' %}
               {% set fc_status = states('sensor.vmc_freecooling_status') %}
               {% if fc_status == 'strong' %}
-                3
+                {% set legacy_target = 3 %}
               {% else %}
-                2
+                {% set legacy_target = 2 %}
               {% endif %}
             {% else %}
-              1
+              {% set legacy_target = 1 %}
             {% endif %}
+          {% endif %}
+          {% set cutover_on = is_state('input_boolean.climateops_cutover_vmc','on') %}
+          {% set arbiter_mode = states('sensor.climateops_arbiter_suggested_mode') %}
+          {% set arbiter_available = arbiter_mode not in ['unknown','unavailable',''] %}
+          {% if not cutover_on %}
+            {{ legacy_target }}
+          {% elif not arbiter_available or arbiter_mode == 'IDLE' %}
+            {{ legacy_target }}
+          {% else %}
+            {% set arbiter_map = {
+              'VENT': 2,
+              'COOL': 1,
+              'HEAT': 1
+            } %}
+            {{ arbiter_map.get(arbiter_mode, legacy_target) }}
           {% endif %}
 
       - name: "VMC velocità indice"
@@ -343,6 +358,12 @@ template:
       - name: "Ventilation reason"
         unique_id: ventilation_reason
         state: >-
+          {% set cutover_on = is_state('input_boolean.climateops_cutover_vmc','on') %}
+          {% set arbiter_mode = states('sensor.climateops_arbiter_suggested_mode') %}
+          {% set arbiter_available = arbiter_mode not in ['unknown','unavailable',''] %}
+          {% if cutover_on and arbiter_available and arbiter_mode != 'IDLE' %}
+            ClimateOps: {{ arbiter_mode }} – {{ states('sensor.climateops_arbiter_suggested_reason') }}
+          {% else %}
           {% set priority = states('sensor.ventilation_priority') %}
           {% if priority == 'P_manual' %}
             Manuale: velocità selezionata
@@ -360,6 +381,7 @@ template:
             P2 – free-cooling ΔT/ΔAH favorevole
           {% else %}
             P4 – baseline vel_1
+          {% endif %}
           {% endif %}
 
   - trigger:
