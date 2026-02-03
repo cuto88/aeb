@@ -1,12 +1,18 @@
 template:
   - binary_sensor:
-      - name: "Heating Master Is On (proxy)"
+      - name: "ClimateOps Heating Master Is On"
         unique_id: climateops_heating_master_is_on
         state: "{{ is_state('switch.heating_master','on') }}"
         availability: "{{ states('switch.heating_master') not in ['unknown','unavailable'] }}"
 
   - sensor:
-      - name: "Heating Master State (proxy)"
+      - name: "ClimateOps Heating Master State"
         unique_id: climateops_heating_master_state
         state: "{{ states('switch.heating_master') }}"
         availability: "{{ states('switch.heating_master') not in ['unknown','unavailable'] }}"
+
+      - name: "ClimateOps Heating Comfort Setpoint (legacy mirror)"
+        unique_id: climateops_heating_sp_comfort_legacy
+        unit_of_measurement: "°C"
+        state: "{{ states('input_number.temp_target_risc') | float(0) }}"
+        availability: "{{ states('input_number.temp_target_risc') not in ['unknown','unavailable'] }}"
