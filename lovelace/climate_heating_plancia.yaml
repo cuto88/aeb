@@ -37,6 +37,23 @@ views:
               - entity: timer.heating_manual_timeout
                 name: Timeout manuale
 
+      - type: vertical-stack
+        cards:
+          - type: markdown
+            content: |
+              ## Termostati reali (TEMP)
+              Sensori ESPhome LDR: **solo osservazione** (shadow sensors).
+
+          - type: glance
+            title: "Termostati (stato reale)"
+            show_state: true
+            columns: 4
+            entities:
+              - entity: binary_sensor.ldr_camera1_thermostat_on
+                name: "LDR Cam1"
+              - entity: binary_sensor.ldr_camera2_thermostat_on
+                name: "LDR Cam2"
+
       - type: grid
         title: "Heating  Setpoint e comandi"
         cards:
