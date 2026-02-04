@@ -22,3 +22,7 @@ Per evitare falsi positivi e cartelle di backup/quarantena, il lint YAML gira so
 ## Notifiche Telegram
 Nel package `packages/notify_telegram.yaml` è definita la notifica `notify.telegram_davide`
 per inviare messaggi alla chat principale senza hardcodare l'ID del bot nelle automazioni.
+
+## Archivi opzionali
+Il package opzionale `notify_google_speaker.yaml` è stato archiviato in
+`_archive/legacy_optional/notify_google_speaker.yaml` perché non è richiesto a runtime.
