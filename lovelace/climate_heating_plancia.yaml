@@ -42,16 +42,20 @@ views:
           - type: markdown
             content: |
               ## Termostati reali (TEMP) — solo osservazione
+              Per visualizzare lo stato reale, imposta i due input_text con gli entity_id ESPHome dei termostati.
 
-          - type: glance
+          - type: entities
             title: "Termostati (stato reale)"
-            show_state: true
-            columns: 4
+            show_header_toggle: false
             entities:
               - entity: binary_sensor.thermostat_giorno_temp
                 name: "Termostato Giorno"
               - entity: binary_sensor.thermostat_notte_temp
                 name: "Termostato Notte"
+              - entity: input_text.climateops_temp_thermostat_giorno_entity
+                name: "Entity ID Giorno (sorgente)"
+              - entity: input_text.climateops_temp_thermostat_notte_entity
+                name: "Entity ID Notte (sorgente)"
 
       - type: grid
         title: "Heating  Setpoint e comandi"

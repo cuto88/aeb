@@ -1,18 +1,26 @@
+input_text:
+  climateops_temp_thermostat_giorno_entity:
+    name: "TEMP Thermostat Giorno — source entity_id"
+    max: 128
+  climateops_temp_thermostat_notte_entity:
+    name: "TEMP Thermostat Notte — source entity_id"
+    max: 128
+
 template:
   - binary_sensor:
       - name: "Thermostat Giorno (TEMP)"
         unique_id: climateops_temp_thermostat_giorno_on
-        state: >-
-          {{ is_state('binary_sensor.ldr_camera1_thermostat_on','on')
-             or is_state('binary_sensor.ldr_camera1_thermostat_on','true') }}
-        availability: >-
-          {{ states('binary_sensor.ldr_camera1_thermostat_on')
-             not in ['unknown','unavailable'] }}
+        availability: >
+          {% set src = states('input_text.climateops_temp_thermostat_giorno_entity') %}
+          {{ src not in ['unknown','unavailable','', None] and states(src) not in ['unknown','unavailable'] }}
+        state: >
+          {% set src = states('input_text.climateops_temp_thermostat_giorno_entity') %}
+          {{ is_state(src,'on') or is_state(src,'true') or (states(src)|int(0) == 1) }}
       - name: "Thermostat Notte (TEMP)"
         unique_id: climateops_temp_thermostat_notte_on
-        state: >-
-          {{ is_state('binary_sensor.ldr_camera2_thermostat_on','on')
-             or is_state('binary_sensor.ldr_camera2_thermostat_on','true') }}
-        availability: >-
-          {{ states('binary_sensor.ldr_camera2_thermostat_on')
-             not in ['unknown','unavailable'] }}
+        availability: >
+          {% set src = states('input_text.climateops_temp_thermostat_notte_entity') %}
+          {{ src not in ['unknown','unavailable','', None] and states(src) not in ['unknown','unavailable'] }}
+        state: >
+          {% set src = states('input_text.climateops_temp_thermostat_notte_entity') %}
+          {{ is_state(src,'on') or is_state(src,'true') or (states(src)|int(0) == 1) }}
