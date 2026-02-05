@@ -14,8 +14,10 @@ template:
         device_class: power
         state_class: measurement
         unit_of_measurement: "W"
+        availability_template: >
+          {{ (states('sensor.solaredge_potenza_attuale') | string | lower) not in ['unknown','unavailable','none',''] }}
         state: >
-          {{ states('sensor.solaredge_potenza_attuale') }}
+          {{ states('sensor.solaredge_potenza_attuale') | float }}
 
 ####################################
 # 2) TEMPLATE SENSOR – ENERGIA TOTALE PV (kWh)
