@@ -50,10 +50,9 @@ template:
       - name: "Contract actuators defined"
         unique_id: contract_actuators_defined
         state: >-
+          # AC is optional module; absence must not block DEFINED contracts
           {%- set actuators = [
             'switch.heating_master',
-            'switch.ac_giorno',
-            'switch.ac_notte',
             'switch.vmc_vel_0',
             'switch.vmc_vel_1',
             'switch.vmc_vel_2',
@@ -65,17 +64,26 @@ template:
       - name: "Contract actuators ready"
         unique_id: contract_actuators_ready
         state: >-
-          {%- set actuators = [
+          {%- set required_actuators = [
             'switch.heating_master',
-            'switch.ac_giorno',
-            'switch.ac_notte',
             'switch.vmc_vel_0',
             'switch.vmc_vel_1',
             'switch.vmc_vel_2',
             'switch.vmc_vel_3'
           ] -%}
-          {%- set actuator_states = actuators | map('states') | list -%}
-          {{ actuator_states | reject('eq', 'unavailable') | list | count == actuators | length }}
+          {%- set optional_ac_actuators = [
+            'switch.ac_giorno',
+            'switch.ac_notte'
+          ] -%}
+          {%- set required_states = required_actuators | map('states') | list -%}
+          {%- set optional_ac_states = optional_ac_actuators | map('states') | list -%}
+          {{
+            required_states | reject('eq', 'unavailable') | list | count == required_actuators | length
+            and (
+              optional_ac_states | reject('eq', 'unavailable') | list | count == optional_ac_actuators | length
+              or optional_ac_states | select('eq', 'unknown') | list | count == optional_ac_actuators | length
+            )
+          }}
 
   - sensor:
       - name: "Contract missing entities"
@@ -84,8 +92,6 @@ template:
           {%- set required = [
             'binary_sensor.surplus_ok',
             'switch.heating_master',
-            'switch.ac_giorno',
-            'switch.ac_notte',
             'switch.vmc_vel_0',
             'switch.vmc_vel_1',
             'switch.vmc_vel_2',
