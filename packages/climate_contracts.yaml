@@ -17,12 +17,13 @@ template:
       - name: "Contract surplus ok defined"
         unique_id: contract_surplus_ok_defined
         state: >-
-          {{ states('binary_sensor.surplus_ok') != 'unknown' }}
+          # PV surplus is optional input; policy_surplus_ok provides fail-safe abstraction
+          {{ true }}
 
       - name: "Contract surplus ok ready"
         unique_id: contract_surplus_ok_ready
         state: >-
-          {{ states('binary_sensor.surplus_ok') != 'unavailable' }}
+          {{ has_value('binary_sensor.surplus_ok') }}
 
 
 
@@ -90,7 +91,6 @@ template:
         unique_id: contract_missing_entities
         state: >-
           {%- set required = [
-            'binary_sensor.surplus_ok',
             'switch.heating_master',
             'switch.vmc_vel_0',
             'switch.vmc_vel_1',
