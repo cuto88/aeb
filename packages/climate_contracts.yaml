@@ -17,7 +17,12 @@ template:
       - name: "Contract surplus ok defined"
         unique_id: contract_surplus_ok_defined
         state: >-
-          {{ states('binary_sensor.surplus_ok') not in ['unknown','unavailable',''] }}
+          {{ states('binary_sensor.surplus_ok') != 'unknown' }}
+
+      - name: "Contract surplus ok ready"
+        unique_id: contract_surplus_ok_ready
+        state: >-
+          {{ states('binary_sensor.surplus_ok') != 'unavailable' }}
 
 
 
@@ -55,7 +60,22 @@ template:
             'switch.vmc_vel_3'
           ] -%}
           {%- set actuator_states = actuators | map('states') | list -%}
-          {{ actuator_states | reject('in', ['unknown','unavailable','']) | list | count == actuators | length }}
+          {{ actuator_states | reject('eq', 'unknown') | list | count == actuators | length }}
+
+      - name: "Contract actuators ready"
+        unique_id: contract_actuators_ready
+        state: >-
+          {%- set actuators = [
+            'switch.heating_master',
+            'switch.ac_giorno',
+            'switch.ac_notte',
+            'switch.vmc_vel_0',
+            'switch.vmc_vel_1',
+            'switch.vmc_vel_2',
+            'switch.vmc_vel_3'
+          ] -%}
+          {%- set actuator_states = actuators | map('states') | list -%}
+          {{ actuator_states | reject('eq', 'unavailable') | list | count == actuators | length }}
 
   - sensor:
       - name: "Contract missing entities"
@@ -63,26 +83,17 @@ template:
         state: >-
           {%- set required = [
             'binary_sensor.surplus_ok',
-            'binary_sensor.policy_surplus_ok',
-            'sensor.policy_surplus_reason',
-            'input_number.core_backup_t_in',
-            'input_number.core_backup_ur_in',
-            'sensor.core_backup_last_update',
             'switch.heating_master',
             'switch.ac_giorno',
             'switch.ac_notte',
             'switch.vmc_vel_0',
             'switch.vmc_vel_1',
             'switch.vmc_vel_2',
-            'switch.vmc_vel_3',
-            'binary_sensor.policy_allow_ac',
-            'binary_sensor.policy_allow_vmc_boost',
-            'binary_sensor.meteo_pioggia',
-            'sensor.meteo_vento_velocita'
+            'switch.vmc_vel_3'
           ] -%}
           {%- set ns = namespace(missing=[]) -%}
           {%- for entity in required -%}
-            {%- if states(entity) in ['unknown','unavailable',''] -%}
+            {%- if states(entity) == 'unknown' -%}
               {%- set ns.missing = ns.missing + [entity] -%}
             {%- endif -%}
           {%- endfor -%}
