@@ -50,9 +50,12 @@ template:
           }}
       - name: "Contract actuators defined"
         unique_id: contract_actuators_defined
-        state: >-
-          # Actuators existence is architectural; runtime availability is tracked by *_ready only
-          {{ true }}
+        state: "on"
+        icon: mdi:check-circle
+        device_class: running
+        # Architectural invariant:
+        # Actuators existence is declared by design, not by runtime availability.
+        # Runtime health is tracked only by contract_actuators_ready.
 
       - name: "Contract actuators ready"
         unique_id: contract_actuators_ready
