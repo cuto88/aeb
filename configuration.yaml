@@ -85,4 +85,3 @@ lovelace:
       show_in_sidebar: true
       require_admin: false
       filename: lovelace/mirai_plancia.yaml
-      url_path: mirai-plancia
