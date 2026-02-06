@@ -77,3 +77,12 @@ lovelace:
       icon: mdi:solar-power
       show_in_sidebar: true
       filename: lovelace/energy_pv_solaredge_plancia.yaml
+
+    mirai:
+      mode: yaml
+      title: "MIRAI"
+      icon: mdi:heat-pump
+      show_in_sidebar: true
+      require_admin: false
+      filename: lovelace/mirai_plancia.yaml
+      url_path: mirai
