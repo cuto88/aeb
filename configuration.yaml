@@ -15,7 +15,6 @@ lovelace:
       type: module
 
   dashboards:
-
     lovelace:
       mode: yaml
       filename: ui-lovelace.yaml
@@ -71,7 +70,6 @@ lovelace:
       icon: mdi:water-boiler
       show_in_sidebar: true
       filename: lovelace/ehw_plancia.yaml
-
 
     pv-solaredge:
       mode: yaml
