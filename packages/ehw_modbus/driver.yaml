@@ -180,7 +180,7 @@ modbus:
         slave: !secret ehw_modbus_slave
 
 input_select:
-  ehw_address_mode:
+  "ehw_address_mode":
     name: EHW address mode
     options:
       - doc_1_based
@@ -188,34 +188,34 @@ input_select:
     initial: doc_1_based
 
 input_boolean:
-  ehw_swap_top_bottom:
+  "ehw_swap_top_bottom":
     name: EHW swap top/bottom
     icon: mdi:swap-vertical
     initial: false
 
 input_number:
-  ehw_temp_scale:
+  "ehw_temp_scale":
     name: EHW temp scale
     min: 0.01
     max: 5
     step: 0.01
     mode: slider
     initial: 0.3
-  ehw_temp_offset:
+  "ehw_temp_offset":
     name: EHW temp offset
     min: -20
     max: 20
     step: 0.1
     mode: slider
     initial: 0.0
-  ehw_setpoint_scale:
+  "ehw_setpoint_scale":
     name: EHW setpoint scale
     min: 0.01
     max: 5
     step: 0.01
     mode: slider
     initial: 0.3
-  ehw_setpoint_offset:
+  "ehw_setpoint_offset":
     name: EHW setpoint offset
     min: -20
     max: 20
