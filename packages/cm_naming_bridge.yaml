@@ -24,22 +24,6 @@ template:
         unique_id: cm_policy_surplus_ok
         state: "{{ is_state('binary_sensor.policy_surplus_ok','on') }}"
 
-      - name: "CM Driver Heating Is On"
-        unique_id: cm_driver_heating_is_on
-        state: "{{ is_state('binary_sensor.climateops_heating_master_is_on','on') }}"
-
-      - name: "CM Driver VMC Is Running"
-        unique_id: cm_driver_vmc_is_running
-        state: "{{ is_state('binary_sensor.climateops_vmc_is_running','on') }}"
-
-      - name: "CM Driver AC Giorno Is On"
-        unique_id: cm_driver_ac_giorno_is_on
-        state: "{{ is_state('binary_sensor.climateops_ac_giorno_is_on','on') }}"
-
-      - name: "CM Driver AC Notte Is On"
-        unique_id: cm_driver_ac_notte_is_on
-        state: "{{ is_state('binary_sensor.climateops_ac_notte_is_on','on') }}"
-
   - sensor:
       - name: "CM Contract Missing Entities"
         unique_id: cm_contract_missing_entities
@@ -48,11 +32,3 @@ template:
       - name: "CM Policy Reason"
         unique_id: cm_policy_reason
         state: "{{ states('sensor.policy_arbiter_reason') }}"
-
-      - name: "CM System Mode Suggested"
-        unique_id: cm_system_mode_suggested
-        state: "{{ states('sensor.arbiter_suggested_mode') }}"
-
-      - name: "CM System Reason"
-        unique_id: cm_system_reason
-        state: "{{ states('sensor.arbiter_suggested_reason') }}"
