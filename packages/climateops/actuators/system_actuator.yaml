@@ -1,0 +1,101 @@
+---
+input_text:
+  cm_system_status:
+    name: "CM System Status"
+    icon: mdi:thermostat-auto
+
+template:
+  - sensor:
+      - name: "CM System Mode Suggested"
+        unique_id: cm_system_mode_suggested
+        state: "{{ states('sensor.climateops_planner_recommended_mode') }}"
+        availability: "{{ states('sensor.climateops_planner_recommended_mode') not in ['unknown','unavailable'] }}"
+
+automation:
+  - id: climateops_system_actuate
+    alias: "ClimateOps – System Actuate"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: sensor.cm_system_mode_suggested
+      - platform: time_pattern
+        minutes: "/2"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.cm_contract_actuators_defined
+        state: "on"
+      - condition: state
+        entity_id: sensor.cm_contract_missing_entities
+        state: "OK"
+    action:
+      - variables:
+          mode: "{{ states('sensor.cm_system_mode_suggested') }}"
+          policy_reason: >-
+            {% set policy = states('sensor.cm_policy_reason') %}
+            {% if policy not in ['unknown','unavailable',''] %}
+              {{ policy }}
+            {% else %}
+              {{ states('sensor.climateops_planner_reason') }}
+            {% endif %}
+          ac_available: >-
+            {{
+              states('switch.ac_giorno') not in ['unknown','unavailable']
+              and states('switch.ac_notte') not in ['unknown','unavailable']
+            }}
+      - choose:
+          - conditions: "{{ mode == 'HEAT' }}"
+            sequence:
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.heating_master
+          - conditions: "{{ mode == 'IDLE' }}"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.heating_master
+          - conditions: "{{ mode == 'VENT_BOOST' and is_state('binary_sensor.cm_policy_allow_vmc_boost','on') }}"
+            sequence:
+              - service: homeassistant.turn_off
+                target:
+                  entity_id:
+                    - switch.vmc_vel_0
+                    - switch.vmc_vel_1
+                    - switch.vmc_vel_2
+                    - switch.vmc_vel_3
+              - service: homeassistant.turn_on
+                target:
+                  entity_id: switch.vmc_vel_3
+          - conditions: "{{ mode == 'VENT_BASE' or (mode == 'VENT_BOOST' and is_state('binary_sensor.cm_policy_allow_vmc_boost','off')) }}"
+            sequence:
+              - service: homeassistant.turn_off
+                target:
+                  entity_id:
+                    - switch.vmc_vel_0
+                    - switch.vmc_vel_1
+                    - switch.vmc_vel_2
+                    - switch.vmc_vel_3
+              - service: homeassistant.turn_on
+                target:
+                  entity_id: switch.vmc_vel_1
+          - conditions: >-
+              {{
+                mode == 'COOL_DAY'
+                and is_state('binary_sensor.cm_policy_allow_ac','on')
+                and ac_available
+              }}
+            sequence:
+              - service: script.ac_giorno_apply
+          - conditions: >-
+              {{
+                mode == 'COOL_NIGHT'
+                and is_state('binary_sensor.cm_policy_allow_ac','on')
+                and ac_available
+              }}
+            sequence:
+              - service: script.ac_notte_apply
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.cm_system_status
+        data:
+          value: >-
+            System actuation: {{ mode }} | {{ policy_reason }}

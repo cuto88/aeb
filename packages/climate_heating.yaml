@@ -568,6 +568,7 @@ automation:  # Gestione timeout manuale
   # Attuazione comando logico
   - id: heating_drive_master
     alias: "HEATING  attua should_run"
+    enabled: false
     mode: restart
     trigger:
       - platform: state

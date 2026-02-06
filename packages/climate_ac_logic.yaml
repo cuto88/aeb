@@ -242,6 +242,7 @@ automation:
 
   - id: ac_controller_priority
     alias: "AC – Controllo priorità P0–P4"
+    enabled: false
     mode: restart
     trigger:
       - platform: time_pattern

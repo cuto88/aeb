@@ -476,6 +476,7 @@ automation:
   - id: vmc_apply_speed
     alias: "VMC – Applica velocità target"
     description: "Setta i relè vel_0-vel_3 in modo mutuamente esclusivo"
+    enabled: false
     mode: restart
     trigger:
       - platform: state

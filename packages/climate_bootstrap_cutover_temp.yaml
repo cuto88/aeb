@@ -4,6 +4,7 @@
 automation:
   - id: bootstrap_cutover_on_start
     alias: "ClimateOps – Bootstrap cutover on start (TEMP)"
+    enabled: false
     trigger:
       - platform: homeassistant
         event: start
