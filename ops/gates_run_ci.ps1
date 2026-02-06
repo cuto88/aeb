@@ -39,6 +39,7 @@ Set-Location $repoRoot
 Invoke-GateScript -Path 'ops/gate_include_tree.ps1'
 Invoke-GateScript -Path 'ops/gate_ha_structure.ps1' -Args @('-CheckEntityMap')
 Invoke-GateScript -Path 'ops/gate_vmc_dashboards.ps1'
+Invoke-GateScript -Path 'ops/gate_entity_naming.ps1'
 Invoke-GateScript -Path 'ops/gate_docs_links.ps1'
 
 if (-not (Get-Command yamllint -ErrorAction SilentlyContinue)) {
