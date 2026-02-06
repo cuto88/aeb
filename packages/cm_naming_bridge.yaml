@@ -36,11 +36,11 @@ template:
       - name: "CM System Mode Suggested"
         unique_id: cm_system_mode_suggested
         state: >-
-          {% set candidates = [
-            states('sensor.climateops_mode_suggested'),
-            states('sensor.climateops_planner_mode'),
-            states('sensor.climateops_arbiter_mode')
-          ] %}
-          {% set valid = candidates | reject('in', ['unknown', 'unavailable', 'none', '']) | list %}
-          {{ valid[0] if valid | length > 0 else 'IDLE' }}
+          {% set t = states('sensor.vmc_vel_target') | int(-1) %}
+          {% if t == 3 %}VENT_BOOST
+          {% elif t == 2 %}VENT_HIGH
+          {% elif t == 1 %}VENT_BASE
+          {% elif t == 0 %}VENT_LOW
+          {% else %}VENT_BASE
+          {% endif %}
         availability: "{{ true }}"
