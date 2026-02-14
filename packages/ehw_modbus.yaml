@@ -1,3 +1,228 @@
+modbus:
+  - name: ehw_modbus
+    type: tcp
+    host: !secret ehw_modbus_host
+    port: !secret ehw_modbus_port
+    delay: 1
+    timeout: 3
+    retries: 1
+    message_wait_milliseconds: 30
+
+    sensors:
+      - name: "EHW reg56 status"
+        unique_id: ehw_reg56_status
+        address: 56
+        input_type: holding
+        data_type: uint16
+        scan_interval: 15
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW reg57 runtime"
+        unique_id: ehw_reg57_runtime
+        address: 57
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW reg60 value"
+        unique_id: ehw_reg60_value
+        address: 60
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: !secret ehw_modbus_slave
+
+      # T01..T06 RAW (A = doc_reg - 1, B = doc_reg)
+      - name: "EHW T01 raw A"
+        unique_id: ehw_t01_raw_a
+        address: 2018
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW T01 raw B"
+        unique_id: ehw_t01_raw_b
+        address: 2019
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW T02 raw A"
+        unique_id: ehw_t02_raw_a
+        address: 2019
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW T02 raw B"
+        unique_id: ehw_t02_raw_b
+        address: 2020
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW T03 raw A"
+        unique_id: ehw_t03_raw_a
+        address: 2020
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW T03 raw B"
+        unique_id: ehw_t03_raw_b
+        address: 2021
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW T04 raw A"
+        unique_id: ehw_t04_raw_a
+        address: 2021
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW T04 raw B"
+        unique_id: ehw_t04_raw_b
+        address: 2022
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW T05 raw A"
+        unique_id: ehw_t05_raw_a
+        address: 2022
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW T05 raw B"
+        unique_id: ehw_t05_raw_b
+        address: 2023
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW T06 raw A"
+        unique_id: ehw_t06_raw_a
+        address: 2023
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW T06 raw B"
+        unique_id: ehw_t06_raw_b
+        address: 2024
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+      # Setpoint RAW (1104/1105, A = doc_reg - 1, B = doc_reg)
+      - name: "EHW setpoint 1104 raw A"
+        unique_id: ehw_setpoint_1104_raw_a
+        address: 1103
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW setpoint 1104 raw B"
+        unique_id: ehw_setpoint_1104_raw_b
+        address: 1104
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW setpoint 1105 raw A"
+        unique_id: ehw_setpoint_1105_raw_a
+        address: 1104
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW setpoint 1105 raw B"
+        unique_id: ehw_setpoint_1105_raw_b
+        address: 1105
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 60
+        slave: !secret ehw_modbus_slave
+
+input_select:
+  "ehw_address_mode":
+    name: EHW address mode
+    options:
+      - doc_1_based
+      - doc_0_based
+    initial: doc_1_based
+
+input_boolean:
+  "ehw_swap_top_bottom":
+    name: EHW swap top/bottom
+    icon: mdi:swap-vertical
+    initial: false
+
+input_number:
+  "ehw_temp_scale":
+    name: EHW temp scale
+    min: 0.01
+    max: 5
+    step: 0.01
+    mode: slider
+    initial: 0.3
+  "ehw_temp_offset":
+    name: EHW temp offset
+    min: -20
+    max: 20
+    step: 0.1
+    mode: slider
+    initial: 0.0
+  "ehw_setpoint_scale":
+    name: EHW setpoint scale
+    min: 0.01
+    max: 5
+    step: 0.01
+    mode: slider
+    initial: 0.3
+  "ehw_setpoint_offset":
+    name: EHW setpoint offset
+    min: -20
+    max: 20
+    step: 0.1
+    mode: slider
+    initial: 0.0
+
 template:
   - sensor:
       - name: "EHW status word hex"
