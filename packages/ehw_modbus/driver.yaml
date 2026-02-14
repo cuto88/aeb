@@ -4,8 +4,8 @@ modbus:
     host: !secret ehw_modbus_host
     port: !secret ehw_modbus_port
     delay: 1
-    timeout: 2
-    retries: 0
+    timeout: 3
+    retries: 1
     message_wait_milliseconds: 30
 
     sensors:
@@ -14,7 +14,7 @@ modbus:
         address: 56
         input_type: holding
         data_type: uint16
-        scan_interval: 10
+        scan_interval: 15
         slave: !secret ehw_modbus_slave
 
       - name: "EHW reg57 runtime"
@@ -22,7 +22,7 @@ modbus:
         address: 57
         input_type: holding
         data_type: uint16
-        scan_interval: 10
+        scan_interval: 30
         slave: !secret ehw_modbus_slave
 
       - name: "EHW reg60 value"
@@ -30,7 +30,7 @@ modbus:
         address: 60
         input_type: holding
         data_type: uint16
-        scan_interval: 10
+        scan_interval: 30
         slave: !secret ehw_modbus_slave
 
       # T01..T06 RAW (A = doc_reg - 1, B = doc_reg)
@@ -40,7 +40,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       - name: "EHW T01 raw B"
@@ -49,7 +49,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       - name: "EHW T02 raw A"
@@ -58,7 +58,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       - name: "EHW T02 raw B"
@@ -67,7 +67,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       - name: "EHW T03 raw A"
@@ -76,7 +76,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       - name: "EHW T03 raw B"
@@ -85,7 +85,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       - name: "EHW T04 raw A"
@@ -94,7 +94,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       - name: "EHW T04 raw B"
@@ -103,7 +103,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       - name: "EHW T05 raw A"
@@ -112,7 +112,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       - name: "EHW T05 raw B"
@@ -121,7 +121,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       - name: "EHW T06 raw A"
@@ -130,7 +130,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       - name: "EHW T06 raw B"
@@ -139,7 +139,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       # Setpoint RAW (1104/1105, A = doc_reg - 1, B = doc_reg)
@@ -149,7 +149,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       - name: "EHW setpoint 1104 raw B"
@@ -158,7 +158,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       - name: "EHW setpoint 1105 raw A"
@@ -167,7 +167,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       - name: "EHW setpoint 1105 raw B"
@@ -176,7 +176,7 @@ modbus:
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
-        scan_interval: 10
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
 input_select:
