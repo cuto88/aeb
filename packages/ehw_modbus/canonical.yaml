@@ -14,7 +14,7 @@ template:
         availability: >-
           {{ states('sensor.ehw_reg57_runtime') not in ['unknown', 'unavailable', 'none'] }}
 
-    binary_sensor:
+  - binary_sensor:
       - name: "EHW status bit 0x0100"
         unique_id: ehw_status_bit_0100
         state: >-
@@ -218,7 +218,7 @@ template:
           {% else %}
             Spento
           {% endif %}
-    binary_sensor:
+  - binary_sensor:
       - name: "EHW running"
         unique_id: ehw_running
         state: >-
