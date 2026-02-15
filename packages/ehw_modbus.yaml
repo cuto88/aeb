@@ -22,7 +22,7 @@ modbus:
         address: 57
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       - name: "EHW reg60 value"
@@ -30,7 +30,7 @@ modbus:
         address: 60
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 60
         slave: !secret ehw_modbus_slave
 
       # T01..T06 RAW (A = doc_reg - 1, B = doc_reg)
@@ -230,35 +230,35 @@ template:
         state: >-
           {{ '0x%04X' | format(states('sensor.ehw_reg56_status') | int(0)) }}
         availability: >-
-          {{ states('sensor.ehw_reg56_status') not in ['unknown', 'unavailable', 'none'] }}
+          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
 
       - name: "EHW runtime word hex"
         unique_id: ehw_runtime_word_hex
         state: >-
           {{ '0x%04X' | format(states('sensor.ehw_reg57_runtime') | int(0)) }}
         availability: >-
-          {{ states('sensor.ehw_reg57_runtime') not in ['unknown', 'unavailable', 'none'] }}
+          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
 
   - binary_sensor:
       - name: "CM Modbus ready"
         unique_id: cm_modbus_ready
         icon: mdi:check-network
         state: >-
-          {{ is_number(states('sensor.ehw_reg56_status')) }}
+          {{ is_number(states('sensor.ehw_reg56_status')) or is_number(states('sensor.ehw_setpoint_raw')) }}
 
       - name: "EHW status bit 0x0100"
         unique_id: ehw_status_bit_0100
         state: >-
           {{ (states('sensor.ehw_reg56_status') | int(0)) | bitwise_and(256) > 0 }}
         availability: >-
-          {{ states('sensor.ehw_reg56_status') not in ['unknown', 'unavailable', 'none'] }}
+          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
 
       - name: "EHW status bit 0x0200"
         unique_id: ehw_status_bit_0200
         state: >-
           {{ (states('sensor.ehw_reg56_status') | int(0)) | bitwise_and(512) > 0 }}
         availability: >-
-          {{ states('sensor.ehw_reg56_status') not in ['unknown', 'unavailable', 'none'] }}
+          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
 
   - sensor:
       - name: "EHW T01 raw"
