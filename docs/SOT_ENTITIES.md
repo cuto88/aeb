@@ -24,3 +24,10 @@
 | DRIVER | `binary_sensor.cm_driver_ac_notte_is_on` | `binary_sensor.climateops_ac_notte_is_on` | Proxy hardware già presente |
 | SYSTEM | `sensor.cm_system_mode_suggested` | `sensor.arbiter_suggested_mode` | Suggested mode ClimateOps |
 | SYSTEM | `sensor.cm_system_reason` | `sensor.arbiter_suggested_reason` | Suggested reason ClimateOps |
+
+## System Actuation
+- Automazione attuativa unica: `automation.climateops_system_actuate`.
+- Fonte mode VMC: `sensor.vmc_vel_target` -> `sensor.cm_system_mode_suggested`.
+
+## EHW
+- Package unico EHW Modbus: `packages/ehw_modbus.yaml` (flattened, non cartella).

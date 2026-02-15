@@ -92,6 +92,15 @@ Robocopy exit codes **0–7** are OK. **8+** indicates a failure (permissions, f
 - **Use:** `ops/deploy_safe.ps1`
 - **Legacy (archived):** `ops/_archive/synch_ha.ps1` (kept for reference; it now includes the same safety exclusions but is not the recommended path).
 
+## Smoke test 60s
+
+Eseguire questi 4 check rapidi dopo deploy/cutover ClimateOps v1.0:
+
+- `cm_contract_missing_entities=OK`
+- `cm_contract_actuators_defined=on`
+- `cm_system_mode_suggested` non `unavailable`
+- Boost VMC funziona: `vmc_vel_3` ON quando `target=3`
+
 ## Contracts quick check
 
 - `cm_contract_missing_entities` must be OK
