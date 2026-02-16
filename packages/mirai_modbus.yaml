@@ -4,8 +4,8 @@ modbus:
     host: !secret mirai_modbus_host
     port: 502
     delay: 1
-    timeout: 2
-    retries: 0
+    timeout: 3
+    retries: 1
     message_wait_milliseconds: 30
     retry_on_empty: true
     close_comm_on_error: true
@@ -24,7 +24,7 @@ modbus:
         address: 9086
         input_type: holding
         data_type: uint16
-        scan_interval: 10
+        scan_interval: 60
         slave: 1
 
       - name: "mirai_status_code_raw"
@@ -32,7 +32,7 @@ modbus:
         address: 9087
         input_type: holding
         data_type: uint16
-        scan_interval: 10
+        scan_interval: 60
         slave: 1
 
       - name: "mirai_l261_compressor_step"
@@ -48,7 +48,7 @@ modbus:
         address: 9068
         input_type: holding
         data_type: uint16
-        scan_interval: 10
+        scan_interval: 60
         slave: 1
 
       - name: "mirai_l241_antifreeze_lvl1"
@@ -56,7 +56,7 @@ modbus:
         address: 9078
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 60
         slave: 1
 
       - name: "mirai_l242_antifreeze_lvl2"
@@ -64,7 +64,7 @@ modbus:
         address: 9079
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 60
         slave: 1
 
       - name: "mirai_l163_outdoor_air_temp"
@@ -75,7 +75,7 @@ modbus:
         scale: 0.1
         precision: 1
         unit_of_measurement: "°C"
-        scan_interval: 30
+        scan_interval: 60
         slave: 1
 
       - name: "mirai_l162_outlet_water_temp"
@@ -86,7 +86,7 @@ modbus:
         scale: 0.1
         precision: 1
         unit_of_measurement: "°C"
-        scan_interval: 15
+        scan_interval: 60
         slave: 1
 
       - name: "mirai_l161_inlet_water_temp"
@@ -97,5 +97,5 @@ modbus:
         scale: 0.1
         precision: 1
         unit_of_measurement: "°C"
-        scan_interval: 15
+        scan_interval: 60
         slave: 1

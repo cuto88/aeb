@@ -1,122 +1,127 @@
 template:
   - binary_sensor:
+      - name: "CM Modbus MIRAI ready"
+        unique_id: cm_modbus_mirai_ready
+        icon: mdi:check-network
+        state: >
+          {{ is_number(states('sensor.mirai_status_word_raw')) or is_number(states('sensor.mirai_l261_compressor_step')) }}
+
       - name: "mirai_status_word_bit_00"
         unique_id: mirai_status_word_bit_00
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**0) != 0 }}
 
       - name: "mirai_status_word_bit_01"
         unique_id: mirai_status_word_bit_01
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**1) != 0 }}
 
       - name: "mirai_status_word_bit_02"
         unique_id: mirai_status_word_bit_02
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**2) != 0 }}
 
       - name: "mirai_status_word_bit_03"
         unique_id: mirai_status_word_bit_03
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**3) != 0 }}
 
       - name: "mirai_status_word_bit_04"
         unique_id: mirai_status_word_bit_04
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**4) != 0 }}
 
       - name: "mirai_status_word_bit_05"
         unique_id: mirai_status_word_bit_05
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**5) != 0 }}
 
       - name: "mirai_status_word_bit_06"
         unique_id: mirai_status_word_bit_06
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**6) != 0 }}
 
       - name: "mirai_status_word_bit_07"
         unique_id: mirai_status_word_bit_07
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**7) != 0 }}
 
       - name: "mirai_status_word_bit_08"
         unique_id: mirai_status_word_bit_08
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**8) != 0 }}
 
       - name: "mirai_status_word_bit_09"
         unique_id: mirai_status_word_bit_09
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**9) != 0 }}
 
       - name: "mirai_status_word_bit_10"
         unique_id: mirai_status_word_bit_10
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**10) != 0 }}
 
       - name: "mirai_status_word_bit_11"
         unique_id: mirai_status_word_bit_11
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**11) != 0 }}
 
       - name: "mirai_status_word_bit_12"
         unique_id: mirai_status_word_bit_12
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**12) != 0 }}
 
       - name: "mirai_status_word_bit_13"
         unique_id: mirai_status_word_bit_13
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**13) != 0 }}
 
       - name: "mirai_status_word_bit_14"
         unique_id: mirai_status_word_bit_14
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**14) != 0 }}
 
       - name: "mirai_status_word_bit_15"
         unique_id: mirai_status_word_bit_15
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**15) != 0 }}
 
       - name: "mirai_machine_running"
         unique_id: mirai_machine_running
         availability: >
-          {{ states('sensor.mirai_l243_internal_circulator') not in ['unknown','unavailable','none','None',''] or
-             states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {% set l243_state = states('sensor.mirai_l243_internal_circulator') %}
           {% set status_state = states('sensor.mirai_status_word_raw') %}
@@ -131,7 +136,7 @@ template:
         unique_id: mirai_status_bits_on
         icon: mdi:checkbox-multiple-marked
         availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
           {% set ns = namespace(bits=[]) %}
@@ -146,7 +151,7 @@ template:
         unique_id: mirai_machine_state
         icon: mdi:power
         availability: >
-          {{ states('binary_sensor.mirai_machine_running') not in ['unknown','unavailable','none','None',''] }}
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {% if is_state('binary_sensor.mirai_machine_running', 'on') %}
             RUN
@@ -159,6 +164,8 @@ template:
         device_class: temperature
         unit_of_measurement: "°C"
         icon: mdi:thermometer
+        availability: >
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {% set raw = states('sensor.mirai_l161_inlet_water_temp') %}
           {% if raw in ['unknown', 'unavailable', 'none', 'None', ''] %}
@@ -182,6 +189,8 @@ template:
         device_class: temperature
         unit_of_measurement: "°C"
         icon: mdi:thermometer
+        availability: >
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {% set raw = states('sensor.mirai_l162_outlet_water_temp') %}
           {% if raw in ['unknown', 'unavailable', 'none', 'None', ''] %}
@@ -205,6 +214,8 @@ template:
         device_class: temperature
         unit_of_measurement: "°C"
         icon: mdi:thermometer
+        availability: >
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: >
           {% set raw = states('sensor.mirai_l163_outdoor_air_temp') %}
           {% if raw in ['unknown', 'unavailable', 'none', 'None', ''] %}
@@ -226,6 +237,8 @@ template:
       - name: "mirai_snapshot"
         unique_id: mirai_snapshot
         icon: mdi:clipboard-text
+        availability: >
+          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
         state: |
           TIME: {{ now().strftime('%Y-%m-%d %H:%M:%S') }}
           STATUS_WORD_RAW: {{ states('sensor.mirai_status_word_raw') }}
