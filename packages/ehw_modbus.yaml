@@ -230,14 +230,14 @@ template:
         state: >-
           {{ '0x%04X' | format(states('sensor.ehw_reg56_status') | int(0)) }}
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
 
       - name: "EHW runtime word hex"
         unique_id: ehw_runtime_word_hex
         state: >-
           {{ '0x%04X' | format(states('sensor.ehw_reg57_runtime') | int(0)) }}
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
 
   - binary_sensor:
       - name: "CM Modbus ready"
@@ -245,26 +245,31 @@ template:
         icon: mdi:check-network
         state: >-
           {{ is_number(states('sensor.ehw_reg56_status')) or is_number(states('sensor.ehw_setpoint_raw')) }}
+      - name: "CM Modbus EHW ready"
+        unique_id: cm_modbus_ehw_ready
+        icon: mdi:check-network
+        state: >-
+          {{ is_number(states('sensor.ehw_reg56_status')) or is_number(states('sensor.ehw_t02_raw_a')) }}
 
       - name: "EHW status bit 0x0100"
         unique_id: ehw_status_bit_0100
         state: >-
           {{ (states('sensor.ehw_reg56_status') | int(0)) | bitwise_and(256) > 0 }}
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
 
       - name: "EHW status bit 0x0200"
         unique_id: ehw_status_bit_0200
         state: >-
           {{ (states('sensor.ehw_reg56_status') | int(0)) | bitwise_and(512) > 0 }}
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
 
   - sensor:
       - name: "EHW T01 raw"
         unique_id: ehw_t01_raw
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
@@ -275,7 +280,7 @@ template:
       - name: "EHW T02 raw"
         unique_id: ehw_t02_raw
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
@@ -286,7 +291,7 @@ template:
       - name: "EHW T03 raw"
         unique_id: ehw_t03_raw
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
@@ -297,7 +302,7 @@ template:
       - name: "EHW T04 raw"
         unique_id: ehw_t04_raw
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
@@ -308,7 +313,7 @@ template:
       - name: "EHW T05 raw"
         unique_id: ehw_t05_raw
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
@@ -319,7 +324,7 @@ template:
       - name: "EHW T06 raw"
         unique_id: ehw_t06_raw
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
@@ -330,7 +335,7 @@ template:
       - name: "EHW setpoint raw A"
         unique_id: ehw_setpoint_raw_a
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
@@ -341,7 +346,7 @@ template:
       - name: "EHW setpoint raw B"
         unique_id: ehw_setpoint_raw_b
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
@@ -352,7 +357,7 @@ template:
       - name: "EHW tank top raw"
         unique_id: ehw_tank_top_raw
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
           {% if is_state('input_boolean.ehw_swap_top_bottom', 'on') %}
@@ -363,7 +368,7 @@ template:
       - name: "EHW tank bottom raw"
         unique_id: ehw_tank_bottom_raw
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
           {% if is_state('input_boolean.ehw_swap_top_bottom', 'on') %}
@@ -374,7 +379,7 @@ template:
       - name: "EHW setpoint raw"
         unique_id: ehw_setpoint_raw
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
@@ -385,7 +390,7 @@ template:
       - name: "EHW tank top"
         unique_id: ehw_tank_top
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         device_class: temperature
         unit_of_measurement: "°C"
         state_class: measurement
@@ -409,7 +414,7 @@ template:
       - name: "EHW tank bottom"
         unique_id: ehw_tank_bottom
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         device_class: temperature
         unit_of_measurement: "°C"
         state_class: measurement
@@ -433,7 +438,7 @@ template:
       - name: "EHW setpoint"
         unique_id: ehw_setpoint
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         device_class: temperature
         unit_of_measurement: "°C"
         state_class: measurement
@@ -457,7 +462,7 @@ template:
       - name: "EHW delta stratificazione"
         unique_id: ehw_delta_stratificazione
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "°C"
         state_class: measurement
         state: >-
@@ -474,7 +479,7 @@ template:
       - name: "EHW status"
         unique_id: ehw_status
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         state: >-
           {% if is_state('binary_sensor.ehw_running', 'on') %}
             In funzione
@@ -485,7 +490,7 @@ template:
       - name: "EHW running"
         unique_id: ehw_running
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ready', 'on') }}
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         state: >-
           {% set has_raw = is_number(states('sensor.ehw_setpoint_raw')) and is_number(states('sensor.ehw_tank_top_raw')) %}
           {% set has_scaled = is_number(states('sensor.ehw_setpoint')) and is_number(states('sensor.ehw_tank_top')) %}
