@@ -388,6 +388,18 @@ template:
           {% endif %}
           {% endif %}
 
+      - name: "VMC Boost Bagno Debug"
+        unique_id: vmc_boost_bagno_debug
+        icon: mdi:bug
+        state: >-
+          ur={{ states('sensor.ur_in_bagno') }}
+          on={{ states('input_number.vmc_bagno_on') }}
+          off={{ states('input_number.vmc_bagno_off') }}
+          dUR={{ (states('sensor.ur_in_bagno')|float(0) - states('sensor.ur_out')|float(0))|round(2) }}
+          dAH={{ states('sensor.delta_ah_in_out') }}
+          manual={{ states('input_boolean.vmc_boost_bagno') }}
+          timer=n/a
+
   - trigger:
       - platform: state
         entity_id:
