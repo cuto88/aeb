@@ -68,6 +68,13 @@ function ha-deploy {
   return Invoke-HaOpsScript -ScriptName "deploy_safe.ps1" -Args $Args
 }
 
+function ha-push-dep {
+  [CmdletBinding()]
+  param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Args)
+
+  return Invoke-HaOpsScript -ScriptName "push_dep.ps1" -Args $Args
+}
+
 function ha-flow {
   [CmdletBinding()]
   param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Args)
@@ -98,5 +105,5 @@ function dep! {
 Set-Alias sync ha-sync
 Set-Alias gates ha-gates
 Set-Alias validate ha-validate
-Set-Alias dep ha-deploy
+Set-Alias push_dep ha-push-dep
 Set-Alias flow ha-flow
