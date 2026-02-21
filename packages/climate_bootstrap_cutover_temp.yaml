@@ -1,0 +1,20 @@
+---
+# TEMP remove at STEP 4 when System authoritative
+
+automation:
+  - id: bootstrap_cutover_on_start
+    alias: "LEGACY(DISABLED) — ClimateOps – Bootstrap cutover on start (TEMP)"
+    enabled: false
+    description: "Disabled by design after ClimateOps cutover (Step 5). Do not re-enable."
+    trigger:
+      - platform: homeassistant
+        event: start
+    action:
+      - service: input_boolean.turn_on
+        target:
+          entity_id:
+            - input_boolean.climateops_migration_enabled
+            - input_boolean.climateops_cutover_vmc
+            - input_boolean.climateops_cutover_heating
+            - input_boolean.climateops_cutover_ac
+            - input_boolean.climateops_cutover_dhw

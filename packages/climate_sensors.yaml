@@ -94,7 +94,7 @@ template:
           {% if valid | length > 0 %}
             {{ (valid | sum / (valid | length)) | round(2) }}
           {% else %}
-            {{ states('input_number.vent_backup_t_in') }}
+            {{ states('input_number.core_backup_t_in') }}
           {% endif %}
 
       - name: t_notte_med
@@ -138,7 +138,7 @@ template:
           {% if valid | length > 0 %}
             {{ (valid | sum / (valid | length)) | round(1) }}
           {% else %}
-            {{ states('input_number.vent_backup_ur_in') }}
+            {{ states('input_number.core_backup_ur_in') }}
           {% endif %}
 
       - name: ur_notte_med

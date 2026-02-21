@@ -1,9 +1,8 @@
-* text=auto
-*.yaml text eol=lf
-*.yml  text eol=lf
-*.md   text eol=lf
-*.json text eol=lf
-*.js   text eol=lf
-*.ts   text eol=lf
-*.css  text eol=lf
-*.ps1  text eol=crlf
+﻿# LF policy (scoped): only ops scripts + top-level README.
+# Avoid touching docs backups, vendored code, quarantine, etc.
+
+ops/**/*.ps1      text eol=lf
+ops/**/*.psm1     text eol=lf
+ops/**/*.txt      text eol=lf
+README.md         text eol=lf
+.gitattributes    text eol=lf

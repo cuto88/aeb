@@ -1,0 +1,86 @@
+---
+# Policy arbiter: disaccoppia AC/VMC da dipendenze dirette orizzontali.
+
+input_boolean:
+  policy_force_allow_ac:
+    name: "Policy – Force allow AC"
+    initial: false
+  policy_force_block_ac:
+    name: "Policy – Force block AC"
+    initial: false
+  policy_force_allow_vmc_boost:
+    name: "Policy – Force allow VMC boost"
+    initial: false
+  policy_force_block_vmc_boost:
+    name: "Policy – Force block VMC boost"
+    initial: false
+
+template:
+  - binary_sensor:
+      - name: "Policy stagione calda"
+        unique_id: policy_stagione_calda
+        device_class: heat
+        state: >-
+          {% if 'sensor.vent_stagione' in states %}
+            {{ states('sensor.vent_stagione') == 'estate' }}
+          {% else %}
+            {% set m = now().month %}
+            {{ m in [4,5,6,7,8,9,10] }}
+          {% endif %}
+
+      - name: "Policy allow AC"
+        unique_id: policy_allow_ac
+        state: >-
+          {% if is_state('input_boolean.policy_force_allow_ac', 'on') %}
+            true
+          {% elif is_state('input_boolean.policy_force_block_ac', 'on') %}
+            false
+          {% elif states('sensor.ventilation_priority') == 'P1_boost_bagno' %}
+            false
+          {% else %}
+            true
+          {% endif %}
+
+      - name: "Policy allow VMC boost"
+        unique_id: policy_allow_vmc_boost
+        state: >-
+          {% if is_state('input_boolean.policy_force_allow_vmc_boost', 'on') %}
+            true
+          {% elif is_state('input_boolean.policy_force_block_vmc_boost', 'on') %}
+            false
+          {% else %}
+            true
+          {% endif %}
+
+  - sensor:
+      - name: "Policy arbiter reason"
+        unique_id: policy_arbiter_reason
+        state: >-
+          {% if is_state('input_boolean.policy_force_allow_ac', 'on')
+                or is_state('input_boolean.policy_force_allow_vmc_boost', 'on') %}
+            FORCE_ALLOW
+          {% elif is_state('input_boolean.policy_force_block_ac', 'on')
+                or is_state('input_boolean.policy_force_block_vmc_boost', 'on') %}
+            FORCE_BLOCK
+          {% elif states('sensor.ventilation_priority') == 'P1_boost_bagno' %}
+            BLOCK_AC_BOOST_BAGNO
+          {% else %}
+            OK
+          {% endif %}
+
+  - trigger:
+      - platform: state
+        entity_id:
+          - input_boolean.policy_force_allow_ac
+          - input_boolean.policy_force_block_ac
+          - input_boolean.policy_force_allow_vmc_boost
+          - input_boolean.policy_force_block_vmc_boost
+          - sensor.ventilation_priority
+          - binary_sensor.policy_allow_ac
+          - binary_sensor.policy_allow_vmc_boost
+          - sensor.policy_arbiter_reason
+    sensor:
+      - name: "Policy arbiter last update"
+        unique_id: policy_arbiter_last_update
+        device_class: timestamp
+        state: "{{ now().isoformat() }}"

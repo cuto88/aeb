@@ -22,9 +22,93 @@ mqtt:
       state_topic: "android/phone1/battery"
       value_template: "{{ value_json.status }}"
 
+    - name: "android_phone1_lux"
+      unique_id: android_phone1_lux
+      state_topic: "android/phone1/battery"
+      value_template: "{{ value_json.lux }}"
+      unit_of_measurement: "lx"
+      device_class: illuminance
+      state_class: measurement
+
+    - name: "android_phone2_battery_level"
+      unique_id: android_phone2_battery_level
+      state_topic: "android/phone2/battery"
+      value_template: "{{ value_json.level }}"
+      unit_of_measurement: "%"
+      device_class: battery
+      state_class: measurement
+
+    - name: "android_phone2_battery_temperature"
+      unique_id: android_phone2_battery_temperature
+      state_topic: "android/phone2/battery"
+      value_template: "{{ value_json.temperature }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+
+    - name: "android_phone2_battery_status"
+      unique_id: android_phone2_battery_status
+      state_topic: "android/phone2/battery"
+      value_template: "{{ value_json.status }}"
+
+    - name: "android_phone2_lux"
+      unique_id: android_phone2_lux
+      state_topic: "android/phone2/battery"
+      value_template: "{{ value_json.lux }}"
+      unit_of_measurement: "lx"
+      device_class: illuminance
+      state_class: measurement
+
+    - name: "android_phone3_battery_level"
+      unique_id: android_phone3_battery_level
+      state_topic: "android/phone3/battery"
+      value_template: "{{ value_json.level }}"
+      unit_of_measurement: "%"
+      device_class: battery
+      state_class: measurement
+
+    - name: "android_phone3_battery_temperature"
+      unique_id: android_phone3_battery_temperature
+      state_topic: "android/phone3/battery"
+      value_template: "{{ value_json.temperature }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+
+    - name: "android_phone3_battery_status"
+      unique_id: android_phone3_battery_status
+      state_topic: "android/phone3/battery"
+      value_template: "{{ value_json.status }}"
+
+    - name: "android_phone3_lux"
+      unique_id: android_phone3_lux
+      state_topic: "android/phone3/battery"
+      value_template: "{{ value_json.lux }}"
+      unit_of_measurement: "lx"
+      device_class: illuminance
+      state_class: measurement
+
   binary_sensor:
     - name: "android_phone1_battery_plugged"
       unique_id: android_phone1_battery_plugged
       state_topic: "android/phone1/battery"
-      # ON se collegato alla rete, OFF quando "UNPLUGGED"
       value_template: "{{ 'ON' if value_json.plugged != 'UNPLUGGED' else 'OFF' }}"
+      payload_on: "ON"
+      payload_off: "OFF"
+      device_class: plug
+
+    - name: "android_phone2_battery_plugged"
+      unique_id: android_phone2_battery_plugged
+      state_topic: "android/phone2/battery"
+      value_template: "{{ 'ON' if value_json.plugged != 'UNPLUGGED' else 'OFF' }}"
+      payload_on: "ON"
+      payload_off: "OFF"
+      device_class: plug
+
+    - name: "android_phone3_battery_plugged"
+      unique_id: android_phone3_battery_plugged
+      state_topic: "android/phone3/battery"
+      value_template: "{{ 'ON' if value_json.plugged != 'UNPLUGGED' else 'OFF' }}"
+      payload_on: "ON"
+      payload_off: "OFF"
+      device_class: plug

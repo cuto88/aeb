@@ -1,3 +1,7 @@
+# LEGACY MODULE (do not refactor)
+# Migration status: legacy-owner
+# Strangler: ClimateOps observes only (no actuation)
+# Toggle: input_boolean.climateops_migration_enabled (future cutover)
 ---
 ###############################################################################
 # 1_ventilation.yaml – Modulo VMC e ventilazione naturale
@@ -262,7 +266,7 @@ template:
           {% set manual = is_state('input_boolean.vmc_manual','on') and is_state('input_select.vmc_mode','manual') %}
           {% set mode_off = is_state('input_select.vmc_mode','off') %}
           {% if mode_off %}
-            0
+            {% set legacy_target = 0 %}
           {% elif manual %}
             {% set sel = states('input_select.vmc_manual_speed') %}
             {% set map = {
@@ -272,27 +276,42 @@ template:
               'vel_2': 2,
               'vel_3': 3
             } %}
-            {{ map.get(sel,1) }}
+            {% set legacy_target = map.get(sel,1) %}
           {% else %}
             {% set priority = states('sensor.ventilation_priority') %}
             {% if priority in ['P0_failsafe','P0_off'] %}
-              0
+              {% set legacy_target = 0 %}
             {% elif priority == 'P1_boost_bagno' %}
-              3
+              {% set legacy_target = 3 %}
             {% elif priority == 'P1_delta_ur' %}
-              2
+              {% set legacy_target = 2 %}
             {% elif priority == 'P1_anti_secco' %}
-              1
+              {% set legacy_target = 1 %}
             {% elif priority == 'P2_freecooling' %}
               {% set fc_status = states('sensor.vmc_freecooling_status') %}
               {% if fc_status == 'strong' %}
-                3
+                {% set legacy_target = 3 %}
               {% else %}
-                2
+                {% set legacy_target = 2 %}
               {% endif %}
             {% else %}
-              1
+              {% set legacy_target = 1 %}
             {% endif %}
+          {% endif %}
+          {% set cutover_on = is_state('input_boolean.climateops_cutover_vmc','on') %}
+          {% set arbiter_mode = states('sensor.climateops_arbiter_suggested_mode') %}
+          {% set arbiter_available = arbiter_mode not in ['unknown','unavailable',''] %}
+          {% if not cutover_on %}
+            {{ legacy_target }}
+          {% elif not arbiter_available or arbiter_mode == 'IDLE' %}
+            {{ legacy_target }}
+          {% else %}
+            {% set arbiter_map = {
+              'VENT': 2,
+              'COOL': 1,
+              'HEAT': 1
+            } %}
+            {{ arbiter_map.get(arbiter_mode, legacy_target) }}
           {% endif %}
 
       - name: "VMC velocità indice"
@@ -324,6 +343,8 @@ template:
             P_manual
           {% elif not sensors_ok %}
             P0_failsafe
+          {% elif is_state('binary_sensor.policy_allow_vmc_boost','off') and (is_state('binary_sensor.vmc_bagno_boost_auto','on') or is_state('input_boolean.vmc_boost_bagno','on')) %}
+            P4_baseline
           {% elif is_state('binary_sensor.vmc_bagno_boost_auto','on') or is_state('input_boolean.vmc_boost_bagno','on') %}
             P1_boost_bagno
           {% elif is_state('binary_sensor.vmc_anti_secco','on') %}
@@ -339,6 +360,12 @@ template:
       - name: "Ventilation reason"
         unique_id: ventilation_reason
         state: >-
+          {% set cutover_on = is_state('input_boolean.climateops_cutover_vmc','on') %}
+          {% set arbiter_mode = states('sensor.climateops_arbiter_suggested_mode') %}
+          {% set arbiter_available = arbiter_mode not in ['unknown','unavailable',''] %}
+          {% if cutover_on and arbiter_available and arbiter_mode != 'IDLE' %}
+            ClimateOps: {{ arbiter_mode }} – {{ states('sensor.climateops_arbiter_suggested_reason') }}
+          {% else %}
           {% set priority = states('sensor.ventilation_priority') %}
           {% if priority == 'P_manual' %}
             Manuale: velocità selezionata
@@ -346,6 +373,8 @@ template:
             Modalità OFF
           {% elif priority == 'P0_failsafe' %}
             P0 – failsafe sensori
+          {% elif is_state('binary_sensor.policy_allow_vmc_boost','off') and (is_state('binary_sensor.vmc_bagno_boost_auto','on') or is_state('input_boolean.vmc_boost_bagno','on')) %}
+            VMC BOOST BLOCKED BY POLICY
           {% elif priority == 'P1_boost_bagno' %}
             P1 – UR bagno alta / boost
           {% elif priority == 'P1_anti_secco' %}
@@ -357,6 +386,19 @@ template:
           {% else %}
             P4 – baseline vel_1
           {% endif %}
+          {% endif %}
+
+      - name: "VMC Boost Bagno Debug"
+        unique_id: vmc_boost_bagno_debug
+        icon: mdi:bug
+        state: >-
+          ur={{ states('sensor.ur_in_bagno') }}
+          on={{ states('input_number.vmc_bagno_on') }}
+          off={{ states('input_number.vmc_bagno_off') }}
+          dUR={{ (states('sensor.ur_in_bagno')|float(0) - states('sensor.ur_out')|float(0))|round(2) }}
+          dAH={{ states('sensor.delta_ah_in_out') }}
+          manual={{ states('input_boolean.vmc_boost_bagno') }}
+          timer=n/a
 
   - trigger:
       - platform: state
@@ -442,72 +484,6 @@ template:
 # AUTOMAZIONI CORE
 # =============================
 automation:
-  # Aggiorna velocità VMC con esclusione reciproca dei relè
-  - id: vmc_apply_speed
-    alias: "VMC – Applica velocità target"
-    description: "Setta i relè vel_0-vel_3 in modo mutuamente esclusivo"
-    mode: restart
-    trigger:
-      - platform: state
-        entity_id: sensor.vmc_vel_target
-        for: "00:00:20"
-      - platform: state
-        entity_id:
-          - input_select.vmc_mode
-          - input_select.vmc_manual_speed
-          - input_boolean.vmc_manual
-          - input_boolean.vmc_boost_bagno
-          - binary_sensor.vmc_bagno_boost_auto
-          - binary_sensor.vmc_anti_secco
-          - binary_sensor.vmc_freecooling_candidate
-          - sensor.ventilation_priority
-    action:
-      - variables:
-          target: "{{ states('sensor.vmc_vel_target')|int(-1) }}"
-      - variables:
-          current: >-
-            {{ 3 if is_state('switch.vmc_vel_3','on') else
-               2 if is_state('switch.vmc_vel_2','on') else
-               1 if is_state('switch.vmc_vel_1','on') else
-               0 if is_state('switch.vmc_vel_0','on') else -1 }}
-          should_apply: "{{ target != -1 and target != current }}"
-      - choose:
-          - conditions: "{{ not should_apply }}"
-            sequence:
-              - service: counter.increment
-                target: { entity_id: counter.vmc_churn_suppressed }
-              - stop: "Guard: VMC already at target or invalid target"
-      - condition: template
-        value_template: "{{ should_apply }}"
-      - service: homeassistant.turn_off
-        target:
-          entity_id:
-            - switch.vmc_vel_0
-            - switch.vmc_vel_1
-            - switch.vmc_vel_2
-            - switch.vmc_vel_3
-      - choose:
-          - conditions: "{{ target == 3 }}"
-            sequence:
-              - service: homeassistant.turn_on
-                target:
-                  entity_id: switch.vmc_vel_3
-          - conditions: "{{ target == 2 }}"
-            sequence:
-              - service: homeassistant.turn_on
-                target:
-                  entity_id: switch.vmc_vel_2
-          - conditions: "{{ target == 1 }}"
-            sequence:
-              - service: homeassistant.turn_on
-                target:
-                  entity_id: switch.vmc_vel_1
-          - conditions: "{{ target == 0 }}"
-            sequence:
-              - service: homeassistant.turn_on
-                target:
-                  entity_id: switch.vmc_vel_0
-
   # Gestione messaggio plancia / debug
   - id: vmc_update_message
     alias: "VMC – Aggiorna messaggio plancia"
@@ -518,6 +494,7 @@ automation:
           - sensor.ventilation_reason
           - sensor.vmc_freecooling_status
           - sensor.ventilation_priority
+          - binary_sensor.policy_allow_vmc_boost
     action:
       - service: input_text.set_value
         target:
@@ -525,3 +502,45 @@ automation:
         data:
           value: >-
             {{ states('sensor.ventilation_reason') }} – Freecooling: {{ states('sensor.vmc_freecooling_status') }}
+
+  - id: vmc_sync_core_backup_inputs
+    alias: "VMC – Sync core/legacy backup input"
+    mode: queued
+    trigger:
+      - platform: time_pattern
+        minutes: "/5"
+      - platform: state
+        entity_id:
+          - sensor.t_in_giorno
+          - sensor.t_in_notte1
+          - sensor.t_in_notte2
+          - sensor.t_in_bagno
+          - sensor.ur_in_giorno
+          - sensor.ur_in_notte1
+          - sensor.ur_in_notte2
+          - sensor.ur_in_bagno
+    condition:
+      - condition: template
+        value_template: >-
+          {{
+            states('sensor.t_in_med') not in ['unknown','unavailable','']
+            and states('sensor.ur_in_media') not in ['unknown','unavailable','']
+          }}
+    action:
+      - variables:
+          t_in_med: "{{ states('sensor.t_in_med') | float(26) }}"
+          ur_in_media: "{{ states('sensor.ur_in_media') | float(55) }}"
+      - service: input_number.set_value
+        target:
+          entity_id:
+            - input_number.core_backup_t_in
+            - input_number.vent_backup_t_in
+        data:
+          value: "{{ t_in_med }}"
+      - service: input_number.set_value
+        target:
+          entity_id:
+            - input_number.core_backup_ur_in
+            - input_number.vent_backup_ur_in
+        data:
+          value: "{{ ur_in_media }}"

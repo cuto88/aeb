@@ -1,3 +1,7 @@
+# LEGACY MODULE (do not refactor)
+# Migration status: legacy-owner
+# Strangler: ClimateOps observes only (no actuation)
+# Toggle: input_boolean.climateops_migration_enabled (future cutover)
 ---
 ###############################################################################
 # climate_ac_logic.yaml – Controllo Aria Condizionata (Passivhaus-Oriented)
@@ -22,6 +26,9 @@
 # ============================================================================
 # 1) HELPER INPUTS – definiti nel mapping (control interface layer)
 # ============================================================================
+input_boolean:
+  ac_send_command_busy:
+    name: "AC Send Command Busy"
 
 # ============================================================================
 # 2) TEMPLATE – failsafe, blocchi, telemetria e diagnostica
@@ -233,197 +240,6 @@ automation:
         target:
           entity_id: input_boolean.ac_block_vmc
 
-  - id: ac_controller_priority
-    alias: "AC – Controllo priorità P0–P4"
-    mode: restart
-    trigger:
-      - platform: time_pattern
-        minutes: "/3"
-      - platform: state
-        entity_id:
-          - binary_sensor.ac_failsafe_sensors_bad
-          - binary_sensor.ac_block_by_vmc
-          - binary_sensor.stagione_calda
-          - binary_sensor.ac_lock_min_on_ok
-          - binary_sensor.ac_lock_min_off_ok
-          - sensor.t_in_med
-          - sensor.t_out
-          - sensor.ur_in_media
-          - sensor.ur_out
-          - switch.ac_giorno
-          - switch.ac_notte
-          - input_boolean.ac_manual
-          - input_select.ac_manual_mode
-    action:
-      - variables:
-          Tin: "{{ states('sensor.t_in_med')|float(0) }}"
-          Tout: "{{ states('sensor.t_out')|float(0) }}"
-          URin: "{{ states('sensor.ur_in_media')|float(0) }}"
-          URout: "{{ states('sensor.ur_out')|float(0) }}"
-          vent_priority: "{{ states('sensor.ventilation_priority') }}"
-          set_cool: "{{ states('input_number.ac_cool_setpoint')|float(25) }}"
-          ur_on: "{{ states('input_number.ac_dry_ur_on')|float(65) }}"
-          ur_off: "{{ states('input_number.ac_dry_ur_off')|float(55) }}"
-          stagione_calda: "{{ is_state('binary_sensor.stagione_calda','on') }}"
-          manual_on: "{{ is_state('input_boolean.ac_manual','on') }}"
-          manual_mode: "{{ states('input_select.ac_manual_mode') }}"
-
-      - choose:
-          # Manuale: non toccare nulla
-          - conditions:
-              - condition: template
-                value_template: "{{ manual_on and manual_mode != 'OFF' }}"
-            sequence:
-              - event: template_event
-                event_data:
-                  entity_id: sensor.ac_reason
-                  attributes:
-                    priority: "manual"
-                    reason: "Controllo manuale attivo ({{ manual_mode }})"
-                    mode: "{{ manual_mode | lower }}"
-                    target: "manual"
-              - stop: "Manuale attivo"
-
-          # Block AC requests during bathroom boost priority
-          - conditions:
-              - condition: template
-                value_template: "{{ vent_priority == 'P1_boost_bagno' }}"
-            sequence:
-              - service: script.ac_apply_targets
-                data:
-                  want_giorno: false
-                  want_notte: false
-              - event: template_event
-                event_data:
-                  entity_id: sensor.ac_reason
-                  attributes:
-                    priority: "P1_block"
-                    reason: "AC bloccata durante boost bagno"
-                    mode: "off"
-                    target: "none"
-              - stop: "Boost bagno attivo: blocco AC"
-
-          # P0 - Failsafe sensori
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.ac_failsafe_sensors_bad
-                state: "on"
-            sequence:
-              - service: script.ac_apply_targets
-                data:
-                  want_giorno: false
-                  want_notte: false
-              - event: template_event
-                event_data:
-                  entity_id: sensor.ac_reason
-                  attributes:
-                    priority: "P0_failsafe"
-                    reason: "Sensori non validi"
-                    mode: "off"
-                    target: "none"
-              - stop: "Failsafe attivo"
-
-          # P1 - Block da VMC / anti-secco
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.ac_block_by_vmc
-                state: "on"
-            sequence:
-              - service: script.ac_apply_targets
-                data:
-                  want_giorno: false
-                  want_notte: false
-              - event: template_event
-                event_data:
-                  entity_id: sensor.ac_reason
-                  attributes:
-                    priority: "P1_block_vmc"
-                    reason: "Blocco da VMC (anti-secco / richiesta impianto)"
-                    mode: "off"
-                    target: "none"
-              - stop: "Block VMC attivo"
-
-          # Lock min ON: lascia correre finché non scade il timer minimo
-          - conditions:
-              - condition: template
-                value_template: >
-                  {{ (is_state('switch.ac_giorno','on') or is_state('switch.ac_notte','on'))
-                     and not is_state('binary_sensor.ac_lock_min_on_ok','on') }}
-            sequence:
-              - event: template_event
-                event_data:
-                  entity_id: sensor.ac_reason
-                  attributes:
-                    priority: "lock_min_on"
-                    reason: "Vincolo min ON in corso"
-                    mode: "hold"
-                    target: "hold"
-              - stop: "Min ON ancora attivo"
-
-          # P2 - DRY (umidità alta)
-          - conditions:
-              - condition: template
-                value_template: >
-                  {{ URin > ur_on and URout < URin and Tin > 20 }}
-            sequence:
-              - service: script.ac_apply_targets
-                data:
-                  want_giorno: false
-                  want_notte: true
-              - event: template_event
-                event_data:
-                  entity_id: sensor.ac_reason
-                  attributes:
-                    priority: "P2_dry"
-                    reason: "UR interna alta ({{ URin }}%)"
-                    mode: "dry"
-                    target: "notte"
-              - event: hook_ac_request_vmc_low
-                event_data:
-                  source: "ac_controller"
-                  mode: "dry"
-              - stop: "DRY attivo"
-
-          # P3 - COOL (comfort) solo stagione calda
-          - conditions:
-              - condition: template
-                value_template: >
-                  {{ stagione_calda and Tin > (set_cool + 0.5) }}
-              - condition: state
-                entity_id: binary_sensor.ac_lock_min_off_ok
-                state: "on"
-            sequence:
-              - service: script.ac_apply_targets
-                data:
-                  want_giorno: true
-                  want_notte: false
-              - event: template_event
-                event_data:
-                  entity_id: sensor.ac_reason
-                  attributes:
-                    priority: "P3_cool"
-                    reason: "Tin {{ Tin }}°C > set_cool {{ set_cool }}°C"
-                    mode: "cool"
-                    target: "giorno"
-              - event: hook_ac_request_vmc_low
-                event_data:
-                  source: "ac_controller"
-                  mode: "cool"
-              - stop: "COOL attivo"
-
-      - service: script.ac_apply_targets
-        data:
-          want_giorno: false
-          want_notte: false
-      - event: template_event
-        event_data:
-          entity_id: sensor.ac_reason
-          attributes:
-            priority: "idle"
-            reason: "Nessuna condizione AC attiva"
-            mode: "off"
-            target: "none"
-
   - id: clima_vmc_ac_request_alert
     alias: "Clima – Alert richiesta AC da VMC"
     description: "Mostra alert e registra log quando il clima/VMC richiede l'intervento dell'AC."
@@ -548,48 +364,43 @@ sensor:
 
 script:
   ac_apply_targets:
-    alias: "AC – Apply targets with guard"
-    mode: queued
-    fields:
-      want_giorno:
-        description: "Desired state for switch.ac_giorno"
-        example: false
-      want_notte:
-        description: "Desired state for switch.ac_notte"
-        example: false
+    alias: "AC – Apply targets"
+    mode: single
     sequence:
-      - variables:
-          wg: "{{ want_giorno | bool }}"
-          wn: "{{ want_notte | bool }}"
-      - variables:
-          should_apply: "{{ (wg != is_state('switch.ac_giorno','on')) or (wn != is_state('switch.ac_notte','on')) }}"
-      - choose:
-          - conditions: "{{ not should_apply }}"
-            sequence:
-              - service: counter.increment
-                target: { entity_id: counter.ac_churn_suppressed }
-              - stop: "Guard: AC already at targets"
+      - service: script.ac_giorno_apply
+      - service: script.ac_notte_apply
+  ac_send_command:
+    alias: "AC – Send command (driver wrapper)"
+    mode: single
+    fields:
+      target:
+        description: "ac_giorno | ac_notte"
+        example: "ac_giorno"
+    sequence:
       - condition: template
-        value_template: "{{ should_apply }}"
+        value_template: "{{ not is_state('input_boolean.ac_send_command_busy','on') }}"
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.ac_send_command_busy
       - choose:
-          - conditions: "{{ wg }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ target == 'ac_giorno' }}"
             sequence:
-              - service: switch.turn_on
-                target:
-                  entity_id: switch.ac_giorno
-          - conditions: "{{ not wg }}"
+              - service: script.ac_giorno_apply
+          - conditions:
+              - condition: template
+                value_template: "{{ target == 'ac_notte' }}"
             sequence:
-              - service: switch.turn_off
-                target:
-                  entity_id: switch.ac_giorno
-      - choose:
-          - conditions: "{{ wn }}"
-            sequence:
-              - service: switch.turn_on
-                target:
-                  entity_id: switch.ac_notte
-          - conditions: "{{ not wn }}"
-            sequence:
-              - service: switch.turn_off
-                target:
-                  entity_id: switch.ac_notte
+              - service: script.ac_notte_apply
+        default: []
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.ac_send_command_busy
+  ac_hw_press:
+    alias: "AC – HW press (leaf driver)"
+    mode: single
+    fields:
+      target:
+        description: "ac_giorno | ac_notte"
+    sequence: []

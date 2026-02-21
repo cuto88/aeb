@@ -81,7 +81,9 @@ $gates = @(
     @{ Name = '[GATE 2] ops/gate_include_tree.ps1'; Gate = 'GATE 2'; Script = 'ops/gate_include_tree.ps1'; Args = @(); UsePowerShell = $true },
     @{ Name = '[GATE 3] ops/gate_ha_structure.ps1 -CheckEntityMap'; Gate = 'GATE 3'; Script = 'ops/gate_ha_structure.ps1'; Args = @('-CheckEntityMap'); UsePowerShell = $true },
     @{ Name = '[GATE 4] VMC dashboards gate'; Gate = 'GATE 4'; Script = 'ops/gate_vmc_dashboards.ps1'; Args = @(); UsePowerShell = $true },
-    @{ Name = '[GATE 5] DOCS ops/gate_docs_links.ps1'; Gate = 'GATE 5'; Script = 'ops/gate_docs_links.ps1'; Args = @(); UsePowerShell = $true }
+    @{ Name = '[GATE 5] Entity naming gate'; Gate = 'GATE 5'; Script = 'ops/gate_entity_naming.ps1'; Args = @(); UsePowerShell = $true },
+    @{ Name = '[GATE 6] Nested template gate'; Gate = 'GATE 6'; Script = 'ops/gates/check_no_nested_template.ps1'; Args = @(); UsePowerShell = $true },
+    @{ Name = '[GATE 7] DOCS ops/gate_docs_links.ps1'; Gate = 'GATE 7'; Script = 'ops/gate_docs_links.ps1'; Args = @(); UsePowerShell = $true }
 )
 
 foreach ($gate in $gates) {

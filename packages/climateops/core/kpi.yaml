@@ -1,0 +1,16 @@
+history_stats:
+  climateops_heating_master_on_today:
+    name: "KPI Heating Master ON Today"
+    entity_id: switch.heating_master
+    state: "on"
+    type: time
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"
+
+template:
+  - sensor:
+      - name: "KPI Heating Master ON Today (min)"
+        unique_id: climateops_heating_master_on_today_min
+        unit_of_measurement: "min"
+        state: "{{ (states('sensor.climateops_heating_master_on_today') | float(0) * 60) | round(0) }}"
+        availability: "{{ states('sensor.climateops_heating_master_on_today') not in ['unknown','unavailable'] }}"

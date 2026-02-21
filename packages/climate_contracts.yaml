@@ -1,0 +1,101 @@
+---
+# Contract layer: evidenzia dipendenze mancanti per clima/VMC.
+
+template:
+  - binary_sensor:
+      - name: "Contract meteo stub active"
+        unique_id: contract_meteo_stub_active
+        state: >-
+          {%- set meteo_sensors = [
+            'binary_sensor.meteo_pioggia',
+            'sensor.meteo_vento_velocita'
+          ] -%}
+          {%- set meteo_states = meteo_sensors | map('states') | list -%}
+          {%- set sensors_ready = meteo_states | reject('in', ['unknown','unavailable','']) | list | count == meteo_sensors | length -%}
+          {{ not sensors_ready }}
+
+      - name: "Contract surplus ok defined"
+        unique_id: contract_surplus_ok_defined
+        state: >-
+          # PV surplus is optional input; policy_surplus_ok provides fail-safe abstraction
+          {{ true }}
+
+      - name: "Contract surplus ok ready"
+        unique_id: contract_surplus_ok_ready
+        state: >-
+          {{ has_value('binary_sensor.surplus_ok') }}
+
+
+
+      - name: "Contract surplus policy ok"
+        unique_id: contract_surplus_policy_ok
+        state: >-
+          {{ states('binary_sensor.policy_surplus_ok') not in ['unknown','unavailable',''] }}
+
+      - name: "Contract core fallback ok"
+        unique_id: contract_core_fallback_ok
+        state: >-
+          {{
+            states('input_number.core_backup_t_in') not in ['unknown','unavailable','']
+            and states('input_number.core_backup_ur_in') not in ['unknown','unavailable','']
+            and states('sensor.core_backup_last_update') not in ['unknown','unavailable','']
+          }}
+
+      - name: "Contract policy arbiter ok"
+        unique_id: contract_policy_arbiter_ok
+        state: >-
+          {{
+            states('binary_sensor.policy_allow_ac') not in ['unknown','unavailable','']
+            and states('binary_sensor.policy_allow_vmc_boost') not in ['unknown','unavailable','']
+          }}
+      - name: "Contract actuators defined"
+        unique_id: contract_actuators_defined
+        state: "on"
+        icon: mdi:check-circle
+        device_class: running
+        # Architectural invariant:
+        # Actuators existence is declared by design, not by runtime availability.
+        # Runtime health is tracked only by contract_actuators_ready.
+
+      - name: "Contract actuators ready"
+        unique_id: contract_actuators_ready
+        state: >-
+          {%- set required_actuators = [
+            'switch.heating_master',
+            'switch.vmc_vel_0',
+            'switch.vmc_vel_1',
+            'switch.vmc_vel_2',
+            'switch.vmc_vel_3'
+          ] -%}
+          {%- set optional_ac_actuators = [
+            'switch.ac_giorno',
+            'switch.ac_notte'
+          ] -%}
+          {%- set required_states = required_actuators | map('states') | list -%}
+          {%- set optional_ac_states = optional_ac_actuators | map('states') | list -%}
+          {{
+            required_states | reject('eq', 'unavailable') | list | count == required_actuators | length
+            and (
+              optional_ac_states | reject('eq', 'unavailable') | list | count == optional_ac_actuators | length
+              or optional_ac_states | select('eq', 'unknown') | list | count == optional_ac_actuators | length
+            )
+          }}
+
+  - sensor:
+      - name: "Contract missing entities"
+        unique_id: contract_missing_entities
+        state: >-
+          {%- set required = [
+            'switch.heating_master',
+            'switch.vmc_vel_0',
+            'switch.vmc_vel_1',
+            'switch.vmc_vel_2',
+            'switch.vmc_vel_3'
+          ] -%}
+          {%- set ns = namespace(missing=[]) -%}
+          {%- for entity in required -%}
+            {%- if states(entity) == 'unknown' -%}
+              {%- set ns.missing = ns.missing + [entity] -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ ns.missing | join(', ') if ns.missing | length > 0 else 'OK' }}

@@ -25,3 +25,13 @@ Questi sono gli entrypoint ufficiali e unici per entità, modbus e template.
 ## Riferimenti
 
 - Quarantine log: `/_quarantine/20260120_cleanup/README.md`
+
+## Contract Layer
+
+Entità di contract (osservabilità dipendenze):
+- `binary_sensor.contract_meteo_stub_active`
+- `binary_sensor.contract_surplus_ok_defined`
+- `binary_sensor.contract_actuators_defined`
+- `sensor.contract_missing_entities`
+
+Regola: prima di ogni migrazione → `sensor.contract_missing_entities` deve essere `OK`.

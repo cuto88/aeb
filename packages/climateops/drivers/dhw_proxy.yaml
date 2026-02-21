@@ -1,0 +1,12 @@
+template:
+  - sensor:
+      - name: "ClimateOps DHW Tank Temp (legacy)"
+        unique_id: climateops_dhw_tank_temp_legacy
+        unit_of_measurement: "°C"
+        state: "{{ states('sensor.ehw_tank_top') | float(0) }}"
+        availability: "{{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') and states('sensor.ehw_tank_top') not in ['unknown','unavailable'] }}"
+      - name: "ClimateOps DHW Setpoint (legacy)"
+        unique_id: climateops_dhw_setpoint_legacy
+        unit_of_measurement: "°C"
+        state: "{{ states('sensor.ehw_setpoint') | float(0) }}"
+        availability: "{{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') and states('sensor.ehw_setpoint') not in ['unknown','unavailable'] }}"

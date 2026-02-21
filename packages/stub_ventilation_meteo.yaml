@@ -1,12 +1,26 @@
 ---
 # Stub temporaneo: meteo ok per ventilazione naturale.
 # Sostituire con sensori reali (pioggia/vento/PM2.5) quando disponibili.
+# TODO integrare meteo reale.
 
 template:
   - binary_sensor:
       - name: "Ventilazione meteo ok"
         unique_id: vent_condizioni_meteo_ok
         state: >-
-          {{ true }}
+          {%- set rain_entity = 'binary_sensor.meteo_pioggia' -%}
+          {%- set wind_entity = 'sensor.meteo_vento_velocita' -%}
+          {%- set wind_max = 6 -%}
+          {%- set rain_state = states(rain_entity) -%}
+          {%- set wind_state = states(wind_entity) -%}
+          {%- set sensors_ready = rain_state not in ['unknown','unavailable',''] and wind_state not in ['unknown','unavailable',''] -%}
+          {%- if not sensors_ready -%}
+            {{ false }}
+          {%- else -%}
+            {%- set rain_value = rain_state | lower -%}
+            {%- set is_rain_ok = rain_value in ['0','0.0','off','false'] -%}
+            {%- set wind_speed = wind_state | float(999) -%}
+            {{ is_rain_ok and wind_speed < wind_max }}
+          {%- endif -%}
         availability: >-
           {{ true }}

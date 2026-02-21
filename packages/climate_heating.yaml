@@ -1,3 +1,7 @@
+# LEGACY MODULE (do not refactor)
+# Migration status: legacy-owner
+# Strangler: ClimateOps observes only (no actuation)
+# Toggle: input_boolean.climateops_migration_enabled (future cutover)
 ---
 ###############################################################################
 # climate_heating.yaml  Modulo riscaldamento a pavimento (2025)
@@ -14,7 +18,7 @@
 # - Canonical OK: tutti gli helpers e sensori definiti coincidono con README_sensori_clima.md.
 # - Normalizzati: nessuno (nessun alias legacy presente).
 # - Rimossi: nessuno (nessun helper inutilizzato individuato in questa revisione).
-# - Dipendenze esterne: binary_sensor.surplus_ok (modulo energia/surplus).
+# - Dipendenze esterne: binary_sensor.policy_surplus_ok (modulo energia/surplus).
 
 homeassistant:
   customize:
@@ -293,7 +297,7 @@ template:
             {% set tmin = states('sensor.heating_t_in_min') | float(default=none) %}
             {% set tout = states('sensor.t_out') | float(default=none) %}
             {% set window_comfort = is_state('binary_sensor.heating_finestra_oraria','on') %}
-            {% set pv_hook = is_state('binary_sensor.surplus_ok','on') %}
+            {% set pv_hook = is_state('binary_sensor.policy_surplus_ok','on') %}
             {% set enable = is_state('input_boolean.heating_enable','on') %}
 
             {% if tmin is none %}
@@ -342,7 +346,20 @@ template:
             {% else %}
               on
             {% endif %}
-          reason: "{{ this.state }}"
+          reason: >-
+            {% set base = this.state %}
+            {% set comfort = states('input_number.temp_target_risc') | float(21) %}
+            {% set boost = states('input_number.heating_boost_delta') | float(0.3) %}
+            {% set tmin = states('sensor.heating_t_in_min') | float(default=none) %}
+            {% set pv_candidate = is_state('input_boolean.heating_enable','on')
+              and is_state('binary_sensor.heating_finestra_oraria','on')
+              and (tmin is number)
+              and tmin <= comfort - boost %}
+            {% if pv_candidate and is_state('binary_sensor.policy_surplus_ok','off') %}
+              {{ base }}__PV_POLICY_BLOCKED
+            {% else %}
+              {{ base }}
+            {% endif %}
 
       - name: "Heating  priority"
         unique_id: heating_priority
@@ -397,7 +414,7 @@ template:
       - name: "Heating  finestra PV"
         unique_id: heating_window_pv
         state: >-
-          {{ is_state('binary_sensor.heating_finestra_oraria','on') and is_state('binary_sensor.surplus_ok','on') }}
+          {{ is_state('binary_sensor.heating_finestra_oraria','on') and is_state('binary_sensor.policy_surplus_ok','on') }}
 
       # Finestra notte (fuori fascia comfort)
       - name: "Heating  finestra notte"
@@ -524,10 +541,12 @@ automation:  # Gestione timeout manuale
       - platform: state
         entity_id: input_boolean.heating_manual_active
         to: "on"
+        id: manual_on
       - platform: event
         event_type: timer.finished
         event_data:
           entity_id: timer.heating_manual_timeout
+        id: timer_finished
     action:
       - choose:
           - conditions:
@@ -539,49 +558,14 @@ automation:  # Gestione timeout manuale
                 target:
                   entity_id: timer.heating_manual_timeout
           - conditions:
-              - condition: event
-                event_type: timer.finished
+              - condition: trigger
+                id: timer_finished
             sequence:
               - service: input_boolean.turn_off
                 target:
                   entity_id: input_boolean.heating_manual_active
 
-  # Attuazione comando logico
-  - id: heating_drive_master
-    alias: "HEATING  attua should_run"
-    mode: restart
-    trigger:
-      - platform: state
-        entity_id:
-          - binary_sensor.heating_should_run
-          - switch.heating_master
-      - platform: state
-        entity_id:
-          - input_boolean.heating_manual_active
-          - input_select.heating_manual_mode
-    action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.heating_should_run
-                state: "on"
-            sequence:
-              - service: switch.turn_on
-                target:
-                  entity_id: switch.heating_master
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.heating_should_run
-                state: "off"
-            sequence:
-              - condition: state
-                entity_id: binary_sensor.heating_lock_min_on_ok
-                state: "on"
-              - service: switch.turn_off
-                target:
-                  entity_id: switch.heating_master
-
 # ENTITY MAP STATUS (heating)
 # - All entity_id aligned with logica/core/README_sensori_clima.md
 # - No unused helpers except optional diagnostics listed in README
-# - External dependencies: binary_sensor.surplus_ok (PV surplus)
+# - External dependencies: binary_sensor.policy_surplus_ok (PV surplus)

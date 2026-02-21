@@ -40,6 +40,16 @@ views:
                 name: "Sensori VMC ok"
               - entity: binary_sensor.clima_ac_from_vmc_request
                 name: "Richiesta AC dal clima"
+          - type: entities
+            title: "ClimateOps Cutover"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.climateops_migration_enabled
+              - entity: input_boolean.climateops_cutover_vmc
+              - entity: input_boolean.climateops_cutover_heating
+              - entity: input_boolean.climateops_cutover_ac
+              - entity: input_boolean.climateops_cutover_dhw
+              - entity: input_text.climateops_cutover_notes
       - type: grid
         cards:
           - type: heading

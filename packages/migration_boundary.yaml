@@ -1,0 +1,24 @@
+input_boolean:
+  climateops_migration_enabled:
+    name: "ClimateOps Migration Enabled"
+    icon: mdi:swap-horizontal
+  climateops_cutover_vmc:
+    name: "ClimateOps Cutover VMC"
+    initial: false
+  climateops_cutover_heating:
+    name: "ClimateOps Cutover Heating"
+    initial: false
+  climateops_cutover_ac:
+    name: "ClimateOps Cutover AC"
+    initial: false
+  climateops_cutover_dhw:
+    name: "ClimateOps Cutover DHW"
+    initial: false
+
+input_text:
+  climateops_migration_status:
+    name: "ClimateOps Migration Status"
+    max: 255
+  climateops_cutover_notes:
+    name: "ClimateOps Cutover Notes"
+    max: 255

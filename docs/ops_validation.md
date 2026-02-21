@@ -1,16 +1,25 @@
 # Ops validation (VMC + AC)
 
 ## Checklist
-- Esegui i gates:
-  - (Windows) `pwsh -NoProfile -ExecutionPolicy Bypass -File ops/gates_run_ci.ps1`
-  - (Linux/HAOS) `ha core check`
+- Comando standard locale:
+  - `pwsh -NoProfile -ExecutionPolicy Bypass -File ops/validate.ps1`
+- Con check Home Assistant esplicito:
+  - `pwsh -NoProfile -ExecutionPolicy Bypass -File ops/validate.ps1 -HaCheck` (esegue anche `ha core check`)
+- CI:
+  - `pwsh -NoProfile -ExecutionPolicy Bypass -File ops/gates_run_ci.ps1` (read-only, senza step mutanti locali e senza `ha core check`)
 - Verifica in UI: gli switch AC/VMC non devono essere richiamati se già nello stato target (logbook più pulito).
+
+## Compatibilità alias/comandi
+- Legacy compatibile: `ops/gates_run.ps1` resta disponibile.
+- Reindirizzamento consigliato:
+  - alias/funzioni `gates` o `ha-gates` -> `ops/validate.ps1`
+  - per includere il check HA: `gates -HaCheck` (se alias PowerShell caricato)
 
 ## Rollback
 - `git log -1 --oneline` (per trovare l'hash)
 - `git revert <hash>`
 - Se revert fallisce per conflitti: `git revert --abort`
-- Ripeti i 2 comandi: `pwsh -NoProfile -ExecutionPolicy Bypass -File ops/gates_run_ci.ps1` e `ha core check`
+- Ripeti: `pwsh -NoProfile -ExecutionPolicy Bypass -File ops/validate.ps1 -HaCheck`
 
 ## Stabilizzazione attuatori (VMC + AC)
 

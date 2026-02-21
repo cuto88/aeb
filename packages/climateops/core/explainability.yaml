@@ -1,0 +1,13 @@
+input_text:
+  climateops_last_decision_global:
+    name: "ClimateOps Last Decision (Global)"
+    max: 255
+  climateops_reason_global:
+    name: "ClimateOps Reason (Global)"
+    max: 255
+
+input_datetime:
+  climateops_last_decision_ts:
+    name: "ClimateOps Last Decision Timestamp"
+    has_date: true
+    has_time: true

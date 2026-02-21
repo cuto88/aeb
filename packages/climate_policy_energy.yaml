@@ -1,0 +1,23 @@
+---
+# Policy layer energia: fail-safe su surplus FV non disponibile.
+
+template:
+  - binary_sensor:
+      - name: "Policy surplus ok"
+        unique_id: policy_surplus_ok
+        state: >-
+          {% set legacy = states('binary_sensor.surplus_ok') %}
+          {{ legacy == 'on' }}
+
+  - sensor:
+      - name: "Policy surplus reason"
+        unique_id: policy_surplus_reason
+        state: >-
+          {% set legacy = states('binary_sensor.surplus_ok') %}
+          {% if legacy == 'on' %}
+            LEGACY_OK
+          {% elif legacy == 'unavailable' %}
+            UNAVAILABLE_FAILSAFE_OFF
+          {% else %}
+            MISSING_FAILSAFE_OFF
+          {% endif %}

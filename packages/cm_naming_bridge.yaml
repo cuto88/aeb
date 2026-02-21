@@ -1,0 +1,34 @@
+---
+template:
+  - binary_sensor:
+      - name: "CM Contract Actuators Defined"
+        unique_id: cm_contract_actuators_defined
+        state: "{{ is_state('binary_sensor.contract_actuators_defined','on') }}"
+      - name: "CM Contract Surplus OK Defined"
+        unique_id: cm_contract_surplus_ok_defined
+        state: "{{ is_state('binary_sensor.contract_surplus_ok_defined','on') }}"
+      - name: "CM Contract Surplus OK Ready"
+        unique_id: cm_contract_surplus_ok_ready
+        state: "{{ is_state('binary_sensor.contract_surplus_ok_ready','on') }}"
+      - name: "CM Policy Allow VMC Boost"
+        unique_id: cm_policy_allow_vmc_boost
+        state: "{{ is_state('binary_sensor.policy_allow_vmc_boost','on') }}"
+
+  - sensor:
+      - name: "CM Contract Missing Entities"
+        unique_id: cm_contract_missing_entities
+        state: "{{ states('sensor.contract_missing_entities') }}"
+      - name: "CM Policy Reason"
+        unique_id: cm_policy_reason
+        state: "{{ states('sensor.policy_arbiter_reason') }}"
+      - name: "CM System Mode Suggested"
+        unique_id: cm_system_mode_suggested
+        state: >-
+          {% set t = states('sensor.vmc_vel_target') | int(-1) %}
+          {% if t == 3 %}VENT_BOOST
+          {% elif t == 2 %}VENT_HIGH
+          {% elif t == 1 %}VENT_BASE
+          {% elif t == 0 %}VENT_LOW
+          {% else %}VENT_BASE
+          {% endif %}
+        availability: "{{ true }}"

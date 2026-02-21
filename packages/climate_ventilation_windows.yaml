@@ -1,3 +1,7 @@
+# LEGACY MODULE (do not refactor)
+# Migration status: legacy-owner
+# Strangler: ClimateOps observes only (no actuation)
+# Toggle: input_boolean.climateops_migration_enabled (future cutover)
 ---
 ###############################################################################
 # 1_ventilation_windows.yaml – Aggregazione stato finestre per modulo VMC/Vent

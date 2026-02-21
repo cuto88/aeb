@@ -1,0 +1,35 @@
+---
+# Core fallback policy helpers (decoupled from VMC legacy helpers).
+
+input_number:
+  core_backup_t_in:
+    name: "Core – Backup T interna"
+    min: 10
+    max: 35
+    step: 0.5
+    unit_of_measurement: "°C"
+    mode: slider
+    icon: mdi:thermometer
+    initial: 26
+  core_backup_ur_in:
+    name: "Core – Backup UR interna"
+    min: 20
+    max: 90
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+    icon: mdi:water-percent
+    initial: 55
+
+template:
+  - trigger:
+      - platform: state
+        entity_id:
+          - input_number.core_backup_t_in
+          - input_number.core_backup_ur_in
+    sensor:
+      - name: "Core backup last update"
+        unique_id: core_backup_last_update
+        device_class: timestamp
+        state: >-
+          {{ now().isoformat() }}

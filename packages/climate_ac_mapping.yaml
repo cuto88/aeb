@@ -1,3 +1,7 @@
+# LEGACY MODULE (do not refactor)
+# Migration status: legacy-owner
+# Strangler: ClimateOps observes only (no actuation)
+# Toggle: input_boolean.climateops_migration_enabled (future cutover)
 # Mapping clima AC giorno e notte via SwitchBot (mapping fisico, senza template.climate)
 
 input_number:
@@ -121,16 +125,9 @@ script:
               - service: switch.turn_on
                 target:
                   entity_id: switch.ac_giorno
-      - service: switchbot.send_command
+      - service: script.ac_hw_press
         data:
-          device: ac_giorno
-          command: setAll
-          parameters: >-
-            {{ states('input_select.ac_giorno_mode') ~
-               ',' ~
-               states('input_number.ac_giorno_setpoint') | int ~
-               ',' ~
-               states('input_select.ac_giorno_fan') }}
+          target: "ac_giorno"
 
   ac_notte_apply:
     alias: AC Notte Apply
@@ -142,13 +139,6 @@ script:
               - service: switch.turn_on
                 target:
                   entity_id: switch.ac_notte
-      - service: switchbot.send_command
+      - service: script.ac_hw_press
         data:
-          device: ac_notte
-          command: setAll
-          parameters: >-
-            {{ states('input_select.ac_notte_mode') ~
-               ',' ~
-               states('input_number.ac_notte_setpoint') | int ~
-               ',' ~
-               states('input_select.ac_notte_fan') }}
+          target: "ac_notte"

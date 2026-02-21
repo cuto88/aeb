@@ -1,0 +1,63 @@
+title: "MIRAI"
+views:
+  - title: "MIRAI"
+    path: mirai
+    icon: mdi:heat-pump
+    type: sections
+    max_columns: 2
+
+    sections:
+      - type: grid
+        title: "Stato generale"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - binary_sensor.mirai_machine_running
+              - sensor.mirai_machine_state
+              - sensor.mirai_l261_compressor_step
+              - sensor.mirai_l243_internal_circulator
+              - sensor.mirai_status_code_raw
+              - sensor.mirai_fault_code_raw
+              - sensor.mirai_status_word_raw
+              - sensor.mirai_status_bits_on
+              - input_boolean.mirai_debug_enable
+
+      - type: grid
+        title: "Temperature"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - sensor.mirai_l161_inlet_water_temp
+              - sensor.mirai_l162_outlet_water_temp
+              - sensor.mirai_l163_outdoor_air_temp
+          - type: history-graph
+            title: "Temperature (24h)"
+            hours_to_show: 24
+            refresh_interval: 60
+            entities:
+              - sensor.mirai_l161_inlet_water_temp
+              - sensor.mirai_l162_outlet_water_temp
+              - sensor.mirai_l163_outdoor_air_temp
+
+      - type: grid
+        title: "Diagnostica"
+        cards:
+          - type: markdown
+            title: "Snapshot"
+            content: |-
+              {{ states('sensor.mirai_snapshot') }}
+
+      - type: grid
+        title: "History 24h"
+        cards:
+          - type: history-graph
+            hours_to_show: 24
+            refresh_interval: 60
+            entities:
+              - binary_sensor.mirai_machine_running
+              - sensor.mirai_l261_compressor_step
+              - sensor.mirai_l243_internal_circulator
+              - sensor.mirai_l162_outlet_water_temp
+              - sensor.mirai_l163_outdoor_air_temp

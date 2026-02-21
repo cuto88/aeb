@@ -292,3 +292,21 @@ Queste entità NON sono definite nel modulo climate ma sono richieste dalla logi
 - Esegui `ops/gate_entity_map.ps1 -Mode strict_clima` e verifica “Missing in map (clima only): 0”.
 - Controlla che resti solo il warning di alias `climate.ac_*` vs `switch.ac_*`, senza nuove discrepanze.
 - Conferma che nessun altro file oltre a questo README è stato modificato.
+---
+
+## 9. Step 4 naming bridge (cm_*)
+
+Per la migrazione naming funzionale Step 4, le dashboard e la documentazione devono usare
+le entità canoniche `cm_*` (bridge verso legacy).
+
+Riferimento SOT completo: `docs/SOT_ENTITIES.md`.
+
+Entità principali:
+- `sensor.cm_contract_missing_entities`
+- `binary_sensor.cm_policy_allow_vmc_boost`
+- `binary_sensor.cm_policy_surplus_ok`
+- `sensor.cm_system_mode_suggested`
+- `sensor.cm_system_reason`
+
+Nota: le entità legacy restano attive per un ciclo, ma non sono più naming target.
+

@@ -14,9 +14,9 @@ modbus:
     host: !secret ehw_modbus_host
     port: 502
     delay: 1
-    message_wait_milliseconds: 200
-    timeout: 5
-    retries: 3
+    message_wait_milliseconds: 30
+    timeout: 2
+    retries: 0
     sensors:
       # T01..T06 RAW (A = doc_reg - 1, B = doc_reg)
       - name: "EHW T01 raw A"
@@ -176,13 +176,14 @@ input_boolean:
   ehw_swap_top_bottom:
     name: EHW swap top/bottom
     icon: mdi:swap-vertical
+    initial: false
 
 input_number:
   ehw_temp_scale:
     name: EHW temp scale
-    min: 0.05
-    max: 1.0
-    step: 0.001
+    min: 0.01
+    max: 5
+    step: 0.01
     mode: slider
     initial: 0.3
   ehw_temp_offset:
@@ -191,12 +192,12 @@ input_number:
     max: 20
     step: 0.1
     mode: slider
-    initial: 0
+    initial: 0.0
   ehw_setpoint_scale:
     name: EHW setpoint scale
-    min: 0.05
-    max: 1.0
-    step: 0.001
+    min: 0.01
+    max: 5
+    step: 0.01
     mode: slider
     initial: 0.3
   ehw_setpoint_offset:
@@ -205,7 +206,7 @@ input_number:
     max: 20
     step: 0.1
     mode: slider
-    initial: 0
+    initial: 0.0
 
 template:
   - sensor:
@@ -313,63 +314,98 @@ template:
         device_class: temperature
         unit_of_measurement: "°C"
         state_class: measurement
-        availability: >-
-          {{ is_number(states('sensor.ehw_tank_top_raw')) }}
         state: >-
-          {{
-            (
-              (states('sensor.ehw_tank_top_raw') | float(0))
-              * (states('input_number.ehw_temp_scale') | float(1))
-              + (states('input_number.ehw_temp_offset') | float(0))
-            ) | round(1)
-          }}
+          {% set raw = states('sensor.ehw_tank_top_raw') | float(none) %}
+          {% set scale = states('input_number.ehw_temp_scale') | float(0) %}
+          {% if scale == 0 or scale is none %}
+            {% set scale = 0.3 %}
+          {% endif %}
+          {% set offset = states('input_number.ehw_temp_offset') | float(0) %}
+          {% if raw is none %}
+            unknown
+          {% else %}
+            {% set val = raw * scale + offset %}
+            {% if val < 0 or val > 90 %}
+              unknown
+            {% else %}
+              {{ val | round(1) }}
+            {% endif %}
+          {% endif %}
       - name: "EHW tank bottom"
         unique_id: ehw_tank_bottom
         device_class: temperature
         unit_of_measurement: "°C"
         state_class: measurement
-        availability: >-
-          {{ is_number(states('sensor.ehw_tank_bottom_raw')) }}
         state: >-
-          {{
-            (
-              (states('sensor.ehw_tank_bottom_raw') | float(0))
-              * (states('input_number.ehw_temp_scale') | float(1))
-              + (states('input_number.ehw_temp_offset') | float(0))
-            ) | round(1)
-          }}
+          {% set raw = states('sensor.ehw_tank_bottom_raw') | float(none) %}
+          {% set scale = states('input_number.ehw_temp_scale') | float(0) %}
+          {% if scale == 0 or scale is none %}
+            {% set scale = 0.3 %}
+          {% endif %}
+          {% set offset = states('input_number.ehw_temp_offset') | float(0) %}
+          {% if raw is none %}
+            unknown
+          {% else %}
+            {% set val = raw * scale + offset %}
+            {% if val < 0 or val > 90 %}
+              unknown
+            {% else %}
+              {{ val | round(1) }}
+            {% endif %}
+          {% endif %}
       - name: "EHW setpoint"
         unique_id: ehw_setpoint
         device_class: temperature
         unit_of_measurement: "°C"
         state_class: measurement
-        availability: >-
-          {{ is_number(states('sensor.ehw_setpoint_raw')) }}
         state: >-
-          {{
-            (
-              (states('sensor.ehw_setpoint_raw') | float(0))
-              * (states('input_number.ehw_setpoint_scale') | float(1))
-              + (states('input_number.ehw_setpoint_offset') | float(0))
-            ) | round(1)
-          }}
+          {% set raw = states('sensor.ehw_setpoint_raw') | float(none) %}
+          {% set scale = states('input_number.ehw_setpoint_scale') | float(0) %}
+          {% if scale == 0 or scale is none %}
+            {% set scale = 0.3 %}
+          {% endif %}
+          {% set offset = states('input_number.ehw_setpoint_offset') | float(0) %}
+          {% if raw is none %}
+            unknown
+          {% else %}
+            {% set val = raw * scale + offset %}
+            {% if val < 0 or val > 90 %}
+              unknown
+            {% else %}
+              {{ val | round(1) }}
+            {% endif %}
+          {% endif %}
       - name: "EHW delta stratificazione"
         unique_id: ehw_delta_stratificazione
         unit_of_measurement: "°C"
         state_class: measurement
-        availability: >-
-          {{
-            is_number(states('sensor.ehw_tank_top'))
-            and is_number(states('sensor.ehw_tank_bottom'))
-          }}
         state: >-
-          {{
-            (
-              (states('sensor.ehw_tank_top') | float(0))
-              - (states('sensor.ehw_tank_bottom') | float(0))
-            ) | round(1)
-          }}
+          {% if is_number(states('sensor.ehw_tank_top')) and is_number(states('sensor.ehw_tank_bottom')) %}
+            {{
+              (
+                (states('sensor.ehw_tank_top') | float(0))
+                - (states('sensor.ehw_tank_bottom') | float(0))
+              ) | round(1)
+            }}
+          {% else %}
+            unknown
+          {% endif %}
       - name: "EHW status"
         unique_id: ehw_status
         state: >-
-          {{ states('binary_sensor.ehw_running') }}
+          {% if is_state('binary_sensor.ehw_running', 'on') %}
+            In funzione
+          {% else %}
+            Spento
+          {% endif %}
+  - binary_sensor:
+      - name: "EHW running"
+        unique_id: ehw_running
+        state: >-
+          {% set has_raw = is_number(states('sensor.ehw_setpoint_raw')) and is_number(states('sensor.ehw_tank_top_raw')) %}
+          {% set has_scaled = is_number(states('sensor.ehw_setpoint')) and is_number(states('sensor.ehw_tank_top')) %}
+          {% if has_raw and has_scaled %}
+            {{ (states('sensor.ehw_setpoint') | float(0)) - (states('sensor.ehw_tank_top') | float(0)) >= 1.0 }}
+          {% else %}
+            false
+          {% endif %}

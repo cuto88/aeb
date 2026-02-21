@@ -31,11 +31,11 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-# 2. Run gates
-powershell -NoProfile -ExecutionPolicy Bypass -File ops\gates_run.ps1
+# 2. Run validation (repo gates default; optional HA check via -HaCheck)
+powershell -NoProfile -ExecutionPolicy Bypass -File ops\validate.ps1
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "STOP: gates failed."
+    Write-Host "STOP: validation failed."
     exit 1
 }
 
-Write-Host "==> OK: repo allineato e gates verdi"
+Write-Host "==> OK: repo allineato e validation verde"
