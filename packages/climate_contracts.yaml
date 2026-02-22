@@ -50,12 +50,17 @@ template:
           }}
       - name: "Contract actuators defined"
         unique_id: contract_actuators_defined
-        state: "on"
+        state: >-
+          {%- set required_actuators = [
+            'switch.heating_master',
+            'switch.vmc_vel_0',
+            'switch.vmc_vel_1',
+            'switch.vmc_vel_2',
+            'switch.vmc_vel_3'
+          ] -%}
+          {%- set required_states = required_actuators | map('states') | list -%}
+          {{ required_states | reject('eq', 'unknown') | list | count == required_actuators | length }}
         icon: mdi:check-circle
-        device_class: running
-        # Architectural invariant:
-        # Actuators existence is declared by design, not by runtime availability.
-        # Runtime health is tracked only by contract_actuators_ready.
 
       - name: "Contract actuators ready"
         unique_id: contract_actuators_ready
@@ -80,6 +85,49 @@ template:
               or optional_ac_states | select('eq', 'unknown') | list | count == optional_ac_actuators | length
             )
           }}
+      - name: "Contract actuators reason"
+        unique_id: contract_actuators_reason
+        state: >-
+          {%- set required_actuators = [
+            'switch.heating_master',
+            'switch.vmc_vel_0',
+            'switch.vmc_vel_1',
+            'switch.vmc_vel_2',
+            'switch.vmc_vel_3'
+          ] -%}
+          {%- set optional_ac_actuators = [
+            'switch.ac_giorno',
+            'switch.ac_notte'
+          ] -%}
+          {%- set req_missing = namespace(v=[]) -%}
+          {%- set req_unavail = namespace(v=[]) -%}
+          {%- for entity in required_actuators -%}
+            {%- set st = states(entity) -%}
+            {%- if st == 'unknown' -%}
+              {%- set req_missing.v = req_missing.v + [entity] -%}
+            {%- elif st == 'unavailable' -%}
+              {%- set req_unavail.v = req_unavail.v + [entity] -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- set ac_unknown = namespace(v=[]) -%}
+          {%- set ac_unavail = namespace(v=[]) -%}
+          {%- for entity in optional_ac_actuators -%}
+            {%- set st = states(entity) -%}
+            {%- if st == 'unknown' -%}
+              {%- set ac_unknown.v = ac_unknown.v + [entity] -%}
+            {%- elif st == 'unavailable' -%}
+              {%- set ac_unavail.v = ac_unavail.v + [entity] -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- if req_missing.v | length > 0 -%}
+            MISSING_REQUIRED: {{ req_missing.v | join(', ') }}
+          {%- elif req_unavail.v | length > 0 -%}
+            UNAVAILABLE_REQUIRED: {{ req_unavail.v | join(', ') }}
+          {%- elif ac_unavail.v | length > 0 and ac_unknown.v | length < optional_ac_actuators | length -%}
+            UNAVAILABLE_OPTIONAL_AC: {{ ac_unavail.v | join(', ') }}
+          {%- else -%}
+            OK
+          {%- endif -%}
 
   - sensor:
       - name: "Contract missing entities"

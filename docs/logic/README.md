@@ -3,6 +3,10 @@
 Questa cartella contiene la documentazione delle logiche di Casa Mercurio.
 
 - Panoramica e struttura: [`README_struttura_sistemi.md`](README_struttura_sistemi.md)
+- Audit baseline Step 0 (AEB/Passivhaus): [`../audits/STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md`](../audits/STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md)
+- Audit Step 1 runtime authority (Legacy vs ClimateOps): [`../audits/STEP1_RUNTIME_AUTHORITY_2026-02-21.md`](../audits/STEP1_RUNTIME_AUTHORITY_2026-02-21.md)
+- Audit Step 2 runtime evidence closure: [`../audits/STEP2_RUNTIME_EVIDENCE_2026-02-21.md`](../audits/STEP2_RUNTIME_EVIDENCE_2026-02-21.md)
+- Audit Step 2-bis runtime evidence update (writer per evento): [`../audits/STEP2BIS_RUNTIME_EVIDENCE_UPDATE_2026-02-21.md`](../audits/STEP2BIS_RUNTIME_EVIDENCE_UPDATE_2026-02-21.md)
 - Moduli principali:
   - Ventilation (ventilazione naturale + VMC):
     - [`ventilation/README.md`](ventilation/README.md)

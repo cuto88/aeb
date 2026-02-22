@@ -13,6 +13,8 @@
 | --- | --- | --- | --- |
 | CONTRACT | `sensor.cm_contract_missing_entities` | `sensor.contract_missing_entities` | Mirror testo `OK`/lista missing |
 | CONTRACT | `binary_sensor.cm_contract_actuators_defined` | `binary_sensor.contract_actuators_defined` | Alias 1:1 |
+| CONTRACT | `binary_sensor.cm_contract_actuators_ready` | `binary_sensor.contract_actuators_ready` | Alias 1:1 |
+| CONTRACT | `sensor.cm_contract_actuators_reason` | `sensor.contract_actuators_reason` | Motivo blocco/OK attuatori |
 | CONTRACT | `binary_sensor.cm_contract_surplus_ready` | `binary_sensor.contract_surplus_ok_ready` | Bridge naming |
 | POLICY | `binary_sensor.cm_policy_allow_ac` | `binary_sensor.policy_allow_ac` | Alias 1:1 |
 | POLICY | `binary_sensor.cm_policy_allow_vmc_boost` | `binary_sensor.policy_allow_vmc_boost` | Alias 1:1 |

@@ -11,6 +11,12 @@ Fonti di verit√† rapide: `docs/logic/core/README_sensori_clima.md` (mappa entit√
 
 Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 
+## Audit baseline
+- Step 0 AEB/Passivhaus maturity snapshot: `docs/audits/STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md`
+- Step 1 runtime authority audit (Legacy vs ClimateOps): `docs/audits/STEP1_RUNTIME_AUTHORITY_2026-02-21.md`
+- Step 2 runtime evidence closure: `docs/audits/STEP2_RUNTIME_EVIDENCE_2026-02-21.md`
+- Step 2-bis runtime evidence update (writer per evento): `docs/audits/STEP2BIS_RUNTIME_EVIDENCE_UPDATE_2026-02-21.md`
+
 ## Quality gates (ops)
 Per eseguire i controlli locali:
 - `powershell -NoProfile -ExecutionPolicy Bypass -File ops\validate.ps1`

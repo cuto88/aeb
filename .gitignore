@@ -50,3 +50,8 @@ ops/_logs/
 # ops state
 # ==================================================
 ops/.gates_state.json
+
+# ==================================================
+# Audit runtime evidence (local-only, never sync)
+# ==================================================
+docs/runtime_evidence/
