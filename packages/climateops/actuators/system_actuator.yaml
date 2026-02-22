@@ -53,6 +53,7 @@ automation:
               - service: switch.turn_off
                 target:
                   entity_id: switch.ac_giorno
+      - choose:
           - conditions: "{{ (not (ac_night_should_run | bool)) and is_state('switch.ac_notte','on') }}"
             sequence:
               - service: switch.turn_off
