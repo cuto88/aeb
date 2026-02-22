@@ -18,6 +18,9 @@ automation:
         entity_id: binary_sensor.cm_contract_actuators_defined
         state: "on"
       - condition: state
+        entity_id: binary_sensor.cm_contract_actuators_ready
+        state: "on"
+      - condition: state
         entity_id: sensor.cm_contract_missing_entities
         state: "OK"
     action:
@@ -35,6 +38,12 @@ automation:
               states('switch.ac_giorno') not in ['unknown','unavailable']
               and states('switch.ac_notte') not in ['unknown','unavailable']
             }}
+      - choose:
+          - conditions: "{{ mode != 'HEAT' }}"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.heating_master
       - choose:
           - conditions: "{{ mode == 'HEAT' }}"
             sequence:
