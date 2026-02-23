@@ -3,7 +3,7 @@ mqtt:
     - name: "ANDROID-151 Battery"
       unique_id: "android_151_battery"
       state_topic: "android/phone1/battery"
-      value_template: "{{ value_json.level }}"
+      value_template: "{{ value_json.level | float(0) }}"
       unit_of_measurement: "%"
       device_class: battery
       state_class: measurement
@@ -11,7 +11,7 @@ mqtt:
     - name: "ANDROID-152 Battery"
       unique_id: "android_152_battery"
       state_topic: "android/phone2/battery"
-      value_template: "{{ value_json.level }}"
+      value_template: "{{ value_json.level | float(0) }}"
       unit_of_measurement: "%"
       device_class: battery
       state_class: measurement
@@ -19,7 +19,7 @@ mqtt:
     - name: "ANDROID-153 Battery"
       unique_id: "android_153_battery"
       state_topic: "android/phone3/battery"
-      value_template: "{{ value_json.level }}"
+      value_template: "{{ value_json.level | float(0) }}"
       unit_of_measurement: "%"
       device_class: battery
       state_class: measurement
@@ -27,7 +27,7 @@ mqtt:
     - name: "ANDROID-154 Battery"
       unique_id: "android_154_battery"
       state_topic: "android/phone4/battery"
-      value_template: "{{ value_json.level }}"
+      value_template: "{{ value_json.level | float(0) }}"
       unit_of_measurement: "%"
       device_class: battery
       state_class: measurement
@@ -35,7 +35,7 @@ mqtt:
     - name: "ANDROID-155 Battery"
       unique_id: "android_155_battery"
       state_topic: "android/phone5/battery"
-      value_template: "{{ value_json.level }}"
+      value_template: "{{ value_json.level | float(0) }}"
       unit_of_measurement: "%"
       device_class: battery
       state_class: measurement
@@ -43,7 +43,7 @@ mqtt:
     - name: "ANDROID-151 Light Lux"
       unique_id: "android_151_light_lux"
       state_topic: "android/phone1/battery"
-      value_template: "{{ value_json.lux }}"
+      value_template: "{{ value_json.lux | float(0) }}"
       unit_of_measurement: "lx"
       device_class: illuminance
       state_class: measurement
@@ -51,7 +51,7 @@ mqtt:
     - name: "ANDROID-152 Light Lux"
       unique_id: "android_152_light_lux"
       state_topic: "android/phone2/battery"
-      value_template: "{{ value_json.lux }}"
+      value_template: "{{ value_json.lux | float(0) }}"
       unit_of_measurement: "lx"
       device_class: illuminance
       state_class: measurement
@@ -59,7 +59,7 @@ mqtt:
     - name: "ANDROID-153 Light Lux"
       unique_id: "android_153_light_lux"
       state_topic: "android/phone3/battery"
-      value_template: "{{ value_json.lux }}"
+      value_template: "{{ value_json.lux | float(0) }}"
       unit_of_measurement: "lx"
       device_class: illuminance
       state_class: measurement
@@ -67,7 +67,7 @@ mqtt:
     - name: "ANDROID-154 Light Lux"
       unique_id: "android_154_light_lux"
       state_topic: "android/phone4/battery"
-      value_template: "{{ value_json.lux }}"
+      value_template: "{{ value_json.lux | float(0) }}"
       unit_of_measurement: "lx"
       device_class: illuminance
       state_class: measurement
@@ -75,8 +75,9 @@ mqtt:
     - name: "ANDROID-155 Light Lux"
       unique_id: "android_155_light_lux"
       state_topic: "android/phone5/battery"
-      value_template: "{{ value_json.lux }}"
+      value_template: "{{ value_json.lux | float(0) }}"
       unit_of_measurement: "lx"
       device_class: illuminance
       state_class: measurement
+
 
