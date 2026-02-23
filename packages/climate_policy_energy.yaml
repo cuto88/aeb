@@ -1,23 +1,45 @@
 ---
 # Policy layer energia: fail-safe su surplus FV non disponibile.
 
+input_number:
+  policy_surplus_pv_min_w:
+    name: "Policy surplus fallback - soglia PV (W)"
+    min: 0
+    max: 10000
+    step: 50
+    unit_of_measurement: "W"
+    icon: mdi:solar-power
+
 template:
   - binary_sensor:
       - name: "Policy surplus ok"
         unique_id: policy_surplus_ok
         state: >-
           {% set legacy = states('binary_sensor.surplus_ok') %}
-          {{ legacy == 'on' }}
+          {% set pv = states('sensor.pv_power_now') %}
+          {% set pv_thr = states('input_number.policy_surplus_pv_min_w') | float(800) %}
+          {% set pv_ok = pv not in ['unknown','unavailable','', 'none', 'None'] and (pv | float(0) >= pv_thr) %}
+          {% if legacy in ['on','off'] %}
+            {{ legacy == 'on' }}
+          {% else %}
+            {{ pv_ok }}
+          {% endif %}
 
   - sensor:
       - name: "Policy surplus reason"
         unique_id: policy_surplus_reason
         state: >-
           {% set legacy = states('binary_sensor.surplus_ok') %}
+          {% set pv = states('sensor.pv_power_now') %}
+          {% set pv_thr = states('input_number.policy_surplus_pv_min_w') | float(800) %}
           {% if legacy == 'on' %}
-            LEGACY_OK
-          {% elif legacy == 'unavailable' %}
-            UNAVAILABLE_FAILSAFE_OFF
+            LEGACY_ON
+          {% elif legacy == 'off' %}
+            LEGACY_OFF
+          {% elif pv in ['unknown','unavailable','', 'none', 'None'] %}
+            FALLBACK_PV_UNAVAILABLE_FAILSAFE_OFF
+          {% elif (pv | float(0)) >= pv_thr %}
+            FALLBACK_PV_POWER_OK
           {% else %}
-            MISSING_FAILSAFE_OFF
+            FALLBACK_PV_POWER_LOW
           {% endif %}
