@@ -273,11 +273,12 @@ template:
         unique_id: heating_minutes_since_change
         unit_of_measurement: "min"
         state: >-
-          {% set relay = states('switch.4_ch_interruttore_3') %}
-          {% if relay in ['unknown', 'unavailable', 'none', 'None', ''] %}
+          {% set relay_state = states('switch.4_ch_interruttore_3') %}
+          {% set relay_obj = states.switch | selectattr('entity_id', 'eq', 'switch.4_ch_interruttore_3') | list | first %}
+          {% if relay_state in ['unknown', 'unavailable', 'none', 'None', ''] or relay_obj is none %}
             unknown
           {% else %}
-            {{ ((as_timestamp(now()) - as_timestamp(states.switch['4_ch_interruttore_3'].last_changed)) / 60) | round(1) }}
+            {{ ((as_timestamp(now()) - as_timestamp(relay_obj.last_changed)) / 60) | round(1) }}
           {% endif %}
 
       # Reason & priority complessiva
