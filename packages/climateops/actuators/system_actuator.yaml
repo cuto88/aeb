@@ -8,6 +8,8 @@ automation:
   - id: climateops_system_actuate
     alias: "ClimateOps – System Actuate"
     mode: restart
+    trace:
+      stored_traces: 30
     trigger:
       - platform: state
         entity_id: sensor.cm_system_mode_suggested
