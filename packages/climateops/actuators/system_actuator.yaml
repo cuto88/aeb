@@ -120,3 +120,65 @@ automation:
         data:
           value: >-
             System actuation: {{ mode }} | {{ policy_reason }}
+
+  # Enforce AC writer authority during cutover: if an external writer
+  # toggles AC ON outside ClimateOps policy/mode, immediately revert.
+  - id: climateops_enforce_ac_writer_authority
+    alias: "ClimateOps – Enforce AC Writer Authority"
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id:
+          - switch.ac_giorno
+          - switch.ac_notte
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.climateops_cutover_ac
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.cm_contract_actuators_defined
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.cm_contract_actuators_ready
+        state: "on"
+      - condition: state
+        entity_id: sensor.cm_contract_missing_entities
+        state: "OK"
+    action:
+      - variables:
+          mode: "{{ states('sensor.cm_system_mode_suggested') }}"
+          ac_available: >-
+            {{
+              states('switch.ac_giorno') not in ['unknown','unavailable']
+              and states('switch.ac_notte') not in ['unknown','unavailable']
+            }}
+          ac_policy_ok: "{{ is_state('binary_sensor.policy_allow_ac','on') }}"
+          allow_day: "{{ mode == 'COOL_DAY' and ac_available and ac_policy_ok }}"
+          allow_night: "{{ mode == 'COOL_NIGHT' and ac_available and ac_policy_ok }}"
+          trg: "{{ trigger.entity_id }}"
+      - choose:
+          - conditions: "{{ trg == 'switch.ac_giorno' and not (allow_day | bool) }}"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.ac_giorno
+              - service: logbook.log
+                data:
+                  name: "ClimateOps AC authority"
+                  entity_id: automation.climateops_enforce_ac_writer_authority
+                  message: >-
+                    Revert ON non autorizzato su switch.ac_giorno.
+                    mode={{ mode }}, policy_allow_ac={{ ac_policy_ok }}.
+          - conditions: "{{ trg == 'switch.ac_notte' and not (allow_night | bool) }}"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.ac_notte
+              - service: logbook.log
+                data:
+                  name: "ClimateOps AC authority"
+                  entity_id: automation.climateops_enforce_ac_writer_authority
+                  message: >-
+                    Revert ON non autorizzato su switch.ac_notte.
+                    mode={{ mode }}, policy_allow_ac={{ ac_policy_ok }}.
