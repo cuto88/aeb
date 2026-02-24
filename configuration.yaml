@@ -26,7 +26,7 @@ lovelace:
       mode: yaml
       title: "1 Ventilazione"
       icon: mdi:fan
-      show_in_sidebar: true
+      show_in_sidebar: false
       filename: lovelace/climate_ventilation_plancia.yaml
 
     1-ventilazione-v2:

@@ -114,8 +114,8 @@ views:
         cards:
           - type: history-graph
             title: "Temperature interne/esterna (24h)"
-            hours_to_show: 24
-            refresh_interval: 60
+            hours_to_show: 12
+            refresh_interval: 120
             entities:
               - entity: sensor.t_in_giorno
                 name: Zona giorno
@@ -176,20 +176,22 @@ views:
                 name: Failsafe sensori
               - entity: binary_sensor.heating_almeno_una_stanza_sotto_target
                 name: Almeno una stanza sotto target
+              - entity: switch.4_ch_interruttore_3
+                name: Relay fisico pompa
 
       - type: grid
         cards:
           - type: history-graph
             title: "Timeline decisioni – Heating (24h)"
-            hours_to_show: 24
-            refresh_interval: 60
+            hours_to_show: 12
+            refresh_interval: 120
             entities:
               - entity: sensor.heating_priority
                 name: Priorità heating
               - entity: sensor.heating_reason
                 name: Motivo/azione
-              - entity: switch.4_ch_interruttore_3
-                name: Pompa riscaldamento
+              - entity: switch.heating_master
+                name: Comando riscaldamento
               - entity: binary_sensor.heating_finestra_oraria
                 name: Finestra comfort
               - entity: binary_sensor.heating_window_pv

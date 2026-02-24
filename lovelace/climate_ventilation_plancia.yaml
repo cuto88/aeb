@@ -63,9 +63,9 @@ views:
         title: "Finestre"
         show_header_toggle: false
         entities:
+          - binary_sensor.windows_all_closed
+          - sensor.vent_finestre_state
           - sensor.clima_open_windows_recommended
-          - type: section
-            label: "TODO: collegare stato finestre (modulo dedicato)"
 
       - type: entities
         title: "Messaggi"

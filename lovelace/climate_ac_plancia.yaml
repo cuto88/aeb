@@ -86,8 +86,8 @@ views:
         cards:
           - type: history-graph
             title: "Temperature (24h)"
-            hours_to_show: 24
-            refresh_interval: 60
+            hours_to_show: 12
+            refresh_interval: 120
             entities:
               - entity: sensor.t_in_med
                 name: T interna media
@@ -96,8 +96,8 @@ views:
 
           - type: history-graph
             title: "Umidità (24h)"
-            hours_to_show: 24
-            refresh_interval: 60
+            hours_to_show: 12
+            refresh_interval: 120
             entities:
               - entity: sensor.ur_in_media
                 name: UR interna media
@@ -140,8 +140,8 @@ views:
 
           - type: history-graph
             title: "Trend ON/OFF (24h)"
-            hours_to_show: 24
-            refresh_interval: 60
+            hours_to_show: 12
+            refresh_interval: 120
             entities:
               - entity: switch.ac_giorno
                 name: AC Giorno
@@ -174,8 +174,8 @@ views:
         cards:
           - type: history-graph
             title: "Timeline decisioni – AC (24h)"
-            hours_to_show: 24
-            refresh_interval: 60
+            hours_to_show: 12
+            refresh_interval: 120
             entities:
               - entity: sensor.ac_priority
                 name: Priorità AC
