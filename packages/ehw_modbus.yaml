@@ -272,10 +272,16 @@ template:
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
+          {% set v = none %}
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
-            {{ states('sensor.ehw_t01_raw_a') }}
+            {% set v = states('sensor.ehw_t01_raw_a') | float(default=none) %}
           {% else %}
-            {{ states('sensor.ehw_t01_raw_b') }}
+            {% set v = states('sensor.ehw_t01_raw_b') | float(default=none) %}
+          {% endif %}
+          {% if v is none %}
+            {{ none }}
+          {% else %}
+            {{ v | round(0) }}
           {% endif %}
       - name: "EHW T02 raw"
         unique_id: ehw_t02_raw
@@ -283,10 +289,16 @@ template:
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
+          {% set v = none %}
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
-            {{ states('sensor.ehw_t02_raw_a') }}
+            {% set v = states('sensor.ehw_t02_raw_a') | float(default=none) %}
           {% else %}
-            {{ states('sensor.ehw_t02_raw_b') }}
+            {% set v = states('sensor.ehw_t02_raw_b') | float(default=none) %}
+          {% endif %}
+          {% if v is none %}
+            {{ none }}
+          {% else %}
+            {{ v | round(0) }}
           {% endif %}
       - name: "EHW T03 raw"
         unique_id: ehw_t03_raw
@@ -294,10 +306,16 @@ template:
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
+          {% set v = none %}
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
-            {{ states('sensor.ehw_t03_raw_a') }}
+            {% set v = states('sensor.ehw_t03_raw_a') | float(default=none) %}
           {% else %}
-            {{ states('sensor.ehw_t03_raw_b') }}
+            {% set v = states('sensor.ehw_t03_raw_b') | float(default=none) %}
+          {% endif %}
+          {% if v is none %}
+            {{ none }}
+          {% else %}
+            {{ v | round(0) }}
           {% endif %}
       - name: "EHW T04 raw"
         unique_id: ehw_t04_raw
@@ -305,10 +323,16 @@ template:
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
+          {% set v = none %}
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
-            {{ states('sensor.ehw_t04_raw_a') }}
+            {% set v = states('sensor.ehw_t04_raw_a') | float(default=none) %}
           {% else %}
-            {{ states('sensor.ehw_t04_raw_b') }}
+            {% set v = states('sensor.ehw_t04_raw_b') | float(default=none) %}
+          {% endif %}
+          {% if v is none %}
+            {{ none }}
+          {% else %}
+            {{ v | round(0) }}
           {% endif %}
       - name: "EHW T05 raw"
         unique_id: ehw_t05_raw
@@ -316,10 +340,16 @@ template:
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
+          {% set v = none %}
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
-            {{ states('sensor.ehw_t05_raw_a') }}
+            {% set v = states('sensor.ehw_t05_raw_a') | float(default=none) %}
           {% else %}
-            {{ states('sensor.ehw_t05_raw_b') }}
+            {% set v = states('sensor.ehw_t05_raw_b') | float(default=none) %}
+          {% endif %}
+          {% if v is none %}
+            {{ none }}
+          {% else %}
+            {{ v | round(0) }}
           {% endif %}
       - name: "EHW T06 raw"
         unique_id: ehw_t06_raw
@@ -327,10 +357,16 @@ template:
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
+          {% set v = none %}
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
-            {{ states('sensor.ehw_t06_raw_a') }}
+            {% set v = states('sensor.ehw_t06_raw_a') | float(default=none) %}
           {% else %}
-            {{ states('sensor.ehw_t06_raw_b') }}
+            {% set v = states('sensor.ehw_t06_raw_b') | float(default=none) %}
+          {% endif %}
+          {% if v is none %}
+            {{ none }}
+          {% else %}
+            {{ v | round(0) }}
           {% endif %}
       - name: "EHW setpoint raw A"
         unique_id: ehw_setpoint_raw_a
@@ -338,10 +374,16 @@ template:
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
+          {% set v = none %}
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
-            {{ states('sensor.ehw_setpoint_1104_raw_a') }}
+            {% set v = states('sensor.ehw_setpoint_1104_raw_a') | float(default=none) %}
           {% else %}
-            {{ states('sensor.ehw_setpoint_1104_raw_b') }}
+            {% set v = states('sensor.ehw_setpoint_1104_raw_b') | float(default=none) %}
+          {% endif %}
+          {% if v is none %}
+            {{ none }}
+          {% else %}
+            {{ v | round(0) }}
           {% endif %}
       - name: "EHW setpoint raw B"
         unique_id: ehw_setpoint_raw_b
@@ -349,10 +391,16 @@ template:
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
+          {% set v = none %}
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
-            {{ states('sensor.ehw_setpoint_1105_raw_a') }}
+            {% set v = states('sensor.ehw_setpoint_1105_raw_a') | float(default=none) %}
           {% else %}
-            {{ states('sensor.ehw_setpoint_1105_raw_b') }}
+            {% set v = states('sensor.ehw_setpoint_1105_raw_b') | float(default=none) %}
+          {% endif %}
+          {% if v is none %}
+            {{ none }}
+          {% else %}
+            {{ v | round(0) }}
           {% endif %}
       - name: "EHW tank top raw"
         unique_id: ehw_tank_top_raw
