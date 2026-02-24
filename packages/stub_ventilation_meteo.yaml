@@ -1,26 +1,68 @@
 ---
-# Stub temporaneo: meteo ok per ventilazione naturale.
-# Sostituire con sensori reali (pioggia/vento/PM2.5) quando disponibili.
-# TODO integrare meteo reale.
+# Meteo gate per ventilazione naturale con fallback multi-sorgente.
+# Se alcune sorgenti non sono disponibili, il gate continua a usare quelle valide.
+
+input_number:
+  vent_vento_max:
+    name: "Ventilazione - Vento massimo (m/s)"
+    min: 1
+    max: 25
+    step: 0.5
+    initial: 6
+    unit_of_measurement: "m/s"
+    icon: mdi:weather-windy
+  vent_pm25_max:
+    name: "Ventilazione - PM2.5 massimo (ug/m3)"
+    min: 5
+    max: 100
+    step: 1
+    initial: 35
+    unit_of_measurement: "ug/m3"
+    icon: mdi:molecule-co2
 
 template:
   - binary_sensor:
+      - name: "Ventilazione pioggia"
+        unique_id: vent_pioggia
+        state: >-
+          {% set invalid = ['unknown','unavailable','','none','None'] %}
+          {% set rain_bin = states('binary_sensor.meteo_pioggia') %}
+          {% set rain_num = states('sensor.meteo_pioggia_mm_h') %}
+          {% set weather_state = states('weather.forecast_home') %}
+          {% if rain_bin not in invalid %}
+            {{ rain_bin in ['on','true','1'] }}
+          {% elif rain_num not in invalid %}
+            {{ (rain_num | float(0)) > 0 }}
+          {% elif weather_state not in invalid %}
+            {{ weather_state in ['rainy','pouring','lightning-rainy'] }}
+          {% else %}
+            false
+          {% endif %}
+
       - name: "Ventilazione meteo ok"
         unique_id: vent_condizioni_meteo_ok
         state: >-
-          {%- set rain_entity = 'binary_sensor.meteo_pioggia' -%}
-          {%- set wind_entity = 'sensor.meteo_vento_velocita' -%}
-          {%- set wind_max = 6 -%}
-          {%- set rain_state = states(rain_entity) -%}
-          {%- set wind_state = states(wind_entity) -%}
-          {%- set sensors_ready = rain_state not in ['unknown','unavailable',''] and wind_state not in ['unknown','unavailable',''] -%}
-          {%- if not sensors_ready -%}
-            {{ false }}
-          {%- else -%}
-            {%- set rain_value = rain_state | lower -%}
-            {%- set is_rain_ok = rain_value in ['0','0.0','off','false'] -%}
-            {%- set wind_speed = wind_state | float(999) -%}
-            {{ is_rain_ok and wind_speed < wind_max }}
-          {%- endif -%}
+          {% set invalid = ['unknown','unavailable','','none','None'] %}
+          {% set wind_max = states('input_number.vent_vento_max') | float(6) %}
+          {% set pm25_max = states('input_number.vent_pm25_max') | float(35) %}
+          {% set wind_candidates = ['sensor.meteo_vento_velocita', 'sensor.wind_speed', 'sensor.openweathermap_wind_speed'] %}
+          {% set pm25_candidates = ['sensor.pm25_outdoor', 'sensor.air_quality_pm25', 'sensor.openweathermap_pm25'] %}
+          {% set ns = namespace(wind=none, pm25=none) %}
+          {% for e in wind_candidates %}
+            {% set s = states(e) %}
+            {% if ns.wind is none and s not in invalid %}
+              {% set ns.wind = s | float(0) %}
+            {% endif %}
+          {% endfor %}
+          {% for e in pm25_candidates %}
+            {% set s = states(e) %}
+            {% if ns.pm25 is none and s not in invalid %}
+              {% set ns.pm25 = s | float(0) %}
+            {% endif %}
+          {% endfor %}
+          {% set rain_ok = is_state('binary_sensor.vent_pioggia','off') %}
+          {% set wind_ok = (ns.wind is none) or (ns.wind <= wind_max) %}
+          {% set pm25_ok = (ns.pm25 is none) or (ns.pm25 <= pm25_max) %}
+          {{ rain_ok and wind_ok and pm25_ok }}
         availability: >-
           {{ true }}

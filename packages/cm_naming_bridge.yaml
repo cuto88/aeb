@@ -21,14 +21,14 @@ template:
       - name: "CM Contract Missing Entities"
         unique_id: cm_contract_missing_entities
         state: "{{ states('sensor.contract_missing_entities') }}"
-      - name: "Mirai Power W"
+      - name: "CM Mirai Power W"
         unique_id: cm_mirai_power_w
         unit_of_measurement: "W"
         state_class: measurement
         device_class: power
         state: "{{ states('sensor.sensor_grid_power_w') }}"
         availability: "{{ states('sensor.sensor_grid_power_w') not in ['unknown','unavailable'] }}"
-      - name: "EHW Power W"
+      - name: "CM EHW Power W"
         unique_id: cm_ehw_power_w
         unit_of_measurement: "W"
         state_class: measurement

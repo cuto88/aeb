@@ -356,7 +356,7 @@ template:
             P1_anti_secco
           {% elif ur_in_media > 50 and (ur_in_media - ur_out) >= 10 %}
             P1_delta_ur
-          {% elif is_state('binary_sensor.vmc_freecooling_candidate','on') %} {# TODO: ripristinare controllo finestre chiuse #}
+          {% elif is_state('binary_sensor.vmc_freecooling_candidate','on') and is_state('binary_sensor.windows_all_closed','on') %}
             P2_freecooling
           {% else %}
             P4_baseline

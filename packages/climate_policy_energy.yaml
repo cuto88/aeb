@@ -15,11 +15,26 @@ template:
   - binary_sensor:
       - name: "Policy surplus ok"
         unique_id: policy_surplus_ok
+        delay_on:
+          minutes: 2
+        delay_off:
+          minutes: 3
         state: >-
           {% set legacy = states('binary_sensor.surplus_ok') %}
-          {% set pv = states('sensor.pv_power_now') %}
           {% set pv_thr = states('input_number.policy_surplus_pv_min_w') | float(800) %}
-          {% set pv_ok = pv not in ['unknown','unavailable','', 'none', 'None'] and (pv | float(0) >= pv_thr) %}
+          {% set s1 = states('sensor.pv_power_now') %}
+          {% set s2 = states('sensor.cm_ehw_power_w') %}
+          {% set s3 = states('sensor.sensor_pv_power_w') %}
+          {% if s1 not in ['unknown','unavailable','', 'none', 'None'] %}
+            {% set pv = s1 | float(0) %}
+          {% elif s2 not in ['unknown','unavailable','', 'none', 'None'] %}
+            {% set pv = s2 | float(0) %}
+          {% elif s3 not in ['unknown','unavailable','', 'none', 'None'] %}
+            {% set pv = s3 | float(0) %}
+          {% else %}
+            {% set pv = -1 %}
+          {% endif %}
+          {% set pv_ok = pv >= pv_thr %}
           {% if legacy in ['on','off'] %}
             {{ legacy == 'on' }}
           {% else %}
@@ -31,16 +46,50 @@ template:
         unique_id: policy_surplus_reason
         state: >-
           {% set legacy = states('binary_sensor.surplus_ok') %}
-          {% set pv = states('sensor.pv_power_now') %}
           {% set pv_thr = states('input_number.policy_surplus_pv_min_w') | float(800) %}
+          {% set s1 = states('sensor.pv_power_now') %}
+          {% set s2 = states('sensor.cm_ehw_power_w') %}
+          {% set s3 = states('sensor.sensor_pv_power_w') %}
+          {% if s1 not in ['unknown','unavailable','', 'none', 'None'] %}
+            {% set pv = s1 | float(0) %}
+            {% set src = 'pv_power_now' %}
+          {% elif s2 not in ['unknown','unavailable','', 'none', 'None'] %}
+            {% set pv = s2 | float(0) %}
+            {% set src = 'cm_ehw_power_w' %}
+          {% elif s3 not in ['unknown','unavailable','', 'none', 'None'] %}
+            {% set pv = s3 | float(0) %}
+            {% set src = 'sensor_pv_power_w' %}
+          {% else %}
+            {% set pv = -1 %}
+            {% set src = 'none' %}
+          {% endif %}
           {% if legacy == 'on' %}
             LEGACY_ON
           {% elif legacy == 'off' %}
             LEGACY_OFF
-          {% elif pv in ['unknown','unavailable','', 'none', 'None'] %}
+          {% elif src == 'none' %}
             FALLBACK_PV_UNAVAILABLE_FAILSAFE_OFF
-          {% elif (pv | float(0)) >= pv_thr %}
-            FALLBACK_PV_POWER_OK
+          {% elif pv >= pv_thr %}
+            FALLBACK_PV_POWER_OK_{{ src }}
           {% else %}
-            FALLBACK_PV_POWER_LOW
+            FALLBACK_PV_POWER_LOW_{{ src }}
+          {% endif %}
+
+      - name: "Policy surplus pv selected w"
+        unique_id: policy_surplus_pv_selected_w
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% set s1 = states('sensor.pv_power_now') %}
+          {% set s2 = states('sensor.cm_ehw_power_w') %}
+          {% set s3 = states('sensor.sensor_pv_power_w') %}
+          {% if s1 not in ['unknown','unavailable','', 'none', 'None'] %}
+            {{ s1 | float(0) }}
+          {% elif s2 not in ['unknown','unavailable','', 'none', 'None'] %}
+            {{ s2 | float(0) }}
+          {% elif s3 not in ['unknown','unavailable','', 'none', 'None'] %}
+            {{ s3 | float(0) }}
+          {% else %}
+            0
           {% endif %}
