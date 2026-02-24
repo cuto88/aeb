@@ -1,33 +1,23 @@
-###############################################################################
-# AC — Documentazione layout plancia AC
-# Descrive lovelace/3_ac_plancia.yaml (climatizzazione Giorno/Notte).
-###############################################################################
+# AC — Plancia
 
-COLONNA 1 — STATO & COMANDI
-- Glance "Stato logiche / Attuatori": `binary_sensor.ac_should_run`, `binary_sensor.ac_need_cool/dry`, `binary_sensor.ac_fascia_ok`, `binary_sensor.ac_block_by_vmc` + switch AC.
-- Pulsanti horizontal-stack per forzare direttamente `switch.ac_giorno` e `switch.ac_notte`.
-- Entities "Modalità manuale": `input_boolean.ac_manual`, `input_select.ac_manual_mode` e `timer.ac_manual_timeout`.
-- Markdown "Come decide (Sintesi)": P0_failsafe → P1_block_vmc → P2_dry → P3_cool → manual → idle con lock min_on/min_off e blocco 23–07.
+Riferimento: `lovelace/climate_ac_plancia.yaml`.
 
-COLONNA 2 — KPI PRINCIPALI
-- Due grid 3x1 di tile con grafico per temperature interne/esterna (`sensor.t_in_giorno`, `sensor.t_in_notte1`, `sensor.t_out`) e umidità (`sensor.ur_in_giorno`, `sensor.ur_in_notte1`, `sensor.ur_out`).
-- Entities "Lock & tempi" con `input_number.ac_min_on/off`, `input_number.ac_max_run`, `input_number.ac_t_cool_on` e `input_number.ac_ur_high`.
+Stato sidebar:
+- `3-ac` è visibile.
+- `3-ac-v2` resta registrata ma non visibile (`show_in_sidebar: false`).
 
-COLONNA 3 — TREND & CONTATORI
-- History-graph 24h su switch AC (giorno/notte) e sulle domande logiche `binary_sensor.ac_need_cool` / `ac_need_dry`.
-- Entities con contatori daily (`sensor.ac_*_tempo_on_oggi`, cicli, ultimo on/off).
+Sezioni principali:
+- "Stato generale": priorità/motivo AC, stagione calda, failsafe e blocco VMC, con stato `switch.ac_giorno` e `switch.ac_notte`.
+- "Setpoint e comandi": parametri dry/cool e lock min on/off.
+- "Manuale e blocchi": `input_boolean.ac_manual`, `input_select.ac_manual_mode`, timeout manuale e blocco da VMC.
+- "KPI principali": temperatura/umidità interna media ed esterna.
+- "Grafici 24h / 7gg": temperatura, umidità e statistiche motivazioni.
+- "Runtime e cicli": contatori ON/cicli/ultimo evento per AC giorno e notte.
+- "Debug" + "Timeline decisioni": visione diagnostica completa.
 
-COLONNA 4 — MOTIVAZIONI / LOGICA
-- Markdown "Perché adesso?" che spiega sinteticamente l’arbitraggio DRY/COOL, blocco fascia e lock applicati.
-
-COME DECIDE (SINTESI)
-- Gestisce DRY/COOL su zona giorno/notte in base a T, UR e fascia oraria.
-- Applica lock min_on/min_off per evitare continui on/off e rispetta hook `hook_vmc_request_ac_block`.
-- Manuale può scavalcare il blocco fascia ma non il failsafe sensori.
-
-NOTE
-- Plancia usa solo entity_id già definiti in `packages/climate_ac_mapping.yaml` e `packages/climate_ac_logic.yaml` più `packages/climate_sensors.yaml`.
-- Layout mobile-first (sections) coerente con regole plancia core.
+Tuning UI/performance applicato:
+- Tutti i `history-graph` sono su finestra 12h con `refresh_interval: 120`.
+- Riduce redraw e carico frontend mantenendo leggibilità operativa.
 
 ## Riferimenti logici
 - [Modulo AC](README.md)

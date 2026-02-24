@@ -1,27 +1,25 @@
 # Ventilation — Plancia
 
-Obiettivo: descrivere struttura e contenuti di `lovelace/1_ventilation_plancia.yaml` per ventilazione naturale + VMC come unico modulo.
+Obiettivo: descrivere la plancia legacy `lovelace/climate_ventilation_plancia.yaml`.
 
-COLONNA 1 — STATO & KPI
-- Entities "Stato generale": `sensor.ventilation_priority`, `sensor.ventilation_reason`, `binary_sensor.vmc_sensors_ok`.
-- Entities "KPI aria": `sensor.t_in_med`, `sensor.ur_in_media`, `sensor.delta_t_in_out`, `sensor.delta_ah_in_out`.
+Stato sidebar:
+- `configuration.yaml` mantiene la plancia legacy registrata come `1-ventilazione`, ma con `show_in_sidebar: false`.
+- La plancia operativa esposta resta `lovelace/climate_ventilation_plancia_v2.yaml`.
 
-COLONNA 2 — COMANDI & VELOCITÀ
-- Entities "Controlli manuali": `input_select.vmc_mode`, `input_boolean.vmc_manual`, `input_select.vmc_manual_speed`, `input_boolean.vmc_boost_bagno`.
-- Entities "Velocità reali": `sensor.vmc_vel_target`, `sensor.vmc_vel_index`, `switch.vmc_vel_0/1/2/3`.
+Struttura (legacy):
+- "Stato generale": `sensor.ventilation_priority`, `sensor.ventilation_reason`, `binary_sensor.vmc_sensors_ok`.
+- "KPI aria": `sensor.t_in_med`, `sensor.ur_in_media`, `sensor.delta_t_in_out`, `sensor.delta_ah_in_out`.
+- "Freecooling Passivhaus": stato e indicatori `delta_*` + `sensor.clima_open_windows_recommended`.
+- "Controlli manuali": `input_select.vmc_mode`, `input_boolean.vmc_manual`, `input_select.vmc_manual_speed`, `input_boolean.vmc_boost_bagno`.
+- "Velocità reali": `sensor.vmc_vel_target`, `sensor.vmc_vel_index`, `switch.vmc_vel_0/1/2/3`.
+- "Finestre": `binary_sensor.windows_all_closed`, `sensor.vent_finestre_state`, `sensor.clima_open_windows_recommended`.
+- "Messaggi": `input_text.vent_messaggio_consiglio`.
 
-COLONNA 3 — CONDIZIONI & MESSAGGI
-- Entities "Freecooling": `binary_sensor.vmc_freecooling_candidate`, `binary_sensor.vmc_freecooling_active`, `sensor.vmc_freecooling_status`.
-- Entities "Finestre": `binary_sensor.windows_all_closed`, `sensor.clima_open_windows_recommended`.
-- Entities "Messaggi": `input_text.vent_messaggio_consiglio`.
-
-NOTE
-- Nessuna definizione di entità nella plancia: tutti gli entity_id sono canonici (`packages/1_ventilation.yaml` + sensori base).
-- Layout mobile-first (sections) coerente con regole plancia core.
+Note:
+- La sezione finestre non contiene più placeholder TODO; usa gli aggregati runtime del modulo `packages/climate_ventilation_windows.yaml`.
+- Layout legacy a cards semplici; la versione `v2` resta il riferimento principale per uso quotidiano.
 
 ## Riferimenti logici
 - [Modulo Ventilation](README.md)
 - [Regole plancia](../core/regole_plancia.md)
 - [Regole core logiche](../core/regole_core_logiche.md)
-
-> Revisione documentazione clima Vent – allineata a implementazione attuale.
