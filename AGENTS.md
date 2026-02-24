@@ -5,7 +5,7 @@
 - Ambiente Home Assistant runtime: `root@192.168.178.84`
 - Porta SSH: `2222`
 - Accesso primario: chiave SSH locale `C:\Users\randalab\.ssh\ha_ed25519`
-- Fallback: `C:\Users\randalab\.ssh\id_rsa`
+- Fallback: `C:\Users\randalab\.ssh\ha_fallback_ed25519`
 - Percorso config HA da usare come default: `/homeassistant`
 - Nota: se `/homeassistant` non contiene `configuration.yaml`, provare `/config`
 
@@ -13,6 +13,7 @@
 
 - Test connessione:
   - `ssh -p 2222 -i C:\Users\randalab\.ssh\ha_ed25519 root@192.168.178.84 "hostname && whoami"`
+  - `ssh -p 2222 -i C:\Users\randalab\.ssh\ha_fallback_ed25519 root@192.168.178.84 "hostname && whoami"`
 - Verifica file deployato:
   - `ssh -p 2222 -i C:\Users\randalab\.ssh\ha_ed25519 root@192.168.178.84 "sed -n '1,220p' /homeassistant/packages/climateops/actuators/system_actuator.yaml"`
 - Verifica tracce recenti (automation ClimateOps):

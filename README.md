@@ -34,7 +34,7 @@ Per evitare falsi positivi e cartelle di backup/quarantena, il lint YAML gira so
 
 ## Accesso SSH runtime HA
 - Endpoint: `root@192.168.178.84` porta `2222`
-- Chiave primaria: `C:\Users\randalab\.ssh\ha_ed25519` (fallback `id_rsa`)
+- Chiave primaria: `C:\Users\randalab\.ssh\ha_ed25519` (fallback `ha_fallback_ed25519`)
 - Path config runtime: `/homeassistant`
 
 ## Notifiche Telegram
