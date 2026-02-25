@@ -10,7 +10,7 @@ Sezioni principali:
 - "KPI e diagnostica": errori setpoint, stanze sotto target, finestre logiche (comfort/PV/notte), esterna fredda.
 - "Grafici 24h / 7gg": trend temperature e statistiche errori.
 - "Runtime e cicli": ore ON e minuti da ultimo cambio.
-- "Debug": segnali diagnostici con sezione collapsible.
+- "Debug": segnali diagnostici in card entities standard (compatibilità UI estesa).
 - "Timeline decisioni": priorità/motivo e stato comando riscaldamento.
 
 Allineamento attuatori:
@@ -19,6 +19,7 @@ Allineamento attuatori:
 
 Tuning UI/performance applicato:
 - `history-graph` principali ridotti a 12h con `refresh_interval: 120`.
+- Layout sezioni allineato a `type: grid` per compatibilità con view `sections`.
 
 ## Riferimenti logici
 - [Modulo Heating](README.md)

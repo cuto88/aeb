@@ -37,7 +37,8 @@ views:
               - entity: timer.heating_manual_timeout
                 name: Timeout manuale
 
-      - type: vertical-stack
+      - type: grid
+        title: "Heating – Termostati reali (TEMP)"
         cards:
           - type: markdown
             content: |
@@ -113,7 +114,7 @@ views:
         title: "Heating Grafici 24h / 7gg"
         cards:
           - type: history-graph
-            title: "Temperature interne/esterna (24h)"
+            title: "Temperature interne/esterna (12h)"
             hours_to_show: 12
             refresh_interval: 120
             entities:
@@ -160,7 +161,6 @@ views:
         cards:
           - type: entities
             show_header_toggle: false
-            collapsible: true
             entities:
               - entity: sensor.t_in_min
                 name: T interna minima
@@ -182,7 +182,7 @@ views:
       - type: grid
         cards:
           - type: history-graph
-            title: "Timeline decisioni – Heating (24h)"
+            title: "Timeline decisioni – Heating (12h)"
             hours_to_show: 12
             refresh_interval: 120
             entities:
