@@ -16,6 +16,7 @@ Scope: allineamento documentazione/repo/runtime dopo hardening ClimateOps
 - Tracce presenti per `automation.climateops_system_actuate` in `.storage/trace.saved_traces`.
 - Evidenza snapshot raccolta:
   - `docs/runtime_evidence/2026-02-25/step7_state_snapshot_20260225_220506.txt`
+  - `docs/runtime_evidence/2026-02-25/step7_live_states_20260225_222310.txt`
 
 ## Stato obiettivo
 - Stabilizzazione runtime writer authority ClimateOps: QUASI CHIUSO.
@@ -25,6 +26,7 @@ Scope: allineamento documentazione/repo/runtime dopo hardening ClimateOps
 ## Gap residui principali
 1. Conferma live post-warmup degli stati Step7 (UI state machine) ancora da completare:
    - `policy_forecast_inputs_ready`, `policy_allow_shift_load`, `contract_hierarchy_mode_ready`, `cm_system_mode_suggested`, `aeb_*`.
+   - tentativo API diretto da shell runtime non conclusivo (`401 Unauthorized`).
 2. Chiusura evidence pack evento-level con export UI/trace/logbook per contesto post-deploy.
 
 ## Doc drift corretto in questo delta

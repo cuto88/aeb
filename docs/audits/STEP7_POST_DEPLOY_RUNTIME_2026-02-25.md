@@ -15,6 +15,7 @@ Scope: verifica runtime dopo merge su `main` + deploy safe Step6/Step7.
 - File runtime aggiornati verificati su host:
   - `/homeassistant/packages/climateops/core/kpi.yaml`
   - `/homeassistant/packages/climate_policy_energy.yaml`
+  - `/homeassistant/configuration.yaml` (dashboard `9-climateops-step7`)
 - Tracce presenti per:
   - `automation.climateops_system_actuate` in `/homeassistant/.storage/trace.saved_traces`.
 
@@ -39,3 +40,5 @@ Scope: verifica runtime dopo merge su `main` + deploy safe Step6/Step7.
    - `binary_sensor.aeb_kpi_inputs_ready`
    - `sensor.aeb_self_consumption_ratio_pct`
 2. Salvare export evidenza in `docs/runtime_evidence/2026-02-25/`.
+3. Nota: tentativo di lettura diretta via Supervisor/Core API da shell SSH ha restituito `401 Unauthorized`,
+   quindi la conferma live degli stati resta demandata a UI/export runtime.
