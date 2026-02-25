@@ -136,7 +136,7 @@ Note operative VMC:
 | Heating reason (text)                     | `sensor.heating_reason`                    |
 | Heating priority (P0–P4)                  | `sensor.heating_priority`                  |
 | Heating state change reason               | `sensor.heating_state_reason`              |
-| Min indoor T (all rooms)                  | `sensor.heating_t_in_min`                  |
+| Min indoor T (all rooms)                  | `sensor.t_in_min`                          |
 | Rooms below target                        | `sensor.heating_rooms_below_target`        |
 | Failsafe bad sensors                      | `binary_sensor.heating_failsafe_sensors_bad`|
 | Min-ON lock ok                            | `binary_sensor.heating_lock_min_on_ok`     |

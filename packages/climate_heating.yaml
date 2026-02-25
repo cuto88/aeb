@@ -295,7 +295,7 @@ template:
             {% set night_sp = states('input_number.heating_setpoint_night') | float(18.5) %}
             {% set anti = states('input_number.heating_antifreeze_threshold') | float(8) %}
             {% set boost = states('input_number.heating_boost_delta') | float(0.3) %}
-            {% set tmin = states('sensor.heating_t_in_min') | float(default=none) %}
+            {% set tmin = states('sensor.t_in_min') | float(default=none) %}
             {% set tout = states('sensor.t_out') | float(default=none) %}
             {% set window_comfort = is_state('binary_sensor.heating_finestra_oraria','on') %}
             {% set pv_hook = is_state('binary_sensor.policy_surplus_ok','on') %}
@@ -351,7 +351,7 @@ template:
             {% set base = this.state %}
             {% set comfort = states('input_number.temp_target_risc') | float(21) %}
             {% set boost = states('input_number.heating_boost_delta') | float(0.3) %}
-            {% set tmin = states('sensor.heating_t_in_min') | float(default=none) %}
+            {% set tmin = states('sensor.t_in_min') | float(default=none) %}
             {% set pv_candidate = is_state('input_boolean.heating_enable','on')
               and is_state('binary_sensor.heating_finestra_oraria','on')
               and (tmin is number)
