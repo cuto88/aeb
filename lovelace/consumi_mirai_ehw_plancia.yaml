@@ -1,4 +1,4 @@
-title: "Consumi Mirai+EHW"
+title: "Consumi Mirai+EHW+PM"
 views:
   - title: "Consumi"
     path: consumi
@@ -75,3 +75,56 @@ views:
             days_to_show: 7
             entities:
               - entity: sensor.b_energia_prelevata_forward
+
+      - type: grid
+        title: "Smart Plug PM — stato attuale"
+        cards:
+          - type: entities
+            title: "Potenze istantanee PM"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.pm1_mss310_power_w_main_channel
+                name: Romeo W
+              - entity: sensor.pm2_mss310_power_w_main_channel
+                name: Lavatrice W
+              - entity: sensor.pm3_mss310_power_w_main_channel
+                name: Asciugatrice W
+          - type: entities
+            title: "kWh oggi PM"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.pm1_energy_daily
+                name: Romeo kWh/giorno
+              - entity: sensor.pm2_energy_daily
+                name: Lavatrice kWh/giorno
+              - entity: sensor.pm3_energy_daily
+                name: Asciugatrice kWh/giorno
+
+      - type: grid
+        title: "Smart Plug PM — andamento 24h"
+        cards:
+          - type: history-graph
+            title: "Potenze PM (24h)"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.pm1_mss310_power_w_main_channel
+                name: Romeo W
+              - entity: sensor.pm2_mss310_power_w_main_channel
+                name: Lavatrice W
+              - entity: sensor.pm3_mss310_power_w_main_channel
+                name: Asciugatrice W
+          - type: statistics-graph
+            title: "Consumi PM kWh/giorno (7 giorni)"
+            chart_type: bar
+            period: day
+            stat_types:
+              - change
+            days_to_show: 7
+            entities:
+              - entity: sensor.pm1_mss310_energy_kwh_main_channel
+                name: Romeo
+              - entity: sensor.pm2_mss310_energy_kwh_main_channel
+                name: Lavatrice
+              - entity: sensor.pm3_mss310_energy_kwh_main_channel
+                name: Asciugatrice
