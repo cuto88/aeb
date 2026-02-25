@@ -26,6 +26,7 @@ Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 - Step 7.3 multi-load hierarchy: `docs/audits/STEP7_3_MULTI_LOAD_HIERARCHY_2026-02-25.md`
 - Step 7.4 KPI closure: `docs/audits/STEP7_4_KPI_CLOSURE_2026-02-25.md`
 - Step 7 post-PR runtime checklist: `docs/audits/STEP7_POST_PR_RUNTIME_CHECKLIST_2026-02-25.md`
+- Step 7 post-deploy runtime verification: `docs/audits/STEP7_POST_DEPLOY_RUNTIME_2026-02-25.md`
 - Delta audit status: `docs/audits/DELTA_AUDIT_STATUS_2026-02-25.md`
 
 ## Quality gates (ops)

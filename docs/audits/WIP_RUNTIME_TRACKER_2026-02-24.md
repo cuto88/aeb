@@ -45,3 +45,4 @@ Scope: ClimateOps runtime hardening and evidence closure
 - `docs/audits/STEP7_3_MULTI_LOAD_HIERARCHY_2026-02-25.md`
 - `docs/audits/STEP7_4_KPI_CLOSURE_2026-02-25.md`
 - `docs/audits/STEP7_POST_PR_RUNTIME_CHECKLIST_2026-02-25.md`
+- `docs/audits/STEP7_POST_DEPLOY_RUNTIME_2026-02-25.md`
