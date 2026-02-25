@@ -28,6 +28,8 @@ Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 - Step 7 post-PR runtime checklist: `docs/audits/STEP7_POST_PR_RUNTIME_CHECKLIST_2026-02-25.md`
 - Step 7 post-deploy runtime verification: `docs/audits/STEP7_POST_DEPLOY_RUNTIME_2026-02-25.md`
 - Step 8 tuning baseline: `docs/audits/STEP8_TUNING_BASELINE_2026-02-25.md`
+- Step 8 runtime post strict gates: `docs/audits/STEP8_RUNTIME_POST_STRICT_GATES_2026-02-25.md`
+- Step 8 hardening plan: `docs/audits/STEP8_HARDENING_PLAN_2026-02-25.md`
 - Delta audit status: `docs/audits/DELTA_AUDIT_STATUS_2026-02-25.md`
 
 ## Quality gates (ops)
