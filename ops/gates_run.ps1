@@ -70,23 +70,8 @@ function Get-TrackedYamlFiles {
     return $tracked
 }
 
-function Assert-NoTrackedPyc {
-    param([string]$Root)
-    $trackedPyc = & git -C $Root ls-files -- '*.pyc' 2>$null
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error 'Unable to enumerate tracked .pyc files.'
-        exit 1
-    }
-    if ($trackedPyc) {
-        Write-Host 'Tracked .pyc files are not allowed:'
-        $trackedPyc | ForEach-Object { Write-Host ("- {0}" -f $_) }
-        exit 1
-    }
-}
-
 $repoRoot = Get-RepoRoot
 $trackedYamlFiles = Get-TrackedYamlFiles -Root $repoRoot
-Assert-NoTrackedPyc -Root $repoRoot
 
 $gates = @(
     # HYGIENE = formatter/mutating scripts (non-validation).
@@ -99,7 +84,8 @@ $gates = @(
     @{ Name = '[GATE 5] Lovelace dashboards gate'; Gate = 'GATE 5'; Script = 'ops/gate_lovelace_dashboards.ps1'; Args = @(); UsePowerShell = $true },
     @{ Name = '[GATE 6] Entity naming gate'; Gate = 'GATE 6'; Script = 'ops/gate_entity_naming.ps1'; Args = @(); UsePowerShell = $true },
     @{ Name = '[GATE 7] Nested template gate'; Gate = 'GATE 7'; Script = 'ops/gates/check_no_nested_template.ps1'; Args = @(); UsePowerShell = $true },
-    @{ Name = '[GATE 8] DOCS ops/gate_docs_links.ps1'; Gate = 'GATE 8'; Script = 'ops/gate_docs_links.ps1'; Args = @(); UsePowerShell = $true }
+    @{ Name = '[GATE 8] Artifact policy gate'; Gate = 'GATE 8'; Script = 'ops/gate_artifact_policy.ps1'; Args = @(); UsePowerShell = $true },
+    @{ Name = '[GATE 9] DOCS ops/gate_docs_links.ps1'; Gate = 'GATE 9'; Script = 'ops/gate_docs_links.ps1'; Args = @(); UsePowerShell = $true }
 )
 
 foreach ($gate in $gates) {

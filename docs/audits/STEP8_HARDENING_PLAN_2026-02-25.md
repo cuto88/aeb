@@ -13,6 +13,14 @@ Consolidare la qualita` repo/runtime riducendo artefatti non necessari e aumenta
      - eventuali `*.map` / `*.gz` non richiesti dal runtime
    - Criterio di uscita: gate rosso su nuovi artefatti non consentiti.
 
+   Stato 2026-02-25: IMPLEMENTATO.
+   - Nuovo gate: `ops/gate_artifact_policy.ps1`
+   - Enforcement integrato in `ops/gates_run.ps1` e `ops/gates_run_ci.ps1`
+   - Policy attiva:
+     - `__pycache__` tracciato -> FAIL
+     - `.map` consentito solo in `custom_components/hacs/hacs_frontend/**`
+     - `.gz` consentito solo in `custom_components/hacs/hacs_frontend/**` e `www/community/**`
+
 2. Policy vendor assets (P1)
    - Definire lista esplicita di asset consentiti in repo (`www/community`, frontend HACS, ecc.).
    - Criterio di uscita: policy documentata + check automatico.

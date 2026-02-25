@@ -33,20 +33,6 @@ function Invoke-GateScript {
   if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
-function Assert-NoTrackedPyc {
-  param([string]$Root)
-  $trackedPyc = & git -C $Root ls-files -- '*.pyc' 2>$null
-  if ($LASTEXITCODE -ne 0) {
-    Write-Error 'Unable to enumerate tracked .pyc files.'
-    exit 1
-  }
-  if ($trackedPyc) {
-    Write-Host 'Tracked .pyc files are not allowed:'
-    $trackedPyc | ForEach-Object { Write-Host ("- {0}" -f $_) }
-    exit 1
-  }
-}
-
 $repoRoot = Get-RepoRoot
 Set-Location $repoRoot
 
@@ -57,7 +43,7 @@ Invoke-GateScript -Path 'ops/gate_entity_naming.ps1'
 Invoke-GateScript -Path 'ops/gates/check_cm_naming.ps1'
 Invoke-GateScript -Path 'ops/gates/check_no_nested_template.ps1'
 Invoke-GateScript -Path 'ops/gate_docs_links.ps1'
-Assert-NoTrackedPyc -Root $repoRoot
+Invoke-GateScript -Path 'ops/gate_artifact_policy.ps1'
 
 if (-not (Get-Command yamllint -ErrorAction SilentlyContinue)) {
   Write-Error 'yamllint not found.'
