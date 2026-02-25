@@ -4,7 +4,7 @@ Riferimento: `lovelace/climate_heating_plancia.yaml`.
 
 Sezioni principali:
 - "Stato generale": `binary_sensor.heating_should_run`, priorità/motivo e failsafe.
-- "Termostati reali (TEMP)": area osservativa con binding dinamico via `input_text.climateops_temp_thermostat_*`.
+- "Termostati reali (TEMP)": area osservativa con ESP32 `camera1/camera2` esposti direttamente e binding dinamico via `input_text.climateops_temp_thermostat_*`.
 - "Setpoint e comandi": target comfort/notte, antigelo e delta boost FV.
 - "Zone incluse": toggle zona giorno/notte/bagno.
 - "KPI e diagnostica": errori setpoint, stanze sotto target, finestre logiche (comfort/PV/notte), esterna fredda.

@@ -43,12 +43,19 @@ views:
           - type: markdown
             content: |
               ## Termostati reali (TEMP) — solo osservazione
-              Per visualizzare lo stato reale, imposta i due input_text con gli entity_id ESPHome dei termostati.
+              ESP32 disponibili in runtime:
+              - `binary_sensor.ldr_camera1_camera1_richiesta_calore`
+              - `binary_sensor.ldr_camera2_richiesta_calore`
+              I due input_text restano disponibili per remap rapido.
 
           - type: entities
             title: "Termostati (stato reale)"
             show_header_toggle: false
             entities:
+              - entity: binary_sensor.ldr_camera1_camera1_richiesta_calore
+                name: "ESP32 camera1 richiesta calore"
+              - entity: binary_sensor.ldr_camera2_richiesta_calore
+                name: "ESP32 camera2 richiesta calore"
               - entity: binary_sensor.thermostat_giorno_temp
                 name: "Termostato Giorno"
               - entity: binary_sensor.thermostat_notte_temp
