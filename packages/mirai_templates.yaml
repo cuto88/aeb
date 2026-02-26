@@ -284,18 +284,19 @@ template:
         icon: mdi:clipboard-text
         availability: >
           {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') or is_number(states('sensor.mirai_power_w')) }}
-        state: |
-          TIME: {{ now().strftime('%Y-%m-%d %H:%M:%S') }}
-          MACHINE_SOURCE: {{ states('sensor.mirai_machine_running_source') }}
-          MACHINE_RUNNING_POWER: {{ states('binary_sensor.mirai_machine_running_by_power') }}
-          MIRAI_POWER_W: {{ states('sensor.mirai_power_w') }}
-          STATUS_WORD_RAW: {{ states('sensor.mirai_status_word_raw') }}
-          STATUS_BITS_ON: {{ states('sensor.mirai_status_bits_on') }}
-          STATUS_CODE_RAW: {{ states('sensor.mirai_status_code_raw') }}
-          FAULT_CODE_RAW: {{ states('sensor.mirai_fault_code_raw') }}
-          L261_COMPRESSOR_STEP: {{ states('sensor.mirai_l261_compressor_step') }}
-          L243_INTERNAL_CIRCULATOR: {{ states('sensor.mirai_l243_internal_circulator') }}
-          L161_INLET_WATER_TEMP: {{ states('sensor.mirai_l161_inlet_water_temp_clean') }}
-          L162_OUTLET_WATER_TEMP: {{ states('sensor.mirai_l162_outlet_water_temp_clean') }}
-          L163_OUTDOOR_AIR_TEMP: {{ states('sensor.mirai_l163_outdoor_air_temp_clean') }}
-          MACHINE_STATE: {{ states('sensor.mirai_machine_state') }}
+        state: >
+          {{ now().strftime('%Y-%m-%d %H:%M:%S') }}
+        attributes:
+          machine_source: "{{ states('sensor.mirai_machine_running_source') }}"
+          machine_running_power: "{{ states('binary_sensor.mirai_machine_running_by_power') }}"
+          mirai_power_w: "{{ states('sensor.mirai_power_w') }}"
+          status_word_raw: "{{ states('sensor.mirai_status_word_raw') }}"
+          status_bits_on: "{{ states('sensor.mirai_status_bits_on') }}"
+          status_code_raw: "{{ states('sensor.mirai_status_code_raw') }}"
+          fault_code_raw: "{{ states('sensor.mirai_fault_code_raw') }}"
+          l261_compressor_step: "{{ states('sensor.mirai_l261_compressor_step') }}"
+          l243_internal_circulator: "{{ states('sensor.mirai_l243_internal_circulator') }}"
+          l161_inlet_water_temp: "{{ states('sensor.mirai_l161_inlet_water_temp_clean') }}"
+          l162_outlet_water_temp: "{{ states('sensor.mirai_l162_outlet_water_temp_clean') }}"
+          l163_outdoor_air_temp: "{{ states('sensor.mirai_l163_outdoor_air_temp_clean') }}"
+          machine_state: "{{ states('sensor.mirai_machine_state') }}"
