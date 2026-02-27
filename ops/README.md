@@ -42,3 +42,7 @@ Esempi:
 - `.\ops\deploy_safe.ps1 -RunGates` (solo per uso standalone)
 - `.\ops\retention_runtime_evidence.ps1 -WhatIf`
 - `.\ops\retention_runtime_evidence.ps1`
+- `.\ops\phase5_schedule_daily_report.ps1 -Action Install -StartTime 07:30`
+- `.\ops\phase5_schedule_daily_report.ps1 -Action Status`
+- `.\ops\phase5_schedule_daily_report.ps1 -Action RunNow`
+- Scheduler runner log: `docs/runtime_evidence/<date>/phase5_scheduler_run_<timestamp>.log`

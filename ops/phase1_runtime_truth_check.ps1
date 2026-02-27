@@ -68,13 +68,28 @@ if ($currentBootMatches) {
   "NO_PHASE1_ERRORS_IN_CURRENT_BOOT_WINDOW" | Set-Content -Path $scanCurrentBootFile -Encoding utf8
 }
 
-$writerMatches = & rg -n "switch.turn_|climate\.set_temperature|service:" `
-  "$repoRoot\packages\climateops_phase1_kpi.yaml" `
-  "$repoRoot\packages\climateops_phase1_planner_dryrun.yaml" -S
-if ($LASTEXITCODE -eq 0 -and $writerMatches) {
-  $writerMatches | Set-Content -Path $writerFile -Encoding utf8
+$phase1Files = @(
+  "$repoRoot\packages\climateops_phase1_kpi.yaml",
+  "$repoRoot\packages\climateops_phase1_planner_dryrun.yaml"
+)
+$writerPattern = "switch.turn_|climate\.set_temperature|service:"
+$rgCmd = Get-Command rg -ErrorAction SilentlyContinue
+if ($null -ne $rgCmd) {
+  $writerMatches = & $rgCmd.Source -n $writerPattern $phase1Files -S
+  if ($LASTEXITCODE -eq 0 -and $writerMatches) {
+    $writerMatches | Set-Content -Path $writerFile -Encoding utf8
+  } else {
+    "NO_WRITER_SERVICES_IN_PHASE1_FILES" | Set-Content -Path $writerFile -Encoding utf8
+  }
 } else {
-  "NO_WRITER_SERVICES_IN_PHASE1_FILES" | Set-Content -Path $writerFile -Encoding utf8
+  $psMatches = Select-String -Path $phase1Files -Pattern $writerPattern
+  if ($psMatches) {
+    $psMatches | ForEach-Object {
+      "{0}:{1}:{2}" -f $_.Path, $_.LineNumber, $_.Line.Trim()
+    } | Set-Content -Path $writerFile -Encoding utf8
+  } else {
+    "NO_WRITER_SERVICES_IN_PHASE1_FILES" | Set-Content -Path $writerFile -Encoding utf8
+  }
 }
 
 Write-Host "Runtime log file : $logFile"

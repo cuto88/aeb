@@ -1,0 +1,85 @@
+param(
+  [ValidateSet("Install", "Status", "RunNow", "Remove")]
+  [string]$Action = "Status",
+  [string]$TaskName = "CasaMercurio-Phase4-DailyRuntimeReport",
+  [string]$StartTime = "07:30"
+)
+
+$ErrorActionPreference = "Stop"
+
+function Say([string]$msg) {
+  Write-Host $msg
+}
+
+function Get-TaskInfoSafe([string]$Name) {
+  try {
+    $task = Get-ScheduledTask -TaskName $Name -ErrorAction Stop
+    $info = Get-ScheduledTaskInfo -TaskName $Name -ErrorAction Stop
+    return @{ Task = $task; Info = $info }
+  } catch {
+    return $null
+  }
+}
+
+$repoRoot = Split-Path -Parent $PSScriptRoot
+$runnerScript = Join-Path $PSScriptRoot "phase5_task_runner.ps1"
+if (!(Test-Path $runnerScript)) {
+  throw "Missing runner script: $runnerScript"
+}
+
+switch ($Action) {
+  "Install" {
+    $at = [datetime]::ParseExact($StartTime, "HH:mm", $null)
+    $trigger = New-ScheduledTaskTrigger -Daily -At $at
+    $taskAction = New-ScheduledTaskAction `
+      -Execute "powershell.exe" `
+      -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$runnerScript`"" `
+      -WorkingDirectory $repoRoot
+    $settings = New-ScheduledTaskSettingsSet `
+      -StartWhenAvailable `
+      -MultipleInstances IgnoreNew `
+      -ExecutionTimeLimit (New-TimeSpan -Hours 2)
+    $principal = New-ScheduledTaskPrincipal `
+      -UserId "$env:USERDOMAIN\$env:USERNAME" `
+      -LogonType Interactive `
+      -RunLevel Limited
+
+    Register-ScheduledTask `
+      -TaskName $TaskName `
+      -Action $taskAction `
+      -Trigger $trigger `
+      -Settings $settings `
+      -Principal $principal `
+      -Description "Casa Mercurio: daily runtime GO/NO-GO report for Phase4." `
+      -Force | Out-Null
+
+    Say "Task installed/updated: $TaskName at $StartTime"
+  }
+  "Status" {
+    $data = Get-TaskInfoSafe -Name $TaskName
+    if ($null -eq $data) {
+      Say "Task not found: $TaskName"
+      exit 1
+    }
+    Say "Task: $TaskName"
+    Say ("State: " + $data.Task.State)
+    Say ("LastRunTime: " + $data.Info.LastRunTime)
+    Say ("NextRunTime: " + $data.Info.NextRunTime)
+    Say ("LastTaskResult: " + $data.Info.LastTaskResult)
+  }
+  "RunNow" {
+    Start-ScheduledTask -TaskName $TaskName
+    Start-Sleep -Seconds 3
+    $data = Get-TaskInfoSafe -Name $TaskName
+    if ($null -eq $data) {
+      throw "Task missing after Start-ScheduledTask: $TaskName"
+    }
+    Say "Task started: $TaskName"
+    Say ("State: " + $data.Task.State)
+    Say ("LastRunTime: " + $data.Info.LastRunTime)
+  }
+  "Remove" {
+    Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
+    Say "Task removed: $TaskName"
+  }
+}
