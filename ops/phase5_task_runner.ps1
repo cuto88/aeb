@@ -24,6 +24,11 @@ try {
   if ($LASTEXITCODE -ne 0) {
     throw "retention_runtime_evidence.ps1 failed (RC=$LASTEXITCODE)"
   }
+  & powershell -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "phase7_executive_status.ps1") 2>&1 |
+    Tee-Object -FilePath $logFile -Append | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    throw "phase7_executive_status.ps1 failed (RC=$LASTEXITCODE)"
+  }
   "Runner end: OK $(Get-Date -Format s)" | Tee-Object -FilePath $logFile -Append | Out-Null
   exit 0
 } catch {

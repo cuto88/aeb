@@ -47,6 +47,8 @@ Esempi:
 - `.\ops\phase5_schedule_daily_report.ps1 -Action RunNow`
 - Scheduler runner log: `docs/runtime_evidence/<date>/phase5_scheduler_run_<timestamp>.log`
 - `.\ops\phase6_no_go_guard.ps1` validates latest Phase4 decision (`GO` => exit 0, `NO-GO` => exit 2 + alert file).
+- `.\ops\phase7_executive_status.ps1` writes a compact one-file executive snapshot.
 - Scheduled runner now also executes:
   - `phase6_no_go_guard.ps1`
   - `retention_runtime_evidence.ps1`
+  - `phase7_executive_status.ps1`
