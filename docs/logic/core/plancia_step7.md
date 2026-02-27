@@ -8,6 +8,16 @@ Dashboard tecnica per osservare in un unico punto:
 - tariff/grid policy,
 - hierarchy mode/reason,
 - KPI AEB runtime.
+- executive view mobile-first per lettura rapida stato operativo.
+
+## Vista Executive (UI Sprint 1)
+- path: `executive`
+- max columns: `1` (mobile-first)
+- contenuti:
+  - stato sintetico GO/NO-GO runtime (reason + readiness),
+  - KPI giornalieri Phase1 + recommendation planner,
+  - policy energetica forecast/tariff-grid,
+  - trend rapido 24h (self-consumption, comfort-energy, grid import).
 
 ## Sezioni
 - Stato generale: `cm_system_mode_suggested`, `cm_system_reason`, contratti hierarchy.

@@ -1,5 +1,91 @@
 title: "ClimateOps Step7"
 views:
+  - title: "Executive"
+    path: executive
+    icon: mdi:view-dashboard
+    type: sections
+    max_columns: 1
+
+    sections:
+      - type: grid
+        title: "Executive status"
+        cards:
+          - type: markdown
+            content: >
+              ## ClimateOps Executive
+              Stato operativo sintetico per decisione rapida.
+          - type: entities
+            title: "GO/NO-GO runtime"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.cm_system_mode_suggested
+                name: System mode suggested
+              - entity: sensor.cm_system_reason
+                name: System reason
+              - entity: binary_sensor.aeb_kpi_inputs_ready
+                name: AEB KPI inputs ready
+              - entity: sensor.aeb_kpi_reason
+                name: AEB KPI reason
+
+      - type: grid
+        title: "Comfort & Planner (today)"
+        cards:
+          - type: entities
+            title: "KPI + recommendations"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.climateops_kpi_comfort_band_percent_today
+                name: Comfort band % (today)
+              - entity: sensor.climateops_kpi_heating_cycles_today
+                name: Heating cycles (today)
+              - entity: sensor.climateops_kpi_ac_cycles_today
+                name: AC cycles (today)
+              - entity: sensor.climateops_kpi_vmc_boost_minutes_today
+                name: VMC boost minutes (today)
+              - entity: sensor.planner_heat_setpoint_reco
+                name: Heat setpoint reco
+              - entity: sensor.planner_cool_setpoint_reco
+                name: Cool setpoint reco
+              - entity: sensor.planner_dhw_run_reco
+                name: DHW run reco
+              - entity: sensor.planner_notes
+                name: Planner notes
+
+      - type: grid
+        title: "Energy policy"
+        cards:
+          - type: entities
+            title: "Forecast + tariff/grid"
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.policy_forecast_inputs_ready
+                name: Forecast inputs ready
+              - entity: sensor.policy_forecast_reason
+                name: Forecast reason
+              - entity: sensor.policy_grid_price_now
+                name: Grid price now
+              - entity: sensor.policy_grid_import_w
+                name: Grid import W
+              - entity: binary_sensor.policy_allow_shift_load
+                name: Allow shift load
+              - entity: sensor.policy_tariff_grid_reason
+                name: Tariff/grid reason
+
+      - type: grid
+        title: "Quick trend"
+        cards:
+          - type: history-graph
+            title: "24h key trend"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.aeb_self_consumption_ratio_pct
+                name: Self-consumption %
+              - entity: sensor.aeb_comfort_energy_score_pct
+                name: Comfort-energy %
+              - entity: sensor.policy_grid_import_w
+                name: Grid import W
+
   - title: "Step7 Ops"
     path: step7
     icon: mdi:transmission-tower
