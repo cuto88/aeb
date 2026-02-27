@@ -23,11 +23,11 @@ template:
         unit_of_measurement: "%"
         state: >-
           {% if states('sensor.t_in_med') in ['unknown', 'unavailable', ''] %}
-            unknown
+            {{ none }}
           {% elif is_number(states('sensor.climateops_kpi_raw_comfort_band_ratio_today')) %}
             {{ (states('sensor.climateops_kpi_raw_comfort_band_ratio_today') | float(0)) | round(1) }}
           {% else %}
-            unknown
+            {{ none }}
           {% endif %}
         availability: "{{ true }}"
 
@@ -62,11 +62,11 @@ template:
         unit_of_measurement: "min"
         state: >-
           {% if states('sensor.vmc_vel_target') in ['unknown', 'unavailable', ''] %}
-            unknown
+            {{ none }}
           {% elif is_number(states('sensor.climateops_kpi_raw_vmc_boost_hours_today')) %}
             {{ ((states('sensor.climateops_kpi_raw_vmc_boost_hours_today') | float(0)) * 60) | round(0) | int }}
           {% else %}
-            unknown
+            {{ none }}
           {% endif %}
         availability: "{{ true }}"
 

@@ -11,7 +11,7 @@ template:
           {% set forecast_ready = is_state('binary_sensor.policy_forecast_inputs_ready', 'on')
             or is_state('binary_sensor.contract_forecast_inputs_ready', 'on') %}
           {% if t_in is not number %}
-            unknown
+            {{ none }}
           {% elif surplus and forecast_ready and t_out is number and t_out < 8 %}
             21.0
           {% elif t_in < 20.0 %}
@@ -33,7 +33,7 @@ template:
           {% set forecast_ready = is_state('binary_sensor.policy_forecast_inputs_ready', 'on')
             or is_state('binary_sensor.contract_forecast_inputs_ready', 'on') %}
           {% if t_in is not number or t_out is not number %}
-            unknown
+            {{ none }}
           {% elif surplus and forecast_ready and t_out > 30 and t_in > 26 %}
             24.5
           {% elif t_in > 25.5 %}
