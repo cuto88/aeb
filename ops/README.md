@@ -12,6 +12,16 @@
 - `tts/` and `www/` are excluded by default; use `-IncludeTts` / `-IncludeWww` to deploy them intentionally.
 - Optional post-deploy check: `-RunConfigCheck` (runs `ha core check` when the HA CLI is available).
 
+## retention_runtime_evidence.ps1
+- Prunes old local runtime evidence and backups:
+  - `docs/runtime_evidence/`
+  - `_ha_runtime_backups/`
+- Retention is age-based with minimum preserved snapshots (`KeepLatest*`) to avoid over-pruning.
+- Use `-WhatIf` first to preview deletions.
+- Defaults:
+  - `EvidenceRetentionDays=14`, `KeepLatestEvidence=3`
+  - `BackupRetentionDays=21`, `KeepLatestBackups=5`
+
 ## How to run
 Pipeline ufficiale:
 1) `repo_sync`
@@ -30,3 +40,5 @@ Esempi:
 - `.\ops\gates_run.ps1`
 - `.\ops\deploy_safe.ps1`
 - `.\ops\deploy_safe.ps1 -RunGates` (solo per uso standalone)
+- `.\ops\retention_runtime_evidence.ps1 -WhatIf`
+- `.\ops\retention_runtime_evidence.ps1`

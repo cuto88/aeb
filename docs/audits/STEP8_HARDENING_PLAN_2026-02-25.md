@@ -33,6 +33,13 @@ Consolidare la qualita` repo/runtime riducendo artefatti non necessari e aumenta
    - Script di pruning per `docs/runtime_evidence/` e `_ha_runtime_backups/`.
    - Criterio di uscita: retention automatica per data/tag, senza perdita evidenze critiche.
 
+   Stato 2026-02-26: IMPLEMENTATO.
+   - Nuovo script: `ops/retention_runtime_evidence.ps1`
+   - Policy default:
+     - evidence: `14` giorni + `KeepLatestEvidence=3`
+     - backups: `21` giorni + `KeepLatestBackups=5`
+   - Supporto `-WhatIf` per dry-run prima della rimozione.
+
 5. Audit continuity (P3)
    - Aggiornare `DELTA_AUDIT_STATUS` a fine ogni ciclo deploy.
    - Criterio di uscita: timeline audit continua senza gap.
