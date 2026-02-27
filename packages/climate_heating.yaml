@@ -496,16 +496,20 @@ template:
       - name: "Riscaldamento  blocco notturno"
         unique_id: heating_night_block
         default_entity_id: switch.heating_night_block
-        icon: mdi:power
+        icon: mdi:weather-night
         turn_on:
-          - service: switch.turn_on
-            target:
-              entity_id: switch.4_ch_interruttore_3
+          - service: logbook.log
+            data:
+              name: "Heating night block"
+              entity_id: switch.heating_night_block
+              message: "Logical gate only: no direct relay write."
         turn_off:
-          - service: switch.turn_off
-            target:
-              entity_id: switch.4_ch_interruttore_3
-        state: "{{ is_state('switch.4_ch_interruttore_3','on') }}"
+          - service: logbook.log
+            data:
+              name: "Heating night block"
+              entity_id: switch.heating_night_block
+              message: "Logical gate only: no direct relay write."
+        state: "{{ is_state('binary_sensor.heating_window_night','on') }}"
 
 ###############################################################################
 # 4) SENSORI STATISTICI  runtime storico

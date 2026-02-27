@@ -39,6 +39,8 @@ Scope: chiusura formale progetto ClimateOps hardening/runtime.
 
 - Nel campione `trace.saved_traces` live letto il 2026-02-27 erano presenti run recenti non-AC (heating/VMC).  
   Questo non invalida la chiusura, perche' la correlazione AC evento-level risulta gia' dimostrata nei dump storici (`2026-02-24`).
+- Post-closure hardening heating authority (2026-02-27): `switch.heating_night_block` convertito a gate logico non-writer;
+  writer diretto unico del relay fisico `switch.4_ch_interruttore_3` centralizzato su `switch.heating_master`.
 
 ## Esito finale
 

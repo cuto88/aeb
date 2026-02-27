@@ -258,7 +258,7 @@ Non è un rename: la coesistenza è intenzionale. Warning alias possibile: `clim
 | Ruolo                                      | Entity ID canonico                         |
 |-------------------------------------------|--------------------------------------------|
 | Heating master (logical)                  | `switch.heating_master`                   |
-| Heating night block                       | `switch.heating_night_block`              |
+| Heating night block (logical gate only)  | `switch.heating_night_block`              |
 | Heating hardware relay                    | `switch.4_ch_interruttore_3`              |
 
 ### 6.4 Actuators — AC
