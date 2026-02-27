@@ -70,8 +70,9 @@ template:
           {% endif %}
         availability: "{{ true }}"
 
-history_stats:
-  - name: "ClimateOps KPI Raw Comfort Band Ratio Today"
+sensor:
+  - platform: history_stats
+    name: "ClimateOps KPI Raw Comfort Band Ratio Today"
     unique_id: climateops_kpi_raw_comfort_band_ratio_today
     entity_id: binary_sensor.climateops_kpi_comfort_band_flag
     state: "on"
@@ -79,7 +80,8 @@ history_stats:
     start: "{{ today_at('00:00') }}"
     end: "{{ now() }}"
 
-  - name: "ClimateOps KPI Raw Heating Cycles Today"
+  - platform: history_stats
+    name: "ClimateOps KPI Raw Heating Cycles Today"
     unique_id: climateops_kpi_raw_heating_cycles_today
     entity_id: switch.heating_master
     state: "on"
@@ -87,7 +89,8 @@ history_stats:
     start: "{{ today_at('00:00') }}"
     end: "{{ now() }}"
 
-  - name: "ClimateOps KPI Raw AC Giorno Cycles Today"
+  - platform: history_stats
+    name: "ClimateOps KPI Raw AC Giorno Cycles Today"
     unique_id: climateops_kpi_raw_ac_giorno_cycles_today
     entity_id: switch.ac_giorno
     state: "on"
@@ -95,7 +98,8 @@ history_stats:
     start: "{{ today_at('00:00') }}"
     end: "{{ now() }}"
 
-  - name: "ClimateOps KPI Raw AC Notte Cycles Today"
+  - platform: history_stats
+    name: "ClimateOps KPI Raw AC Notte Cycles Today"
     unique_id: climateops_kpi_raw_ac_notte_cycles_today
     entity_id: switch.ac_notte
     state: "on"
@@ -103,7 +107,8 @@ history_stats:
     start: "{{ today_at('00:00') }}"
     end: "{{ now() }}"
 
-  - name: "ClimateOps KPI Raw VMC Boost Hours Today"
+  - platform: history_stats
+    name: "ClimateOps KPI Raw VMC Boost Hours Today"
     unique_id: climateops_kpi_raw_vmc_boost_hours_today
     entity_id: binary_sensor.climateops_kpi_vmc_boost_flag
     state: "on"
