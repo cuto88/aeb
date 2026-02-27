@@ -123,3 +123,27 @@ views:
                 name: Self-consumption %
               - entity: sensor.aeb_comfort_energy_score_pct
                 name: Comfort-energy %
+
+      - type: grid
+        title: "Phase1 DRY-RUN"
+        cards:
+          - type: entities
+            title: "KPI + Planner (recommendation only)"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.climateops_kpi_comfort_band_percent_today
+                name: Comfort band % (today)
+              - entity: sensor.climateops_kpi_heating_cycles_today
+                name: Heating cycles (today)
+              - entity: sensor.climateops_kpi_ac_cycles_today
+                name: AC cycles (today)
+              - entity: sensor.climateops_kpi_vmc_boost_minutes_today
+                name: VMC boost minutes (today)
+              - entity: sensor.planner_heat_setpoint_reco
+                name: Planner heat setpoint reco
+              - entity: sensor.planner_cool_setpoint_reco
+                name: Planner cool setpoint reco
+              - entity: sensor.planner_dhw_run_reco
+                name: Planner DHW run reco
+              - entity: sensor.planner_notes
+                name: Planner notes

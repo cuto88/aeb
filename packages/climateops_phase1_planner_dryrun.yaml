@@ -1,0 +1,81 @@
+---
+template:
+  - sensor:
+      - name: "planner_heat_setpoint_reco"
+        unique_id: planner_heat_setpoint_reco
+        unit_of_measurement: "°C"
+        state: >-
+          {% set t_in = states('sensor.t_in_med') | float(default=none) %}
+          {% set t_out = states('sensor.t_out') | float(default=none) %}
+          {% set surplus = is_state('binary_sensor.policy_surplus_ok', 'on') %}
+          {% set forecast_ready = is_state('binary_sensor.policy_forecast_inputs_ready', 'on')
+            or is_state('binary_sensor.contract_forecast_inputs_ready', 'on') %}
+          {% if t_in is not number %}
+            unknown
+          {% elif surplus and forecast_ready and t_out is number and t_out < 8 %}
+            21.0
+          {% elif t_in < 20.0 %}
+            21.0
+          {% elif t_in > 21.5 %}
+            19.5
+          {% else %}
+            20.5
+          {% endif %}
+        availability: "{{ true }}"
+
+      - name: "planner_cool_setpoint_reco"
+        unique_id: planner_cool_setpoint_reco
+        unit_of_measurement: "°C"
+        state: >-
+          {% set t_in = states('sensor.t_in_med') | float(default=none) %}
+          {% set t_out = states('sensor.t_out') | float(default=none) %}
+          {% set surplus = is_state('binary_sensor.policy_surplus_ok', 'on') %}
+          {% set forecast_ready = is_state('binary_sensor.policy_forecast_inputs_ready', 'on')
+            or is_state('binary_sensor.contract_forecast_inputs_ready', 'on') %}
+          {% if t_in is not number or t_out is not number %}
+            unknown
+          {% elif surplus and forecast_ready and t_out > 30 and t_in > 26 %}
+            24.5
+          {% elif t_in > 25.5 %}
+            25.0
+          {% else %}
+            26.0
+          {% endif %}
+        availability: "{{ true }}"
+
+      - name: "planner_dhw_run_reco"
+        unique_id: planner_dhw_run_reco
+        state: >-
+          {% set surplus = is_state('binary_sensor.policy_surplus_ok', 'on') %}
+          {% set forecast_ready = is_state('binary_sensor.policy_forecast_inputs_ready', 'on')
+            or is_state('binary_sensor.contract_forecast_inputs_ready', 'on') %}
+          {% set ehw_ready = states('sensor.ehw_setpoint') not in ['unknown', 'unavailable', ''] %}
+          {% if not ehw_ready %}
+            unknown
+          {% elif surplus and forecast_ready %}
+            on
+          {% else %}
+            off
+          {% endif %}
+        availability: "{{ true }}"
+
+      - name: "planner_notes"
+        unique_id: planner_notes
+        state: >-
+          {% set surplus = is_state('binary_sensor.policy_surplus_ok', 'on') %}
+          {% set forecast_ready = is_state('binary_sensor.policy_forecast_inputs_ready', 'on')
+            or is_state('binary_sensor.contract_forecast_inputs_ready', 'on') %}
+          {% set t_in = states('sensor.t_in_med') %}
+          {% set t_out = states('sensor.t_out') %}
+          {% if t_in in ['unknown', 'unavailable', ''] or t_out in ['unknown', 'unavailable', ''] %}
+            dryrun:missing_temp_inputs
+          {% elif surplus and forecast_ready %}
+            dryrun:surplus_and_forecast_ready
+          {% elif surplus %}
+            dryrun:surplus_without_forecast
+          {% elif forecast_ready %}
+            dryrun:forecast_ready_no_surplus
+          {% else %}
+            dryrun:baseline_policy_only
+          {% endif %}
+        availability: "{{ true }}"
