@@ -11,6 +11,33 @@ modbus:
     close_comm_on_error: true
 
     sensors:
+      # Manual profile probe (vendor RS485 docs): unit/slave 1.
+      # Keep these as diagnostic probes and let templates decide effective source.
+      - name: "mirai_u1_status_word_raw"
+        unique_id: mirai_u1_status_word_raw
+        address: 1003
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_u1_fault_code_raw"
+        unique_id: mirai_u1_fault_code_raw
+        address: 1209
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_u1_status_code_raw"
+        unique_id: mirai_u1_status_code_raw
+        address: 1208
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      # Runtime fallback profile currently observed on gateway: unit/slave 3.
       - name: "mirai_status_word_raw"
         unique_id: mirai_status_word_raw
         address: 1003

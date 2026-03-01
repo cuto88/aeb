@@ -16,6 +16,12 @@ template:
         state: >
           {{ is_number(states('sensor.mirai_status_word_effective')) }}
 
+      - name: "mirai_manual_unit_profile_ok"
+        unique_id: mirai_manual_unit_profile_ok
+        icon: mdi:counter
+        state: >
+          {{ is_number(states('sensor.mirai_u1_status_word_raw')) }}
+
       - name: "mirai_machine_running_by_power"
         unique_id: mirai_machine_running_by_power
         icon: mdi:flash
@@ -167,9 +173,37 @@ template:
         unique_id: mirai_status_word_effective
         icon: mdi:counter
         availability: >
-          {{ is_number(states('sensor.mirai_status_word_raw')) }}
+          {{ is_number(states('sensor.mirai_u1_status_word_raw')) or is_number(states('sensor.mirai_status_word_raw')) }}
         state: >
-          {{ states('sensor.mirai_status_word_raw') | int(0) }}
+          {% if is_number(states('sensor.mirai_u1_status_word_raw')) %}
+            {{ states('sensor.mirai_u1_status_word_raw') | int(0) }}
+          {% else %}
+            {{ states('sensor.mirai_status_word_raw') | int(0) }}
+          {% endif %}
+
+      - name: "mirai_status_code_effective"
+        unique_id: mirai_status_code_effective
+        icon: mdi:counter
+        availability: >
+          {{ is_number(states('sensor.mirai_u1_status_code_raw')) or is_number(states('sensor.mirai_status_code_raw')) }}
+        state: >
+          {% if is_number(states('sensor.mirai_u1_status_code_raw')) %}
+            {{ states('sensor.mirai_u1_status_code_raw') | int(0) }}
+          {% else %}
+            {{ states('sensor.mirai_status_code_raw') | int(0) }}
+          {% endif %}
+
+      - name: "mirai_fault_code_effective"
+        unique_id: mirai_fault_code_effective
+        icon: mdi:counter
+        availability: >
+          {{ is_number(states('sensor.mirai_u1_fault_code_raw')) or is_number(states('sensor.mirai_fault_code_raw')) }}
+        state: >
+          {% if is_number(states('sensor.mirai_u1_fault_code_raw')) %}
+            {{ states('sensor.mirai_u1_fault_code_raw') | int(0) }}
+          {% else %}
+            {{ states('sensor.mirai_fault_code_raw') | int(0) }}
+          {% endif %}
 
       - name: "mirai_status_bits_on"
         unique_id: mirai_status_bits_on
@@ -295,6 +329,8 @@ template:
         state: >
           {{ now().strftime('%Y-%m-%d %H:%M:%S') }}
         attributes:
+          manual_unit_profile_ok: "{{ states('binary_sensor.mirai_manual_unit_profile_ok') }}"
+          status_word_u1_raw: "{{ states('sensor.mirai_u1_status_word_raw') }}"
           machine_source: "{{ states('sensor.mirai_machine_running_source') }}"
           machine_running_power: "{{ states('binary_sensor.mirai_machine_running_by_power') }}"
           mirai_power_w: "{{ states('sensor.mirai_power_w') }}"
@@ -303,6 +339,8 @@ template:
           status_bits_on: "{{ states('sensor.mirai_status_bits_on') }}"
           status_code_raw: "{{ states('sensor.mirai_status_code_raw') }}"
           fault_code_raw: "{{ states('sensor.mirai_fault_code_raw') }}"
+          status_code_effective: "{{ states('sensor.mirai_status_code_effective') }}"
+          fault_code_effective: "{{ states('sensor.mirai_fault_code_effective') }}"
           l261_compressor_step: "{{ states('sensor.mirai_l261_compressor_step') }}"
           l243_internal_circulator: "{{ states('sensor.mirai_l243_internal_circulator') }}"
           l161_inlet_water_temp: "{{ states('sensor.mirai_l161_inlet_water_temp_clean') }}"
