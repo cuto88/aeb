@@ -693,9 +693,10 @@ template:
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         icon: mdi:stethoscope
         state: >-
-          {% set regs_ok = (states('sensor.ehw_reg56_status') | int(0)) > 0
-            or (states('sensor.ehw_reg57_runtime') | int(0)) > 0
-            or (states('sensor.ehw_reg60_value') | int(0)) > 0 %}
+          {% set regs_ok = is_number(states('sensor.ehw_reg56_status'))
+            or is_number(states('sensor.ehw_reg57_runtime'))
+            or is_number(states('sensor.ehw_reg60_value'))
+            or is_number(states('sensor.ehw_setpoint_raw')) %}
           {% set t_ok = is_number(states('sensor.ehw_tank_top'))
             and is_number(states('sensor.ehw_tank_bottom'))
             and (states('sensor.ehw_tank_top') | float(0)) >= 0
