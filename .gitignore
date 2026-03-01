@@ -55,3 +55,14 @@ ops/.gates_state.json
 # Audit runtime evidence (local-only, never sync)
 # ==================================================
 docs/runtime_evidence/
+
+# ==================================================
+# Local temp and tooling artifacts (never sync)
+# ==================================================
+_runtime/
+tmp/
+tmp_configuration.yaml
+tmp_core.device_registry
+tmp_core.entity_registry
+tmp_energy_pm.yaml
+tools/
