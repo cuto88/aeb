@@ -1,0 +1,308 @@
+title: "1 Clima Casa"
+views:
+  - title: "Clima Casa"
+    path: climate_casa
+    icon: mdi:home-thermometer
+    type: sections
+    max_columns: 3
+    badges:
+      - type: entity
+        entity: sensor.t_out
+        name: "T esterna"
+        color: red
+      - type: entity
+        entity: sensor.ur_out
+        name: "UR esterna"
+        color: indigo
+      - type: entity
+        entity: binary_sensor.clima_ac_from_vmc_request
+        name: "Richiesta AC da VMC"
+        icon: mdi:air-conditioner
+        color: blue
+      - type: entity
+        entity: binary_sensor.heating_should_run
+        name: "Heating should run"
+        icon: mdi:radiator
+        color: orange
+
+    sections:
+      - cards:
+          - type: heading
+            heading: "Stato generale"
+            icon: mdi:transmission-tower
+          - type: glance
+            columns: 4
+            entities:
+              - entity: sensor.ventilation_priority
+                name: "Prio VMC"
+              - entity: sensor.ac_priority
+                name: "Prio AC"
+              - entity: sensor.heating_priority
+                name: "Prio Heating"
+              - entity: binary_sensor.vmc_sensors_ok
+                name: "Sensori VMC"
+              - entity: binary_sensor.ac_failsafe_sensors_bad
+                name: "Failsafe AC"
+              - entity: binary_sensor.heating_failsafe_sensors_bad
+                name: "Failsafe Heat"
+              - entity: binary_sensor.ac_block_by_vmc
+                name: "AC bloccata da VMC"
+              - entity: binary_sensor.heating_should_run
+                name: "Heating run"
+      - type: grid
+        cards:
+          - type: heading
+            heading: "KPI ambientali"
+            icon: mdi:chart-line
+          - type: tile
+            entity: sensor.t_in_med
+            name: "T interna media"
+          - type: tile
+            entity: sensor.ur_in_media
+            name: "UR interna media"
+          - type: tile
+            entity: sensor.t_out
+            name: "T esterna"
+          - type: tile
+            entity: sensor.ur_out
+            name: "UR esterna"
+          - type: tile
+            entity: sensor.delta_t_in_out
+            name: "Delta T in-out"
+          - type: tile
+            entity: sensor.delta_ah_in_out
+            name: "Delta AH in-out"
+          - type: history-graph
+            title: "Temperature 12h"
+            hours_to_show: 12
+            refresh_interval: 120
+            entities:
+              - entity: sensor.t_in_med
+                name: "T interna"
+              - entity: sensor.t_out
+                name: "T esterna"
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Zona giorno"
+            icon: mdi:sofa
+          - type: tile
+            entity: sensor.t_in_giorno
+            name: "T giorno"
+          - type: tile
+            entity: sensor.ur_in_giorno
+            name: "UR giorno"
+          - type: tile
+            entity: climate.ac_giorno
+            name: "AC giorno"
+            state_content:
+              - preset_mode
+              - current_temperature
+            features:
+              - type: target-temperature
+            features_position: bottom
+          - type: tile
+            entity: binary_sensor.windows_giorno1
+            name: "Finestra giorno1"
+          - type: tile
+            entity: binary_sensor.windows_giorno2
+            name: "Finestra giorno2"
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Zona notte"
+            icon: mdi:bed
+          - type: tile
+            entity: sensor.t_notte_med
+            name: "T notte media"
+          - type: tile
+            entity: sensor.ur_notte_med
+            name: "UR notte media"
+          - type: tile
+            entity: climate.ac_notte
+            name: "AC notte"
+            state_content:
+              - preset_mode
+              - current_temperature
+            features:
+              - type: target-temperature
+            features_position: bottom
+          - type: tile
+            entity: binary_sensor.windows_notte1
+            name: "Finestra notte1"
+          - type: tile
+            entity: binary_sensor.windows_notte2
+            name: "Finestra notte2"
+          - type: tile
+            entity: binary_sensor.windows_notte3
+            name: "Finestra notte3"
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Bagno e boost"
+            icon: mdi:shower
+          - type: tile
+            entity: sensor.t_in_bagno
+            name: "T bagno"
+          - type: tile
+            entity: sensor.ur_in_bagno
+            name: "UR bagno"
+          - type: tile
+            entity: input_number.vmc_bagno_on
+            name: "Soglia boost ON"
+          - type: tile
+            entity: input_number.vmc_bagno_off
+            name: "Soglia boost OFF"
+          - type: tile
+            entity: input_boolean.vmc_boost_bagno
+            name: "Boost manuale"
+          - type: tile
+            entity: binary_sensor.vmc_bagno_boost_auto
+            name: "Boost auto"
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "VMC"
+            icon: mdi:fan
+          - type: tile
+            entity: input_select.vmc_mode
+            name: "Modalita VMC"
+          - type: tile
+            entity: input_boolean.vmc_manual
+            name: "Manuale"
+          - type: tile
+            entity: input_select.vmc_manual_speed
+            name: "Velocita manuale"
+          - type: tile
+            entity: timer.vmc_manual_timeout
+            name: "Timer manuale"
+          - type: tile
+            entity: switch.vmc_vel_0
+            name: "Vel 0"
+          - type: tile
+            entity: switch.vmc_vel_1
+            name: "Vel 1"
+          - type: tile
+            entity: switch.vmc_vel_2
+            name: "Vel 2"
+          - type: tile
+            entity: switch.vmc_vel_3
+            name: "Vel 3"
+          - type: tile
+            entity: sensor.vmc_vel_target
+            name: "Velocita target"
+          - type: tile
+            entity: sensor.vmc_vel_index
+            name: "Indice velocita"
+          - type: tile
+            entity: binary_sensor.vmc_freecooling_candidate
+            name: "Freecooling candidabile"
+          - type: tile
+            entity: binary_sensor.vmc_freecooling_active
+            name: "Freecooling attivo"
+          - type: tile
+            entity: sensor.vmc_freecooling_status
+            name: "Stato freecooling"
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "AC"
+            icon: mdi:air-conditioner
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: switch.ac_giorno
+                name: "AC giorno"
+              - entity: switch.ac_notte
+                name: "AC notte"
+              - entity: input_number.ac_cool_setpoint
+                name: "Setpoint COOL"
+              - entity: input_number.ac_dry_ur_on
+                name: "UR ON DRY"
+              - entity: input_number.ac_dry_ur_off
+                name: "UR OFF DRY"
+              - entity: input_boolean.ac_manual
+                name: "Manuale attivo"
+              - entity: input_select.ac_manual_mode
+                name: "Modalita manuale"
+              - entity: timer.ac_manual_timeout
+                name: "Timeout manuale"
+              - entity: input_boolean.ac_block_vmc
+                name: "Block da VMC"
+              - entity: timer.ac_block_vmc_timeout
+                name: "Timeout block VMC"
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Heating"
+            icon: mdi:radiator
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.heating_enable
+                name: "Logica attiva"
+              - entity: input_number.temp_target_risc
+                name: "Setpoint comfort"
+              - entity: input_number.heating_setpoint_night
+                name: "Setpoint notte"
+              - entity: input_number.heating_antifreeze_threshold
+                name: "Soglia antigelo"
+              - entity: input_number.heating_boost_delta
+                name: "Delta boost FV"
+              - entity: input_boolean.heating_manual_active
+                name: "Manuale attivo"
+              - entity: input_select.heating_manual_mode
+                name: "Modalita manuale"
+              - entity: timer.heating_manual_timeout
+                name: "Timeout manuale"
+              - entity: binary_sensor.heating_lock_min_on_ok
+                name: "Lock min ON ok"
+              - entity: binary_sensor.heating_lock_min_off_ok
+                name: "Lock min OFF ok"
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Timeline decisioni"
+            icon: mdi:timeline-clock
+          - type: history-graph
+            title: "VMC 12h"
+            hours_to_show: 12
+            refresh_interval: 120
+            entities:
+              - entity: sensor.ventilation_priority
+                name: "Prio VMC"
+              - entity: sensor.ventilation_reason
+                name: "Reason VMC"
+              - entity: sensor.vmc_vel_target
+                name: "Vel target"
+          - type: history-graph
+            title: "AC 12h"
+            hours_to_show: 12
+            refresh_interval: 120
+            entities:
+              - entity: sensor.ac_priority
+                name: "Prio AC"
+              - entity: sensor.ac_reason
+                name: "Reason AC"
+              - entity: switch.ac_giorno
+                name: "AC giorno"
+              - entity: switch.ac_notte
+                name: "AC notte"
+          - type: history-graph
+            title: "Heating 12h"
+            hours_to_show: 12
+            refresh_interval: 120
+            entities:
+              - entity: sensor.heating_priority
+                name: "Prio Heat"
+              - entity: sensor.heating_reason
+                name: "Reason Heat"
+              - entity: switch.heating_master
+                name: "Cmd heating"

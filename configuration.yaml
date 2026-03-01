@@ -36,6 +36,13 @@ lovelace:
       show_in_sidebar: true
       filename: lovelace/climate_ventilation_plancia_v2.yaml
 
+    1-clima-casa:
+      mode: yaml
+      title: "1 Clima Casa"
+      icon: mdi:home-thermometer
+      show_in_sidebar: true
+      filename: lovelace/climate_casa_unified_plancia.yaml
+
     2-heating:
       mode: yaml
       title: "2 Riscaldamento"
@@ -92,11 +99,3 @@ lovelace:
       show_in_sidebar: true
       require_admin: false
       filename: lovelace/8_mirai_plancia.yaml
-
-    9-climateops-step7:
-      mode: yaml
-      title: "9 ClimateOps Step7"
-      icon: mdi:transmission-tower
-      show_in_sidebar: true
-      require_admin: false
-      filename: lovelace/climateops_step7_plancia.yaml

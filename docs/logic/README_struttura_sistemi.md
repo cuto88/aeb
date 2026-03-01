@@ -52,6 +52,7 @@ Ogni documento di logica corrisponde a un package YAML e alla relativa plancia L
 ## 🌡️ Clima 2026 — stack attivo
 - **Packages (principali):** `packages/climate_sensors.yaml`, `packages/climate_ventilation.yaml`, `packages/climate_heating.yaml`, `packages/climate_ac_logic.yaml`, `packages/climate_ac_mapping.yaml`.
 - **ClimateOps (orchestrazione):** `packages/climateops/` (drivers, strategies, actuators, overrides).
-- **Plance Lovelace (attive):** `lovelace/climate_ventilation_plancia_v2.yaml`, `lovelace/climate_heating_plancia.yaml`, `lovelace/climate_ac_plancia_v2.yaml`.
+- **Plance Lovelace (attive):** `lovelace/climate_casa_unified_plancia.yaml` (entrypoint), `lovelace/climate_ventilation_plancia_v2.yaml`, `lovelace/climate_heating_plancia.yaml`, `lovelace/climate_ac_plancia.yaml`.
+- **Plance dismesse da sidebar:** `lovelace/climateops_step7_plancia.yaml` (voce dashboard rimossa da `configuration.yaml`).
 
 > Revisione documentazione clima: riferimenti allineati ai file runtime attuali.
