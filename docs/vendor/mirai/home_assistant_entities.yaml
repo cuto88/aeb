@@ -1,0 +1,162 @@
+meta:
+  source: manuale_pdc.md
+  naming_prefix: pdc_mirai
+  naming_pattern: "<domain>.<device>_<function>"
+  notes:
+    - "Nessun registro Modbus numerico aggiunto: mappa non presente nella pagina."
+    - "Campi physical_terminal e logical_io_ref separati per evitare confusione di layer."
+
+binary_sensor:
+  - entity_id: binary_sensor.pdc_mirai_alarm_active
+    friendly_name: "PdC allarme attivo"
+    source:
+      config_code: C430
+      logical_io_ref: "203"
+      physical_terminal: P2
+      electrical_class: uscita_230v_max_2a
+    classification: alarm
+    integration_risk: "Richiede interfaccia sicura 230V->SELV"
+
+  - entity_id: binary_sensor.pdc_mirai_remote_thermostat_call
+    friendly_name: "Termostato ambiente richiesta"
+    source:
+      config_code: C422
+      logical_io_ref: "101"
+      physical_terminal: "D+/D-"
+      electrical_class: contatto_pulito
+    classification: status
+
+  - entity_id: binary_sensor.pdc_mirai_remote_onoff_request
+    friendly_name: "Richiesta remoto On/Off"
+    source:
+      config_code: C423
+      logical_io_ref: "102"
+      physical_terminal: "E+/E-"
+      electrical_class: contatto_pulito
+    classification: status
+
+  - entity_id: binary_sensor.pdc_mirai_remote_summer_winter
+    friendly_name: "Comando remoto estate/inverno"
+    source:
+      config_code: C425
+      logical_io_ref: "104"
+      physical_terminal: "G+/G-"
+      electrical_class: contatto_pulito
+    classification: status
+
+switch:
+  - entity_id: switch.pdc_mirai_additional_heater_enable
+    friendly_name: "Consenso riscaldatore addizionale"
+    source:
+      config_code: C427
+      logical_io_ref: "200"
+      physical_terminal: R1
+      electrical_class: uscita_230v_max_8a
+    classification: actuator
+    integration_risk: "Uscita di potenza 230V"
+
+  - entity_id: switch.pdc_mirai_dhw_3way_valve_enable
+    friendly_name: "Consenso valvola 3-vie ACS"
+    source:
+      config_code: C431
+      logical_io_ref: "204"
+      physical_terminal: W1
+      electrical_class: uscita_230v_max_2a
+    classification: actuator
+
+  - entity_id: switch.pdc_mirai_eco_hot_water_consent
+    friendly_name: "Consenso Eco Hot Water"
+    source:
+      config_code: C429
+      logical_io_ref: "202"
+      physical_terminal: "M1/M2"
+      electrical_class: contatto_pulito
+    classification: interface
+    ambiguity: "Direzione logica ingresso/consenso da confermare in campo"
+
+sensor:
+  - entity_id: sensor.pdc_mirai_outdoor_temperature
+    friendly_name: "Temperatura esterna"
+    device_class: temperature
+    unit_of_measurement: "degC"
+    source:
+      config_code: null
+      logical_io_ref: null
+      physical_terminal: "A+/A-"
+      electrical_class: ntc_10k_25c
+
+  - entity_id: sensor.pdc_mirai_dhw_probe_temperature
+    friendly_name: "Temperatura sonda ACS"
+    device_class: temperature
+    unit_of_measurement: "degC"
+    source:
+      config_code: C421
+      logical_io_ref: "100"
+      physical_terminal: "C+/C-"
+      electrical_class: ntc_10k_25c
+
+select:
+  - entity_id: select.pdc_mirai_off_mode_behavior
+    friendly_name: "Comportamento in Off"
+    source:
+      config_code: C402
+    options:
+      - "0:tutto_off_eccetto_antigelo"
+      - "1:acs_e_antigelo"
+
+  - entity_id: select.pdc_mirai_pump2_assignment
+    friendly_name: "Assegnazione Pump2"
+    source:
+      config_code: C404
+    options:
+      - "0:solo_radiante"
+      - "1:radiante_e_setpoint2"
+      - "2:solo_setpoint2"
+
+  - entity_id: select.pdc_mirai_setpoint2_climatic_curve
+    friendly_name: "Curva climatica SetPoint2"
+    source:
+      config_code: C405
+    options:
+      - "0:off"
+      - "1:on"
+
+  - entity_id: select.pdc_mirai_dhw_production_mode
+    friendly_name: "Modalita produzione ACS"
+    source:
+      config_code: C407
+    options:
+      - "0:eco_hot_water"
+      - "1:pdc_su_scambiatore_accumulo"
+      - "2:non_disponibile"
+
+  - entity_id: select.pdc_mirai_pump1_idle_behavior
+    friendly_name: "Logica Pump1 a compressore fermo"
+    source:
+      config_code: C408
+    options:
+      - "0:sempre_attivo"
+      - "1:saggi_15_min"
+      - "2:saggi_automatici"
+
+excluded_or_ambiguous_points:
+  - config_code: C420
+    logical_io_ref: null
+    physical_terminal: "B+/B-"
+    reason: "Non utilizzato"
+  - config_code: C428
+    logical_io_ref: "201"
+    physical_terminal: T1
+    reason: "Non utilizzato"
+  - config_code: C432
+    logical_io_ref: "205"
+    physical_terminal: U1
+    reason: "Non utilizzato"
+  - config_code: C433
+    logical_io_ref: "206"
+    physical_terminal: "X+/X-"
+    reason: "Non utilizzato"
+  - config_code: null
+    logical_io_ref: null
+    physical_terminal: P1
+    reason: "Pompa rilancio presente ma priva di mapping logico nella pagina"

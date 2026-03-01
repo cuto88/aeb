@@ -1,0 +1,175 @@
+# Home Assistant Modbus example derived from ehw.json
+# Uncertain assumptions are marked inline.
+
+modbus:
+  - name: ehw_solar
+    type: tcp
+    host: 192.168.178.191
+    port: 502
+    timeout: 5
+    delay: 2
+
+    # Assumption: H30 default is 3, so slave/unit_id is set to 3.
+    # Verify from live device before production use.
+    sensors:
+      - name: "EHW T01 Inlet Temperature"
+        unique_id: ehw_t01_inlet_temp
+        slave: 3
+        address: 2019
+        input_type: input  # Uncertain: may be holding on this device.
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        data_type: int16
+        scale: 1
+        precision: 0
+      - name: "EHW T02 Tank Top Temperature"
+        unique_id: ehw_t02_tank_top_temp
+        slave: 3
+        address: 2020
+        input_type: input  # Uncertain: may be holding on this device.
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        data_type: int16
+        scale: 1
+        precision: 0
+      - name: "EHW T03 Tank Bottom Temperature"
+        unique_id: ehw_t03_tank_bottom_temp
+        slave: 3
+        address: 2021
+        input_type: input  # Uncertain: may be holding on this device.
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        data_type: int16
+        scale: 1
+        precision: 0
+      - name: "EHW T04 Finned Coil Temperature"
+        unique_id: ehw_t04_finned_coil_temp
+        slave: 3
+        address: 2022
+        input_type: input  # Uncertain: may be holding on this device.
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        data_type: int16
+        scale: 1
+        precision: 0
+      - name: "EHW T05 Suction Temperature"
+        unique_id: ehw_t05_suction_temp
+        slave: 3
+        address: 2023
+        input_type: input  # Uncertain: may be holding on this device.
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        data_type: int16
+        scale: 1
+        precision: 0
+      - name: "EHW T06 Outlet Solar Temperature"
+        unique_id: ehw_t06_outlet_solar_temp
+        slave: 3
+        address: 2024
+        input_type: input  # Uncertain: may be holding on this device.
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        data_type: int16
+        scale: 1
+        precision: 0
+
+    # Writable register examples (inferred).
+    # IMPORTANT:
+    # - Function code is not documented in source; Home Assistant chooses standard write operations for holding registers.
+    # - Address base (0-based vs 1-based) must be validated on device.
+    numbers:
+      - name: "EHW n03 Pump Start Differential"
+        unique_id: ehw_n03_pump_start_diff
+        slave: 3
+        address: 1082
+        input_type: holding
+        data_type: int16
+        scale: 1
+        min_value: 0
+        max_value: 20
+        step: 1
+        unit_of_measurement: "°C"
+      - name: "EHW n09 Drain Valve Setpoint"
+        unique_id: ehw_n09_drain_valve_setpoint
+        slave: 3
+        address: 1088
+        input_type: holding
+        data_type: int16
+        scale: 1
+        min_value: 50
+        max_value: 90
+        step: 1
+        unit_of_measurement: "°C"
+      - name: "EHW n10 Pump Stop Setpoint"
+        unique_id: ehw_n10_pump_stop_setpoint
+        slave: 3
+        address: 1089
+        input_type: holding
+        data_type: int16
+        scale: 1
+        min_value: 50
+        max_value: 90
+        step: 1
+        unit_of_measurement: "°C"
+      - name: "EHW r01 Dot Water Setpoint"
+        unique_id: ehw_r01_dot_water_setpoint
+        slave: 3
+        address: 1104
+        input_type: holding
+        data_type: int16
+        scale: 1
+        min_value: 10
+        max_value: 60
+        step: 1
+        unit_of_measurement: "°C"
+      - name: "EHW r03 Heating Differential"
+        unique_id: ehw_r03_heating_diff
+        slave: 3
+        address: 1106
+        input_type: holding
+        data_type: int16
+        scale: 1
+        min_value: 1
+        max_value: 20
+        step: 1
+        unit_of_measurement: "°C"
+      - name: "EHW r06 Heater Start Delay"
+        unique_id: ehw_r06_heater_start_delay
+        slave: 3
+        address: 1109
+        input_type: holding
+        data_type: int16
+        scale: 1
+        min_value: 0
+        max_value: 450
+        step: 1
+        unit_of_measurement: "min"
+      - name: "EHW OUT5 Mode"
+        unique_id: ehw_out5_mode
+        slave: 3
+        address: 1020
+        input_type: holding
+        data_type: int16
+        scale: 1
+        min_value: 2
+        max_value: 5
+        step: 3
+        # Uncertain: enum-like 2/5 values; enforce via UI helper/template if exact discrete values are required.
+      - name: "EHW H30 Modbus Address"
+        unique_id: ehw_h30_modbus_address
+        slave: 3
+        address: 1076
+        input_type: holding
+        data_type: int16
+        scale: 1
+        min_value: 1
+        max_value: 255
+        step: 1
+        # Caution: writing this can immediately move the device to a new slave ID.
+

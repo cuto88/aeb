@@ -1,0 +1,48 @@
+---
+# Energy transition PM1: da monitor robot a monitor VMC.
+# Non modifica le entita` PM esistenti: aggiunge solo alias/sensori dedicati.
+
+input_number:
+  robot_romeo_baseline_kwh_daily:
+    name: Robot Romeo - baseline kWh giorno
+    min: 0
+    max: 2
+    step: 0.001
+    unit_of_measurement: kWh
+    mode: box
+    initial: 0.096
+
+  robot_romeo_baseline_kwh_monthly:
+    name: Robot Romeo - baseline kWh mese
+    min: 0
+    max: 60
+    step: 0.001
+    unit_of_measurement: kWh
+    mode: box
+    initial: 2.675
+
+sensor:
+  - platform: statistics
+    name: vmc_power_mean_15m
+    entity_id: sensor.pm1_mss310_power_w_main_channel
+    state_characteristic: mean
+    sampling_size: 200
+    max_age:
+      minutes: 15
+
+  - platform: statistics
+    name: vmc_power_max_24h
+    entity_id: sensor.pm1_mss310_power_w_main_channel
+    state_characteristic: value_max
+    sampling_size: 5000
+    max_age:
+      hours: 24
+
+homeassistant:
+  customize:
+    sensor.vmc_power_mean_15m:
+      friendly_name: "VMC - potenza media 15m"
+      icon: mdi:flash
+    sensor.vmc_power_max_24h:
+      friendly_name: "VMC - potenza max 24h"
+      icon: mdi:flash-alert

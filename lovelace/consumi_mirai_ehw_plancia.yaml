@@ -128,7 +128,7 @@ views:
             show_header_toggle: false
             entities:
               - entity: sensor.pm1_mss310_power_w_main_channel
-                name: Romeo W
+                name: VMC W
               - entity: sensor.pm2_mss310_power_w_main_channel
                 name: Lavatrice W
               - entity: sensor.pm3_mss310_power_w_main_channel
@@ -138,11 +138,19 @@ views:
             show_header_toggle: false
             entities:
               - entity: sensor.pm1_energy_daily
-                name: Romeo kWh/giorno
+                name: VMC kWh/giorno
               - entity: sensor.pm2_energy_daily
                 name: Lavatrice kWh/giorno
               - entity: sensor.pm3_energy_daily
                 name: Asciugatrice kWh/giorno
+          - type: entities
+            title: "Robot Romeo (stima)"
+            show_header_toggle: false
+            entities:
+              - entity: input_number.robot_romeo_baseline_kwh_daily
+                name: kWh/giorno stimati
+              - entity: input_number.robot_romeo_baseline_kwh_monthly
+                name: kWh/mese stimati
 
       - type: grid
         title: "Smart Plug PM — andamento 24h"
@@ -153,7 +161,7 @@ views:
             refresh_interval: 120
             entities:
               - entity: sensor.pm1_mss310_power_w_main_channel
-                name: Romeo W
+                name: VMC W
               - entity: sensor.pm2_mss310_power_w_main_channel
                 name: Lavatrice W
               - entity: sensor.pm3_mss310_power_w_main_channel
@@ -167,7 +175,7 @@ views:
             days_to_show: 7
             entities:
               - entity: sensor.pm1_mss310_energy_kwh_main_channel
-                name: Romeo
+                name: VMC
               - entity: sensor.pm2_mss310_energy_kwh_main_channel
                 name: Lavatrice
               - entity: sensor.pm3_mss310_energy_kwh_main_channel

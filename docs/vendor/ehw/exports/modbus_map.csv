@@ -1,0 +1,16 @@
+code,register,meaning,access_inferred,register_type_inferred,data_type_inferred,unit,scale_inferred,range,default,notes
+/01,1020,"OUT5 (2-solar pump, 5-low flow alarm)",RW,"holding (?)",int16,enum,1,"2/5",5,"Enum-like field; writable assumption uncertain"
+H30,1076,"Modbus address",RW,"holding (?)",int16,id,1,"1-255",3,"Likely slave ID; writing may disrupt communication"
+n03,1082,"Temperature differential of solar water pump starting",RW,"holding (?)",int16,°C,1,"0-20 °C","5 °C","Temperature parameter; writable assumption uncertain"
+n09,1088,"The set point of solar drainage valve",RW,"holding (?)",int16,°C,1,"50-90 °C","78 °C","Temperature parameter; writable assumption uncertain"
+n10,1089,"The stop point of solar water pump",RW,"holding (?)",int16,°C,1,"50-90 °C","70 °C","Temperature parameter; writable assumption uncertain"
+r01,1104,"Dot water temperature set point",RW,"holding (?)",int16,°C,1,"10-60 °C","53 °C","Temperature parameter; writable assumption uncertain"
+r03,1106,"The temperature differential in heating mode",RW,"holding (?)",int16,°C,1,"1-20 °C","15 °C","Temperature parameter; writable assumption uncertain"
+r06,1109,"The delay time of starting up the electrical heater",RW,"holding (?)",int16,min,1,"0-450 min","200 min","Time parameter; writable assumption uncertain"
+T01,2019,"Inlet temp. sensor",RO,"input (?)",int16,°C,1,,reading,"Read-only assumption from sensor naming"
+T02,2020,"Water tank top temp. sensor",RO,"input (?)",int16,°C,1,,reading,"Read-only assumption from sensor naming"
+T03,2021,"Water tank bottom temp. sensor",RO,"input (?)",int16,°C,1,,reading,"Read-only assumption from sensor naming"
+T04,2022,"Finned coil temp. sensor",RO,"input (?)",int16,°C,1,,reading,"Read-only assumption from sensor naming"
+T05,2023,"Suction temp. sensor",RO,"input (?)",int16,°C,1,,reading,"Read-only assumption from sensor naming"
+T06,2024,"Outlet temp / Solar temp. sensor",RO,"input (?)",int16,°C,1,,reading,"Read-only assumption from sensor naming"
+

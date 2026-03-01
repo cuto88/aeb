@@ -38,3 +38,7 @@ Single source of truth per la mappa registri MIRAI usata in Home Assistant.
 - Mappa aggiornata dopo audit runtime del 1 marzo 2026 (STEP23/STEP25).
 - Non invertire IP Mirai/EHW: la validazione runtime ha confermato mapping attuale.
 - Il fallback da consumi (`binary_sensor.mirai_machine_running_by_power`) resta attivo come resilienza se Modbus non risponde.
+- Riferimenti vendor correnti:
+  - `docs/vendor/mirai/manuale_pdc.md` (parametri RS-485: RTU 9600, 8E1, address 1, timeout 1000)
+  - `docs/vendor/mirai/pdc_registers_review.md` e `docs/vendor/mirai/pdc_io_map.json`
+- Nota: la documentazione vendor Mirai disponibile non espone una tabella completa `C4xx -> registro Modbus` numerico.

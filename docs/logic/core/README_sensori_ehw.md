@@ -14,7 +14,11 @@ Questa mappa copre il layer Modbus TCP EcoHotWater con lettura di registri holdi
 (FC3, addressing 0-based/PDU). Include sensori raw, hex decoding e flag binari da
 status word.
 
-Manuale di riferimento previsto in: `docs/vendor/ehw/Ecohotwater 2021 - manual_compressed.pdf`.
+Sorgenti vendor correnti:
+- `docs/vendor/ehw/ehw.json` (mappa parametri/registri estratta)
+- `docs/vendor/ehw/docs/modbus_map.md` (tabella tecnica leggibile)
+- `docs/vendor/ehw/exports/modbus_map.csv` (export per confronto)
+- `docs/vendor/ehw/homeassistant/modbus_solar.yaml` (esempio HA, da trattare come bozza con assunzioni)
 
 ---
 

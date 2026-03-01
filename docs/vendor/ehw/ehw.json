@@ -1,0 +1,117 @@
+{
+  "device": "EO 2021/E0 3.021 ES",
+  "parameters": [
+    {
+      "code": "/01",
+      "meaning": "OUT5 (2-solar pump, 5-low flow alarm)",
+      "default": "5",
+      "range": "2/5",
+      "password": "22",
+      "modbus_register": 1020
+    },
+    {
+      "code": "H30",
+      "meaning": "Modbus address",
+      "default": "3",
+      "range": "1-255",
+      "password": "22",
+      "modbus_register": 1076
+    },
+    {
+      "code": "n03",
+      "meaning": "Temperature differential of solar water pump starting",
+      "default": "5 °C",
+      "range": "0÷20 °C",
+      "password": "22",
+      "modbus_register": 1082
+    },
+    {
+      "code": "n09",
+      "meaning": "The set point of solar drainage valve",
+      "default": "78 °C",
+      "range": "50÷90 °C",
+      "password": "22",
+      "modbus_register": 1088
+    },
+    {
+      "code": "n10",
+      "meaning": "The stop point of solar water pump",
+      "default": "70 °C",
+      "range": "50÷90 °C",
+      "password": "22",
+      "modbus_register": 1089
+    },
+    {
+      "code": "r01",
+      "meaning": "Dot water temperature set point",
+      "default": "53 °C",
+      "range": "10÷60 °C",
+      "password": "22",
+      "modbus_register": 1104
+    },
+    {
+      "code": "r03",
+      "meaning": "The temperature differential in heating mode",
+      "default": "15 °C",
+      "range": "1÷20 °C",
+      "password": "22",
+      "modbus_register": 1106
+    },
+    {
+      "code": "r06",
+      "meaning": "The delay time of starting up the electrical heater",
+      "default": "200 min",
+      "range": "0÷450 min",
+      "password": "22",
+      "modbus_register": 1109
+    },
+    {
+      "code": "T01",
+      "meaning": "Inlet temp. sensor",
+      "default": "reading",
+      "range": "",
+      "password": "22",
+      "modbus_register": 2019
+    },
+    {
+      "code": "T02",
+      "meaning": "Water tank top temp. sensor",
+      "default": "reading",
+      "range": "",
+      "password": "22",
+      "modbus_register": 2020
+    },
+    {
+      "code": "T03",
+      "meaning": "Water tank bottom temp. sensor",
+      "default": "reading",
+      "range": "",
+      "password": "22",
+      "modbus_register": 2021
+    },
+    {
+      "code": "T04",
+      "meaning": "Finned coil temp. sensor",
+      "default": "reading",
+      "range": "",
+      "password": "22",
+      "modbus_register": 2022
+    },
+    {
+      "code": "T05",
+      "meaning": "Suction temp. sensor",
+      "default": "reading",
+      "range": "",
+      "password": "22",
+      "modbus_register": 2023
+    },
+    {
+      "code": "T06",
+      "meaning": "Outlet temp / Solar temp. sensor",
+      "default": "reading",
+      "range": "",
+      "password": "22",
+      "modbus_register": 2024
+    }
+  ]
+}

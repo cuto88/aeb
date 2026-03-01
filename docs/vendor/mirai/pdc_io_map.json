@@ -1,0 +1,492 @@
+{
+  "source": {
+    "document": "manuale_pdc.md",
+    "scope": "single manual page transcription",
+    "constraints": [
+      "no invented Modbus registers",
+      "distinguish physical terminals vs logical I/O addresses",
+      "mark ambiguous points explicitly"
+    ]
+  },
+  "config_params": [
+    {
+      "code": "C402",
+      "default": 1,
+      "description": "Stato operativo nella condizione di Off",
+      "values": {
+        "0": "Tutte le funzioni/uscite Off eccetto protezione antigelo",
+        "1": "Attive solo produzione ACS e protezione antigelo"
+      },
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C403",
+      "default": 0,
+      "description": "Non utilizzato",
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C404",
+      "default": 0,
+      "description": "Attivazione circolatore di rilancio Pump2",
+      "values": {
+        "0": "Solo sistema radiante",
+        "1": "Sistema radiante + SetPoint 2",
+        "2": "Solo SetPoint 2"
+      },
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C405",
+      "default": 0,
+      "description": "Curva climatica Set Point 2",
+      "values": {
+        "0": "Off",
+        "1": "On"
+      },
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C406",
+      "default": 1,
+      "description": "Non utilizzato",
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C407",
+      "default": 0,
+      "description": "Acqua Calda Sanitaria",
+      "values": {
+        "0": "Prodotta da Eco Hot Water",
+        "1": "Prodotta da PdC su scambiatore accumulo",
+        "2": "Non disponibile"
+      },
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C408",
+      "default": 0,
+      "description": "Funzionamento Pump1 con compressore spento e target soddisfatto",
+      "values": {
+        "0": "Sempre attivo",
+        "1": "Saggi ogni 15 minuti",
+        "2": "Saggi a intervalli automatici"
+      },
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C420",
+      "default": 0,
+      "description": "Non utilizzato",
+      "physical_terminals": [
+        "B+",
+        "B-"
+      ],
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C421",
+      "default": 0,
+      "description": "Sonda temperatura acqua calda sanitaria",
+      "logical_io_ref": "100",
+      "physical_terminals": [
+        "C+",
+        "C-"
+      ],
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C422",
+      "default": 0,
+      "description": "Termostato ambiente",
+      "logical_io_ref": "101",
+      "physical_terminals": [
+        "D+",
+        "D-"
+      ],
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C423",
+      "default": 0,
+      "description": "On/Off da remoto",
+      "logical_io_ref": "102",
+      "physical_terminals": [
+        "E+",
+        "E-"
+      ],
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C424",
+      "default": 0,
+      "description": "Limitazione frequenza compressore",
+      "logical_io_ref": "103",
+      "physical_terminals": [
+        "F+",
+        "F-"
+      ],
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C425",
+      "default": 0,
+      "description": "Estate/Inverno da remoto",
+      "logical_io_ref": "104",
+      "physical_terminals": [
+        "G+",
+        "G-"
+      ],
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C426",
+      "default": 0,
+      "description": "Set point 2",
+      "logical_io_ref": "105",
+      "physical_terminals": [
+        "H+",
+        "H-"
+      ],
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C427",
+      "default": 0,
+      "description": "Consenso riscaldatore addizionale",
+      "logical_io_ref": "200",
+      "physical_terminals": [
+        "R1"
+      ],
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C428",
+      "default": 0,
+      "description": "Non utilizzato",
+      "logical_io_ref": "201",
+      "physical_terminals": [
+        "T1"
+      ],
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C429",
+      "default": 0,
+      "description": "Consenso all'Eco Hot Water",
+      "logical_io_ref": "202",
+      "physical_terminals": [
+        "M1",
+        "M2"
+      ],
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C430",
+      "default": 0,
+      "description": "Segnalazione PdC in allarme",
+      "logical_io_ref": "203",
+      "physical_terminals": [
+        "P2"
+      ],
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C431",
+      "default": 0,
+      "description": "Consenso valvola 3-vie ACS",
+      "logical_io_ref": "204",
+      "physical_terminals": [
+        "W1"
+      ],
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C432",
+      "default": 0,
+      "description": "Non utilizzato",
+      "logical_io_ref": "205",
+      "physical_terminals": [
+        "U1"
+      ],
+      "modbus_register": "AMBIGUO"
+    },
+    {
+      "code": "C433",
+      "default": 0,
+      "description": "Non utilizzato",
+      "logical_io_ref": "206",
+      "physical_terminals": [
+        "X+",
+        "X-"
+      ],
+      "modbus_register": "AMBIGUO"
+    }
+  ],
+  "io_points": [
+    {
+      "logical_io_ref": "100",
+      "code": "C421",
+      "function": "Sonda temperatura ACS",
+      "signal_type": "NTC_10K_25C",
+      "electrical_class": "sonda_ntc",
+      "physical_terminals": [
+        "C+",
+        "C-"
+      ],
+      "wiring": "BUS-SCS"
+    },
+    {
+      "logical_io_ref": "101",
+      "code": "C422",
+      "function": "Termostato ambiente",
+      "signal_type": "digital_input",
+      "electrical_class": "contatto_pulito",
+      "physical_terminals": [
+        "D+",
+        "D-"
+      ],
+      "wiring": "BUS-SCS"
+    },
+    {
+      "logical_io_ref": "102",
+      "code": "C423",
+      "function": "On/Off da remoto",
+      "signal_type": "digital_input",
+      "electrical_class": "contatto_pulito",
+      "physical_terminals": [
+        "E+",
+        "E-"
+      ],
+      "wiring": "BUS-SCS"
+    },
+    {
+      "logical_io_ref": "103",
+      "code": "C424",
+      "function": "Limitazione frequenza compressore",
+      "signal_type": "digital_input",
+      "electrical_class": "contatto_pulito",
+      "physical_terminals": [
+        "F+",
+        "F-"
+      ],
+      "wiring": "BUS-SCS"
+    },
+    {
+      "logical_io_ref": "104",
+      "code": "C425",
+      "function": "Estate/Inverno da remoto",
+      "signal_type": "digital_input",
+      "electrical_class": "contatto_pulito",
+      "physical_terminals": [
+        "G+",
+        "G-"
+      ],
+      "wiring": "BUS-SCS"
+    },
+    {
+      "logical_io_ref": "105",
+      "code": "C426",
+      "function": "Set point 2",
+      "signal_type": "digital_input",
+      "electrical_class": "contatto_pulito",
+      "physical_terminals": [
+        "H+",
+        "H-"
+      ],
+      "wiring": "BUS-SCS"
+    },
+    {
+      "logical_io_ref": "200",
+      "code": "C427",
+      "function": "Consenso riscaldatore addizionale",
+      "signal_type": "digital_output",
+      "electrical_class": "uscita_230v",
+      "physical_terminals": [
+        "R1"
+      ],
+      "limits": "230V AC max 8A"
+    },
+    {
+      "logical_io_ref": "201",
+      "code": "C428",
+      "function": "Non utilizzato",
+      "signal_type": "undefined",
+      "electrical_class": "AMBIGUO",
+      "physical_terminals": [
+        "T1"
+      ]
+    },
+    {
+      "logical_io_ref": "202",
+      "code": "C429",
+      "function": "Consenso Eco Hot Water",
+      "signal_type": "digital_input",
+      "electrical_class": "contatto_pulito",
+      "physical_terminals": [
+        "M1",
+        "M2"
+      ],
+      "wiring": "1.5mm2"
+    },
+    {
+      "logical_io_ref": "203",
+      "code": "C430",
+      "function": "Segnalazione PdC in allarme",
+      "signal_type": "digital_output",
+      "electrical_class": "uscita_230v",
+      "physical_terminals": [
+        "P2"
+      ],
+      "limits": "230V AC max 2A"
+    },
+    {
+      "logical_io_ref": "204",
+      "code": "C431",
+      "function": "Consenso valvola 3-vie ACS",
+      "signal_type": "digital_output",
+      "electrical_class": "uscita_230v",
+      "physical_terminals": [
+        "W1"
+      ],
+      "limits": "230V AC max 2A"
+    },
+    {
+      "logical_io_ref": "205",
+      "code": "C432",
+      "function": "Non utilizzato",
+      "signal_type": "undefined",
+      "electrical_class": "AMBIGUO",
+      "physical_terminals": [
+        "U1"
+      ]
+    },
+    {
+      "logical_io_ref": "206",
+      "code": "C433",
+      "function": "Non utilizzato",
+      "signal_type": "undefined",
+      "electrical_class": "AMBIGUO",
+      "physical_terminals": [
+        "X+",
+        "X-"
+      ]
+    }
+  ],
+  "sensors": [
+    {
+      "name": "Outdoor temp.",
+      "code": null,
+      "logical_io_ref": null,
+      "physical_terminals": [
+        "A+",
+        "A-"
+      ],
+      "signal_type": "NTC_10K_25C",
+      "electrical_class": "sonda_ntc",
+      "wiring": "BUS-SCS",
+      "note": "Nessun parametro C4xx associato nella pagina"
+    },
+    {
+      "name": "Sonda temperatura acqua calda sanitaria",
+      "code": "C421",
+      "logical_io_ref": "100",
+      "physical_terminals": [
+        "C+",
+        "C-"
+      ],
+      "signal_type": "NTC_10K_25C",
+      "electrical_class": "sonda_ntc",
+      "wiring": "BUS-SCS"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "Consenso riscaldatore addizionale",
+      "code": "C427",
+      "logical_io_ref": "200",
+      "physical_terminals": [
+        "R1"
+      ],
+      "electrical_class": "uscita_230v",
+      "limits": "230V AC max 8A"
+    },
+    {
+      "name": "Segnalazione PdC in allarme",
+      "code": "C430",
+      "logical_io_ref": "203",
+      "physical_terminals": [
+        "P2"
+      ],
+      "electrical_class": "uscita_230v",
+      "limits": "230V AC max 2A"
+    },
+    {
+      "name": "Consenso valvola 3-vie ACS",
+      "code": "C431",
+      "logical_io_ref": "204",
+      "physical_terminals": [
+        "W1"
+      ],
+      "electrical_class": "uscita_230v",
+      "limits": "230V AC max 2A"
+    },
+    {
+      "name": "Pompa di rilancio",
+      "code": null,
+      "logical_io_ref": null,
+      "physical_terminals": [
+        "P1"
+      ],
+      "electrical_class": "uscita_230v",
+      "limits": "230V AC max 2A",
+      "note": "Nessun codice C4xx/Rif I/O esplicitato nella pagina"
+    }
+  ],
+  "bus": [
+    {
+      "name": "RS-485",
+      "protocol": "Modbus RTU",
+      "physical_terminals": [
+        "-",
+        "+",
+        "G"
+      ],
+      "serial": {
+        "baudrate": 9600,
+        "frame": "8E1",
+        "address": 1,
+        "timeout_ms": 1000
+      },
+      "register_map": "NON_PRESENTE_NELLA_PAGINA"
+    }
+  ],
+  "safety_flags": [
+    {
+      "point": "R1 (I/O 200)",
+      "risk": "Uscita 230V AC max 8A: richiede isolamento e protezioni adeguate"
+    },
+    {
+      "point": "P2 (I/O 203)",
+      "risk": "Uscita 230V AC max 2A: non collegare direttamente ingressi a bassa tensione"
+    },
+    {
+      "point": "W1 (I/O 204)",
+      "risk": "Uscita 230V AC max 2A: verificare compatibilita' elettrica della valvola"
+    },
+    {
+      "point": "A+/A- e C+/C-",
+      "risk": "Ingressi sonda NTC: non applicare tensione esterna"
+    },
+    {
+      "point": "B+/B-, T1, U1, X+/X-",
+      "risk": "Punti dichiarati non utilizzati: stato reale non confermato"
+    }
+  ],
+  "ambiguities": [
+    "Nessuna corrispondenza esplicita tra codici C4xx e indirizzi registri Modbus",
+    "Per C420/C428/C432/C433 non e' definita funzione operativa",
+    "I/O 202 e' indicato come ingresso contatto pulito ma denominato 'consenso' (direzione logica da validare in campo)",
+    "Pompa di rilancio P1 non ha codice C4xx ne' Rif I/O nella pagina"
+  ]
+}
