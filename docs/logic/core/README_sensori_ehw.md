@@ -25,6 +25,12 @@ Manuale di riferimento previsto in: `docs/vendor/ehw/Ecohotwater 2021 - manual_c
 | `sensor.ehw_reg56_status`          | modbus sensor  | 56 / FC3 holding  | 1:1   | raw   | Status word (uint16) |
 | `sensor.ehw_reg57_runtime`         | modbus sensor  | 57 / FC3 holding  | 1:1   | raw   | Runtime word (uint16) |
 | `sensor.ehw_reg60_value`           | modbus sensor  | 60 / FC3 holding  | 1:1   | raw   | Observed value (uint16), visto stabile a 0x002D/45 |
+| `sensor.ehw_reg1082_solar_pump_delta_start` | modbus sensor | 1082 / FC3 holding | 1:1 | raw | Delta start circolatore solare (vendor param) |
+| `sensor.ehw_reg1088_solar_drain_valve_setpoint` | modbus sensor | 1088 / FC3 holding | 1:1 | raw | Setpoint valvola scarico solare (vendor param) |
+| `sensor.ehw_reg1089_solar_pump_stop_setpoint` | modbus sensor | 1089 / FC3 holding | 1:1 | raw | Setpoint stop circolatore solare (vendor param) |
+| `sensor.ehw_reg1106_dhw_setpoint_delta` | modbus sensor | 1106 / FC3 holding | 1:1 | raw | Delta setpoint ACS (vendor param) |
+| `sensor.ehw_reg1109_electric_heater_delay` | modbus sensor | 1109 / FC3 holding | 1:1 | raw | Ritardo riscaldatore elettrico (vendor param) |
+| `sensor.ehw_reg1255_modbus_address` | modbus sensor | 1255 / FC3 holding | 1:1 | raw | Indirizzo Modbus configurato (vendor param) |
 | `sensor.ehw_status_word_hex`       | template sensor| reg56             | n/a   | hex   | Status word formattato 0x%04X |
 | `sensor.ehw_runtime_word_hex`      | template sensor| reg57             | n/a   | hex   | Runtime word formattato 0x%04X |
 | `binary_sensor.ehw_status_bit_0100`| template binary| reg56             | n/a   | bool  | Bit 0x0100 (mask 256) |

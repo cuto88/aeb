@@ -60,6 +60,22 @@ views:
                 name: T05 suction
               - entity: sensor.ehw_t06_outlet_solar
                 name: T06 outlet solar
+          - type: entities
+            title: "Vendor reg diagnostici"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.ehw_reg1082_solar_pump_delta_start
+                name: Reg1082 delta start solar pump
+              - entity: sensor.ehw_reg1088_solar_drain_valve_setpoint
+                name: Reg1088 solar drain valve setpoint
+              - entity: sensor.ehw_reg1089_solar_pump_stop_setpoint
+                name: Reg1089 solar pump stop setpoint
+              - entity: sensor.ehw_reg1106_dhw_setpoint_delta
+                name: Reg1106 DHW setpoint delta
+              - entity: sensor.ehw_reg1109_electric_heater_delay
+                name: Reg1109 electric heater delay
+              - entity: sensor.ehw_reg1255_modbus_address
+                name: Reg1255 Modbus address
           - type: history-graph
             title: "Reg56/Reg57 (24h)"
             hours_to_show: 24

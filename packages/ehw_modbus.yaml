@@ -33,6 +33,56 @@ modbus:
         scan_interval: 60
         slave: !secret ehw_modbus_slave
 
+      # Vendor parameter registers (read-only diagnostics from EHW manual).
+      # Keep low-frequency polling to avoid extra Modbus pressure.
+      - name: "EHW reg1082 solar pump delta start"
+        unique_id: ehw_reg1082_solar_pump_delta_start
+        address: 1082
+        input_type: holding
+        data_type: uint16
+        scan_interval: 300
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW reg1088 solar drain valve setpoint"
+        unique_id: ehw_reg1088_solar_drain_valve_setpoint
+        address: 1088
+        input_type: holding
+        data_type: uint16
+        scan_interval: 300
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW reg1089 solar pump stop setpoint"
+        unique_id: ehw_reg1089_solar_pump_stop_setpoint
+        address: 1089
+        input_type: holding
+        data_type: uint16
+        scan_interval: 300
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW reg1106 dhw setpoint delta"
+        unique_id: ehw_reg1106_dhw_setpoint_delta
+        address: 1106
+        input_type: holding
+        data_type: uint16
+        scan_interval: 300
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW reg1109 electric heater delay"
+        unique_id: ehw_reg1109_electric_heater_delay
+        address: 1109
+        input_type: holding
+        data_type: uint16
+        scan_interval: 300
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW reg1255 modbus address"
+        unique_id: ehw_reg1255_modbus_address
+        address: 1255
+        input_type: holding
+        data_type: uint16
+        scan_interval: 300
+        slave: !secret ehw_modbus_slave
+
       # T01..T06 RAW (A = doc_reg - 1, B = doc_reg)
       # Keep these as low-frequency diagnostic probes to reduce Modbus churn.
       - name: "EHW T01 raw A"
