@@ -97,7 +97,7 @@ Tabella riassuntiva delle priorità specifiche VMC (top-down). Le soglie numeric
 | Priorità | Trigger | Azione | Uscita | Lock applicati | Note |
 | --- | --- | --- | --- | --- | --- |
 | **P0 – Failsafe/override AC** | Sensori critici mancanti/allarmi; AC notte in DRY → richiesta vel_0 | Forza vel_0 e disabilita automazioni | Ripristino sensori o AC esce da DRY | min_off sicurezza | Watchdog ripristina vel_1 se inattivo >10m |
-| **P1 – Boost bagno** | UR bagno sopra soglia; opzionale: ΔUR bagno/esterno sopra soglia se trigger ΔUR abilitato | Vel_3 (boost), downgrade a vel_2 se esterno molto più secco | UR rientra sotto soglia + ΔUR ridotto | min_on 10m, cooldown 5m | Scavalca free-cooling; può attivare escalation DRY |
+| **P1 – Boost bagno** | UR bagno sopra soglia; opzionale: ΔUR bagno/esterno sopra soglia se trigger ΔUR abilitato | Vel_3 (boost), downgrade a vel_2 se esterno molto più secco | UR rientra sotto soglia + ΔUR ridotto; rilascio anche se aria esterna piu` umida (ΔUR fortemente negativo) | min_on 10m, cooldown 5m | Scavalca free-cooling; può attivare escalation DRY |
 | **P1-lite – ΔUR interno/esterno** | UR_media >50% e ΔUR_media≥10pt con bagno non in boost | Vel_2 | ΔUR_media <8pt o UR_media ≤48% o runtime 8m o AH_out≥AH_in | min_on 5m | Subordinato a P1 e P2 |
 | **P1B – Supporto AC DRY** | Boost bagno attivo da lungo tempo e UR ancora alta | Richiede AC in DRY mantenendo VMC vel_1 | UR sotto isteresi o max_run 120m | min_on AC 30m | Usa `hook_vmc_request_ac_block` al rilascio |
 | **P2 – Free-cooling** | Condizioni termo-igrometriche favorevoli (vedi schema) | Vel_2 e blocco COOL/DRY se ΔAH sfavorevole | ΔT/ΔAH non più validi | min_on 15m, max_run 120m | Prevale schema PASSIVHAUS se valido |

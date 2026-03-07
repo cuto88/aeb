@@ -14,6 +14,9 @@ Segnalazione runtime: chiamata `vel3` non attesa lato bagno e notifiche Telegram
   - durata configurabile con `input_number.vmc_boost_manual_timeout_min`
   - auto-spegnimento `input_boolean.vmc_boost_bagno` a timer scaduto
 - Notifica debug Telegram resa robusta (escaping contenuto) per evitare errori markdown parse.
+- Guardrail igrometrico boost bagno:
+  - boost automatico non parte con aria esterna piu` umida (`delta_ur` negativo)
+  - boost automatico si rilascia se `delta_ur` diventa fortemente negativo (outside wetter)
 
 ## Obiettivo operativo
 - Evitare richieste `VEL3` non intenzionali legate al solo delta UR.

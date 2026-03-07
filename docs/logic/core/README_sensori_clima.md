@@ -98,6 +98,8 @@ Note operative VMC:
 - `binary_sensor.vmc_bagno_boost_auto` → ON se UR bagno ≥ `input_number.vmc_bagno_on`.
   Trigger opzionale su ΔUR bagno–out attivabile con `input_boolean.vmc_bagno_delta_trigger_enable`
   (default OFF), soglia `input_number.vmc_bagno_delta_ur_on`.
+  Guardrail: boost automatico non parte (e si rilascia) se l'aria esterna risulta
+  piu` umida del bagno (`delta_ur` fortemente negativo).
   Resta ON finché non si verificano le condizioni di spegnimento: UR bagno
   ≤`input_number.vmc_bagno_off` **e** ΔUR bagno–out ≤6%. Fail-safe: auto-OFF dopo 45 minuti
   continuativi di boost, con `delay_off` di 3 minuti per evitare oscillazioni.

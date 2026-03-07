@@ -251,8 +251,9 @@ template:
           {% else %}
             {% set delta_ur = ur_bath - ur_out %}
             {% set delta_trigger = delta_trigger_enabled and (delta_ur >= delta_ur_on) and (ur_bath >= ur_off) %}
-            {% set on_condition = (ur_bath >= ur_on) or delta_trigger %}
-            {% set off_condition = (ur_bath <= ur_off) and (delta_ur <= 6) %}
+            {% set on_condition = ((ur_bath >= ur_on) and (delta_ur >= 0)) or delta_trigger %}
+            {% set outside_wetter = (delta_ur <= -2) %}
+            {% set off_condition = ((ur_bath <= ur_off) and (delta_ur <= 6)) or outside_wetter %}
             {% set max_run = 45 * 60 %}
             {% set run_secs = (now().timestamp() - as_timestamp(this.last_changed, default=0)) if was_on else 0 %}
             {% set timeout = was_on and run_secs > max_run %}
@@ -369,9 +370,15 @@ template:
           {% set mode_off = is_state('input_select.vmc_mode','off') %}
           {% set sensors_ok = is_state('binary_sensor.vmc_sensors_ok','on') %}
           {% set policy_blocks_boost = is_state('binary_sensor.policy_allow_vmc_boost','off') %}
-          {% set boost_requested = is_state('binary_sensor.vmc_bagno_boost_auto','on') or is_state('input_boolean.vmc_boost_bagno','on') %}
+          {% set ur_bath = states('sensor.ur_in_bagno')|float(default=none) %}
+          {% set ur_out = states('sensor.ur_out')|float(default=none) %}
+          {% set ur_on = states('input_number.vmc_bagno_on')|float(75) %}
+          {% set outside_wetter = ur_bath is not none and ur_out is not none and (ur_bath - ur_out) <= -2 %}
+          {% set boost_manual = is_state('input_boolean.vmc_boost_bagno','on') %}
+          {% set boost_auto_valid = is_state('binary_sensor.vmc_bagno_boost_auto','on')
+             and ur_bath is not none and ur_bath >= ur_on and not outside_wetter %}
+          {% set boost_requested = boost_manual or boost_auto_valid %}
           {% set ur_in_media = states('sensor.ur_in_media')|float(default=0) %}
-          {% set ur_out = states('sensor.ur_out')|float(default=0) %}
           {% if mode_off %}
             P0_off
           {% elif manual %}
@@ -380,7 +387,9 @@ template:
             P0_failsafe
           {% elif policy_blocks_boost and boost_requested %}
             P4_baseline
-          {% elif is_state('binary_sensor.vmc_bagno_boost_auto','on') or is_state('input_boolean.vmc_boost_bagno','on') %}
+          {% elif boost_requested and outside_wetter %}
+            P4_baseline
+          {% elif boost_requested %}
             P1_boost_bagno
           {% elif is_state('binary_sensor.vmc_anti_secco','on') %}
             P1_anti_secco
@@ -399,7 +408,14 @@ template:
           {% set arbiter_mode = states('sensor.climateops_arbiter_suggested_mode') %}
           {% set arbiter_available = arbiter_mode not in ['unknown','unavailable',''] %}
           {% set policy_blocks_boost = is_state('binary_sensor.policy_allow_vmc_boost','off') %}
-          {% set boost_requested = is_state('binary_sensor.vmc_bagno_boost_auto','on') or is_state('input_boolean.vmc_boost_bagno','on') %}
+          {% set ur_bath = states('sensor.ur_in_bagno')|float(default=none) %}
+          {% set ur_out = states('sensor.ur_out')|float(default=none) %}
+          {% set ur_on = states('input_number.vmc_bagno_on')|float(75) %}
+          {% set outside_wetter = ur_bath is not none and ur_out is not none and (ur_bath - ur_out) <= -2 %}
+          {% set boost_manual = is_state('input_boolean.vmc_boost_bagno','on') %}
+          {% set boost_auto_valid = is_state('binary_sensor.vmc_bagno_boost_auto','on')
+             and ur_bath is not none and ur_bath >= ur_on and not outside_wetter %}
+          {% set boost_requested = boost_manual or boost_auto_valid %}
           {% if cutover_on and arbiter_available and arbiter_mode != 'IDLE' %}
             ClimateOps: {{ arbiter_mode }} – {{ states('sensor.climateops_arbiter_suggested_reason') }}
           {% else %}
@@ -412,6 +428,8 @@ template:
             P0 – failsafe sensori
           {% elif policy_blocks_boost and boost_requested %}
             VMC BOOST BLOCKED BY POLICY
+          {% elif outside_wetter and boost_requested %}
+            VMC BOOST BLOCKED (OUTSIDE WETTER)
           {% elif priority == 'P1_boost_bagno' %}
             P1 – UR bagno alta / boost
           {% elif priority == 'P1_anti_secco' %}
