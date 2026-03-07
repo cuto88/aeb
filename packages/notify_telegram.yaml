@@ -45,7 +45,7 @@ automation:
         data:
           message: |
             [CLIMATE][{{ subsystem }}]
-            {{ old }} → {{ new }}
-            Reason: {{ reason }}
-            Entity: {{ entity }}
-            Time: {{ now() }}
+            `{{ old | replace('`', '') }}` -> `{{ new | replace('`', '') }}`
+            Reason: `{{ reason | string | replace('`', '') }}`
+            Entity: `{{ entity | replace('`', '') }}`
+            Time: `{{ now() | string | replace('`', '') }}`

@@ -49,6 +49,10 @@ input_boolean:
   vmc_boost_bagno:
     name: "VMC – Boost bagno"
     icon: mdi:fan-speed-3
+  vmc_bagno_delta_trigger_enable:
+    name: "VMC – Boost bagno via ΔUR"
+    icon: mdi:water-sync
+    initial: false
   vent_override_estate:
     name: "Ventilazione – Forza stagione estiva"
     icon: mdi:weather-sunny
@@ -72,6 +76,24 @@ input_number:
     mode: slider
     icon: mdi:water-percent
     initial: 65
+  vmc_bagno_delta_ur_on:
+    name: "Bagno – ΔUR ON"
+    min: 4
+    max: 25
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+    icon: mdi:water-plus
+    initial: 10
+  vmc_boost_manual_timeout_min:
+    name: "VMC – Timeout boost manuale"
+    min: 5
+    max: 180
+    step: 5
+    unit_of_measurement: "min"
+    mode: slider
+    icon: mdi:timer-outline
+    initial: 30
   vmc_freecooling_delta:
     name: "FC – ΔT minimo"
     min: 0.5
@@ -161,6 +183,9 @@ timer:
   vmc_manual_timeout:
     name: Timeout modalità manuale
     duration: "01:00:00"
+  vmc_boost_bagno_manual_timeout:
+    name: Timeout boost bagno manuale
+    duration: "00:30:00"
 
 counter:
   vmc_churn_suppressed:
@@ -218,12 +243,15 @@ template:
           {% set ur_out = states('sensor.ur_out')|float(default=none) %}
           {% set ur_on = states('input_number.vmc_bagno_on')|float(75) %}
           {% set ur_off = states('input_number.vmc_bagno_off')|float(65) %}
+          {% set delta_trigger_enabled = is_state('input_boolean.vmc_bagno_delta_trigger_enable','on') %}
+          {% set delta_ur_on = states('input_number.vmc_bagno_delta_ur_on')|float(10) %}
           {% set was_on = is_state('binary_sensor.vmc_bagno_boost_auto','on') %}
           {% if not sensors_ok or ur_bath is none or ur_out is none %}
             false
           {% else %}
             {% set delta_ur = ur_bath - ur_out %}
-            {% set on_condition = (ur_bath >= ur_on) or (delta_ur >= 10) %}
+            {% set delta_trigger = delta_trigger_enabled and (delta_ur >= delta_ur_on) and (ur_bath >= ur_off) %}
+            {% set on_condition = (ur_bath >= ur_on) or delta_trigger %}
             {% set off_condition = (ur_bath <= ur_off) and (delta_ur <= 6) %}
             {% set max_run = 45 * 60 %}
             {% set run_secs = (now().timestamp() - as_timestamp(this.last_changed, default=0)) if was_on else 0 %}
@@ -521,6 +549,55 @@ template:
 # AUTOMAZIONI CORE
 # =============================
 automation:
+  - id: vmc_boost_bagno_manual_timeout
+    alias: "VMC - Timeout boost bagno manuale"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_boolean.vmc_boost_bagno
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.vmc_boost_bagno_manual_timeout
+    action:
+      - choose:
+          - conditions: >-
+              {{
+                trigger.platform == 'state'
+                and trigger.to_state is not none
+                and trigger.to_state.state == 'on'
+              }}
+            sequence:
+              - variables:
+                  timeout_min: "{{ states('input_number.vmc_boost_manual_timeout_min') | int(30) }}"
+                  hh: "{{ (timeout_min // 60) | int }}"
+                  mm: "{{ (timeout_min % 60) | int }}"
+                  timer_duration: "{{ '%02d:%02d:00' | format(hh, mm) }}"
+              - service: timer.start
+                target:
+                  entity_id: timer.vmc_boost_bagno_manual_timeout
+                data:
+                  duration: "{{ timer_duration }}"
+          - conditions: >-
+              {{
+                trigger.platform == 'state'
+                and trigger.to_state is not none
+                and trigger.to_state.state == 'off'
+              }}
+            sequence:
+              - service: timer.cancel
+                target:
+                  entity_id: timer.vmc_boost_bagno_manual_timeout
+          - conditions: >-
+              {{
+                trigger.platform == 'event'
+                and is_state('input_boolean.vmc_boost_bagno', 'on')
+              }}
+            sequence:
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.vmc_boost_bagno
+
   # Gestione messaggio plancia / debug
   - id: vmc_update_message
     alias: "VMC – Aggiorna messaggio plancia"
