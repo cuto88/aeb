@@ -40,6 +40,7 @@ Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 - Step 34 runtime refresh audit: `docs/audits/STEP34_RUNTIME_REFRESH_AUDIT_2026-03-13.md`
 - Step 35 ClimateOps SwitchBot timeout hardening: `docs/audits/STEP35_CLIMATEOPS_SWITCHBOT_TIMEOUT_HARDENING_2026-03-13.md`
 - Step 36 SwitchBot timeout fix deploy verification: `docs/audits/STEP36_SWITCHBOT_TIMEOUT_FIX_DEPLOY_VERIFICATION_2026-03-13.md`
+- Step 37 runtime refresh follow-up: `docs/audits/STEP37_RUNTIME_REFRESH_FOLLOWUP_2026-03-21.md`
 
 ## Quality gates (ops)
 Per eseguire i controlli locali:
