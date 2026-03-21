@@ -59,12 +59,14 @@ automation:
           - conditions: "{{ (not (ac_day_should_run | bool)) and is_state('switch.ac_giorno','on') }}"
             sequence:
               - service: switch.turn_off
+                continue_on_error: true
                 target:
                   entity_id: switch.ac_giorno
       - choose:
           - conditions: "{{ (not (ac_night_should_run | bool)) and is_state('switch.ac_notte','on') }}"
             sequence:
               - service: switch.turn_off
+                continue_on_error: true
                 target:
                   entity_id: switch.ac_notte
       - choose:
@@ -180,6 +182,7 @@ automation:
               }}
             sequence:
               - service: script.ac_giorno_apply
+                continue_on_error: true
       - choose:
           - conditions: >-
               {{
@@ -188,6 +191,7 @@ automation:
               }}
             sequence:
               - service: script.ac_notte_apply
+                continue_on_error: true
       - service: input_text.set_value
         target:
           entity_id: input_text.cm_system_status
@@ -235,6 +239,7 @@ automation:
           - conditions: "{{ trg == 'switch.ac_giorno' and not (allow_day | bool) }}"
             sequence:
               - service: switch.turn_off
+                continue_on_error: true
                 target:
                   entity_id: switch.ac_giorno
               - service: logbook.log
@@ -247,6 +252,7 @@ automation:
           - conditions: "{{ trg == 'switch.ac_notte' and not (allow_night | bool) }}"
             sequence:
               - service: switch.turn_off
+                continue_on_error: true
                 target:
                   entity_id: switch.ac_notte
               - service: logbook.log

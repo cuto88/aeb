@@ -35,6 +35,11 @@ Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 - Step 8 gates policy: `docs/audits/STEP8_GATES_POLICY_2026-02-27.md`
 - Step 9 project closure: `docs/audits/STEP9_PROJECT_CLOSURE_2026-02-27.md`
 - Delta audit status: `docs/audits/DELTA_AUDIT_STATUS_2026-02-25.md`
+- Step 32 EHW + MIRAI runtime audit: `docs/audits/STEP32_EHW_MIRAI_RUNTIME_AUDIT_2026-03-08.md`
+- Step 33 general audit status: `docs/audits/STEP33_GENERAL_AUDIT_STATUS_2026-03-13.md`
+- Step 34 runtime refresh audit: `docs/audits/STEP34_RUNTIME_REFRESH_AUDIT_2026-03-13.md`
+- Step 35 ClimateOps SwitchBot timeout hardening: `docs/audits/STEP35_CLIMATEOPS_SWITCHBOT_TIMEOUT_HARDENING_2026-03-13.md`
+- Step 36 SwitchBot timeout fix deploy verification: `docs/audits/STEP36_SWITCHBOT_TIMEOUT_FIX_DEPLOY_VERIFICATION_2026-03-13.md`
 
 ## Quality gates (ops)
 Per eseguire i controlli locali:

@@ -103,7 +103,7 @@ def resolve_addresses(profile: str) -> list[int]:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--host", default="192.168.178.190")
+    parser.add_argument("--host", default="192.168.178.191")
     parser.add_argument("--port", type=int, default=502)
     parser.add_argument("--interval", type=int, default=20, help="seconds between rounds")
     parser.add_argument("--rounds", type=int, default=15, help="number of rounds")
@@ -111,7 +111,7 @@ def main() -> int:
     parser.add_argument("--profile", choices=["quick", "full"], default="quick")
     parser.add_argument(
         "--units",
-        default="3",
+        default="1",
         help="comma-separated unit IDs (default aligned to active HA config)",
     )
     parser.add_argument(

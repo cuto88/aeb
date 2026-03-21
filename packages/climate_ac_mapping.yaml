@@ -123,6 +123,7 @@ script:
           - conditions: "{{ is_state('switch.ac_giorno', 'off') }}"
             sequence:
               - service: switch.turn_on
+                continue_on_error: true
                 target:
                   entity_id: switch.ac_giorno
       - service: script.ac_hw_press
@@ -137,6 +138,7 @@ script:
           - conditions: "{{ is_state('switch.ac_notte', 'off') }}"
             sequence:
               - service: switch.turn_on
+                continue_on_error: true
                 target:
                   entity_id: switch.ac_notte
       - service: script.ac_hw_press

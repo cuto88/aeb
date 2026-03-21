@@ -131,6 +131,10 @@ def start_scan(args: argparse.Namespace, out_dir: Path) -> tuple[int, str]:
     cmd = [
         sys.executable,
         str(args.scan_script),
+        "--host",
+        args.scan_host,
+        "--port",
+        str(args.scan_port),
         "--profile",
         args.scan_profile,
         "--rounds",
@@ -175,9 +179,11 @@ def main() -> int:
     parser.add_argument("--scan-rounds", type=int, default=10)
     parser.add_argument("--scan-interval", type=int, default=20)
     parser.add_argument("--scan-timeout", type=float, default=0.35)
+    parser.add_argument("--scan-host", default="192.168.178.191")
+    parser.add_argument("--scan-port", type=int, default=502)
     parser.add_argument(
         "--scan-units",
-        default="3",
+        default="1",
         help="comma-separated unit IDs passed to mirai_scan_runtime.py",
     )
     parser.add_argument(
