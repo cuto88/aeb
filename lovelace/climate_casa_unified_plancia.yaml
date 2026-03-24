@@ -269,6 +269,58 @@ views:
       - type: grid
         cards:
           - type: heading
+            heading: "DHW / EHW"
+            icon: mdi:water-boiler
+          - type: entities
+            title: "Controlli writer"
+            show_header_toggle: false
+            entities:
+              - entity: input_number.climateops_dhw_requested_setpoint
+                name: "Setpoint richiesto"
+              - entity: input_boolean.climateops_cutover_dhw
+                name: "Cutover DHW"
+              - entity: input_boolean.climateops_dhw_write_enable
+                name: "Write enable"
+              - entity: input_boolean.climateops_dhw_dry_run
+                name: "Dry-run"
+              - entity: input_boolean.climateops_dhw_request
+                name: "Request"
+              - entity: input_boolean.climateops_dhw_commanded
+                name: "Commanded"
+          - type: entities
+            title: "Feedback e stato"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.climateops_dhw_actual_feedback
+                name: "Feedback attuale"
+              - entity: sensor.climateops_dhw_expected_feedback
+                name: "Feedback atteso"
+              - entity: binary_sensor.climateops_dhw_feedback_matches_expected
+                name: "Feedback coerente"
+              - entity: binary_sensor.climateops_dhw_permitted
+                name: "Permitted"
+              - entity: sensor.climateops_dhw_blocked_reason
+                name: "Blocked reason"
+              - entity: input_text.climateops_dhw_write_result
+                name: "Write result"
+              - entity: input_datetime.climateops_dhw_last_write_ts
+                name: "Last write"
+          - type: entities
+            title: "Runtime EHW"
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.cm_modbus_ehw_ready
+                name: "Modbus ready"
+              - entity: sensor.ehw_setpoint_raw_a
+                name: "Setpoint raw A"
+              - entity: sensor.ehw_setpoint_raw_calc
+                name: "Setpoint raw calc"
+              - entity: sensor.ehw_setpoint
+                name: "Setpoint scalato"
+
+      - type: grid
+        cards:
+          - type: heading
             heading: "Timeline decisioni"
             icon: mdi:timeline-clock
           - type: history-graph

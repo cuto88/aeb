@@ -29,6 +29,51 @@ Sorgenti vendor correnti:
 
 ---
 
+## Current runtime checkpoint (2026-03-23)
+
+Stato consolidato dopo gli audit `STEP38` -> `STEP42`:
+
+- `input_select.ehw_address_mode = doc_0_based`
+- `sensor.ehw_setpoint_raw_a` e` il path raw live usato in runtime
+- `sensor.ehw_setpoint_raw_calc` segue il raw live
+- `sensor.ehw_setpoint` e` coerente come feedback scalato
+- la catena read/feedback DHW e` chiusa e validata a runtime
+
+Writer DHW attuale:
+
+- writer formale in `packages/climateops_dhw_writer.yaml`
+- singolo writer logico: `automation.climateops_dhw_writer_execute`
+- target write validato: holding register `1104`
+- gate runtime:
+  - `input_boolean.climateops_cutover_dhw`
+  - `input_boolean.climateops_dhw_write_enable`
+  - `input_boolean.climateops_dhw_dry_run`
+  - `input_boolean.climateops_dhw_request`
+- default sicuri:
+  - `cutover_dhw = off`
+  - `write_enable = off`
+  - `dry_run = on`
+  - `request = off`
+
+Osservabilita` writer:
+
+- `sensor.climateops_dhw_actual_feedback`
+- `sensor.climateops_dhw_expected_feedback`
+- `binary_sensor.climateops_dhw_feedback_matches_expected`
+- `binary_sensor.climateops_dhw_permitted`
+- `sensor.climateops_dhw_blocked_reason`
+- `input_text.climateops_dhw_write_result`
+- `input_datetime.climateops_dhw_last_write_ts`
+
+Boundary corrente:
+
+- writer-path readiness: `CLOSED`
+- planner-driven DHW actuation: `NOT ENABLED`
+- multi-load orchestration / load shifting: `NOT ENABLED`
+- UI/plancia operativa aggiornata in `lovelace/climate_casa_unified_plancia.yaml`
+
+---
+
 ## Entity map (canonical)
 
 | Entity ID canonico                 | Tipo           | Source (reg / FC) | Scala | Unità | Significato / note |

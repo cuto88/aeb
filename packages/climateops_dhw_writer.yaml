@@ -1,0 +1,261 @@
+input_boolean:
+  climateops_dhw_write_enable:
+    name: "ClimateOps DHW Write Enable"
+    icon: mdi:lock-check-outline
+    initial: false
+  climateops_dhw_dry_run:
+    name: "ClimateOps DHW Dry Run"
+    icon: mdi:flask-outline
+    initial: true
+  climateops_dhw_request:
+    name: "ClimateOps DHW Request"
+    icon: mdi:water-boiler
+    initial: false
+  climateops_dhw_commanded:
+    name: "ClimateOps DHW Commanded"
+    icon: mdi:send-check-outline
+    initial: false
+
+input_number:
+  climateops_dhw_requested_setpoint:
+    name: "ClimateOps DHW Requested Setpoint"
+    min: 10
+    max: 60
+    step: 0.5
+    mode: box
+    unit_of_measurement: "°C"
+    initial: 45.0
+
+input_datetime:
+  climateops_dhw_last_write_ts:
+    name: "ClimateOps DHW Last Write TS"
+    has_date: true
+    has_time: true
+
+input_text:
+  climateops_dhw_write_result:
+    name: "ClimateOps DHW Write Result"
+    max: 255
+
+template:
+  - binary_sensor:
+      - name: "ClimateOps DHW Permitted"
+        unique_id: climateops_dhw_permitted
+        icon: mdi:check-decagram-outline
+        state: >-
+          {% set requested = states('input_number.climateops_dhw_requested_setpoint') | float(default=none) %}
+          {% set actual = states('sensor.ehw_setpoint') | float(default=none) %}
+          {% set target = (((requested / 0.5) | round(0)) * 0.5) if requested is not none else none %}
+          {% set actual_norm = (((actual / 0.5) | round(0)) * 0.5) if actual is not none else none %}
+          {{
+            is_state('input_boolean.climateops_dhw_request', 'on')
+            and is_state('input_boolean.climateops_cutover_dhw', 'on')
+            and is_state('binary_sensor.cm_modbus_ehw_ready', 'on')
+            and target is not none
+            and target >= 10 and target <= 60
+            and actual_norm is not none
+            and (target - actual_norm) | abs > 0.01
+            and (
+              is_state('input_boolean.climateops_dhw_dry_run', 'on')
+              or is_state('input_boolean.climateops_dhw_write_enable', 'on')
+            )
+          }}
+
+  - sensor:
+      - name: "ClimateOps DHW Actual Feedback"
+        unique_id: climateops_dhw_actual_feedback
+        unit_of_measurement: "°C"
+        state: >-
+          {{ states('sensor.ehw_setpoint') }}
+        availability: >-
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
+
+      - name: "ClimateOps DHW Expected Feedback"
+        unique_id: climateops_dhw_expected_feedback
+        unit_of_measurement: "°C"
+        state: >-
+          {% set requested = states('input_number.climateops_dhw_requested_setpoint') | float(default=none) %}
+          {% set scale_raw = states('input_number.ehw_setpoint_scale') | float(0.3) %}
+          {% set offset_c = states('input_number.ehw_setpoint_offset') | float(0.0) %}
+          {% set target_c = (((requested / 0.5) | round(0)) * 0.5) if requested is not none else none %}
+          {% set scale = 0.3 if scale_raw == 0 else scale_raw %}
+          {% if target_c is none %}
+            {{ none }}
+          {% else %}
+            {% set target_raw = ((target_c - offset_c) / scale) | round(0) | int %}
+            {{ (target_raw * scale + offset_c) | round(1) }}
+          {% endif %}
+        availability: >-
+          {{
+            is_state('binary_sensor.cm_modbus_ehw_ready', 'on')
+            and states('input_number.climateops_dhw_requested_setpoint') not in ['unknown', 'unavailable', 'none', 'None', '']
+          }}
+
+      - name: "ClimateOps DHW Blocked Reason"
+        unique_id: climateops_dhw_blocked_reason
+        state: >-
+          {% set requested = states('input_number.climateops_dhw_requested_setpoint') | float(default=none) %}
+          {% set actual = states('sensor.ehw_setpoint') | float(default=none) %}
+          {% set target = (((requested / 0.5) | round(0)) * 0.5) if requested is not none else none %}
+          {% set actual_norm = (((actual / 0.5) | round(0)) * 0.5) if actual is not none else none %}
+          {% if not is_state('input_boolean.climateops_dhw_request', 'on') %}
+            IDLE
+          {% elif not is_state('input_boolean.climateops_cutover_dhw', 'on') %}
+            cutover_off
+          {% elif not is_state('binary_sensor.cm_modbus_ehw_ready', 'on') %}
+            modbus_not_ready
+          {% elif target is none or target < 10 or target > 60 %}
+            invalid_target
+          {% elif actual_norm is none %}
+            actual_unavailable
+          {% elif (target - actual_norm) | abs <= 0.01 %}
+            already_at_target
+          {% elif is_state('input_boolean.climateops_dhw_dry_run', 'on') %}
+            dry_run_only
+          {% elif not is_state('input_boolean.climateops_dhw_write_enable', 'on') %}
+            write_enable_off
+          {% else %}
+            OK
+          {% endif %}
+
+  - binary_sensor:
+      - name: "ClimateOps DHW Feedback Matches Expected"
+        unique_id: climateops_dhw_feedback_matches_expected
+        icon: mdi:check-circle-outline
+        state: >-
+          {% set expected = states('sensor.climateops_dhw_expected_feedback') | float(default=none) %}
+          {% set actual = states('sensor.climateops_dhw_actual_feedback') | float(default=none) %}
+          {{
+            expected is not none
+            and actual is not none
+            and (expected - actual) | abs <= 0.05
+          }}
+        availability: >-
+          {{
+            is_state('binary_sensor.cm_modbus_ehw_ready', 'on')
+            and states('sensor.climateops_dhw_expected_feedback') not in ['unknown', 'unavailable', 'none', 'None', '']
+            and states('sensor.climateops_dhw_actual_feedback') not in ['unknown', 'unavailable', 'none', 'None', '']
+          }}
+
+automation:
+  - id: climateops_dhw_writer_execute
+    alias: "ClimateOps – DHW Writer Execute"
+    mode: single
+    trace:
+      stored_traces: 30
+    trigger:
+      - platform: state
+        entity_id: input_boolean.climateops_dhw_request
+        to: "on"
+    action:
+      - variables:
+          requested_c: "{{ states('input_number.climateops_dhw_requested_setpoint') | float(45.0) }}"
+          target_c: >-
+            {{ (((requested_c / 0.5) | round(0)) * 0.5) | round(1) }}
+          actual_c: "{{ states('sensor.ehw_setpoint') | float(default=none) }}"
+          actual_norm_c: >-
+            {% if actual_c is not none %}
+              {{ (((actual_c / 0.5) | round(0)) * 0.5) | round(1) }}
+            {% else %}
+              {{ none }}
+            {% endif %}
+          scale_raw: >-
+            {% set s = states('input_number.ehw_setpoint_scale') | float(0.3) %}
+            {{ 0.3 if s == 0 else s }}
+          offset_c: "{{ states('input_number.ehw_setpoint_offset') | float(0.0) }}"
+          target_raw: >-
+            {{ ((target_c - offset_c) / scale_raw) | round(0) | int }}
+          expected_feedback_c: >-
+            {{ (target_raw * scale_raw + offset_c) | round(1) }}
+          gate_reason: >-
+            {% if not is_state('input_boolean.climateops_dhw_request', 'on') %}
+              IDLE
+            {% elif not is_state('input_boolean.climateops_cutover_dhw', 'on') %}
+              cutover_off
+            {% elif not is_state('binary_sensor.cm_modbus_ehw_ready', 'on') %}
+              modbus_not_ready
+            {% elif target_c < 10 or target_c > 60 %}
+              invalid_target
+            {% elif actual_norm_c in ['unknown', 'unavailable', 'none', 'None', ''] %}
+              actual_unavailable
+            {% elif (target_c - (actual_norm_c | float(0))) | abs <= 0.01 %}
+              already_at_target
+            {% elif is_state('input_boolean.climateops_dhw_dry_run', 'on') %}
+              dry_run_only
+            {% elif not is_state('input_boolean.climateops_dhw_write_enable', 'on') %}
+              write_enable_off
+            {% else %}
+              OK
+            {% endif %}
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.climateops_dhw_commanded
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.climateops_dhw_last_write_ts
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.climateops_dhw_write_result
+        data:
+          value: >-
+            EVALUATING:target_c={{ target_c | round(1) }}|expected_c={{ expected_feedback_c }}|actual_c={{ actual_c }}|gate={{ gate_reason }}
+      - choose:
+          - conditions: "{{ gate_reason in ['cutover_off', 'modbus_not_ready', 'invalid_target', 'actual_unavailable', 'already_at_target', 'write_enable_off'] }}"
+            sequence:
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.climateops_dhw_write_result
+                data:
+                  value: >-
+                    BLOCKED:{{ gate_reason }}|target_c={{ target_c | round(1) }}|expected_c={{ expected_feedback_c }}
+              - service: logbook.log
+                data:
+                  name: "ClimateOps DHW writer"
+                  entity_id: automation.climateops_dhw_writer_execute
+                  message: >-
+                    Blocked request. reason={{ gate_reason }}, target_c={{ target_c | round(1) }}.
+          - conditions: "{{ gate_reason == 'dry_run_only' }}"
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.climateops_dhw_commanded
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.climateops_dhw_write_result
+                data:
+                  value: >-
+                    DRY_RUN:hub=ehw_modbus|addr=1104|raw={{ target_raw }}|target_c={{ target_c | round(1) }}|expected_c={{ expected_feedback_c }}
+              - service: logbook.log
+                data:
+                  name: "ClimateOps DHW writer"
+                  entity_id: automation.climateops_dhw_writer_execute
+                  message: >-
+                    Dry-run command prepared for register 1104. raw={{ target_raw }}, target_c={{ target_c | round(1) }}.
+          - conditions: "{{ gate_reason == 'OK' }}"
+            sequence:
+              - service: modbus.write_register
+                data:
+                  hub: ehw_modbus
+                  slave: !secret ehw_modbus_slave
+                  address: 1104
+                  value: "{{ target_raw }}"
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.climateops_dhw_commanded
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.climateops_dhw_write_result
+                data:
+                  value: >-
+                    LIVE_WRITE_SENT:hub=ehw_modbus|addr=1104|raw={{ target_raw }}|target_c={{ target_c | round(1) }}|expected_c={{ expected_feedback_c }}
+              - service: logbook.log
+                data:
+                  name: "ClimateOps DHW writer"
+                  entity_id: automation.climateops_dhw_writer_execute
+                  message: >-
+                    Live write sent to register 1104. raw={{ target_raw }}, target_c={{ target_c | round(1) }}.
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.climateops_dhw_request

@@ -11,6 +11,16 @@ Fonti di verit√† rapide: `docs/logic/core/README_sensori_clima.md` (mappa entit√
 
 Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 
+## Current AEB checkpoint (2026-03-23)
+- Heating / AC / VMC: runtime real and already integrated in ClimateOps.
+- DHW / EHW read-feedback chain: closed and runtime-validated.
+- DHW / EHW writer path: formalized, gated, safe-by-default, dry-run validated and live validated for one reversible setpoint write on register `1104`.
+- DHW UI / plancia: present in `lovelace/climate_casa_unified_plancia.yaml` as operator-facing observability/control block.
+- Broader orchestration still not enabled:
+  - no planner-driven DHW actuation
+  - no multi-load dispatch closure
+  - no expanded DHW production policy rollout
+
 ## Audit baseline
 - Step 0 AEB/Passivhaus maturity snapshot: `docs/audits/STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md`
 - Step 1 runtime authority audit (Legacy vs ClimateOps): `docs/audits/STEP1_RUNTIME_AUTHORITY_2026-02-21.md`
@@ -41,6 +51,12 @@ Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 - Step 35 ClimateOps SwitchBot timeout hardening: `docs/audits/STEP35_CLIMATEOPS_SWITCHBOT_TIMEOUT_HARDENING_2026-03-13.md`
 - Step 36 SwitchBot timeout fix deploy verification: `docs/audits/STEP36_SWITCHBOT_TIMEOUT_FIX_DEPLOY_VERIFICATION_2026-03-13.md`
 - Step 37 runtime refresh follow-up: `docs/audits/STEP37_RUNTIME_REFRESH_FOLLOWUP_2026-03-21.md`
+- Step 38 DHW derived chain closure: `docs/audits/STEP38_DHW_DERIVED_CHAIN_CLOSURE_2026-03-22.md`
+- Step 39 HA Core auth path closure: `docs/audits/STEP39_HA_CORE_AUTH_PATH_CLOSURE_2026-03-23.md`
+- Step 40 DHW writer validation pass: `docs/audits/STEP40_DHW_WRITER_VALIDATION_PASS_2026-03-23.md`
+- Step 41 DHW writer dry-run deploy pass: `docs/audits/STEP41_DHW_WRITER_DRYRUN_DEPLOY_PASS_2026-03-23.md`
+- Step 42 DHW formalized live writer pass: `docs/audits/STEP42_DHW_FORMALIZED_LIVE_WRITER_PASS_2026-03-23.md`
+- Step 43 AEB DHW writer consolidation checkpoint: `docs/audits/STEP43_AEB_DHW_WRITER_CONSOLIDATION_2026-03-23.md`
 
 ## Quality gates (ops)
 Per eseguire i controlli locali:

@@ -236,7 +236,7 @@ input_select:
     options:
       - doc_1_based
       - doc_0_based
-    initial: doc_1_based
+    initial: doc_0_based
 
 input_boolean:
   "ehw_swap_top_bottom":
@@ -273,6 +273,23 @@ input_number:
     step: 0.1
     mode: slider
     initial: 0.0
+
+automation:
+  - id: ehw_address_mode_enforce_doc_0_based
+    alias: "EHW address mode enforce doc_0_based"
+    trigger:
+      - platform: homeassistant
+        event: start
+    condition:
+      - condition: template
+        value_template: >-
+          {{ states('input_select.ehw_address_mode') != 'doc_0_based' }}
+    action:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.ehw_address_mode
+        data:
+          option: doc_0_based
 
 template:
   - sensor:
@@ -511,7 +528,7 @@ template:
           {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
             {% set v = states('sensor.ehw_setpoint_raw_a') | float(default=none) %}
           {% else %}
-            {% set v = states('sensor.ehw_setpoint_raw_b') | float(default=none) %}
+            {% set v = states('sensor.ehw_setpoint_raw_a') | float(default=none) %}
           {% endif %}
           {% if v is none %}
             {{ none }}
