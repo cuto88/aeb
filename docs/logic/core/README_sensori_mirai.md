@@ -43,6 +43,7 @@ Single source of truth per la mappa registri MIRAI usata in Home Assistant.
 - `sensor.mirai_probe_temp_a_c`: candidato temperatura scalata `x10` dal registro `4000` (dupliche coerenti su `9050/9086`).
 - `sensor.mirai_probe_temp_b_c`: candidato temperatura scalata `x10` dal registro `3548` (duplica coerente su `9087`).
 - `sensor.mirai_probe_temp_outdoor_c`: candidato temperatura scalata `x10` dal registro `3515`.
+- `binary_sensor.mirai_pump_candidate_running`: candidato stato pompa/runtime dal registro `3547`; oggi e` `on` con valori ~`22528/22784` e `off` con valori ~`9984`.
 - `binary_sensor.cm_modbus_mirai_ready`: usa `sensor.mirai_status_word_effective` per readiness reale.
 - `binary_sensor.mirai_machine_running`: usa `status_word_effective` (bit 01) come semantica primaria di RUN, ma accetta anche un override da consumi quando `sensor.mirai_power_w` supera la soglia operativa pur con Modbus disponibile.
 - `sensor.mirai_snapshot`: snapshot operativo allineato al profilo corrente `status_only_unit1`.
@@ -63,6 +64,10 @@ Single source of truth per la mappa registri MIRAI usata in Home Assistant.
   - `4000 = 340`, `9050 = 340`, `9086 = 340` -> candidato comune `34.0°C`
   - `3548 = 338`, `9087 = 338` -> candidato comune `33.8°C`
   - `3515 = 117` -> candidato `11.7°C`
+- Evidenza acceso/spento `2026-03-28`:
+  - `3547` ~`22528/22784` con macchina in marcia
+  - `3547` ~`9984` con macchina spenta
+  - `3548/9087` ~`34.4°C -> 29.5°C` nella transizione da acceso a spento
 - Questi valori sono trattati come `probe` finche' non vengono correlati con verita' fisica macchina/campo; non sono ancora promossi a naming semantico definitivo (`mandata`, `ritorno`, `ACS`, `esterna`) senza evidenza addizionale.
 - Riferimenti vendor correnti:
   - `docs/vendor/mirai/manuale_pdc.md` (parametri RS-485: RTU 9600, 8E1, address 1, timeout 1000)

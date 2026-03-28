@@ -202,6 +202,16 @@ template:
           {{ is_number(states('sensor.mirai_probe_temp_b_raw'))
              and states('sensor.mirai_probe_temp_b_raw') == states('sensor.mirai_probe_temp_b_dup_9087_raw') }}
 
+      - name: "mirai_pump_candidate_running"
+        unique_id: mirai_pump_candidate_running
+        icon: mdi:pump
+        state: >
+          {% if is_number(states('sensor.mirai_probe_state_3547_raw')) %}
+            {{ states('sensor.mirai_probe_state_3547_raw') | int(0) >= 16384 }}
+          {% else %}
+            unknown
+          {% endif %}
+
   - trigger:
       - platform: homeassistant
         event: start
@@ -327,6 +337,7 @@ template:
           - sensor.mirai_probe_temp_outdoor_raw
           - binary_sensor.mirai_probe_temp_a_consistent
           - binary_sensor.mirai_probe_temp_b_consistent
+          - binary_sensor.mirai_pump_candidate_running
           - sensor.mirai_probe_counter_1015_raw
           - sensor.mirai_probe_state_3547_raw
       - platform: time_pattern
@@ -424,6 +435,7 @@ template:
           probe_temp_outdoor_c: "{{ states('sensor.mirai_probe_temp_outdoor_c') }}"
           probe_temp_a_consistent: "{{ states('binary_sensor.mirai_probe_temp_a_consistent') }}"
           probe_temp_b_consistent: "{{ states('binary_sensor.mirai_probe_temp_b_consistent') }}"
+          pump_candidate_running: "{{ states('binary_sensor.mirai_pump_candidate_running') }}"
           probe_counter_1015_raw: "{{ states('sensor.mirai_probe_counter_1015_raw') }}"
           probe_state_3547_raw: "{{ states('sensor.mirai_probe_state_3547_raw') }}"
           status_word_raw: "{{ states('sensor.mirai_status_word_raw') }}"

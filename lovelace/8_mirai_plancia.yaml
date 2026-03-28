@@ -32,6 +32,7 @@ views:
               - sensor.mirai_probe_temp_outdoor_c
               - binary_sensor.mirai_probe_temp_a_consistent
               - binary_sensor.mirai_probe_temp_b_consistent
+              - binary_sensor.mirai_pump_candidate_running
               - sensor.mirai_probe_counter_1015_raw
               - sensor.mirai_probe_state_3547_raw
               - input_boolean.mirai_debug_enable
@@ -77,6 +78,7 @@ views:
               - Probe outdoor: `{{ state_attr('sensor.mirai_snapshot','probe_temp_outdoor_c') }}`
               - Probe temp A consistent: `{{ state_attr('sensor.mirai_snapshot','probe_temp_a_consistent') }}`
               - Probe temp B consistent: `{{ state_attr('sensor.mirai_snapshot','probe_temp_b_consistent') }}`
+              - Pump candidate running: `{{ state_attr('sensor.mirai_snapshot','pump_candidate_running') }}`
               - Probe counter 1015: `{{ state_attr('sensor.mirai_snapshot','probe_counter_1015_raw') }}`
               - Probe state 3547: `{{ state_attr('sensor.mirai_snapshot','probe_state_3547_raw') }}`
               - Status word u1/raw:
