@@ -6,16 +6,10 @@ input_number:
     step: 10
     unit_of_measurement: W
     mode: box
-    initial: 450
+    initial: 150
 
 template:
   - binary_sensor:
-      - name: "CM Modbus MIRAI ready"
-        unique_id: cm_modbus_mirai_ready
-        icon: mdi:check-network
-        state: >
-          {{ is_number(states('sensor.mirai_status_word_effective')) }}
-
       - name: "mirai_manual_unit_profile_ok"
         unique_id: mirai_manual_unit_profile_ok
         icon: mdi:counter
@@ -26,13 +20,13 @@ template:
         unique_id: mirai_machine_running_by_power
         icon: mdi:flash
         availability: >
-          {{ is_number(states('sensor.mirai_power_w')) }}
+          {{ is_number(states('sensor.mirai_power_w_effective')) }}
         delay_on:
           minutes: 3
         delay_off:
           minutes: 5
         state: >
-          {% set p = states('sensor.mirai_power_w') | float(0) %}
+          {% set p = states('sensor.mirai_power_w_effective') | float(0) %}
           {% set on_w = states('input_number.mirai_running_power_on_w') | float(450) %}
           {{ p >= on_w }}
 
@@ -148,60 +142,7 @@ template:
         state: >
           {{ (states('sensor.mirai_status_word_effective') | int(0)) | bitwise_and(2**15) != 0 }}
 
-      - name: "mirai_machine_running"
-        unique_id: mirai_machine_running
-        availability: >
-          {% set m = is_state('binary_sensor.cm_modbus_mirai_ready', 'on') %}
-          {% set p_on = is_state('binary_sensor.mirai_machine_running_by_power', 'on') %}
-          {% set p_off = is_state('binary_sensor.mirai_machine_running_by_power', 'off') %}
-          {{ m or p_on or p_off }}
-        state: >
-          {% if is_state('binary_sensor.cm_modbus_mirai_ready', 'on') %}
-            {% set status_state = states('sensor.mirai_status_word_effective') %}
-            {% set status_valid = status_state not in ['unknown','unavailable','none','None',''] %}
-            {% set bit01 = (status_state | int(0)) | bitwise_and(2**1) != 0 %}
-            {{ status_valid and bit01 }}
-          {% else %}
-            {{ is_state('binary_sensor.mirai_machine_running_by_power', 'on') }}
-          {% endif %}
-
   - sensor:
-      - name: "mirai_status_word_effective"
-        unique_id: mirai_status_word_effective
-        icon: mdi:counter
-        availability: >
-          {{ is_number(states('sensor.mirai_u1_status_word_raw')) or is_number(states('sensor.mirai_status_word_raw')) }}
-        state: >
-          {% if is_number(states('sensor.mirai_u1_status_word_raw')) %}
-            {{ states('sensor.mirai_u1_status_word_raw') | int(0) }}
-          {% else %}
-            {{ states('sensor.mirai_status_word_raw') | int(0) }}
-          {% endif %}
-
-      - name: "mirai_status_code_effective"
-        unique_id: mirai_status_code_effective
-        icon: mdi:counter
-        availability: >
-          {{ is_number(states('sensor.mirai_u1_status_code_raw')) or is_number(states('sensor.mirai_status_code_raw')) }}
-        state: >
-          {% if is_number(states('sensor.mirai_u1_status_code_raw')) %}
-            {{ states('sensor.mirai_u1_status_code_raw') | int(0) }}
-          {% else %}
-            {{ states('sensor.mirai_status_code_raw') | int(0) }}
-          {% endif %}
-
-      - name: "mirai_fault_code_effective"
-        unique_id: mirai_fault_code_effective
-        icon: mdi:counter
-        availability: >
-          {{ is_number(states('sensor.mirai_u1_fault_code_raw')) or is_number(states('sensor.mirai_fault_code_raw')) }}
-        state: >
-          {% if is_number(states('sensor.mirai_u1_fault_code_raw')) %}
-            {{ states('sensor.mirai_u1_fault_code_raw') | int(0) }}
-          {% else %}
-            {{ states('sensor.mirai_fault_code_raw') | int(0) }}
-          {% endif %}
-
       - name: "mirai_status_bits_on"
         unique_id: mirai_status_bits_on
         icon: mdi:checkbox-multiple-marked
@@ -217,11 +158,145 @@ template:
           {% endfor %}
           {{ ns.bits | join(', ') if ns.bits else 'nessun bit ON' }}
 
+  - trigger:
+      - platform: homeassistant
+        event: start
+      - platform: state
+        entity_id:
+          - sensor.mirai_u1_status_word_raw
+          - sensor.mirai_status_word_raw
+      - platform: time_pattern
+        seconds: "/30"
+    binary_sensor:
+      - name: "CM Modbus MIRAI ready"
+        unique_id: cm_modbus_mirai_ready
+        icon: mdi:check-network
+        state: >
+          {{ is_number(states('sensor.mirai_u1_status_word_raw')) or is_number(states('sensor.mirai_status_word_raw')) }}
+
+  - trigger:
+      - platform: homeassistant
+        event: start
+      - platform: state
+        entity_id:
+          - binary_sensor.cm_modbus_mirai_ready
+          - sensor.mirai_status_word_effective
+          - binary_sensor.mirai_machine_running_by_power
+      - platform: time_pattern
+        seconds: "/30"
+    binary_sensor:
+      - name: "mirai_machine_running"
+        unique_id: mirai_machine_running
+        state: >
+          {% if is_state('binary_sensor.cm_modbus_mirai_ready', 'on') %}
+            {% set status_state = states('sensor.mirai_status_word_effective') %}
+            {% set status_valid = status_state not in ['unknown','unavailable','none','None',''] %}
+            {% set bit01 = (status_state | int(0)) | bitwise_and(2**1) != 0 %}
+            {% set p_on = is_state('binary_sensor.mirai_machine_running_by_power', 'on') %}
+            {{ (status_valid and bit01) or p_on }}
+          {% elif is_state('binary_sensor.mirai_machine_running_by_power', 'on') %}
+            true
+          {% elif is_state('binary_sensor.mirai_machine_running_by_power', 'off') %}
+            false
+          {% else %}
+            unknown
+          {% endif %}
+
+  - trigger:
+      - platform: homeassistant
+        event: start
+      - platform: state
+        entity_id:
+          - sensor.mirai_u1_status_word_raw
+          - sensor.mirai_status_word_raw
+          - sensor.mirai_u1_status_code_raw
+          - sensor.mirai_status_code_raw
+          - sensor.mirai_u1_fault_code_raw
+          - sensor.mirai_fault_code_raw
+      - platform: time_pattern
+        seconds: "/30"
+    sensor:
+      - name: "mirai_status_word_effective"
+        unique_id: mirai_status_word_effective
+        icon: mdi:counter
+        state: >
+          {% if is_number(states('sensor.mirai_u1_status_word_raw')) %}
+            {{ states('sensor.mirai_u1_status_word_raw') | int(0) }}
+          {% elif is_number(states('sensor.mirai_status_word_raw')) %}
+            {{ states('sensor.mirai_status_word_raw') | int(0) }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "mirai_status_code_effective"
+        unique_id: mirai_status_code_effective
+        icon: mdi:counter
+        state: >
+          {% if is_number(states('sensor.mirai_u1_status_code_raw')) %}
+            {{ states('sensor.mirai_u1_status_code_raw') | int(0) }}
+          {% elif is_number(states('sensor.mirai_status_code_raw')) %}
+            {{ states('sensor.mirai_status_code_raw') | int(0) }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "mirai_fault_code_effective"
+        unique_id: mirai_fault_code_effective
+        icon: mdi:counter
+        state: >
+          {% if is_number(states('sensor.mirai_u1_fault_code_raw')) %}
+            {{ states('sensor.mirai_u1_fault_code_raw') | int(0) }}
+          {% elif is_number(states('sensor.mirai_fault_code_raw')) %}
+            {{ states('sensor.mirai_fault_code_raw') | int(0) }}
+          {% else %}
+            unknown
+          {% endif %}
+
+  - trigger:
+      - platform: homeassistant
+        event: start
+      - platform: state
+        entity_id:
+          - sensor.mirai_power_w
+          - sensor.sensor_grid_power_w
+      - platform: time_pattern
+        seconds: "/30"
+    sensor:
+      - name: "mirai_power_w_effective"
+        unique_id: mirai_power_w_effective
+        icon: mdi:flash
+        unit_of_measurement: "W"
+        state_class: measurement
+        device_class: power
+        state: >
+          {% if is_number(states('sensor.mirai_power_w')) %}
+            {{ states('sensor.mirai_power_w') | float(0) }}
+          {% elif is_number(states('sensor.sensor_grid_power_w')) %}
+            {{ states('sensor.sensor_grid_power_w') | float(0) }}
+          {% else %}
+            unknown
+          {% endif %}
+
+  - trigger:
+      - platform: homeassistant
+        event: start
+      - platform: state
+        entity_id:
+          - binary_sensor.cm_modbus_mirai_ready
+          - binary_sensor.mirai_machine_running
+          - binary_sensor.mirai_machine_running_by_power
+          - binary_sensor.mirai_status_word_bit_01
+          - sensor.mirai_power_w_effective
+          - sensor.mirai_status_word_effective
+          - sensor.mirai_status_bits_on
+          - sensor.mirai_status_code_effective
+          - sensor.mirai_fault_code_effective
+      - platform: time_pattern
+        seconds: "/30"
+    sensor:
       - name: "mirai_machine_state"
         unique_id: mirai_machine_state
         icon: mdi:power
-        availability: >
-          {{ is_state('binary_sensor.mirai_machine_running', 'on') or is_state('binary_sensor.mirai_machine_running', 'off') }}
         state: >
           {% if is_state('binary_sensor.mirai_machine_running', 'on') %}
             RUN
@@ -236,7 +311,15 @@ template:
         icon: mdi:source-branch
         state: >
           {% if is_state('binary_sensor.cm_modbus_mirai_ready', 'on') %}
-            MODBUS_STATUS
+            {% set bit01 = is_state('binary_sensor.mirai_status_word_bit_01', 'on') %}
+            {% set p_on = is_state('binary_sensor.mirai_machine_running_by_power', 'on') %}
+            {% if bit01 %}
+              MODBUS_STATUS
+            {% elif p_on %}
+              POWER_OVERRIDE
+            {% else %}
+              MODBUS_STATUS
+            {% endif %}
           {% elif is_state('binary_sensor.mirai_machine_running_by_power', 'on') or is_state('binary_sensor.mirai_machine_running_by_power', 'off') %}
             POWER_FALLBACK
           {% else %}
@@ -246,8 +329,6 @@ template:
       - name: "mirai_snapshot"
         unique_id: mirai_snapshot
         icon: mdi:clipboard-text
-        availability: >
-          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') or is_number(states('sensor.mirai_power_w')) }}
         state: >
           {{ now().strftime('%Y-%m-%d %H:%M:%S') }}
         attributes:
@@ -255,7 +336,12 @@ template:
           status_word_u1_raw: "{{ states('sensor.mirai_u1_status_word_raw') }}"
           machine_source: "{{ states('sensor.mirai_machine_running_source') }}"
           machine_running_power: "{{ states('binary_sensor.mirai_machine_running_by_power') }}"
+          power_override_active: >
+            {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on')
+               and is_state('binary_sensor.mirai_machine_running_by_power', 'on')
+               and is_state('binary_sensor.mirai_status_word_bit_01', 'off') }}
           mirai_power_w: "{{ states('sensor.mirai_power_w') }}"
+          mirai_power_w_effective: "{{ states('sensor.mirai_power_w_effective') }}"
           status_word_raw: "{{ states('sensor.mirai_status_word_raw') }}"
           status_word_effective: "{{ states('sensor.mirai_status_word_effective') }}"
           status_bits_on: "{{ states('sensor.mirai_status_bits_on') }}"

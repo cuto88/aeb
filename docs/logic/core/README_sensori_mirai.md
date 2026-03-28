@@ -31,8 +31,9 @@ Single source of truth per la mappa registri MIRAI usata in Home Assistant.
 - `sensor.mirai_status_word_effective`: priorita `u1`, fallback `raw` (allineato a slave 1).
 - `sensor.mirai_status_code_effective`: priorita `u1`, fallback `raw` (allineato a slave 1).
 - `sensor.mirai_fault_code_effective`: priorita `u1`, fallback `raw` (allineato a slave 1).
+- `sensor.mirai_power_w_effective`: usa `sensor.mirai_power_w` se disponibile, altrimenti fallback diretto a `sensor.sensor_grid_power_w`.
 - `binary_sensor.cm_modbus_mirai_ready`: usa `sensor.mirai_status_word_effective` per readiness reale.
-- `binary_sensor.mirai_machine_running`: usa `status_word_effective` (bit 01) come semantica primaria di RUN, con fallback da consumi solo quando Modbus non e` disponibile.
+- `binary_sensor.mirai_machine_running`: usa `status_word_effective` (bit 01) come semantica primaria di RUN, ma accetta anche un override da consumi quando `sensor.mirai_power_w` supera la soglia operativa pur con Modbus disponibile.
 - `sensor.mirai_snapshot`: snapshot operativo allineato al profilo corrente `status_only_unit1`.
 
 ## Note operative
@@ -44,6 +45,9 @@ Single source of truth per la mappa registri MIRAI usata in Home Assistant.
 - I registri estesi storici (`9058`, `9068`, `9078`, `9079`, `8986`, `8987`, `8988`) non fanno parte del profilo operativo corrente perche' hanno generato timeout/runtime noise nelle evidenze di fine febbraio.
 - Nota storica: indicazioni STEP23 (01 marzo 2026) sono supersedute da validazione runtime successiva.
 - Il fallback da consumi (`binary_sensor.mirai_machine_running_by_power`) resta attivo come resilienza se Modbus non risponde.
+- Il ramo consumi operativo usa `sensor.mirai_power_w_effective` per evitare che un alias template fermo blocchi la rilevazione RUN.
+- La soglia iniziale `input_number.mirai_running_power_on_w` e` fissata a `150 W`: deriva da evidenza runtime recente con idle ~`3-5 W` e assorbimento macchina attiva ~`232 W`. E` un’inferenza operativa, non una semantica ufficiale del registro `1003`.
+- `sensor.mirai_machine_running_source` puo` riportare `POWER_OVERRIDE` quando il mapping Modbus non riflette una partenza reale ma i consumi mostrano macchina attiva.
 - Riferimenti vendor correnti:
   - `docs/vendor/mirai/manuale_pdc.md` (parametri RS-485: RTU 9600, 8E1, address 1, timeout 1000)
   - `docs/vendor/mirai/pdc_registers_review.md` e `docs/vendor/mirai/pdc_io_map.json`
