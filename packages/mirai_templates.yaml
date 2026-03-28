@@ -157,13 +157,10 @@ template:
           {{ m or p_on or p_off }}
         state: >
           {% if is_state('binary_sensor.cm_modbus_mirai_ready', 'on') %}
-            {% set l243_state = states('sensor.mirai_l243_internal_circulator') %}
             {% set status_state = states('sensor.mirai_status_word_effective') %}
-            {% set l243_valid = l243_state not in ['unknown','unavailable','none','None',''] %}
             {% set status_valid = status_state not in ['unknown','unavailable','none','None',''] %}
-            {% set l243 = l243_state | int(0) %}
             {% set bit01 = (status_state | int(0)) | bitwise_and(2**1) != 0 %}
-            {{ (l243_valid and l243 == 1) or (status_valid and bit01) }}
+            {{ status_valid and bit01 }}
           {% else %}
             {{ is_state('binary_sensor.mirai_machine_running_by_power', 'on') }}
           {% endif %}
@@ -239,86 +236,11 @@ template:
         icon: mdi:source-branch
         state: >
           {% if is_state('binary_sensor.cm_modbus_mirai_ready', 'on') %}
-            MODBUS
+            MODBUS_STATUS
           {% elif is_state('binary_sensor.mirai_machine_running_by_power', 'on') or is_state('binary_sensor.mirai_machine_running_by_power', 'off') %}
             POWER_FALLBACK
           {% else %}
             UNKNOWN
-          {% endif %}
-
-      - name: "mirai_l161_inlet_water_temp_clean"
-        unique_id: mirai_l161_inlet_water_temp_clean
-        device_class: temperature
-        unit_of_measurement: "°C"
-        icon: mdi:thermometer
-        availability: >
-          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
-        state: >
-          {% set raw = states('sensor.mirai_l161_inlet_water_temp') %}
-          {% if raw in ['unknown', 'unavailable', 'none', 'None', ''] %}
-            {{ none }}
-          {% else %}
-            {% set value = raw | float(none) %}
-            {% if value is none %}
-              {{ none }}
-            {% else %}
-              {% set scaled = (value * 10) | round(0) | int %}
-              {% if scaled in [-32768, 32767] or value < -100 or value > 150 %}
-                {{ none }}
-              {% else %}
-                {{ value }}
-              {% endif %}
-            {% endif %}
-          {% endif %}
-
-      - name: "mirai_l162_outlet_water_temp_clean"
-        unique_id: mirai_l162_outlet_water_temp_clean
-        device_class: temperature
-        unit_of_measurement: "°C"
-        icon: mdi:thermometer
-        availability: >
-          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
-        state: >
-          {% set raw = states('sensor.mirai_l162_outlet_water_temp') %}
-          {% if raw in ['unknown', 'unavailable', 'none', 'None', ''] %}
-            {{ none }}
-          {% else %}
-            {% set value = raw | float(none) %}
-            {% if value is none %}
-              {{ none }}
-            {% else %}
-              {% set scaled = (value * 10) | round(0) | int %}
-              {% if scaled in [-32768, 32767] or value < -100 or value > 150 %}
-                {{ none }}
-              {% else %}
-                {{ value }}
-              {% endif %}
-            {% endif %}
-          {% endif %}
-
-      - name: "mirai_l163_outdoor_air_temp_clean"
-        unique_id: mirai_l163_outdoor_air_temp_clean
-        device_class: temperature
-        unit_of_measurement: "°C"
-        icon: mdi:thermometer
-        availability: >
-          {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on') }}
-        state: >
-          {% set raw = states('sensor.mirai_l163_outdoor_air_temp') %}
-          {% if raw in ['unknown', 'unavailable', 'none', 'None', ''] %}
-            {{ none }}
-          {% else %}
-            {% set value = raw | float(none) %}
-            {% if value is none %}
-              {{ none }}
-            {% else %}
-              {% set scaled = (value * 10) | round(0) | int %}
-              {% if scaled in [-32768, 32767] or value < -100 or value > 150 %}
-                {{ none }}
-              {% else %}
-                {{ value }}
-              {% endif %}
-            {% endif %}
           {% endif %}
 
       - name: "mirai_snapshot"
@@ -341,9 +263,5 @@ template:
           fault_code_raw: "{{ states('sensor.mirai_fault_code_raw') }}"
           status_code_effective: "{{ states('sensor.mirai_status_code_effective') }}"
           fault_code_effective: "{{ states('sensor.mirai_fault_code_effective') }}"
-          l261_compressor_step: "{{ states('sensor.mirai_l261_compressor_step') }}"
-          l243_internal_circulator: "{{ states('sensor.mirai_l243_internal_circulator') }}"
-          l161_inlet_water_temp: "{{ states('sensor.mirai_l161_inlet_water_temp_clean') }}"
-          l162_outlet_water_temp: "{{ states('sensor.mirai_l162_outlet_water_temp_clean') }}"
-          l163_outdoor_air_temp: "{{ states('sensor.mirai_l163_outdoor_air_temp_clean') }}"
+          runtime_profile: "status_only_unit1"
           machine_state: "{{ states('sensor.mirai_machine_state') }}"
