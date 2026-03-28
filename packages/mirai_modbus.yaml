@@ -62,3 +62,69 @@ modbus:
         data_type: uint16
         scan_interval: 30
         slave: 1
+
+      # Direct runtime probes discovered by vendor-guided scan.
+      # Semantics are provisional until correlated against field truth.
+      - name: "mirai_probe_temp_a_raw"
+        unique_id: mirai_probe_temp_a_raw
+        address: 4000
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_probe_temp_a_dup_9050_raw"
+        unique_id: mirai_probe_temp_a_dup_9050_raw
+        address: 9050
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_probe_temp_a_dup_9086_raw"
+        unique_id: mirai_probe_temp_a_dup_9086_raw
+        address: 9086
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_probe_temp_b_raw"
+        unique_id: mirai_probe_temp_b_raw
+        address: 3548
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_probe_temp_b_dup_9087_raw"
+        unique_id: mirai_probe_temp_b_dup_9087_raw
+        address: 9087
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_probe_temp_outdoor_raw"
+        unique_id: mirai_probe_temp_outdoor_raw
+        address: 3515
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_probe_counter_1015_raw"
+        unique_id: mirai_probe_counter_1015_raw
+        address: 1015
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_probe_state_3547_raw"
+        unique_id: mirai_probe_state_3547_raw
+        address: 3547
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1

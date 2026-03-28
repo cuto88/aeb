@@ -27,6 +27,13 @@ views:
               - sensor.mirai_u1_fault_code_raw
               - sensor.mirai_u1_status_word_raw
               - sensor.mirai_status_bits_on
+              - sensor.mirai_probe_temp_a_c
+              - sensor.mirai_probe_temp_b_c
+              - sensor.mirai_probe_temp_outdoor_c
+              - binary_sensor.mirai_probe_temp_a_consistent
+              - binary_sensor.mirai_probe_temp_b_consistent
+              - sensor.mirai_probe_counter_1015_raw
+              - sensor.mirai_probe_state_3547_raw
               - input_boolean.mirai_debug_enable
 
       - type: grid
@@ -65,6 +72,13 @@ views:
               - Status word effective: `{{ state_attr('sensor.mirai_snapshot','status_word_effective') }}`
               - Status code effective: `{{ state_attr('sensor.mirai_snapshot','status_code_effective') }}`
               - Fault code effective: `{{ state_attr('sensor.mirai_snapshot','fault_code_effective') }}`
+              - Probe temp A: `{{ state_attr('sensor.mirai_snapshot','probe_temp_a_c') }}`
+              - Probe temp B: `{{ state_attr('sensor.mirai_snapshot','probe_temp_b_c') }}`
+              - Probe outdoor: `{{ state_attr('sensor.mirai_snapshot','probe_temp_outdoor_c') }}`
+              - Probe temp A consistent: `{{ state_attr('sensor.mirai_snapshot','probe_temp_a_consistent') }}`
+              - Probe temp B consistent: `{{ state_attr('sensor.mirai_snapshot','probe_temp_b_consistent') }}`
+              - Probe counter 1015: `{{ state_attr('sensor.mirai_snapshot','probe_counter_1015_raw') }}`
+              - Probe state 3547: `{{ state_attr('sensor.mirai_snapshot','probe_state_3547_raw') }}`
               - Status word u1/raw:
                 `{{ state_attr('sensor.mirai_snapshot','status_word_u1_raw') }}`
                 / `{{ state_attr('sensor.mirai_snapshot','status_word_raw') }}`

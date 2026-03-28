@@ -179,6 +179,34 @@ template:
         event: start
       - platform: state
         entity_id:
+          - sensor.mirai_probe_temp_a_raw
+          - sensor.mirai_probe_temp_a_dup_9050_raw
+          - sensor.mirai_probe_temp_a_dup_9086_raw
+          - sensor.mirai_probe_temp_b_raw
+          - sensor.mirai_probe_temp_b_dup_9087_raw
+      - platform: time_pattern
+        seconds: "/30"
+    binary_sensor:
+      - name: "mirai_probe_temp_a_consistent"
+        unique_id: mirai_probe_temp_a_consistent
+        icon: mdi:thermometer-check
+        state: >
+          {{ is_number(states('sensor.mirai_probe_temp_a_raw'))
+             and states('sensor.mirai_probe_temp_a_raw') == states('sensor.mirai_probe_temp_a_dup_9050_raw')
+             and states('sensor.mirai_probe_temp_a_raw') == states('sensor.mirai_probe_temp_a_dup_9086_raw') }}
+
+      - name: "mirai_probe_temp_b_consistent"
+        unique_id: mirai_probe_temp_b_consistent
+        icon: mdi:thermometer-check
+        state: >
+          {{ is_number(states('sensor.mirai_probe_temp_b_raw'))
+             and states('sensor.mirai_probe_temp_b_raw') == states('sensor.mirai_probe_temp_b_dup_9087_raw') }}
+
+  - trigger:
+      - platform: homeassistant
+        event: start
+      - platform: state
+        entity_id:
           - binary_sensor.cm_modbus_mirai_ready
           - sensor.mirai_status_word_effective
           - binary_sensor.mirai_machine_running_by_power
@@ -291,9 +319,58 @@ template:
           - sensor.mirai_status_bits_on
           - sensor.mirai_status_code_effective
           - sensor.mirai_fault_code_effective
+          - sensor.mirai_probe_temp_a_raw
+          - sensor.mirai_probe_temp_a_dup_9050_raw
+          - sensor.mirai_probe_temp_a_dup_9086_raw
+          - sensor.mirai_probe_temp_b_raw
+          - sensor.mirai_probe_temp_b_dup_9087_raw
+          - sensor.mirai_probe_temp_outdoor_raw
+          - binary_sensor.mirai_probe_temp_a_consistent
+          - binary_sensor.mirai_probe_temp_b_consistent
+          - sensor.mirai_probe_counter_1015_raw
+          - sensor.mirai_probe_state_3547_raw
       - platform: time_pattern
         seconds: "/30"
     sensor:
+      - name: "mirai_probe_temp_a_c"
+        unique_id: mirai_probe_temp_a_c
+        icon: mdi:thermometer-water
+        unit_of_measurement: "°C"
+        state_class: measurement
+        device_class: temperature
+        state: >
+          {% if is_number(states('sensor.mirai_probe_temp_a_raw')) %}
+            {{ (states('sensor.mirai_probe_temp_a_raw') | float(0) / 10) | round(1) }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "mirai_probe_temp_b_c"
+        unique_id: mirai_probe_temp_b_c
+        icon: mdi:thermometer-water
+        unit_of_measurement: "°C"
+        state_class: measurement
+        device_class: temperature
+        state: >
+          {% if is_number(states('sensor.mirai_probe_temp_b_raw')) %}
+            {{ (states('sensor.mirai_probe_temp_b_raw') | float(0) / 10) | round(1) }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "mirai_probe_temp_outdoor_c"
+        unique_id: mirai_probe_temp_outdoor_c
+        icon: mdi:thermometer
+        unit_of_measurement: "°C"
+        state_class: measurement
+        device_class: temperature
+        state: >
+          {% if is_number(states('sensor.mirai_probe_temp_outdoor_raw')) %}
+            {{ (states('sensor.mirai_probe_temp_outdoor_raw') | float(0) / 10) | round(1) }}
+          {% else %}
+            unknown
+          {% endif %}
+
       - name: "mirai_machine_state"
         unique_id: mirai_machine_state
         icon: mdi:power
@@ -342,6 +419,13 @@ template:
                and is_state('binary_sensor.mirai_status_word_bit_01', 'off') }}
           mirai_power_w: "{{ states('sensor.mirai_power_w') }}"
           mirai_power_w_effective: "{{ states('sensor.mirai_power_w_effective') }}"
+          probe_temp_a_c: "{{ states('sensor.mirai_probe_temp_a_c') }}"
+          probe_temp_b_c: "{{ states('sensor.mirai_probe_temp_b_c') }}"
+          probe_temp_outdoor_c: "{{ states('sensor.mirai_probe_temp_outdoor_c') }}"
+          probe_temp_a_consistent: "{{ states('binary_sensor.mirai_probe_temp_a_consistent') }}"
+          probe_temp_b_consistent: "{{ states('binary_sensor.mirai_probe_temp_b_consistent') }}"
+          probe_counter_1015_raw: "{{ states('sensor.mirai_probe_counter_1015_raw') }}"
+          probe_state_3547_raw: "{{ states('sensor.mirai_probe_state_3547_raw') }}"
           status_word_raw: "{{ states('sensor.mirai_status_word_raw') }}"
           status_word_effective: "{{ states('sensor.mirai_status_word_effective') }}"
           status_bits_on: "{{ states('sensor.mirai_status_bits_on') }}"
