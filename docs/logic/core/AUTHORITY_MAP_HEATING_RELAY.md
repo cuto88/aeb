@@ -7,6 +7,10 @@ Scope: runtime writer authority for physical heating relay.
 
 - `switch.4_ch_interruttore_3`
 
+Note:
+- Friendly name operativo previsto in UI: `Riscaldamento - Relay Fisico`.
+- Il nome storico vendor del canale puo` comparire come `Riduzione Notturna`, ma non descrive il ruolo runtime corrente.
+
 ## Direct writer (single-writer rule)
 
 - `switch.heating_master` (template switch in `packages/climate_heating.yaml`)

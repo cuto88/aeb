@@ -23,9 +23,10 @@
 homeassistant:
   customize:
     switch.4_ch_interruttore_3:
-      friendly_name: "Riscaldamento - Interruttore Generale"
+      friendly_name: "Riscaldamento - Relay Fisico"
       icon: mdi:radiator
       # NOTA: rele hardware invertito (state ON = circuito disattivo, OFF = attivo)
+      # Nome storico dispositivo: "Riduzione Notturna" nelle impostazioni del termostato.
 
 ###############################################################################
 # 1) HELPERS  abilitazioni, modalità, setpoint

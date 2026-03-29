@@ -268,6 +268,10 @@ Non è un rename: la coesistenza è intenzionale. Warning alias possibile: `clim
 | Heating night block (logical gate only)  | `switch.heating_night_block`              |
 | Heating hardware relay                    | `switch.4_ch_interruttore_3`              |
 
+Nota runtime:
+- `switch.4_ch_interruttore_3` e` il relay fisico del riscaldamento.
+- Il device Tuya sottostante espone storicamente il canale come "Riduzione Notturna", ma nel runtime Casa Mercurio e` usato come attuatore fisico downstream di `switch.heating_master`.
+
 ### 6.4 Actuators — AC
 
 | Ruolo                                      | Entity ID canonico                         |
