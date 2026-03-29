@@ -32,7 +32,9 @@
 - Fonte mode VMC: `sensor.vmc_vel_target` -> `sensor.cm_system_mode_suggested`.
 
 ## EHW
-- Package unico EHW Modbus: `packages/ehw_modbus.yaml` (flattened, non cartella).
+- Package logico EHW: `packages/ehw_modbus.yaml`.
+- Transport Modbus EHW attualmente escluso dal runtime standard:
+  `ops/disabled_runtime/ehw_modbus.transport.yaml`.
 
 ## Runtime dependencies (legacy/non-cm)
 Queste entità sono richieste dalla logica runtime ma non fanno parte del layer canonicale `cm_*`.

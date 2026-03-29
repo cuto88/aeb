@@ -1,0 +1,124 @@
+modbus:
+  - name: mirai
+    type: tcp
+    host: !secret mirai_modbus_host
+    port: 502
+    delay: 2
+    timeout: 1
+    retries: 0
+    message_wait_milliseconds: 30
+    retry_on_empty: true
+    close_comm_on_error: true
+
+    sensors:
+      - name: "mirai_u1_status_word_raw"
+        unique_id: mirai_u1_status_word_raw
+        address: 1003
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_u1_fault_code_raw"
+        unique_id: mirai_u1_fault_code_raw
+        address: 1209
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_u1_status_code_raw"
+        unique_id: mirai_u1_status_code_raw
+        address: 1208
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_status_word_raw"
+        unique_id: mirai_status_word_raw
+        address: 1003
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_fault_code_raw"
+        unique_id: mirai_fault_code_raw
+        address: 1209
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_status_code_raw"
+        unique_id: mirai_status_code_raw
+        address: 1208
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_probe_temp_a_raw"
+        unique_id: mirai_probe_temp_a_raw
+        address: 4000
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_probe_temp_a_dup_9050_raw"
+        unique_id: mirai_probe_temp_a_dup_9050_raw
+        address: 9050
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_probe_temp_a_dup_9086_raw"
+        unique_id: mirai_probe_temp_a_dup_9086_raw
+        address: 9086
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_probe_temp_b_raw"
+        unique_id: mirai_probe_temp_b_raw
+        address: 3548
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_probe_temp_b_dup_9087_raw"
+        unique_id: mirai_probe_temp_b_dup_9087_raw
+        address: 9087
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_probe_temp_outdoor_raw"
+        unique_id: mirai_probe_temp_outdoor_raw
+        address: 3515
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_probe_counter_1015_raw"
+        unique_id: mirai_probe_counter_1015_raw
+        address: 1015
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "mirai_probe_state_3547_raw"
+        unique_id: mirai_probe_state_3547_raw
+        address: 3547
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
