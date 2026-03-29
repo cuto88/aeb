@@ -133,10 +133,12 @@ input_datetime:
     name: "Heating – Fascia start"
     has_time: true
     has_date: false
+    initial: "10:00:00"
   heating_window_end:
     name: "Heating – Fascia end"
     has_time: true
     has_date: false
+    initial: "18:00:00"
 
 ###############################################################################
 # 2) TIMER
@@ -394,7 +396,7 @@ template:
             {% endif %}
           {% endif %}
 
-      # Finestra di funzionamento comfort (default 10:00–16:00)
+      # Finestra di funzionamento comfort (default 10:00–18:00)
       - name: "Heating  finestra oraria"
         unique_id: heating_finestra_oraria
         state: >-
@@ -404,7 +406,7 @@ template:
             {% set start = '10:00:00' %}
           {% endif %}
           {% if end in ['unknown','unavailable',''] %}
-            {% set end = '16:00:00' %}
+            {% set end = '18:00:00' %}
           {% endif %}
           {% set s_time = strptime(start, '%H:%M:%S') %}
           {% set e_time = strptime(end, '%H:%M:%S') %}

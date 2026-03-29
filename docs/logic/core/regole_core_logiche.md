@@ -26,22 +26,22 @@ Arbitraggio top-down: si valuta dal livello più alto al più basso; la prima co
 | | Free-cooling / night-flush | — | — | 120m | Interrompere se ΔT/ΔAH non più favorevole |
 | **AC** | DRY | 10m | 10m | 60m | Richiede ΔAH favorevole o VMC low |
 | | COOL | 15m | 15m | 90m | Blocchi notturni 23–7 gestiti come P0 locale |
-| **Heating** | Pavimento inerziale | 15m | 30m | 180m | Fascia attiva 10:00–16:00 salvo emergenza |
+| **Heating** | Pavimento inerziale | 15m | 30m | 180m | Fascia attiva 10:00–18:00 salvo emergenza |
 | **Surplus** | Carichi a step | 20m | 20m | 180m | Coordinare con PV/batteria e pre-carica heating |
 
 ## Heating — Pavimento, lock e priorità
 | Aspetto | Regola/Obiettivo | Note/Hook |
 | --- | --- | --- |
 | **T_target giorno/notte** | Comfort 21 °C di default, modulabile via input_number; riduzione notturna ammessa ma senza spegnere inerzia | Le plance mostrano T_target e T_in; differenze zona bagno gestite nel modulo locale |
-| **Finestra prioritaria** | 10:00–16:00: valutata prima di altri slot per sfruttare PV/guadagni solari | Derogabile da P0/P1 o override manuale; se `hook_surplus_heating_precharge` è attivo può partire a inizio finestra |
+| **Finestra prioritaria** | 10:00–18:00: valutata prima di altri slot per sfruttare PV/guadagni solari | Derogabile da P0/P1 o override manuale; se `hook_surplus_heating_precharge` è attivo può partire a inizio finestra |
 | **Lock pavimento** | min_on 15m, min_off 30m, max_run 180m | Applicati all’uscita `heating_should_run` per evitare cicli brevi; rispettati anche in manual/force-on |
-| **Ingresso** | Accende se almeno una zona attiva è sotto T_target−isteresi **e** fascia 10–16 valida **e** surplus/energia ok (se richiesto) | In assenza di surplus non anticipa la partenza prima di 10:00 salvo comfort critico |
+| **Ingresso** | Accende se almeno una zona attiva è sotto T_target−isteresi **e** fascia 10–18 valida **e** surplus/energia ok (se richiesto) | In assenza di surplus non anticipa la partenza prima di 10:00 salvo comfort critico |
 | **Uscita** | Spegne quando T_target raggiunta, fine finestra o mancanza surplus se usato come vincolo; max_run forza uscita se tutto il giorno | Lock min_off mantiene il pavimento spento abbastanza da sfruttare inerzia |
 | **Interazione surplus** | Surplus P3 abilita pre-carica in finestra utile; `hook_surplus_heating_precharge` sblocca anticipi e priorità rispetto ad altri carichi | Se PV insufficiente, heating resta subordinato a comfort minimo e lock |
 
 ## Regole stagionali e orarie
 - **Fasce notte/giorno**: AC blocco 23:00–07:00 salvo override manuale; ventilazione night-flush 21:00–08:00.
-- **Finestre pavimento**: heating prioritizza 10:00–16:00 per sfruttare PV/guadagni solari, con deroga P0/P1.
+- **Finestre pavimento**: heating prioritizza 10:00–18:00 per sfruttare PV/guadagni solari, con deroga P0/P1.
 - **Ventilazione estiva**: preferire aperture quando ΔT_out<in e ΔAH_out<in; sospendere con vento forte/pioggia/PM alti.
 
 ## Glossario soglie condivise
