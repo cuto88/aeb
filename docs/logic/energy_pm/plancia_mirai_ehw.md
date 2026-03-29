@@ -1,4 +1,4 @@
-# Plancia Consumi Mirai+EHW+PM
+# Plancia Consumi Mirai+EHW+PM+ds-01
 
 File dashboard: `lovelace/consumi_mirai_ehw_plancia.yaml`
 
@@ -26,6 +26,14 @@ File dashboard: `lovelace/consumi_mirai_ehw_plancia.yaml`
   - `sensor.pm1_mss310_energy_kwh_main_channel`
   - `sensor.pm2_mss310_energy_kwh_main_channel`
   - `sensor.pm3_mss310_energy_kwh_main_channel`
+- ds-01 / host Home Assistant (presa Tuya T34)
+  - `switch.t34_smart_plug_interruttore_1`
+  - `sensor.ds_01_power_w`
+  - `sensor.ds_01_current_a`
+  - `sensor.ds_01_voltage_v`
+  - `sensor.ds_01_energy_total`
+  - `sensor.ds01_energy_daily`
+  - `sensor.ds01_energy_monthly`
 
 ## Layout
 
@@ -45,8 +53,12 @@ File dashboard: `lovelace/consumi_mirai_ehw_plancia.yaml`
   - `sensor.aeb_policy_activation_rate_pct`
 - Contatori cumulati: blocchi separati Mirai/EHW.
 - Andamento 24h: history potenze.
-- Consumi giornalieri 7 giorni: `statistics-graph` (stat `change`) su kWh prelevati.
+- Consumi giornalieri 7 giorni: `statistics-graph` (stat `change`) su kWh prelevati,
+  inclusa linea dedicata `ds-01`.
 - Smart Plug PM: sezione dedicata con potenze live, kWh giornalieri e grafici PM 24h/7gg.
+- Sezione dedicata `ds-01 / Home Assistant host` per carico IT always-on:
+  utile come baseline domestica minima, verifica uptime/stato server e controllo ROI
+  dei consumi permanenti.
 - Per diagnosi completa EHW usare anche la plancia dedicata:
   - `lovelace/ehw_plancia.yaml`
 

@@ -4,8 +4,10 @@ modbus:
     host: !secret mirai_modbus_host
     port: 502
     delay: 2
-    timeout: 3
-    retries: 2
+    # Fail fast when the Modbus peer is absent so Home Assistant startup
+    # does not spend minutes waiting on repeated connection attempts.
+    timeout: 1
+    retries: 0
     message_wait_milliseconds: 30
     retry_on_empty: true
     close_comm_on_error: true

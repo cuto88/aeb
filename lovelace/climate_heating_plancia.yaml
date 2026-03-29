@@ -43,10 +43,10 @@ views:
           - type: markdown
             content: |
               ## Termostati reali (TEMP) — solo osservazione
-              ESP32 disponibili in runtime:
-              - `binary_sensor.ldr_camera1_camera1_richiesta_calore`
-              - `binary_sensor.ldr_camera2_richiesta_calore`
-              I due input_text restano disponibili per remap rapido.
+              Stato runtime 2026-03-29:
+              - ESP32 / LDR TEMP attualmente smontati
+              - binding default lasciati volutamente vuoti
+              - gli `input_text` restano disponibili per un futuro remap rapido
 
           - type: entities
             title: "Termostati (stato reale)"

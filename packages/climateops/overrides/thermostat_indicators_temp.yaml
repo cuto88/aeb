@@ -2,19 +2,19 @@ input_text:
   climateops_temp_thermostat_giorno_entity:
     name: "TEMP Thermostat Camera1 — source entity_id"
     max: 128
-    initial: "binary_sensor.ldr_camera1_camera1_richiesta_calore"
+    initial: ""
   climateops_temp_thermostat_notte_entity:
     name: "TEMP Thermostat Camera2 — source entity_id"
     max: 128
-    initial: "binary_sensor.ldr_camera2_richiesta_calore"
+    initial: ""
   climateops_temp_thermostat_giorno_raw_entity:
     name: "TEMP Thermostat Camera1 — raw sensor entity_id"
     max: 128
-    initial: "sensor.ldr_camera1_camera1_ldr_raw"
+    initial: ""
   climateops_temp_thermostat_notte_raw_entity:
     name: "TEMP Thermostat Camera2 — raw sensor entity_id"
     max: 128
-    initial: "sensor.ldr_camera2_camera2_ldr_raw"
+    initial: ""
 
 input_number:
   climateops_temp_thermostat_giorno_threshold_v:
@@ -115,7 +115,7 @@ automation:
             target:
               entity_id: input_text.climateops_temp_thermostat_giorno_entity
             data:
-              value: binary_sensor.ldr_camera1_camera1_richiesta_calore
+              value: ""
       - if:
           - condition: template
             value_template: >
@@ -128,7 +128,7 @@ automation:
             target:
               entity_id: input_text.climateops_temp_thermostat_notte_entity
             data:
-              value: binary_sensor.ldr_camera2_richiesta_calore
+              value: ""
       - if:
           - condition: template
             value_template: >
@@ -139,7 +139,7 @@ automation:
             target:
               entity_id: input_text.climateops_temp_thermostat_giorno_raw_entity
             data:
-              value: sensor.ldr_camera1_camera1_ldr_raw
+              value: ""
       - if:
           - condition: template
             value_template: >
@@ -152,4 +152,4 @@ automation:
             target:
               entity_id: input_text.climateops_temp_thermostat_notte_raw_entity
             data:
-              value: sensor.ldr_camera2_camera2_ldr_raw
+              value: ""

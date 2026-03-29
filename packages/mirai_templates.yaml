@@ -205,12 +205,10 @@ template:
       - name: "mirai_pump_candidate_running"
         unique_id: mirai_pump_candidate_running
         icon: mdi:pump
+        availability: >
+          {{ is_number(states('sensor.mirai_probe_state_3547_raw')) }}
         state: >
-          {% if is_number(states('sensor.mirai_probe_state_3547_raw')) %}
-            {{ states('sensor.mirai_probe_state_3547_raw') | int(0) >= 16384 }}
-          {% else %}
-            unknown
-          {% endif %}
+          {{ states('sensor.mirai_probe_state_3547_raw') | int(0) >= 16384 }}
 
   - trigger:
       - platform: homeassistant
@@ -257,37 +255,37 @@ template:
       - name: "mirai_status_word_effective"
         unique_id: mirai_status_word_effective
         icon: mdi:counter
+        availability: >
+          {{ is_number(states('sensor.mirai_u1_status_word_raw')) or is_number(states('sensor.mirai_status_word_raw')) }}
         state: >
           {% if is_number(states('sensor.mirai_u1_status_word_raw')) %}
             {{ states('sensor.mirai_u1_status_word_raw') | int(0) }}
           {% elif is_number(states('sensor.mirai_status_word_raw')) %}
             {{ states('sensor.mirai_status_word_raw') | int(0) }}
-          {% else %}
-            unknown
           {% endif %}
 
       - name: "mirai_status_code_effective"
         unique_id: mirai_status_code_effective
         icon: mdi:counter
+        availability: >
+          {{ is_number(states('sensor.mirai_u1_status_code_raw')) or is_number(states('sensor.mirai_status_code_raw')) }}
         state: >
           {% if is_number(states('sensor.mirai_u1_status_code_raw')) %}
             {{ states('sensor.mirai_u1_status_code_raw') | int(0) }}
           {% elif is_number(states('sensor.mirai_status_code_raw')) %}
             {{ states('sensor.mirai_status_code_raw') | int(0) }}
-          {% else %}
-            unknown
           {% endif %}
 
       - name: "mirai_fault_code_effective"
         unique_id: mirai_fault_code_effective
         icon: mdi:counter
+        availability: >
+          {{ is_number(states('sensor.mirai_u1_fault_code_raw')) or is_number(states('sensor.mirai_fault_code_raw')) }}
         state: >
           {% if is_number(states('sensor.mirai_u1_fault_code_raw')) %}
             {{ states('sensor.mirai_u1_fault_code_raw') | int(0) }}
           {% elif is_number(states('sensor.mirai_fault_code_raw')) %}
             {{ states('sensor.mirai_fault_code_raw') | int(0) }}
-          {% else %}
-            unknown
           {% endif %}
 
   - trigger:
@@ -306,13 +304,13 @@ template:
         unit_of_measurement: "W"
         state_class: measurement
         device_class: power
+        availability: >
+          {{ is_number(states('sensor.mirai_power_w')) or is_number(states('sensor.sensor_grid_power_w')) }}
         state: >
           {% if is_number(states('sensor.mirai_power_w')) %}
             {{ states('sensor.mirai_power_w') | float(0) }}
           {% elif is_number(states('sensor.sensor_grid_power_w')) %}
             {{ states('sensor.sensor_grid_power_w') | float(0) }}
-          {% else %}
-            unknown
           {% endif %}
 
   - trigger:
@@ -349,12 +347,10 @@ template:
         unit_of_measurement: "°C"
         state_class: measurement
         device_class: temperature
+        availability: >
+          {{ is_number(states('sensor.mirai_probe_temp_a_raw')) }}
         state: >
-          {% if is_number(states('sensor.mirai_probe_temp_a_raw')) %}
-            {{ (states('sensor.mirai_probe_temp_a_raw') | float(0) / 10) | round(1) }}
-          {% else %}
-            unknown
-          {% endif %}
+          {{ (states('sensor.mirai_probe_temp_a_raw') | float(0) / 10) | round(1) }}
 
       - name: "mirai_probe_temp_b_c"
         unique_id: mirai_probe_temp_b_c
@@ -362,12 +358,10 @@ template:
         unit_of_measurement: "°C"
         state_class: measurement
         device_class: temperature
+        availability: >
+          {{ is_number(states('sensor.mirai_probe_temp_b_raw')) }}
         state: >
-          {% if is_number(states('sensor.mirai_probe_temp_b_raw')) %}
-            {{ (states('sensor.mirai_probe_temp_b_raw') | float(0) / 10) | round(1) }}
-          {% else %}
-            unknown
-          {% endif %}
+          {{ (states('sensor.mirai_probe_temp_b_raw') | float(0) / 10) | round(1) }}
 
       - name: "mirai_probe_temp_outdoor_c"
         unique_id: mirai_probe_temp_outdoor_c
@@ -375,12 +369,10 @@ template:
         unit_of_measurement: "°C"
         state_class: measurement
         device_class: temperature
+        availability: >
+          {{ is_number(states('sensor.mirai_probe_temp_outdoor_raw')) }}
         state: >
-          {% if is_number(states('sensor.mirai_probe_temp_outdoor_raw')) %}
-            {{ (states('sensor.mirai_probe_temp_outdoor_raw') | float(0) / 10) | round(1) }}
-          {% else %}
-            unknown
-          {% endif %}
+          {{ (states('sensor.mirai_probe_temp_outdoor_raw') | float(0) / 10) | round(1) }}
 
       - name: "mirai_machine_state"
         unique_id: mirai_machine_state

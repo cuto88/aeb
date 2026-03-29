@@ -1,0 +1,73 @@
+---
+# Monitor consumi PC ds-01 / host Home Assistant via smart plug Tuya T34.
+
+utility_meter:
+  ds01_energy_daily:
+    source: sensor.ds_01_energy_total
+    cycle: daily
+  ds01_energy_monthly:
+    source: sensor.ds_01_energy_total
+    cycle: monthly
+
+sensor:
+  - platform: statistics
+    name: ds01_power_mean_15m
+    entity_id: sensor.ds_01_power_w
+    state_characteristic: mean
+    sampling_size: 200
+    max_age:
+      minutes: 15
+  - platform: statistics
+    name: ds01_power_max_24h
+    entity_id: sensor.ds_01_power_w
+    state_characteristic: value_max
+    sampling_size: 5000
+    max_age:
+      hours: 24
+
+template:
+  - sensor:
+      - name: "ds01 Power W"
+        unique_id: ds01_power_w
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        icon: mdi:desktop-tower-monitor
+        state: >
+          {{ states('sensor.t34_smart_plug_potenza') }}
+
+      - name: "ds01 Current A"
+        unique_id: ds01_current_a
+        unit_of_measurement: "A"
+        device_class: current
+        state_class: measurement
+        icon: mdi:current-ac
+        state: >
+          {{ states('sensor.t34_smart_plug_corrente') }}
+
+      - name: "ds01 Voltage V"
+        unique_id: ds01_voltage_v
+        unit_of_measurement: "V"
+        device_class: voltage
+        state_class: measurement
+        icon: mdi:sine-wave
+        state: >
+          {{ states('sensor.t34_smart_plug_tensione') }}
+
+      - name: "ds01 Energy Total"
+        unique_id: ds01_energy_total
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+        icon: mdi:lightning-bolt
+        state: >
+          {{ states('sensor.t34_smart_plug_energia_totale') }}
+
+homeassistant:
+  customize:
+    sensor.ds_01_power_w: {friendly_name: "ds-01 - Potenza"}
+    sensor.ds_01_current_a: {friendly_name: "ds-01 - Corrente"}
+    sensor.ds_01_voltage_v: {friendly_name: "ds-01 - Tensione"}
+    sensor.ds_01_energy_total: {friendly_name: "ds-01 - Energia totale"}
+    sensor.ds01_energy_daily: {friendly_name: "ds-01 - kWh / giorno"}
+    sensor.ds01_energy_monthly: {friendly_name: "ds-01 - kWh / mese"}

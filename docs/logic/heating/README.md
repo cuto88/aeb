@@ -40,7 +40,8 @@ Heating — pavimento radiante (zone giorno/notte/bagno).
 ### Note operative
 - Plancia `lovelace/climate_heating_plancia.yaml` mostra KPI comfort, lock e selezione zone; non duplicare logica nelle card.
 - Mapping TEMP termostati ESP32:
-  - sorgenti raw default: `sensor.ldr_camera1_camera1_ldr_raw`, `sensor.ldr_camera2_camera2_ldr_raw`;
+  - stato corrente runtime 2026-03-29: sensori ESP32/LDR smontati, quindi i binding default sono lasciati vuoti;
+  - quando l'hardware tornera` disponibile, reimpostare manualmente gli `input_text.climateops_temp_thermostat_*`;
   - soglia default: `3.00 V` (per zona) con isteresi default `0.10 V`;
   - logica: `thermostat_*_temp` ON sopra soglia, OFF sotto soglia con isteresi per ridurre oscillazioni.
 - Tutte le automazioni e helper risiedono in `packages/climate_heating.yaml`; non esistono più riferimenti a file 3_heating.yaml legacy.

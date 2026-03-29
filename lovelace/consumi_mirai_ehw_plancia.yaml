@@ -20,6 +20,8 @@ views:
                 name: EHW Potenza W
               - entity: sensor.sensor_grid_direction
                 name: Direzione flusso
+              - entity: sensor.ds_01_power_w
+                name: ds-01 / HA host W
           - type: entities
             title: "EHW diagnostica mapping"
             show_header_toggle: false
@@ -34,6 +36,24 @@ views:
                 name: Tank bottom
               - entity: sensor.ehw_setpoint
                 name: Setpoint
+          - type: entities
+            title: "ds-01 / Home Assistant host"
+            show_header_toggle: false
+            entities:
+              - entity: switch.t34_smart_plug_interruttore_1
+                name: Smart plug outlet
+              - entity: sensor.ds_01_power_w
+                name: Potenza
+              - entity: sensor.ds_01_current_a
+                name: Corrente
+              - entity: sensor.ds_01_voltage_v
+                name: Tensione
+              - entity: sensor.ds01_energy_daily
+                name: kWh / giorno
+              - entity: sensor.ds01_energy_monthly
+                name: kWh / mese
+              - entity: sensor.ds_01_energy_total
+                name: kWh totale
       - type: grid
         title: "KPI AEB (runtime)"
         cards:
@@ -86,6 +106,8 @@ views:
                 name: Mirai W
               - entity: sensor.ehw_power_w
                 name: EHW W
+              - entity: sensor.ds_01_power_w
+                name: ds-01 W
           - type: history-graph
             title: "KPI AEB (24h)"
             hours_to_show: 24
@@ -97,6 +119,13 @@ views:
                 name: Shift effectiveness %
               - entity: sensor.aeb_comfort_energy_score_pct
                 name: Comfort-energy %
+          - type: history-graph
+            title: "ds-01 potenza 24h"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.ds_01_power_w
+                name: ds-01 W
 
       - type: grid
         title: "Consumi giornalieri (7 giorni)"
@@ -119,6 +148,15 @@ views:
             days_to_show: 7
             entities:
               - entity: sensor.b_energia_prelevata_forward
+          - type: statistics-graph
+            title: "ds-01 kWh/giorno"
+            chart_type: bar
+            period: day
+            stat_types:
+              - change
+            days_to_show: 7
+            entities:
+              - entity: sensor.ds_01_energy_total
 
       - type: grid
         title: "Smart Plug PM — stato attuale"
@@ -143,6 +181,8 @@ views:
                 name: Lavatrice kWh/giorno
               - entity: sensor.pm3_energy_daily
                 name: Asciugatrice kWh/giorno
+              - entity: sensor.ds01_energy_daily
+                name: ds-01 kWh/giorno
           - type: entities
             title: "Robot Romeo (stima)"
             show_header_toggle: false
@@ -166,6 +206,8 @@ views:
                 name: Lavatrice W
               - entity: sensor.pm3_mss310_power_w_main_channel
                 name: Asciugatrice W
+              - entity: sensor.ds_01_power_w
+                name: ds-01 W
           - type: statistics-graph
             title: "Consumi PM kWh/giorno (7 giorni)"
             chart_type: bar
@@ -180,3 +222,5 @@ views:
                 name: Lavatrice
               - entity: sensor.pm3_mss310_energy_kwh_main_channel
                 name: Asciugatrice
+              - entity: sensor.ds_01_energy_total
+                name: ds-01

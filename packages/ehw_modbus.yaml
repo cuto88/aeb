@@ -4,8 +4,9 @@ modbus:
     host: !secret ehw_modbus_host
     port: !secret ehw_modbus_port
     delay: 1
-    timeout: 3
-    retries: 1
+    # Fail fast when the EHW Modbus peer is absent to reduce bootstrap stalls.
+    timeout: 1
+    retries: 0
     message_wait_milliseconds: 30
 
     sensors:
