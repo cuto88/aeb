@@ -53,6 +53,7 @@ automation:
           - conditions: "{{ mode != 'HEAT' }}"
             sequence:
               - service: switch.turn_off
+                continue_on_error: true
                 target:
                   entity_id: switch.heating_master
       - choose:
@@ -73,6 +74,7 @@ automation:
           - conditions: "{{ mode == 'HEAT' }}"
             sequence:
               - service: switch.turn_on
+                continue_on_error: true
                 target:
                   entity_id: switch.heating_master
       - choose:
