@@ -1,0 +1,223 @@
+title: "Modbus"
+views:
+  - title: "SDM120"
+    path: modbus-sdm120
+    icon: mdi:meter-electric
+    type: sections
+    max_columns: 2
+
+    sections:
+      - type: grid
+        title: "Stato attuale"
+        cards:
+          - type: entities
+            title: "Misure live"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.sdm120_ch2_voltage_v_raw
+                name: Tensione
+              - entity: sensor.sdm120_ch2_current_a_raw
+                name: Corrente
+              - entity: sensor.sdm120_ch2_active_power_w_raw
+                name: Potenza attiva
+              - entity: sensor.sdm120_ch2_apparent_power_va_raw
+                name: Potenza apparente
+              - entity: sensor.sdm120_ch2_power_factor_raw
+                name: Power factor
+              - entity: sensor.sdm120_ch2_frequency_hz_raw
+                name: Frequenza
+              - entity: sensor.sdm120_ch2_import_energy_kwh_raw
+                name: Energia importata
+          - type: entities
+            title: "Contatori"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.sdm120_ch2_import_energy_daily
+                name: kWh / giorno
+              - entity: sensor.sdm120_ch2_import_energy_monthly
+                name: kWh / mese
+              - entity: sensor.sdm120_ch2_active_power_mean_15m
+                name: Potenza media 15m
+              - entity: sensor.sdm120_ch2_active_power_max_24h
+                name: Picco 24h
+
+      - type: grid
+        title: "History 24h"
+        cards:
+          - type: history-graph
+            title: "Trend elettrici"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.sdm120_ch2_voltage_v_raw
+                name: V
+              - entity: sensor.sdm120_ch2_current_a_raw
+                name: A
+              - entity: sensor.sdm120_ch2_active_power_w_raw
+                name: W
+              - entity: sensor.sdm120_ch2_frequency_hz_raw
+                name: Hz
+          - type: statistics-graph
+            title: "Energia 7 giorni"
+            chart_type: bar
+            period: day
+            stat_types:
+              - change
+            days_to_show: 7
+            entities:
+              - entity: sensor.sdm120_ch2_import_energy_kwh_raw
+                name: SDM120 CH2
+
+  - title: "MIRAI"
+    path: modbus-mirai
+    icon: mdi:heat-pump
+    type: sections
+    max_columns: 2
+
+    sections:
+      - type: grid
+        title: "Stato generale"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - binary_sensor.mirai_machine_running
+              - binary_sensor.mirai_machine_running_by_power
+              - sensor.mirai_machine_state
+              - sensor.mirai_machine_running_source
+              - sensor.mirai_power_w
+              - input_number.mirai_running_power_on_w
+              - binary_sensor.cm_modbus_mirai_ready
+              - sensor.mirai_status_word_effective
+              - sensor.mirai_status_code_effective
+              - sensor.mirai_fault_code_effective
+              - sensor.mirai_probe_temp_a_c
+              - sensor.mirai_probe_temp_b_c
+              - sensor.mirai_probe_temp_outdoor_c
+              - binary_sensor.mirai_pump_candidate_running
+
+      - type: grid
+        title: "Diagnostica"
+        cards:
+          - type: entities
+            title: "Raw e snapshot"
+            show_header_toggle: false
+            entities:
+              - sensor.mirai_u1_status_word_raw
+              - sensor.mirai_u1_status_code_raw
+              - sensor.mirai_u1_fault_code_raw
+              - sensor.mirai_status_bits_on
+              - sensor.mirai_probe_counter_1015_raw
+              - sensor.mirai_probe_state_3547_raw
+              - input_boolean.mirai_debug_enable
+          - type: markdown
+            title: "Snapshot operativo"
+            content: |-
+              **Ultimo update:** `{{ states('sensor.mirai_snapshot') }}`
+
+              - Link Modbus: `{{ states('binary_sensor.cm_modbus_mirai_ready') }}`
+              - Source stato macchina: `{{ states('sensor.mirai_machine_running_source') }}`
+              - Stato macchina: `{{ states('sensor.mirai_machine_state') }}`
+              - Power W: `{{ state_attr('sensor.mirai_snapshot','mirai_power_w') }}`
+              - Profilo runtime: `{{ state_attr('sensor.mirai_snapshot','runtime_profile') }}`
+              - Probe temp A: `{{ state_attr('sensor.mirai_snapshot','probe_temp_a_c') }}`
+              - Probe temp B: `{{ state_attr('sensor.mirai_snapshot','probe_temp_b_c') }}`
+              - Probe outdoor: `{{ state_attr('sensor.mirai_snapshot','probe_temp_outdoor_c') }}`
+              - Pump candidate running: `{{ state_attr('sensor.mirai_snapshot','pump_candidate_running') }}`
+
+      - type: grid
+        title: "History 24h"
+        cards:
+          - type: history-graph
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - binary_sensor.mirai_machine_running
+              - sensor.mirai_power_w
+              - sensor.mirai_status_word_effective
+              - sensor.mirai_probe_temp_a_c
+              - sensor.mirai_probe_temp_b_c
+
+  - title: "EHW"
+    path: modbus-ehw
+    icon: mdi:water-boiler
+    type: sections
+    max_columns: 2
+
+    sections:
+      - type: grid
+        title: "Status"
+        cards:
+          - type: entities
+            title: "Stato operativo"
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.cm_modbus_ehw_ready
+                name: Modbus ready
+              - entity: sensor.ehw_mapping_health
+                name: Mapping health
+              - entity: binary_sensor.ehw_mapping_suspect
+                name: Mapping suspect
+              - entity: sensor.ehw_tank_top
+                name: Tank top (°C)
+              - entity: sensor.ehw_tank_bottom
+                name: Tank bottom (°C)
+              - entity: sensor.ehw_setpoint
+                name: Setpoint (°C)
+          - type: entities
+            title: "Ultimo aggiornamento"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.ehw_tank_top
+                name: Tank top
+                secondary_info: last-updated
+              - entity: sensor.ehw_tank_bottom
+                name: Tank bottom
+                secondary_info: last-updated
+              - entity: sensor.ehw_setpoint
+                name: Setpoint
+                secondary_info: last-updated
+
+      - type: grid
+        title: "Debug"
+        cards:
+          - type: entities
+            title: "Raw registers"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.ehw_reg56_status
+                name: Reg56 status
+              - entity: sensor.ehw_reg57_runtime
+                name: Reg57 runtime
+              - entity: sensor.ehw_reg60_value
+                name: Reg60 value
+              - entity: sensor.ehw_tank_top_raw_calc
+                name: Tank top raw calc
+              - entity: sensor.ehw_tank_bottom_raw_calc
+                name: Tank bottom raw calc
+              - entity: sensor.ehw_setpoint_raw_calc
+                name: Setpoint raw calc
+              - entity: sensor.ehw_reg1255_modbus_address
+                name: Reg1255 Modbus address
+          - type: entities
+            title: "Sonde semantiche"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.ehw_t01_inlet
+                name: T01 inlet
+              - entity: sensor.ehw_t04_finned_coil
+                name: T04 finned coil
+              - entity: sensor.ehw_t05_suction
+                name: T05 suction
+              - entity: sensor.ehw_t06_outlet_solar
+                name: T06 outlet solar
+          - type: history-graph
+            title: "Temperature EHW (24h)"
+            hours_to_show: 24
+            entities:
+              - entity: sensor.ehw_tank_top
+                name: Tank top (°C)
+              - entity: sensor.ehw_tank_bottom
+                name: Tank bottom (°C)
+              - entity: sensor.ehw_setpoint
+                name: Setpoint (°C)

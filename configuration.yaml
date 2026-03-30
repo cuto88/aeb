@@ -78,11 +78,18 @@ lovelace:
       show_in_sidebar: true
       filename: lovelace/consumi_mirai_ehw_plancia.yaml
 
+    7-modbus:
+      mode: yaml
+      title: "7 Modbus"
+      icon: mdi:transit-connection-variant
+      show_in_sidebar: true
+      filename: lovelace/modbus_plancia.yaml
+
     7-ehw:
       mode: yaml
       title: "7 EHW ACS"
       icon: mdi:water-boiler
-      show_in_sidebar: true
+      show_in_sidebar: false
       filename: lovelace/ehw_plancia.yaml
 
     pv-solaredge:
@@ -96,6 +103,6 @@ lovelace:
       mode: yaml
       title: "8 Mirai"
       icon: mdi:heat-pump
-      show_in_sidebar: true
+      show_in_sidebar: false
       require_admin: false
       filename: lovelace/8_mirai_plancia.yaml
