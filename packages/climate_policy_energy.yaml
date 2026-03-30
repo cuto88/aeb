@@ -52,10 +52,12 @@ input_text:
   policy_forecast_pv_power_entity:
     name: "Policy forecast PV source entity_id"
     max: 128
+    # Canonical source normalized by packages/climate_forecast_bridge.yaml
     initial: "sensor.pv_forecast_power_next_hour"
   policy_forecast_temp_out_entity:
     name: "Policy forecast outdoor temp source entity_id"
     max: 128
+    # Canonical source normalized by packages/climate_forecast_bridge.yaml
     initial: "sensor.weather_forecast_temperature_1h"
   policy_grid_price_entity:
     name: "Policy grid price source entity_id"
@@ -71,34 +73,12 @@ input_text:
     initial: "sensor.grid_direction"
 
 template:
-  - binary_sensor:
-      - name: "Policy surplus ok"
-        unique_id: policy_surplus_ok
-        delay_on:
-          minutes: 2
-        delay_off:
-          minutes: 3
-        state: >-
-          {% set legacy = states('binary_sensor.surplus_ok') %}
-          {% set pv_thr = states('input_number.policy_surplus_pv_min_w') | float(800) %}
-          {% set s1 = states('sensor.pv_power_now') %}
-          {% set s2 = states('sensor.cm_ehw_power_w') %}
-          {% set s3 = states('sensor.sensor_pv_power_w') %}
-          {% if s1 not in ['unknown','unavailable','', 'none', 'None'] %}
-            {% set pv = s1 | float(0) %}
-          {% elif s2 not in ['unknown','unavailable','', 'none', 'None'] %}
-            {% set pv = s2 | float(0) %}
-          {% elif s3 not in ['unknown','unavailable','', 'none', 'None'] %}
-            {% set pv = s3 | float(0) %}
-          {% else %}
-            {% set pv = -1 %}
-          {% endif %}
-          {% set pv_ok = pv >= pv_thr %}
-          {% if legacy in ['on','off'] %}
-            {{ legacy == 'on' }}
-          {% else %}
-            {{ pv_ok }}
-          {% endif %}
+  - trigger:
+      - platform: homeassistant
+        event: start
+      - platform: time_pattern
+        minutes: "/15"
+    binary_sensor:
       - name: "Policy forecast pv next hour ready"
         unique_id: policy_forecast_pv_next_hour_ready
         state: >-
@@ -106,6 +86,7 @@ template:
           {% set candidates = [
             custom,
             'sensor.pv_forecast_power_next_hour',
+            'sensor.power_production_next_hour',
             'sensor.pv_forecast_next_hour_w',
             'sensor.solcast_pv_forecast_forecast_next_hour'
           ] %}
@@ -148,6 +129,106 @@ template:
             is_state('binary_sensor.policy_forecast_pv_next_hour_ready','on')
             and is_state('binary_sensor.policy_forecast_temp_next_hour_ready','on')
           }}
+
+    sensor:
+      - name: "Policy forecast pv next hour w"
+        unique_id: policy_forecast_pv_next_hour_w
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% set custom = states('input_text.policy_forecast_pv_power_entity') %}
+          {% set candidates = [
+            custom,
+            'sensor.pv_forecast_power_next_hour',
+            'sensor.power_production_next_hour',
+            'sensor.pv_forecast_next_hour_w',
+            'sensor.solcast_pv_forecast_forecast_next_hour'
+          ] %}
+          {% set ns = namespace(val=none) %}
+          {% for entity in candidates %}
+            {% if entity not in ['unknown','unavailable','', none, 'None'] %}
+              {% set raw = states(entity) %}
+              {% set num = raw | float(default=none) %}
+              {% if (ns.val is not number) and (num is number) %}
+                {% set ns.val = num %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.val if ns.val is number else 0 }}
+      - name: "Policy forecast temp next hour c"
+        unique_id: policy_forecast_temp_next_hour_c
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set custom = states('input_text.policy_forecast_temp_out_entity') %}
+          {% set candidates = [
+            custom,
+            'sensor.weather_forecast_temperature_1h',
+            'sensor.openweathermap_forecast_temperature',
+            'sensor.temperature_forecast_1h'
+          ] %}
+          {% set ns = namespace(val=none) %}
+          {% for entity in candidates %}
+            {% if entity not in ['unknown','unavailable','', none, 'None'] %}
+              {% set raw = states(entity) %}
+              {% set num = raw | float(default=none) %}
+              {% if (ns.val is not number) and (num is number) %}
+                {% set ns.val = num %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.val if ns.val is number else 0 }}
+      - name: "Policy forecast reason"
+        unique_id: policy_forecast_reason
+        state: >-
+          {% set pv_ok = is_state('binary_sensor.policy_forecast_pv_next_hour_ready','on') %}
+          {% set t_ok = is_state('binary_sensor.policy_forecast_temp_next_hour_ready','on') %}
+          {% set pv = states('sensor.policy_forecast_pv_next_hour_w') | float(0) %}
+          {% set pv_min = states('input_number.policy_forecast_pv_min_w') | float(300) %}
+          {% set base = 'UNAVAILABLE_FAILSAFE' %}
+          {% if pv_ok and t_ok %}
+            {% set base = 'READY_PV_AND_TEMP' %}
+          {% elif pv_ok %}
+            {% set base = 'PARTIAL_ONLY_PV' %}
+          {% elif t_ok %}
+            {% set base = 'PARTIAL_ONLY_TEMP' %}
+          {% endif %}
+          {% set suffix = '' %}
+          {% if pv_ok %}
+            {% set suffix = '_PVNEXT_' ~ ('HIGH' if pv >= pv_min else 'LOW') %}
+          {% endif %}
+          {{ base ~ suffix }}
+
+  - binary_sensor:
+      - name: "Policy surplus ok"
+        unique_id: policy_surplus_ok
+        delay_on:
+          minutes: 2
+        delay_off:
+          minutes: 3
+        state: >-
+          {% set legacy = states('binary_sensor.surplus_ok') %}
+          {% set pv_thr = states('input_number.policy_surplus_pv_min_w') | float(800) %}
+          {% set s1 = states('sensor.pv_power_now') %}
+          {% set s2 = states('sensor.cm_ehw_power_w') %}
+          {% set s3 = states('sensor.sensor_pv_power_w') %}
+          {% if s1 not in ['unknown','unavailable','', 'none', 'None'] %}
+            {% set pv = s1 | float(0) %}
+          {% elif s2 not in ['unknown','unavailable','', 'none', 'None'] %}
+            {% set pv = s2 | float(0) %}
+          {% elif s3 not in ['unknown','unavailable','', 'none', 'None'] %}
+            {% set pv = s3 | float(0) %}
+          {% else %}
+            {% set pv = -1 %}
+          {% endif %}
+          {% set pv_ok = pv >= pv_thr %}
+          {% if legacy in ['on','off'] %}
+            {{ legacy == 'on' }}
+          {% else %}
+            {{ pv_ok }}
+          {% endif %}
       - name: "Policy grid price ready"
         unique_id: policy_grid_price_ready
         state: >-
@@ -269,74 +350,6 @@ template:
           {% else %}
             0
           {% endif %}
-      - name: "Policy forecast pv next hour w"
-        unique_id: policy_forecast_pv_next_hour_w
-        unit_of_measurement: "W"
-        device_class: power
-        state_class: measurement
-        state: >-
-          {% set custom = states('input_text.policy_forecast_pv_power_entity') %}
-          {% set candidates = [
-            custom,
-            'sensor.pv_forecast_power_next_hour',
-            'sensor.pv_forecast_next_hour_w',
-            'sensor.solcast_pv_forecast_forecast_next_hour'
-          ] %}
-          {% set ns = namespace(val=none) %}
-          {% for entity in candidates %}
-            {% if entity not in ['unknown','unavailable','', none, 'None'] %}
-              {% set raw = states(entity) %}
-              {% set num = raw | float(default=none) %}
-              {% if (ns.val is not number) and (num is number) %}
-                {% set ns.val = num %}
-              {% endif %}
-            {% endif %}
-          {% endfor %}
-          {{ ns.val if ns.val is number else 0 }}
-      - name: "Policy forecast temp next hour c"
-        unique_id: policy_forecast_temp_next_hour_c
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        state: >-
-          {% set custom = states('input_text.policy_forecast_temp_out_entity') %}
-          {% set candidates = [
-            custom,
-            'sensor.weather_forecast_temperature_1h',
-            'sensor.openweathermap_forecast_temperature',
-            'sensor.temperature_forecast_1h'
-          ] %}
-          {% set ns = namespace(val=none) %}
-          {% for entity in candidates %}
-            {% if entity not in ['unknown','unavailable','', none, 'None'] %}
-              {% set raw = states(entity) %}
-              {% set num = raw | float(default=none) %}
-              {% if (ns.val is not number) and (num is number) %}
-                {% set ns.val = num %}
-              {% endif %}
-            {% endif %}
-          {% endfor %}
-          {{ ns.val if ns.val is number else 0 }}
-      - name: "Policy forecast reason"
-        unique_id: policy_forecast_reason
-        state: >-
-          {% set pv_ok = is_state('binary_sensor.policy_forecast_pv_next_hour_ready','on') %}
-          {% set t_ok = is_state('binary_sensor.policy_forecast_temp_next_hour_ready','on') %}
-          {% set pv = states('sensor.policy_forecast_pv_next_hour_w') | float(0) %}
-          {% set pv_min = states('input_number.policy_forecast_pv_min_w') | float(300) %}
-          {% set base = 'UNAVAILABLE_FAILSAFE' %}
-          {% if pv_ok and t_ok %}
-            {% set base = 'READY_PV_AND_TEMP' %}
-          {% elif pv_ok %}
-            {% set base = 'PARTIAL_ONLY_PV' %}
-          {% elif t_ok %}
-            {% set base = 'PARTIAL_ONLY_TEMP' %}
-          {% endif %}
-          {% set suffix = '' %}
-          {% if pv_ok %}
-            {% set suffix = '_PVNEXT_' ~ ('HIGH' if pv >= pv_min else 'LOW') %}
-          {% endif %}
-          {{ base ~ suffix }}
       - name: "Policy grid price now"
         unique_id: policy_grid_price_now
         unit_of_measurement: "EUR/kWh"

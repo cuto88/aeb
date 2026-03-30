@@ -313,6 +313,8 @@ Queste entità NON sono definite nel modulo climate ma sono richieste dalla logi
 | Forecast PV next hour (selected)           | `sensor.policy_forecast_pv_next_hour_w` | Valore normalizzato con fallback |
 | Forecast T out next hour (selected)        | `sensor.policy_forecast_temp_next_hour_c` | Valore normalizzato con fallback |
 | Forecast policy reason                     | `sensor.policy_forecast_reason` | Explainability readiness/fallback |
+| Forecast bridge PV source                  | `sensor.forecast_bridge_pv_source` | Sorgente upstream effettiva usata dal bridge forecast |
+| Forecast bridge temp source                | `sensor.forecast_bridge_temp_source` | Sorgente upstream effettiva per T forecast |
 | Forecast contract defined                  | `binary_sensor.contract_forecast_inputs_defined` | Contratto definito (input opzionale con fallback) |
 | Forecast contract ready                    | `binary_sensor.contract_forecast_inputs_ready` | `on` se forecast policy ready |
 | Forecast contract reason                   | `sensor.contract_forecast_reason` | Stato contratto forecast |
@@ -343,6 +345,16 @@ Queste entità NON sono definite nel modulo climate ma sono richieste dalla logi
 | Hierarchy contract ready                   | `binary_sensor.contract_hierarchy_mode_ready` | Contratto availability hierarchy |
 | Hierarchy contract reason                  | `sensor.contract_hierarchy_reason` | Stato contratto hierarchy |
 | CM system reason                           | `sensor.cm_system_reason` | Reason bridged per attuazione runtime |
+
+Nota cutover forecast `2026-03-30`:
+- gli alias canonici di policy restano `sensor.pv_forecast_power_next_hour` e `sensor.weather_forecast_temperature_1h`
+- tali alias sono ora prodotti da `packages/climate_forecast_bridge.yaml`
+- l'autorita` runtime corrente e`:
+  `sensor.power_production_next_hour` se disponibile, altrimenti `sensor.energy_next_hour` convertito in W
+  per il forecast PV, e `weather.forecast_casa` per il forecast temperatura orario
+- se l'upstream PV non ha ancora pubblicato stato dopo bootstrap/restart, il bridge espone `0 W`
+  e `sensor.forecast_bridge_pv_source = fallback_zero_unavailable` per mantenere il policy layer stabile
+- `weather.forecast_home` e i vecchi publisher forecast non devono piu` essere usati nei package attivi
 
 Nota cutover energia `2026-03-30`:
 - gli alias canonici rete da preferire sono `sensor.grid_power_w`, `sensor.grid_direction`, `sensor.grid_energy_import_kwh`, `sensor.grid_voltage_v`, `sensor.grid_current_a`

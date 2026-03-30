@@ -1,0 +1,66 @@
+---
+# Bridge forecast runtime:
+# - ricrea i sensori canonici attesi dal policy layer
+# - usa le sorgenti effettivamente presenti oggi nel runtime HA
+
+template:
+  - trigger:
+      - platform: homeassistant
+        event: start
+      - platform: time_pattern
+        minutes: "/15"
+    action:
+      - service: weather.get_forecasts
+        target:
+          entity_id: weather.forecast_casa
+        data:
+          type: hourly
+        response_variable: hourly_forecast
+    sensor:
+      - name: "Forecast bridge pv source"
+        unique_id: forecast_bridge_pv_source
+        state: >-
+          {% set power_w = states('sensor.power_production_next_hour') | float(default=none) %}
+          {% set energy_kwh = states('sensor.energy_next_hour') | float(default=none) %}
+          {% if power_w is number %}
+            sensor.power_production_next_hour
+          {% elif energy_kwh is number %}
+            sensor.energy_next_hour
+          {% else %}
+            fallback_zero_unavailable
+          {% endif %}
+
+      - name: "PV forecast power next hour"
+        unique_id: pv_forecast_power_next_hour
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% set power_w = states('sensor.power_production_next_hour') | float(default=none) %}
+          {% set energy_kwh = states('sensor.energy_next_hour') | float(default=none) %}
+          {% if power_w is number %}
+            {{ power_w | round(0) }}
+          {% elif energy_kwh is number %}
+            {{ (energy_kwh * 1000) | round(0) }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: "Forecast bridge temp source"
+        unique_id: forecast_bridge_temp_source
+        state: "weather.forecast_casa"
+
+      - name: "Weather forecast temperature 1h"
+        unique_id: weather_forecast_temperature_1h
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set payload = hourly_forecast.get('weather.forecast_casa') if hourly_forecast is mapping else none %}
+          {% set forecast = payload.forecast if payload is not none and payload.forecast is defined else [] %}
+          {% set entry = forecast[0] if forecast | count > 0 else none %}
+          {% if entry is not none and entry.temperature is defined and entry.temperature is number %}
+            {{ entry.temperature }}
+          {% else %}
+            {{ none }}
+          {% endif %}

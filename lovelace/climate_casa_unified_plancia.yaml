@@ -358,3 +358,131 @@ views:
                 name: "Reason Heat"
               - entity: switch.heating_master
                 name: "Cmd heating"
+
+  - title: "AEB"
+    path: aeb
+    icon: mdi:flash-outline
+    type: sections
+    max_columns: 3
+    badges:
+      - type: entity
+        entity: binary_sensor.policy_forecast_inputs_ready
+        name: "Forecast ready"
+        color: teal
+      - type: entity
+        entity: sensor.policy_forecast_reason
+        name: "Forecast reason"
+      - type: entity
+        entity: binary_sensor.policy_allow_shift_load
+        name: "Shift load"
+        color: amber
+      - type: entity
+        entity: sensor.climateops_aeb_mvp_reason
+        name: "AEB MVP"
+
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Forecast & policy"
+            icon: mdi:weather-partly-cloudy
+          - type: entities
+            title: "Forecast runtime"
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.policy_forecast_inputs_ready
+                name: "Forecast inputs ready"
+              - entity: sensor.policy_forecast_reason
+                name: "Forecast reason"
+              - entity: sensor.policy_forecast_pv_next_hour_w
+                name: "PV next hour W"
+              - entity: sensor.policy_forecast_temp_next_hour_c
+                name: "Temp next hour C"
+              - entity: input_text.policy_forecast_pv_power_entity
+                name: "PV source entity"
+              - entity: input_text.policy_forecast_temp_out_entity
+                name: "Temp source entity"
+          - type: entities
+            title: "Policy contracts"
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.contract_forecast_inputs_ready
+                name: "Contract forecast ready"
+              - entity: sensor.contract_forecast_reason
+                name: "Contract forecast reason"
+              - entity: binary_sensor.policy_allow_shift_load
+                name: "Allow shift load"
+              - entity: sensor.policy_tariff_grid_reason
+                name: "Tariff/grid reason"
+              - entity: sensor.policy_grid_price_now
+                name: "Grid price now"
+              - entity: sensor.policy_grid_import_w
+                name: "Grid import W"
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Planner & AEB"
+            icon: mdi:transmission-tower
+          - type: entities
+            title: "Planner dry-run"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.planner_heat_setpoint_reco
+                name: "Heat setpoint reco"
+              - entity: sensor.planner_cool_setpoint_reco
+                name: "Cool setpoint reco"
+              - entity: sensor.planner_dhw_run_reco
+                name: "DHW run reco"
+              - entity: sensor.planner_notes
+                name: "Planner notes"
+          - type: entities
+            title: "AEB MVP DHW"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.climateops_aeb_mvp_enable
+                name: "AEB MVP enable"
+              - entity: input_boolean.climateops_aeb_mvp_dry_run
+                name: "AEB MVP dry-run"
+              - entity: sensor.climateops_aeb_mvp_mode
+                name: "AEB MVP mode"
+              - entity: sensor.climateops_aeb_mvp_reason
+                name: "AEB MVP reason"
+              - entity: sensor.climateops_aeb_mvp_target_now
+                name: "AEB MVP target"
+              - entity: binary_sensor.climateops_aeb_mvp_permitted
+                name: "AEB MVP permitted"
+              - entity: input_text.climateops_aeb_mvp_last_action
+                name: "Last action"
+              - entity: input_datetime.climateops_aeb_mvp_last_action_ts
+                name: "Last action ts"
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Trend"
+            icon: mdi:chart-line
+          - type: history-graph
+            title: "Forecast and grid 24h"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.policy_forecast_pv_next_hour_w
+                name: "PV next hour W"
+              - entity: sensor.policy_forecast_temp_next_hour_c
+                name: "Temp next hour C"
+              - entity: sensor.policy_grid_price_now
+                name: "Grid price"
+              - entity: sensor.policy_grid_import_w
+                name: "Grid import W"
+          - type: history-graph
+            title: "Planner and AEB 24h"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.planner_dhw_run_reco
+                name: "Planner DHW"
+              - entity: sensor.climateops_aeb_mvp_mode
+                name: "AEB MVP mode"
+              - entity: binary_sensor.climateops_aeb_mvp_permitted
+                name: "AEB MVP permitted"

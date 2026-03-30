@@ -28,7 +28,7 @@ template:
           {% set invalid = ['unknown','unavailable','','none','None'] %}
           {% set rain_bin = states('binary_sensor.meteo_pioggia') %}
           {% set rain_num = states('sensor.meteo_pioggia_mm_h') %}
-          {% set weather_state = states('weather.forecast_home') %}
+          {% set weather_state = states('weather.forecast_casa') %}
           {% if rain_bin not in invalid %}
             {{ rain_bin in ['on','true','1'] }}
           {% elif rain_num not in invalid %}
