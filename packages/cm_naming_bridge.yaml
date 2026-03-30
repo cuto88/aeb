@@ -134,3 +134,25 @@ template:
             {% endif %}
           {% endif %}
         availability: "{{ true }}"
+
+  - trigger:
+      - platform: homeassistant
+        event: start
+      - platform: state
+        entity_id:
+          - sensor.grid_power_w
+          - sensor.grid_direction
+      - platform: time_pattern
+        seconds: "/30"
+    sensor:
+      - name: "CM Grid Power W"
+        unique_id: cm_grid_power_w
+        unit_of_measurement: "W"
+        state_class: measurement
+        device_class: power
+        availability: "{{ states('sensor.grid_power_w') not in ['unknown','unavailable'] }}"
+        state: "{{ states('sensor.grid_power_w') }}"
+      - name: "CM Grid Direction"
+        unique_id: cm_grid_direction
+        availability: "{{ states('sensor.grid_direction') not in ['unknown','unavailable'] }}"
+        state: "{{ states('sensor.grid_direction') }}"

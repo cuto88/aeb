@@ -30,7 +30,7 @@ template:
         state_class: measurement
         state: >-
           {% set pv = states('sensor.pv_power_now') | float(0) %}
-          {% set grid_fallback = states('sensor.sensor_grid_power_w') | float(0) %}
+          {% set grid_fallback = states('sensor.grid_power_w') | float(states('sensor.sensor_grid_power_w') | float(0)) %}
           {% set grid = states('sensor.policy_grid_power_w') | float(grid_fallback) %}
           {% set export_w = (0 - grid) if grid < 0 else 0 %}
           {% if pv <= 0 %}

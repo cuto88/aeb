@@ -11,7 +11,21 @@ views:
         title: "Stato attuale"
         cards:
           - type: entities
-            title: "Misure live"
+            title: "SSOT energia casa"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.grid_power_w
+                name: Potenza rete canonica
+              - entity: sensor.grid_direction
+                name: Direzione canonica
+              - entity: sensor.grid_energy_import_kwh
+                name: Energia importata canonica
+              - entity: sensor.grid_voltage_v
+                name: Tensione canonica
+              - entity: sensor.grid_current_a
+                name: Corrente canonica
+          - type: entities
+            title: "Misure SDM120 raw"
             show_header_toggle: false
             entities:
               - entity: sensor.sdm120_ch2_voltage_v_raw
@@ -65,8 +79,8 @@ views:
               - change
             days_to_show: 7
             entities:
-              - entity: sensor.sdm120_ch2_import_energy_kwh_raw
-                name: SDM120 CH2
+              - entity: sensor.grid_energy_import_kwh
+                name: Grid SSOT
 
   - title: "MIRAI"
     path: modbus-mirai

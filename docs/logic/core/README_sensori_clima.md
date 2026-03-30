@@ -344,6 +344,11 @@ Queste entità NON sono definite nel modulo climate ma sono richieste dalla logi
 | Hierarchy contract reason                  | `sensor.contract_hierarchy_reason` | Stato contratto hierarchy |
 | CM system reason                           | `sensor.cm_system_reason` | Reason bridged per attuazione runtime |
 
+Nota cutover energia `2026-03-30`:
+- gli alias canonici rete da preferire sono `sensor.grid_power_w`, `sensor.grid_direction`, `sensor.grid_energy_import_kwh`, `sensor.grid_voltage_v`, `sensor.grid_current_a`
+- questi alias sono ora risolti dal meter Modbus `SDM120`
+- il ramo legacy `sensor.sensor_grid_power_w` / `sensor.sensor_grid_direction` resta compatibile solo come fallback transitorio
+
 ---
 
 ## 8. Rules for Codex

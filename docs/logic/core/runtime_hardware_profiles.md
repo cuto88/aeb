@@ -28,6 +28,13 @@ Nota di campo `2026-03-30`:
   - `70` frequenza
   - `72` energia importata
 - decoding validato: IEEE754 `float32` big-endian (`>f`, 2 registri, nessuno `swap`)
+- layer canonico additivo promosso su alias:
+  - `sensor.grid_power_w`
+  - `sensor.grid_direction`
+  - `sensor.grid_energy_import_kwh`
+  - `sensor.grid_voltage_v`
+  - `sensor.grid_current_a`
+- il dual meter legacy resta in runtime solo per compatibilita` transitoria
 
 File esclusi dal runtime normale:
 - `ops/disabled_runtime/mirai_modbus.transport.yaml`

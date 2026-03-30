@@ -18,7 +18,7 @@ views:
                 name: Mirai Potenza W
               - entity: sensor.ehw_power_w
                 name: EHW Potenza W
-              - entity: sensor.sensor_grid_direction
+              - entity: sensor.grid_direction
                 name: Direzione flusso
               - entity: sensor.ds_01_power_w
                 name: ds-01 / HA host W

@@ -14,7 +14,8 @@ Surplus — logica surplus FV (decisionale).
 ## KPI / Entità principali
 ### Sensori e metriche energia
 - Potenza FV istantanea (`sensor.pv_power_w`), direzione `sensor.pv_direction`.
-- Potenza/prelievo rete (`sensor.grid_power_w`, `sensor.grid_direction`), contatori A/B giornalieri e trend.
+- Potenza/prelievo rete (`sensor.grid_power_w`, `sensor.grid_direction`), contatori e trend.
+- Dal `2026-03-30` il layer canonico rete e` promosso verso `SDM120`; gli alias `grid_*` sono la fonte SSOT da usare nei moduli decisionali, con il ramo dual meter legacy mantenuto solo come compatibilita` transitoria.
 - Eventuale batteria: livello/SOC e stato carica se disponibile.
 - Carichi monitorati: boiler/presa EV/altro carico smart, con sensori di stato runtime.
 

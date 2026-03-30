@@ -64,11 +64,11 @@ input_text:
   policy_grid_power_entity:
     name: "Policy grid power source entity_id"
     max: 128
-    initial: "sensor.sensor_grid_power_w"
+    initial: "sensor.grid_power_w"
   policy_grid_direction_entity:
     name: "Policy grid direction source entity_id"
     max: 128
-    initial: "sensor.sensor_grid_direction"
+    initial: "sensor.grid_direction"
 
 template:
   - binary_sensor:
@@ -169,19 +169,6 @@ template:
             {% endif %}
           {% endfor %}
           {{ ns.ok }}
-      - name: "Policy grid importing now"
-        unique_id: policy_grid_importing_now
-        state: >-
-          {% set direction_entity = states('input_text.policy_grid_direction_entity') %}
-          {% set direction = states(direction_entity) if direction_entity not in ['unknown','unavailable','', none, 'None'] else 'unknown' %}
-          {% set p = states('sensor.policy_grid_power_w') | float(0) %}
-          {% if direction in ['import','importing','prelievo','prelevando','from_grid'] %}
-            true
-          {% elif direction in ['export','exporting','immissione','immettendo','to_grid'] %}
-            false
-          {% else %}
-            {{ p > 0 }}
-          {% endif %}
       - name: "Policy grid exporting now"
         unique_id: policy_grid_exporting_now
         state: "{{ is_state('binary_sensor.policy_grid_importing_now','off') and (states('sensor.policy_grid_power_w') | float(0)) != 0 }}"
@@ -373,29 +360,6 @@ template:
             {% endif %}
           {% endfor %}
           {{ ns.val if ns.val is number else 0 }}
-      - name: "Policy grid power w"
-        unique_id: policy_grid_power_w
-        unit_of_measurement: "W"
-        state_class: measurement
-        device_class: power
-        state: >-
-          {% set custom = states('input_text.policy_grid_power_entity') %}
-          {% set candidates = [
-            custom,
-            'sensor.sensor_grid_power_w',
-            'sensor.grid_power_w'
-          ] %}
-          {% set ns = namespace(val=none) %}
-          {% for entity in candidates %}
-            {% if entity not in ['unknown','unavailable','', none, 'None'] %}
-              {% set raw = states(entity) %}
-              {% set num = raw | float(default=none) %}
-              {% if (ns.val is not number) and (num is number) %}
-                {% set ns.val = num %}
-              {% endif %}
-            {% endif %}
-          {% endfor %}
-          {{ ns.val if ns.val is number else 0 }}
       - name: "Policy grid import w"
         unique_id: policy_grid_import_w
         unit_of_measurement: "W"
@@ -426,3 +390,69 @@ template:
           {% else %}
             HOLD_NEUTRAL
           {% endif %}
+
+  - trigger:
+      - platform: homeassistant
+        event: start
+      - platform: state
+        entity_id:
+          - input_text.policy_grid_power_entity
+          - input_text.policy_grid_direction_entity
+          - sensor.grid_power_w
+          - sensor.sensor_grid_power_w
+          - sensor.grid_direction
+          - sensor.sensor_grid_direction
+      - platform: time_pattern
+        seconds: "/30"
+    binary_sensor:
+      - name: "Policy grid importing now"
+        unique_id: policy_grid_importing_now
+        state: >-
+          {% set direction_entity = states('input_text.policy_grid_direction_entity') %}
+          {% set direction = namespace(val='unknown') %}
+          {% set candidates = [
+            direction_entity,
+            'sensor.grid_direction',
+            'sensor.sensor_grid_direction'
+          ] %}
+          {% for entity in candidates %}
+            {% if entity not in ['unknown','unavailable','', none, 'None'] %}
+              {% set raw = states(entity) %}
+              {% if direction.val == 'unknown' and raw not in ['unknown','unavailable','', none, 'None'] %}
+                {% set direction.val = raw %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% set p = states('sensor.policy_grid_power_w') | float(0) %}
+          {% if direction.val in ['import','importing','prelievo','prelevando','from_grid','FORWARD'] %}
+            true
+          {% elif direction.val in ['export','exporting','immissione','immettendo','to_grid','REVERSE'] %}
+            false
+          {% else %}
+            {{ p > 0 }}
+          {% endif %}
+
+    sensor:
+      - name: "Policy grid power w"
+        unique_id: policy_grid_power_w
+        unit_of_measurement: "W"
+        state_class: measurement
+        device_class: power
+        state: >-
+          {% set custom = states('input_text.policy_grid_power_entity') %}
+          {% set candidates = [
+            custom,
+            'sensor.grid_power_w',
+            'sensor.sensor_grid_power_w'
+          ] %}
+          {% set ns = namespace(val=none) %}
+          {% for entity in candidates %}
+            {% if entity not in ['unknown','unavailable','', none, 'None'] %}
+              {% set raw = states(entity) %}
+              {% set num = raw | float(default=none) %}
+              {% if (ns.val is not number) and (num is number) %}
+                {% set ns.val = num %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.val if ns.val is number else 0 }}
