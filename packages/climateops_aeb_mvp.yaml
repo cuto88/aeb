@@ -1,0 +1,296 @@
+input_boolean:
+  climateops_aeb_mvp_enable:
+    name: "ClimateOps AEB MVP Enable"
+    icon: mdi:flash-outline
+    initial: false
+  climateops_aeb_mvp_dry_run:
+    name: "ClimateOps AEB MVP Dry Run"
+    icon: mdi:flask-outline
+    initial: true
+
+input_number:
+  climateops_aeb_mvp_dhw_base_setpoint:
+    name: "ClimateOps AEB MVP DHW Base Setpoint"
+    min: 10
+    max: 60
+    step: 0.5
+    mode: box
+    unit_of_measurement: "°C"
+    initial: 45.0
+  climateops_aeb_mvp_dhw_boost_setpoint:
+    name: "ClimateOps AEB MVP DHW Boost Setpoint"
+    min: 10
+    max: 60
+    step: 0.5
+    mode: box
+    unit_of_measurement: "°C"
+    initial: 46.0
+  climateops_aeb_mvp_min_cycle_minutes:
+    name: "ClimateOps AEB MVP Min Cycle Minutes"
+    min: 5
+    max: 240
+    step: 5
+    mode: box
+    unit_of_measurement: "min"
+    initial: 30
+
+input_datetime:
+  climateops_aeb_mvp_last_action_ts:
+    name: "ClimateOps AEB MVP Last Action TS"
+    has_date: true
+    has_time: true
+
+input_text:
+  climateops_aeb_mvp_last_action:
+    name: "ClimateOps AEB MVP Last Action"
+    max: 255
+
+template:
+  - sensor:
+      - name: "ClimateOps AEB MVP Target Now"
+        unique_id: climateops_aeb_mvp_target_now
+        unit_of_measurement: "°C"
+        state: >-
+          {% set base = states('input_number.climateops_aeb_mvp_dhw_base_setpoint') | float(45.0) %}
+          {% set boost = states('input_number.climateops_aeb_mvp_dhw_boost_setpoint') | float(46.0) %}
+          {% if is_state('binary_sensor.policy_allow_shift_load', 'on')
+                and is_state('binary_sensor.policy_prefer_self_consumption', 'on')
+                and is_state('binary_sensor.policy_grid_import_high', 'off')
+                and is_state('binary_sensor.heating_should_run', 'off') %}
+            {{ boost | round(1) }}
+          {% else %}
+            {{ base | round(1) }}
+          {% endif %}
+
+      - name: "ClimateOps AEB MVP Mode"
+        unique_id: climateops_aeb_mvp_mode
+        state: >-
+          {% if not is_state('input_boolean.climateops_aeb_mvp_enable', 'on') %}
+            disabled
+          {% elif is_state('input_boolean.climateops_aeb_mvp_dry_run', 'on') %}
+            dry_run
+          {% elif is_state('binary_sensor.climateops_aeb_mvp_dhw_boost_active', 'on') %}
+            dhw_boost_live
+          {% else %}
+            baseline_hold
+          {% endif %}
+
+      - name: "ClimateOps AEB MVP Reason"
+        unique_id: climateops_aeb_mvp_reason
+        state: >-
+          {% set target = states('sensor.climateops_aeb_mvp_target_now') | float(default=none) %}
+          {% set actual = states('sensor.climateops_dhw_actual_feedback') | float(default=none) %}
+          {% set now_ts = as_timestamp(now()) %}
+          {% set last_ts = as_timestamp(states('input_datetime.climateops_aeb_mvp_last_action_ts')) | float(0) %}
+          {% set cooldown_s = (states('input_number.climateops_aeb_mvp_min_cycle_minutes') | float(30) * 60) %}
+          {% if not is_state('input_boolean.climateops_aeb_mvp_enable', 'on') %}
+            disabled
+          {% elif not is_state('binary_sensor.cm_modbus_ehw_ready', 'on') %}
+            modbus_not_ready
+          {% elif not is_state('input_boolean.climateops_cutover_dhw', 'on') %}
+            dhw_cutover_off
+          {% elif target is none or actual is none %}
+            feedback_unavailable
+          {% elif now_ts - last_ts < cooldown_s %}
+            cooldown_active
+          {% elif is_state('binary_sensor.heating_should_run', 'on') %}
+            heating_priority
+          {% elif not is_state('binary_sensor.policy_allow_shift_load', 'on') %}
+            shift_load_blocked
+          {% elif not is_state('binary_sensor.policy_prefer_self_consumption', 'on') %}
+            no_self_consumption_window
+          {% elif is_state('binary_sensor.policy_grid_import_high', 'on') %}
+            grid_import_high
+          {% elif (target - actual) | abs <= 0.05 %}
+            already_at_target
+          {% elif is_state('input_boolean.climateops_aeb_mvp_dry_run', 'on') %}
+            dry_run_only
+          {% elif is_state('input_boolean.climateops_dhw_dry_run', 'on') %}
+            writer_dry_run_on
+          {% elif not is_state('input_boolean.climateops_dhw_write_enable', 'on') %}
+            writer_write_enable_off
+          {% else %}
+            ok
+          {% endif %}
+
+  - binary_sensor:
+      - name: "ClimateOps AEB MVP Permitted"
+        unique_id: climateops_aeb_mvp_permitted
+        icon: mdi:check-decagram-outline
+        state: >-
+          {{ states('sensor.climateops_aeb_mvp_reason') in ['ok', 'dry_run_only'] }}
+
+      - name: "ClimateOps AEB MVP Live Retry Ready"
+        unique_id: climateops_aeb_mvp_live_retry_ready
+        icon: mdi:transmission-tower-export
+        state: >-
+          {% set grid_w = states('sensor.grid_power_w') | float(default=none) %}
+          {{
+            is_state('sensor.grid_direction', 'export')
+            and grid_w is not none
+            and grid_w <= -300
+            and is_state('binary_sensor.policy_allow_shift_load', 'on')
+            and is_state('binary_sensor.policy_prefer_self_consumption', 'on')
+            and is_state('binary_sensor.policy_grid_import_high', 'off')
+            and is_state('binary_sensor.heating_should_run', 'off')
+            and is_state('binary_sensor.cm_modbus_ehw_ready', 'on')
+          }}
+
+      - name: "ClimateOps AEB MVP DHW Boost Active"
+        unique_id: climateops_aeb_mvp_dhw_boost_active
+        icon: mdi:water-boiler
+        state: >-
+          {% set target = states('sensor.climateops_aeb_mvp_target_now') | float(default=none) %}
+          {% set base = states('input_number.climateops_aeb_mvp_dhw_base_setpoint') | float(45.0) %}
+          {{ target is not none and target > base + 0.01 }}
+
+automation:
+  - id: climateops_aeb_mvp_dispatch
+    alias: "ClimateOps – AEB MVP Dispatch"
+    mode: single
+    trace:
+      stored_traces: 30
+    trigger:
+      - platform: state
+        entity_id:
+          - input_boolean.climateops_aeb_mvp_enable
+          - input_boolean.climateops_aeb_mvp_dry_run
+          - input_boolean.climateops_cutover_dhw
+          - input_boolean.climateops_dhw_write_enable
+          - input_boolean.climateops_dhw_dry_run
+          - binary_sensor.cm_modbus_ehw_ready
+          - binary_sensor.policy_allow_shift_load
+          - binary_sensor.policy_prefer_self_consumption
+          - binary_sensor.policy_grid_import_high
+          - binary_sensor.heating_should_run
+      - platform: time_pattern
+        minutes: "/15"
+    action:
+      - variables:
+          target_c: >-
+            {% set base = states('input_number.climateops_aeb_mvp_dhw_base_setpoint') | float(45.0) %}
+            {% set boost = states('input_number.climateops_aeb_mvp_dhw_boost_setpoint') | float(46.0) %}
+            {% if is_state('binary_sensor.policy_allow_shift_load', 'on')
+                  and is_state('binary_sensor.policy_prefer_self_consumption', 'on')
+                  and is_state('binary_sensor.policy_grid_import_high', 'off')
+                  and is_state('binary_sensor.heating_should_run', 'off') %}
+              {{ boost | round(1) }}
+            {% else %}
+              {{ base | round(1) }}
+            {% endif %}
+          actual_c: "{{ states('sensor.climateops_dhw_actual_feedback') | float(default=none) }}"
+          reason: >-
+            {% set now_ts = as_timestamp(now()) %}
+            {% set last_ts = as_timestamp(states('input_datetime.climateops_aeb_mvp_last_action_ts')) | float(0) %}
+            {% set cooldown_s = (states('input_number.climateops_aeb_mvp_min_cycle_minutes') | float(30) * 60) %}
+            {% if not is_state('input_boolean.climateops_aeb_mvp_enable', 'on') %}
+              disabled
+            {% elif not is_state('binary_sensor.cm_modbus_ehw_ready', 'on') %}
+              modbus_not_ready
+            {% elif not is_state('input_boolean.climateops_cutover_dhw', 'on') %}
+              dhw_cutover_off
+            {% elif target_c is none or actual_c is none %}
+              feedback_unavailable
+            {% elif now_ts - last_ts < cooldown_s %}
+              cooldown_active
+            {% elif is_state('binary_sensor.heating_should_run', 'on') %}
+              heating_priority
+            {% elif not is_state('binary_sensor.policy_allow_shift_load', 'on') %}
+              shift_load_blocked
+            {% elif not is_state('binary_sensor.policy_prefer_self_consumption', 'on') %}
+              no_self_consumption_window
+            {% elif is_state('binary_sensor.policy_grid_import_high', 'on') %}
+              grid_import_high
+            {% elif (target_c - actual_c) | abs <= 0.05 %}
+              already_at_target
+            {% elif is_state('input_boolean.climateops_aeb_mvp_dry_run', 'on') %}
+              dry_run_only
+            {% elif is_state('input_boolean.climateops_dhw_dry_run', 'on') %}
+              writer_dry_run_on
+            {% elif not is_state('input_boolean.climateops_dhw_write_enable', 'on') %}
+              writer_write_enable_off
+            {% else %}
+              ok
+            {% endif %}
+          action_kind: >-
+            {% set base = states('input_number.climateops_aeb_mvp_dhw_base_setpoint') | float(45.0) %}
+            {% if target_c > base + 0.01 %}
+              boost
+            {% else %}
+              restore
+            {% endif %}
+      - choose:
+          - conditions: "{{ reason == 'dry_run_only' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.climateops_aeb_mvp_last_action_ts
+                data:
+                  datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.climateops_aeb_mvp_last_action
+                data:
+                  value: >-
+                    DRY_RUN:action={{ action_kind }}|target_c={{ target_c | round(1) }}|actual_c={{ actual_c }}|reason={{ reason }}
+              - service: logbook.log
+                data:
+                  name: "ClimateOps AEB MVP"
+                  entity_id: automation.climateops_aeb_mvp_dispatch
+                  message: >-
+                    Dry-run only. action={{ action_kind }}, target_c={{ target_c | round(1) }}, actual_c={{ actual_c }}.
+          - conditions: >-
+              {{
+                reason == 'ok'
+                and is_state('input_boolean.climateops_aeb_mvp_enable', 'on')
+                and is_state('input_boolean.climateops_cutover_dhw', 'on')
+                and is_state('input_boolean.climateops_dhw_write_enable', 'on')
+                and is_state('input_boolean.climateops_dhw_dry_run', 'off')
+                and is_state('input_boolean.climateops_aeb_mvp_dry_run', 'off')
+              }}
+            sequence:
+              - service: input_number.set_value
+                target:
+                  entity_id: input_number.climateops_dhw_requested_setpoint
+                data:
+                  value: "{{ target_c }}"
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.climateops_aeb_mvp_last_action_ts
+                data:
+                  datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.climateops_aeb_mvp_last_action
+                data:
+                  value: >-
+                    LIVE_REQUEST:action={{ action_kind }}|target_c={{ target_c | round(1) }}|actual_c={{ actual_c }}|reason={{ reason }}
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.climateops_dhw_request
+              - service: logbook.log
+                data:
+                  name: "ClimateOps AEB MVP"
+                  entity_id: automation.climateops_aeb_mvp_dispatch
+                  message: >-
+                    Live request sent via formalized DHW writer. action={{ action_kind }}, target_c={{ target_c | round(1) }}, actual_c={{ actual_c }}.
+        default:
+          - choose:
+              - conditions: >-
+                  {{
+                    reason == 'ok'
+                    and (
+                      not is_state('input_boolean.climateops_aeb_mvp_enable', 'on')
+                      or not is_state('input_boolean.climateops_cutover_dhw', 'on')
+                      or not is_state('input_boolean.climateops_dhw_write_enable', 'on')
+                      or not is_state('input_boolean.climateops_dhw_dry_run', 'off')
+                      or not is_state('input_boolean.climateops_aeb_mvp_dry_run', 'off')
+                    )
+                  }}
+                sequence:
+                  - service: logbook.log
+                    data:
+                      name: "ClimateOps AEB MVP"
+                      entity_id: automation.climateops_aeb_mvp_dispatch
+                      message: >-
+                        Live commit skipped. reason=ok but live posture no longer active at commit time.
