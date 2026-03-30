@@ -6,6 +6,29 @@ Dal `2026-03-29` i transport `Modbus` di `Mirai` ed `EHW` sono esclusi dal
 caricamento standard di Home Assistant per evitare bootstrap lenti quando
 l'hardware non e` presente o non raggiungibile.
 
+Nota di campo `2026-03-30`:
+- il bus RS-485 condiviso `MIRAI + SDM120` e` attestato sul path TCP `192.168.178.191:502`
+- parametri seriali operativi condivisi: `9600 8E1`
+- indirizzi validati:
+  - `MIRAI` -> `slave 1`
+  - `SDM120` -> `slave 2`
+- cablaggio corretto lato SDM120:
+  - bianco/arancio = `A` / positivo
+  - arancio = `B` / negativo
+  - bianco/verde = `GND`
+- un errore precedente di cablaggio sul ramo SDM120 impediva la risposta Modbus; corretto il wiring, il contatore e` tornato leggibile sul path di MIRAI.
+- package dedicato attivo in repo: `packages/sdm120_modbus.yaml`
+- transport raw SDM120 integrato nell'hub `mirai` in `packages/mirai_modbus.yaml` perche' Home Assistant non carica due hub Modbus separati sullo stesso `host:port`
+- registri confermati lato SDM120 via `FC4`:
+  - `0` tensione
+  - `6` corrente
+  - `12` potenza attiva
+  - `18` potenza apparente
+  - `30` power factor
+  - `70` frequenza
+  - `72` energia importata
+- decoding validato: IEEE754 `float32` big-endian (`>f`, 2 registri, nessuno `swap`)
+
 File esclusi dal runtime normale:
 - `ops/disabled_runtime/mirai_modbus.transport.yaml`
 - `ops/disabled_runtime/ehw_modbus.transport.yaml`

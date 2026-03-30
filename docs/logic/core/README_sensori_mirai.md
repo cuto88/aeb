@@ -53,6 +53,15 @@ Single source of truth per la mappa registri MIRAI usata in Home Assistant.
 - Mappa aggiornata dopo riallineamento runtime del 7 marzo 2026:
   - MIRAI -> `192.168.178.191` / `slave 1`
   - EHW -> `192.168.178.190` / `slave 3`
+- Bus RS-485 condiviso verificato sul campo il `2026-03-30`:
+  - gateway/path TCP operativo per MIRAI e SDM120: `192.168.178.191:502`
+  - MIRAI: `slave 1`, Modbus RTU `9600 8E1`
+  - SDM120: `slave 2`, Modbus RTU `9600 8E1`
+  - cablaggio corretto:
+    - bianco/arancio = `A` / positivo
+    - arancio = `B` / negativo
+    - bianco/verde = `GND`
+  - nota di campo: un precedente errore di cablaggio sul ramo SDM120 impediva la risposta Modbus; corretto il wiring, lo slave `2` e` tornato leggibile sullo stesso path di MIRAI.
 - Il profilo MIRAI oggi e` volutamente `status-only`: nel repo restano supportati solo i registri stabili `1003/1208/1209`.
 - I registri estesi storici (`9058`, `9068`, `9078`, `9079`, `8986`, `8987`, `8988`) non fanno parte del profilo operativo corrente perche' hanno generato timeout/runtime noise nelle evidenze di fine febbraio.
 - Nota storica: indicazioni STEP23 (01 marzo 2026) sono supersedute da validazione runtime successiva.
@@ -68,6 +77,18 @@ Single source of truth per la mappa registri MIRAI usata in Home Assistant.
   - `3547` ~`22528/22784` con macchina in marcia
   - `3547` ~`9984` con macchina spenta
   - `3548/9087` ~`34.4°C -> 29.5°C` nella transizione da acceso a spento
+- Evidenza diretta `2026-03-30` su bus condiviso MIRAI+SDM120:
+  - MIRAI (`192.168.178.191`, `slave 1`) continua a rispondere su `1003/1208/1209`
+  - SDM120 (`192.168.178.191`, `slave 2`, `FC4`) risponde dopo correzione cablaggio:
+    - `addr 0` tensione `229.599 V`
+    - `addr 6` corrente `3.08 A`
+    - `addr 12` potenza attiva `-224.136 W`
+    - `addr 18` potenza apparente `706.55 VA`
+    - `addr 30` power factor `-0.316`
+    - `addr 70` frequenza `50.043 Hz`
+    - `addr 72` energia importata `13.4 kWh`
+  - package HA dedicato predisposto: `packages/sdm120_modbus.yaml`
+  - i raw SDM120 sono integrati nello stesso hub `mirai` in `packages/mirai_modbus.yaml` per evitare il vincolo HA sui duplicati `host:port`
 - Questi valori sono trattati come `probe` finche' non vengono correlati con verita' fisica macchina/campo; non sono ancora promossi a naming semantico definitivo (`mandata`, `ritorno`, `ACS`, `esterna`) senza evidenza addizionale.
 - Riferimenti vendor correnti:
   - `docs/vendor/mirai/manuale_pdc.md` (parametri RS-485: RTU 9600, 8E1, address 1, timeout 1000)
