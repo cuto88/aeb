@@ -3,13 +3,10 @@
 Questa cartella contiene la documentazione delle logiche di Casa Mercurio.
 
 - Panoramica e struttura: [`README_struttura_sistemi.md`](README_struttura_sistemi.md)
-- Audit baseline Step 0 (AEB/Passivhaus): [`../audits/STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md`](../audits/STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md)
-- Audit Step 1 runtime authority (Legacy vs ClimateOps): [`../audits/STEP1_RUNTIME_AUTHORITY_2026-02-21.md`](../audits/STEP1_RUNTIME_AUTHORITY_2026-02-21.md)
-- Audit Step 2 runtime evidence closure: [`../audits/STEP2_RUNTIME_EVIDENCE_2026-02-21.md`](../audits/STEP2_RUNTIME_EVIDENCE_2026-02-21.md)
-- Audit Step 2-bis runtime evidence update (writer per evento): [`../audits/STEP2BIS_RUNTIME_EVIDENCE_UPDATE_2026-02-21.md`](../audits/STEP2BIS_RUNTIME_EVIDENCE_UPDATE_2026-02-21.md)
-- Runtime status current (post stabilization): [`../audits/STATUS_RUNTIME_CURRENT_2026-02-23.md`](../audits/STATUS_RUNTIME_CURRENT_2026-02-23.md)
-- Audit Step 3 post-deploy (context correlation): [`../audits/STEP3_RUNTIME_EVIDENCE_POST_DEPLOY_2026-02-24.md`](../audits/STEP3_RUNTIME_EVIDENCE_POST_DEPLOY_2026-02-24.md)
-- WIP tracker runtime/audit: [`../audits/WIP_RUNTIME_TRACKER_2026-02-24.md`](../audits/WIP_RUNTIME_TRACKER_2026-02-24.md)
+- Audit index completo: [`../audits/README.md`](../audits/README.md)
+- Entry point storico: [`../audits/STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md`](../audits/STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md)
+- Stato runtime sintetico: [`../audits/STATUS_RUNTIME_CURRENT_2026-02-23.md`](../audits/STATUS_RUNTIME_CURRENT_2026-02-23.md)
+- Quadro operativo recente: [`../audits/STEP49_OPEN_ITEMS_AND_CLOSURE_SEQUENCE_2026-04-07.md`](../audits/STEP49_OPEN_ITEMS_AND_CLOSURE_SEQUENCE_2026-04-07.md)
 - Moduli principali:
   - Ventilation (ventilazione naturale + VMC):
     - [`ventilation/README.md`](ventilation/README.md)
