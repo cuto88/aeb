@@ -45,6 +45,9 @@ views:
             show_header_toggle: false
             entities:
               - binary_sensor.cm_modbus_mirai_ready
+              - binary_sensor.cm_modbus_mirai_expected_ready
+              - binary_sensor.cm_modbus_mirai_posture_ok
+              - sensor.cm_modbus_mirai_reason
               - sensor.mirai_machine_running_source
               - binary_sensor.mirai_machine_running
               - binary_sensor.mirai_manual_unit_profile_ok
@@ -56,6 +59,20 @@ views:
               - sensor.mirai_u1_status_code_raw
               - sensor.mirai_u1_fault_code_raw
               - sensor.mirai_status_bits_on
+          - type: entities
+            title: "Runtime truth closure"
+            show_header_toggle: false
+            entities:
+              - binary_sensor.mirai_runtime_truth_inputs_ready
+              - binary_sensor.mirai_runtime_truth_run_window_candidate
+              - binary_sensor.mirai_runtime_truth_modbus_run_confirmed
+              - binary_sensor.mirai_runtime_truth_pump_corroborated
+              - binary_sensor.mirai_runtime_truth_coherent_run
+              - sensor.mirai_runtime_truth_score
+              - sensor.mirai_runtime_truth_reason
+              - sensor.mirai_runtime_truth_run_window_hours_today
+              - sensor.mirai_runtime_truth_coherent_run_hours_today
+              - input_number.mirai_runtime_truth_min_run_w
           - type: markdown
             title: "Snapshot operativo"
             content: |-
@@ -63,6 +80,9 @@ views:
 
               **Verdetto rapido**
               - Link Modbus: `{{ states('binary_sensor.cm_modbus_mirai_ready') }}`
+              - Link atteso: `{{ states('binary_sensor.cm_modbus_mirai_expected_ready') }}`
+              - Postura Modbus: `{{ states('binary_sensor.cm_modbus_mirai_posture_ok') }}`
+              - Reason Modbus: `{{ states('sensor.cm_modbus_mirai_reason') }}`
               - Source stato macchina: `{{ states('sensor.mirai_machine_running_source') }}`
               - Stato macchina: `{{ states('sensor.mirai_machine_state') }}`
 

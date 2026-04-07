@@ -16,6 +16,8 @@ views:
             entities:
               - entity: binary_sensor.cm_modbus_ehw_ready
                 name: Modbus ready
+              - entity: sensor.ehw_power_w
+                name: Power (W)
               - entity: sensor.ehw_mapping_health
                 name: Mapping health
               - entity: binary_sensor.ehw_mapping_suspect
@@ -94,9 +96,11 @@ views:
               - entity: sensor.ehw_reg1255_modbus_address
                 name: Reg1255 Modbus address
           - type: history-graph
-            title: "Temperature EHW (24h)"
+            title: "Temperature e consumi EHW (24h)"
             hours_to_show: 24
             entities:
+              - entity: sensor.ehw_power_w
+                name: Power (W)
               - entity: sensor.ehw_tank_top
                 name: Tank top (°C)
               - entity: sensor.ehw_tank_bottom

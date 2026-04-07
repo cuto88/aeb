@@ -102,6 +102,9 @@ views:
               - sensor.mirai_power_w
               - input_number.mirai_running_power_on_w
               - binary_sensor.cm_modbus_mirai_ready
+              - binary_sensor.cm_modbus_mirai_expected_ready
+              - binary_sensor.cm_modbus_mirai_posture_ok
+              - sensor.cm_modbus_mirai_reason
               - sensor.mirai_status_word_effective
               - sensor.mirai_status_code_effective
               - sensor.mirai_fault_code_effective
@@ -130,6 +133,9 @@ views:
               **Ultimo update:** `{{ states('sensor.mirai_snapshot') }}`
 
               - Link Modbus: `{{ states('binary_sensor.cm_modbus_mirai_ready') }}`
+              - Link atteso: `{{ states('binary_sensor.cm_modbus_mirai_expected_ready') }}`
+              - Postura Modbus: `{{ states('binary_sensor.cm_modbus_mirai_posture_ok') }}`
+              - Reason Modbus: `{{ states('sensor.cm_modbus_mirai_reason') }}`
               - Source stato macchina: `{{ states('sensor.mirai_machine_running_source') }}`
               - Stato macchina: `{{ states('sensor.mirai_machine_state') }}`
               - Power W: `{{ state_attr('sensor.mirai_snapshot','mirai_power_w') }}`

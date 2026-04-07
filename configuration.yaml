@@ -1,6 +1,10 @@
 # FILE: configuration.yaml
 default_config:
 
+recorder:
+  purge_keep_days: 90
+  auto_purge: true
+
 frontend:
   themes: !include_dir_merge_named themes
 
@@ -20,7 +24,7 @@ lovelace:
       filename: ui-lovelace.yaml
       title: Overview
       icon: mdi:view-dashboard
-      show_in_sidebar: true
+      show_in_sidebar: false
 
     1-ventilazione:
       mode: yaml
@@ -33,7 +37,7 @@ lovelace:
       mode: yaml
       title: "1 Ventilazione (v2)"
       icon: mdi:fan
-      show_in_sidebar: true
+      show_in_sidebar: false
       filename: lovelace/climate_ventilation_plancia_v2.yaml
 
     1-clima-casa:
@@ -47,14 +51,14 @@ lovelace:
       mode: yaml
       title: "2 Riscaldamento"
       icon: mdi:radiator
-      show_in_sidebar: true
+      show_in_sidebar: false
       filename: lovelace/climate_heating_plancia.yaml
 
     3-ac:
       mode: yaml
       title: "3 Clima"
       icon: mdi:snowflake
-      show_in_sidebar: true
+      show_in_sidebar: false
       filename: lovelace/climate_ac_plancia.yaml
 
     3-ac-v2:
@@ -94,7 +98,7 @@ lovelace:
 
     pv-solaredge:
       mode: yaml
-      title: "PV SolarEdge"
+      title: "5 PV SolarEdge"
       icon: mdi:solar-power
       show_in_sidebar: true
       filename: lovelace/energy_pv_solaredge_plancia.yaml

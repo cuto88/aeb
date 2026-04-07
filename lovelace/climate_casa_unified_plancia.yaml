@@ -103,11 +103,14 @@ views:
               - type: target-temperature
             features_position: bottom
           - type: tile
-            entity: binary_sensor.windows_giorno1
+            entity: input_boolean.vent_finestra_giorno1_aperta
             name: "Finestra giorno1"
           - type: tile
-            entity: binary_sensor.windows_giorno2
+            entity: input_boolean.vent_finestra_giorno2_aperta
             name: "Finestra giorno2"
+          - type: tile
+            entity: input_boolean.vent_portoncino_ingresso_aperto
+            name: "Portoncino"
 
       - type: grid
         cards:
@@ -130,13 +133,13 @@ views:
               - type: target-temperature
             features_position: bottom
           - type: tile
-            entity: binary_sensor.windows_notte1
+            entity: input_boolean.vent_finestra_notte1_aperta
             name: "Finestra notte1"
           - type: tile
-            entity: binary_sensor.windows_notte2
+            entity: input_boolean.vent_finestra_notte2_aperta
             name: "Finestra notte2"
           - type: tile
-            entity: binary_sensor.windows_notte3
+            entity: input_boolean.vent_finestra_notte3_aperta
             name: "Finestra notte3"
 
       - type: grid
@@ -359,28 +362,187 @@ views:
               - entity: switch.heating_master
                 name: "Cmd heating"
 
+  - title: "ClimateOps"
+    path: climateops
+    icon: mdi:transmission-tower
+    type: sections
+    max_columns: 3
+
+    sections:
+      - type: grid
+        title: "Stato rapido"
+        cards:
+          - type: tile
+            entity: sensor.cm_system_mode_suggested
+            name: "System mode"
+            color: teal
+          - type: tile
+            entity: sensor.cm_system_reason
+            name: "System reason"
+          - type: tile
+            entity: binary_sensor.cm_contract_actuators_ready
+            name: "Actuators ready"
+            color: amber
+          - type: tile
+            entity: binary_sensor.stagione_calda
+            name: "Stagione calda"
+            color: red
+          - type: tile
+            entity: binary_sensor.climateops_request_heat
+            name: "Request heat"
+            color: orange
+          - type: tile
+            entity: binary_sensor.climateops_request_cool
+            name: "Request cool"
+            color: blue
+
+      - type: grid
+        title: "Ramo AC"
+        cards:
+          - type: entities
+            title: "Power posture"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.cm_ac_branch_powered
+                name: "AC branch powered"
+              - entity: binary_sensor.cm_ac_branch_in_season
+                name: "AC in season"
+              - entity: binary_sensor.cm_ac_branch_should_run
+                name: "AC should run"
+              - entity: binary_sensor.cm_ac_branch_should_be_powered
+                name: "AC should be powered"
+              - entity: sensor.cm_ac_branch_advice
+                name: "AC advice"
+          - type: entities
+            title: "Runtime"
+            show_header_toggle: false
+            entities:
+              - entity: switch.ac_giorno
+                name: "AC giorno"
+              - entity: switch.ac_notte
+                name: "AC notte"
+              - entity: binary_sensor.ac_giorno_is_on_proxy
+                name: "AC giorno proxy"
+              - entity: binary_sensor.ac_notte_is_on_proxy
+                name: "AC notte proxy"
+              - entity: binary_sensor.stagione_calda
+                name: "Hot season"
+              - entity: input_number.ac_cool_setpoint
+                name: "Cool setpoint"
+
+      - type: grid
+        title: "Ramo MIRAI"
+        cards:
+          - type: entities
+            title: "Power posture"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.cm_mirai_branch_powered
+                name: "MIRAI branch powered"
+              - entity: binary_sensor.cm_mirai_branch_in_season
+                name: "MIRAI in season"
+              - entity: binary_sensor.cm_mirai_branch_should_run
+                name: "MIRAI should run"
+              - entity: binary_sensor.cm_mirai_branch_should_be_powered
+                name: "MIRAI should be powered"
+              - entity: sensor.cm_mirai_branch_advice
+                name: "MIRAI advice"
+          - type: entities
+            title: "Runtime"
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.cm_modbus_mirai_expected_ready
+                name: "MIRAI modbus expected"
+              - entity: binary_sensor.heating_should_run
+                name: "Heating should run"
+              - entity: sensor.mirai_machine_state
+                name: "MIRAI machine state"
+              - entity: sensor.mirai_machine_running_source
+                name: "MIRAI running source"
+              - entity: binary_sensor.cm_modbus_mirai_posture_ok
+                name: "MIRAI modbus posture ok"
+              - entity: sensor.mirai_runtime_truth_reason
+                name: "MIRAI runtime truth"
+              - entity: sensor.cm_modbus_mirai_reason
+                name: "MIRAI modbus reason"
+              - entity: binary_sensor.cm_modbus_mirai_ready
+                name: "MIRAI modbus ready"
+
+      - type: grid
+        title: "Contratti"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.cm_contract_actuators_defined
+                name: "Actuators defined"
+              - entity: binary_sensor.cm_contract_actuators_ready
+                name: "Actuators ready"
+              - entity: sensor.cm_contract_missing_entities
+                name: "Missing entities"
+              - entity: sensor.cm_contract_actuators_reason
+                name: "Actuators reason"
+              - entity: binary_sensor.cm_contract_hierarchy_mode_ready
+                name: "Hierarchy ready"
+              - entity: binary_sensor.cm_noncritical_loads_allowed
+                name: "Noncritical loads allowed"
+
+      - type: grid
+        title: "Timeline"
+        cards:
+          - type: history-graph
+            title: "System 12h"
+            hours_to_show: 12
+            refresh_interval: 120
+            entities:
+              - entity: sensor.cm_system_mode_suggested
+                name: "Mode"
+              - entity: sensor.cm_system_reason
+                name: "Reason"
+              - entity: binary_sensor.heating_should_run
+                name: "Heat run"
+              - entity: binary_sensor.climateops_request_cool
+                name: "Cool req"
+          - type: history-graph
+            title: "Branch posture 12h"
+            hours_to_show: 12
+            refresh_interval: 120
+            entities:
+              - entity: input_boolean.cm_ac_branch_powered
+                name: "AC powered"
+              - entity: input_boolean.cm_mirai_branch_powered
+                name: "MIRAI powered"
+              - entity: binary_sensor.cm_ac_branch_should_run
+                name: "AC should run"
+              - entity: binary_sensor.cm_mirai_branch_should_run
+                name: "MIRAI should run"
+
   - title: "AEB"
     path: aeb
     icon: mdi:flash-outline
     type: sections
     max_columns: 3
-    badges:
-      - type: entity
-        entity: binary_sensor.policy_forecast_inputs_ready
-        name: "Forecast ready"
-        color: teal
-      - type: entity
-        entity: sensor.policy_forecast_reason
-        name: "Forecast reason"
-      - type: entity
-        entity: binary_sensor.policy_allow_shift_load
-        name: "Shift load"
-        color: amber
-      - type: entity
-        entity: sensor.climateops_aeb_mvp_reason
-        name: "AEB MVP"
 
     sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Stato rapido"
+            icon: mdi:flash-outline
+          - type: tile
+            entity: binary_sensor.policy_forecast_inputs_ready
+            name: "Forecast ready"
+            color: teal
+          - type: tile
+            entity: sensor.policy_forecast_reason
+            name: "Forecast reason"
+          - type: tile
+            entity: binary_sensor.policy_allow_shift_load
+            name: "Shift load"
+            color: amber
+          - type: tile
+            entity: sensor.climateops_aeb_mvp_reason
+            name: "AEB MVP"
       - type: grid
         cards:
           - type: heading
@@ -450,8 +612,16 @@ views:
                 name: "AEB MVP reason"
               - entity: sensor.climateops_aeb_mvp_target_now
                 name: "AEB MVP target"
+              - entity: sensor.climateops_aeb_mvp_target_actual_delta_c
+                name: "Target-actual delta"
               - entity: binary_sensor.climateops_aeb_mvp_permitted
                 name: "AEB MVP permitted"
+              - entity: sensor.climateops_aeb_mvp_last_outcome
+                name: "Last outcome"
+              - entity: counter.climateops_aeb_mvp_live_requests_total
+                name: "Live requests total"
+              - entity: counter.climateops_aeb_mvp_holds_total
+                name: "Holds total"
               - entity: input_text.climateops_aeb_mvp_last_action
                 name: "Last action"
               - entity: input_datetime.climateops_aeb_mvp_last_action_ts
@@ -486,3 +656,204 @@ views:
                 name: "AEB MVP mode"
               - entity: binary_sensor.climateops_aeb_mvp_permitted
                 name: "AEB MVP permitted"
+
+  - title: "Passive House"
+    path: passive-house
+    icon: mdi:home-analytics
+    type: sections
+    max_columns: 3
+
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Stato rapido"
+            icon: mdi:home-analytics
+          - type: tile
+            entity: sensor.envelope_efficiency_level
+            name: "Envelope level"
+            color: teal
+          - type: tile
+            entity: sensor.envelope_efficiency_reason
+            name: "Envelope reason"
+          - type: tile
+            entity: sensor.envelope_retention_score
+            name: "Retention score"
+            color: amber
+          - type: tile
+            entity: sensor.envelope_solar_utilization_score
+            name: "Solar utilization"
+            color: orange
+          - type: tile
+            entity: binary_sensor.envelope_free_decay_candidate
+            name: "Free decay candidate"
+          - type: tile
+            entity: binary_sensor.envelope_efficiency_inputs_ready
+            name: "Inputs ready"
+          - type: tile
+            entity: sensor.solar_gain_passive_index
+            name: "Solar gain index"
+            color: yellow
+          - type: tile
+            entity: binary_sensor.close_shutters_recommended
+            name: "Chiudere scuri"
+            color: amber
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Envelope"
+            icon: mdi:gauge
+          - type: entities
+            title: "Envelope runtime"
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.envelope_efficiency_inputs_ready
+                name: "Inputs ready"
+              - entity: binary_sensor.envelope_free_decay_candidate
+                name: "Free decay candidate"
+              - entity: sensor.envelope_efficiency_reason
+                name: "Envelope reason"
+              - entity: sensor.envelope_efficiency_level
+                name: "Envelope level"
+              - entity: sensor.envelope_retention_score
+                name: "Retention score"
+              - entity: sensor.envelope_solar_utilization_score
+                name: "Solar utilization score"
+          - type: entities
+            title: "Observed metrics"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.envelope_indoor_drift_rate_cph
+                name: "Indoor drift rate °C/h"
+              - entity: sensor.envelope_cooldown_rate_cph
+                name: "Cooldown rate °C/h"
+              - entity: sensor.envelope_loss_per_delta_cph
+                name: "Loss per delta"
+              - entity: sensor.envelope_free_decay_hours_today
+                name: "Free decay hours today"
+              - entity: sensor.solar_gain_passive_level
+                name: "Solar gain level"
+              - entity: sensor.solar_gain_passive_candidate_hours_today
+                name: "Solar gain hours today"
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Solar Gain"
+            icon: mdi:white-balance-sunny
+          - type: gauge
+            name: "Solar gain index"
+            entity: sensor.solar_gain_passive_index
+            min: 0
+            max: 100
+            needle: true
+            severity:
+              green: 0
+              yellow: 40
+              red: 75
+          - type: entities
+            title: "Contesto termico"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.t_in_med
+                name: "T interna media"
+              - entity: sensor.t_out
+                name: "T esterna"
+              - entity: sensor.solar_gain_indoor_rise_rate_cph
+                name: "Salita interna"
+              - entity: sensor.delta_t_in_out
+                name: "Delta T in-out"
+              - entity: sensor.pv_power_now
+                name: "PV proxy sole"
+          - type: entities
+            title: "Diagnosi"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.solar_gain_passive_level
+                name: "Livello"
+              - entity: sensor.solar_gain_overheating_reason
+                name: "Reason"
+              - entity: binary_sensor.solar_gain_advisory_inputs_ready
+                name: "Inputs ready"
+              - entity: binary_sensor.solar_gain_passive_candidate
+                name: "Guadagno passivo in corso"
+              - entity: binary_sensor.casa_chiusa
+                name: "Casa chiusa"
+              - entity: switch.heating_master
+                name: "Heating master"
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Trend"
+            icon: mdi:chart-line
+          - type: history-graph
+            title: "Envelope 24h"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.t_in_med
+                name: "T interna"
+              - entity: sensor.t_out
+                name: "T esterna"
+              - entity: sensor.envelope_indoor_drift_rate_cph
+                name: "Drift °C/h"
+              - entity: sensor.envelope_retention_score
+                name: "Retention"
+          - type: history-graph
+            title: "Solar and decay 24h"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.solar_gain_passive_index
+                name: "Solar gain index"
+              - entity: binary_sensor.envelope_free_decay_candidate
+                name: "Free decay"
+              - entity: sensor.envelope_solar_utilization_score
+                name: "Solar utilization"
+          - type: history-graph
+            title: "Solar gain 24h"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.pv_power_now
+                name: "PV proxy sole"
+              - entity: sensor.solar_gain_passive_index
+                name: "Solar gain index"
+              - entity: binary_sensor.close_shutters_recommended
+                name: "Chiudere scuri"
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Taratura"
+            icon: mdi:tune
+          - type: entities
+            title: "Solar gain thresholds"
+            show_header_toggle: false
+            entities:
+              - entity: input_number.solar_gain_pv_active_w
+                name: "PV active threshold"
+              - entity: input_number.solar_gain_pv_strong_w
+                name: "PV strong threshold"
+              - entity: input_number.solar_gain_indoor_warm_c
+                name: "Indoor warm threshold"
+              - entity: input_number.solar_gain_indoor_hot_c
+                name: "Indoor hot threshold"
+              - entity: input_number.solar_gain_rise_warn_cph
+                name: "Rise warn threshold"
+              - entity: input_number.solar_gain_rise_high_cph
+                name: "Rise high threshold"
+              - entity: input_number.solar_gain_outdoor_hotter_delta_c
+                name: "Outdoor hotter delta"
+          - type: entities
+            title: "Envelope thresholds"
+            show_header_toggle: false
+            entities:
+              - entity: input_number.envelope_min_delta_c
+                name: "Min indoor/outdoor delta"
+              - entity: input_number.envelope_good_loss_per_delta_cph
+                name: "Good loss per delta"
+              - entity: input_number.envelope_poor_loss_per_delta_cph
+                name: "Poor loss per delta"
