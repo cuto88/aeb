@@ -52,7 +52,7 @@ Design notes:
 
 ### 2. Dedicated dashboard
 First-pass Lovelace dashboard:
-- `lovelace/solar_gain_advisory_plancia.yaml`
+- standalone Solar Gain draft dashboard, later removed after consolidation
 
 Historical note:
 - the standalone dashboard was later absorbed into the `Passive House` view inside
@@ -74,7 +74,7 @@ Dashboard content:
   - `ha core check = Command completed successfully.`
 - deployed to runtime:
   - `/homeassistant/packages/solar_gain_advisory.yaml`
-  - `/homeassistant/lovelace/solar_gain_advisory_plancia.yaml`
+  - first-pass standalone Solar Gain dashboard on runtime, later removed after UI consolidation
   - updated `/homeassistant/configuration.yaml`
 
 Follow-up:
