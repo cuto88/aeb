@@ -47,6 +47,7 @@ $trackedRaw = (& git -C $repoRoot ls-files -- "lovelace/*.yaml" "lovelace/*.yml"
 $tracked = @()
 if ($trackedRaw) {
   $tracked = $trackedRaw |
+    Where-Object { [System.IO.Path]::GetDirectoryName($_).Replace('\', '/') -eq 'lovelace' } |
     Where-Object { Test-Path (Join-Path $repoRoot $_) } |
     ForEach-Object { [System.IO.Path]::GetFileName($_) } |
     Sort-Object -Unique
