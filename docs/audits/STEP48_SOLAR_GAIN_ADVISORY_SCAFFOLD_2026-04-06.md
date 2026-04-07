@@ -51,14 +51,13 @@ Design notes:
 - current output is advisory only; no `cover.*` or shutter actuation was introduced
 
 ### 2. Dedicated dashboard
-New Lovelace dashboard:
+First-pass Lovelace dashboard:
 - `lovelace/solar_gain_advisory_plancia.yaml`
 
-Registered in:
-- `configuration.yaml`
-
-Sidebar entry:
-- `5 Solar Gain`
+Historical note:
+- the standalone dashboard was later absorbed into the `Passive House` view inside
+  `lovelace/climate_casa_unified_plancia.yaml`
+- no separate active sidebar entry is retained in the current configuration
 
 Dashboard content:
 - current solar gain index
@@ -78,6 +77,10 @@ Dashboard content:
   - `/homeassistant/lovelace/solar_gain_advisory_plancia.yaml`
   - updated `/homeassistant/configuration.yaml`
 
+Follow-up:
+- the dedicated Solar Gain dashboard was later consolidated into the unified climate dashboard,
+  so the active operator entrypoint is now `lovelace/climate_casa_unified_plancia.yaml`
+
 ## Current limitation
 - The new module is not yet calibrated on a full sunny-day observation window.
 - Therefore today's output should be treated as structural validation and first tuning only.
@@ -93,4 +96,4 @@ Dashboard content:
 - Advisory quality for real shutter decisions: OPEN
 
 ## Recommended next step
-- Observe the `5 Solar Gain` dashboard through the next sunny day and tune thresholds from real behavior before introducing any shutter automation.
+- Observe the `Passive House` view in `lovelace/climate_casa_unified_plancia.yaml` through the next sunny day and tune thresholds from real behavior before introducing any shutter automation.

@@ -76,5 +76,6 @@ Ma il pacchetto `solar_gain_advisory` non puo` essere considerato calibrato/oper
 
 ## Package references
 - `packages/solar_gain_advisory.yaml`
-- `lovelace/solar_gain_advisory_plancia.yaml`
+- current operator view: `lovelace/climate_casa_unified_plancia.yaml` (`Passive House`)
+- legacy standalone dashboard snapshot: `lovelace/solar_gain_advisory_plancia.yaml`
 - `docs/audits/STEP48_SOLAR_GAIN_ADVISORY_SCAFFOLD_2026-04-06.md`
