@@ -57,6 +57,13 @@ Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 - Step 41 DHW writer dry-run deploy pass: `docs/audits/STEP41_DHW_WRITER_DRYRUN_DEPLOY_PASS_2026-03-23.md`
 - Step 42 DHW formalized live writer pass: `docs/audits/STEP42_DHW_FORMALIZED_LIVE_WRITER_PASS_2026-03-23.md`
 - Step 43 AEB DHW writer consolidation checkpoint: `docs/audits/STEP43_AEB_DHW_WRITER_CONSOLIDATION_2026-03-23.md`
+- Step 45 AEB MVP first live pass and measurement layer: `docs/audits/STEP45_AEB_MVP_FIRST_LIVE_PASS_AND_MEASUREMENT_LAYER_2026-03-31.md`
+- Step 46 post-live MVP observation audit: `docs/audits/STEP46_POST_LIVE_MVP_OBSERVATION_AUDIT_2026-04-03.md`
+- Step 47 post-deploy runtime audit: `docs/audits/STEP47_POST_DEPLOY_RUNTIME_AUDIT_2026-04-06.md`
+- Step 48 solar gain advisory scaffold: `docs/audits/STEP48_SOLAR_GAIN_ADVISORY_SCAFFOLD_2026-04-06.md`
+- Step 49 open items and closure sequence: `docs/audits/STEP49_OPEN_ITEMS_AND_CLOSURE_SEQUENCE_2026-04-07.md`
+- Step 50 MIRAI runtime truth advisory: `docs/audits/STEP50_MIRAI_RUNTIME_TRUTH_ADVISORY_2026-04-07.md`
+- Step 51 MIRAI manual run window plan: `docs/audits/STEP51_MIRAI_MANUAL_RUN_WINDOW_PLAN_2026-04-07.md`
 
 ## Quality gates (ops)
 Per eseguire i controlli locali:
@@ -90,3 +97,6 @@ Canale personale:
 ## Archivi opzionali
 Il package opzionale `notify_google_speaker.yaml` è stato archiviato in
 `_archive/legacy_optional/notify_google_speaker.yaml` perché non è richiesto a runtime.
+I backup storici pesanti e le aree di quarantena non operative sono stati spostati fuori repo in
+`C:\2_OPS\_repo_archives\aeb\` per ridurre rumore nel worktree e mantenere il repository focalizzato
+sul runtime attivo e sulla documentazione tecnica.

@@ -4,36 +4,64 @@
 ###############################################################################
 
 SEZIONE 0 — STATO & CHIP
-- Grid iniziale con glance su binary_sensor.lavatrice_in_ciclo,
-  asciugatrice_in_ciclo e pm1_in_ciclo.
-- Tile potenza istantanea (sensor.pm*_mss310_power_w_main_channel) per i tre
-  dispositivi monitorati.
+- Blocco iniziale "Quote oggi sui misurati" con:
+  - `sensor.local_meters_energy_daily_total`
+  - `sensor.mirai_daily_share_pct`
+  - `sensor.ehw_daily_share_pct`
+  - `sensor.ds01_daily_share_pct`
+  - `sensor.pm1_daily_share_pct`
+  - `sensor.pm2_daily_share_pct`
+  - `sensor.pm3_daily_share_pct`
+  - denominatore ancorato alla somma giornaliera dei carichi locali misurati
+- Blocco potenze istantanee unificato per:
+  - `Mirai`
+  - `EHW`
+  - `ds-01`
+  - `PM1 / VMC`
+  - `PM2 / Lavatrice`
+  - `PM3 / Asciugatrice`
 
 SEZIONE 1 — KPI OGGI
-- Tile kWh giornalieri (sensor.pm*_energy_daily) per lavatrice, asciugatrice e
-  presa "Romeo".
+- Blocco unico `kWh/giorno` per:
+  - `sensor.mirai_energy_daily`
+  - `sensor.ehw_energy_daily`
+  - `sensor.ds01_energy_daily`
+  - `sensor.pm1_energy_daily`
+  - `sensor.pm2_energy_daily`
+  - `sensor.pm3_energy_daily`
 
 SEZIONE 2 — CONSUMI OGGI PER ORA
-- Statistics-graph a barre (period=hour, change) sulle entità
-  sensor.pm*_mss310_energy_kwh_main_channel.
+- Non usata nella plancia unificata corrente.
 
 SEZIONE 3 — POTENZA 24H
-- History-graph 24h delle potenze istantanee (W) per i tre canali.
+- History-graph 24h delle potenze istantanee (W) per tutti i carichi locali piu` il totale di riferimento:
+  - `sensor.grid_power_w` come traccia SDM120 totale
+  - `sensor.mirai_power_w`
+  - `sensor.ehw_power_w`
+  - `sensor.ds_01_power_w`
+  - `sensor.pm1_mss310_power_w_main_channel`
+  - `sensor.pm2_mss310_power_w_main_channel`
+  - `sensor.pm3_mss310_power_w_main_channel`
 
 SEZIONE 4 — CONSUMI GIORNALIERI 30GG
-- Statistics-graph a barre 30gg (period=day, change) sugli stessi sensori kWh.
+- Statistics-graph giornaliero a barre sui sei rami locali, finestra attuale 7 giorni.
 
 SEZIONE 5 — MEDIE & PICCHI
-- Entities con sensori di media 15m e picco 24h (sensor.pm*_power_mean_15m,
-  sensor.pm*_power_max_24h).
+- Non esposti nella plancia consumi unificata corrente.
 
 SEZIONE 6 — KPI ULTIMO CICLO
-- Entities che riportano kWh, start, stop degli ultimi cicli attraverso
-  input_number.pm*_last_cycle_kwh e input_datetime.pm*_last_*.
+- Non esposti nella plancia consumi unificata corrente.
 
 NOTE
 - Tutte le entità fanno capo al pacchetto energia/power monitoring.
-- Nessun comando: dashboard puramente analitica su 3 colonne.
+- `sensor.mirai_energy_daily` e `sensor.ehw_energy_daily` derivano da:
+  - `sensor.mirai_energy_total`
+  - `sensor.ehw_energy_total`
+  template canonici `total_increasing` che stabilizzano i `utility_meter` rispetto ai forward Modbus grezzi.
+- Nessun comando: dashboard puramente analitica.
+- Layout allineato al pattern base delle altre plance sezionali:
+  - `1` colonna su mobile
+  - `3` colonne su desktop (`max_columns: 3`)
 
 ## Riferimenti logici
 - [Modulo Energy PM](README.md)

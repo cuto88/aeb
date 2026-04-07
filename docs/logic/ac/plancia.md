@@ -3,8 +3,9 @@
 Riferimento: `lovelace/climate_ac_plancia.yaml`.
 
 Stato sidebar:
-- `3-ac` è visibile.
+- `3-ac` resta registrata ma non visibile (`show_in_sidebar: false`).
 - `3-ac-v2` resta registrata ma non visibile (`show_in_sidebar: false`).
+- L'accesso utente operativo per il dominio clima e` `1-clima-casa`.
 
 Sezioni principali:
 - "Stato generale": priorità/motivo AC, stagione calda, failsafe e blocco VMC, con stato `switch.ac_giorno` e `switch.ac_notte`.

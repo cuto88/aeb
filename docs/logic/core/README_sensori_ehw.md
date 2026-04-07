@@ -65,12 +65,20 @@ Osservabilita` writer:
 - `input_text.climateops_dhw_write_result`
 - `input_datetime.climateops_dhw_last_write_ts`
 
+Riconciliazione semantica post-live:
+
+- dopo un `LIVE_WRITE_SENT`, se il feedback reale raggiunge l'`expected_c` scritto nel payload,
+  il writer riallinea `input_number.climateops_dhw_requested_setpoint` al `target_c` della write riuscita
+- scopo: evitare mismatch semantici post-sessione tra `requested / expected / actual`
+- non cambia il path di scrittura e non introduce nuova authority di dispatch
+
 Boundary corrente:
 
 - writer-path readiness: `CLOSED`
 - planner-driven DHW actuation: `NOT ENABLED`
 - multi-load orchestration / load shifting: `NOT ENABLED`
 - UI/plancia operativa aggiornata in `lovelace/climate_casa_unified_plancia.yaml`
+- plancia tecnica `lovelace/ehw_plancia.yaml` espone anche `sensor.ehw_power_w` come consumo istantaneo e nel grafico storico 24h
 
 ---
 

@@ -42,7 +42,7 @@ Single source of truth per la mappa registri MIRAI usata in Home Assistant.
 - `sensor.mirai_power_w_effective`: usa `sensor.mirai_power_w` se disponibile, altrimenti fallback diretto a `sensor.sensor_grid_power_w`.
 - `sensor.mirai_probe_temp_a_c`: candidato temperatura scalata `x10` dal registro `4000` (dupliche coerenti su `9050/9086`).
 - `sensor.mirai_probe_temp_b_c`: candidato temperatura scalata `x10` dal registro `3548` (duplica coerente su `9087`).
-- `sensor.mirai_probe_temp_outdoor_c`: candidato temperatura scalata `x10` dal registro `3515`.
+- `sensor.mirai_probe_temp_outdoor_c`: candidato temperatura scalata `x10` dal registro `3515`, ma mapping outdoor non confermato e attualmente sospetto; non trattarlo come verita' fisica esterna senza correlazione storica aggiuntiva.
 - `binary_sensor.mirai_pump_candidate_running`: candidato stato pompa/runtime dal registro `3547`; oggi e` `on` con valori ~`22528/22784` e `off` con valori ~`9984`.
 - `binary_sensor.cm_modbus_mirai_ready`: usa `sensor.mirai_status_word_effective` per readiness reale.
 - `binary_sensor.mirai_machine_running`: usa `status_word_effective` (bit 01) come semantica primaria di RUN, ma accetta anche un override da consumi quando `sensor.mirai_power_w` supera la soglia operativa pur con Modbus disponibile.
@@ -89,6 +89,27 @@ Single source of truth per la mappa registri MIRAI usata in Home Assistant.
     - `addr 72` energia importata `13.4 kWh`
   - package HA dedicato predisposto: `packages/sdm120_modbus.yaml`
   - i raw SDM120 sono integrati nello stesso hub `mirai` in `packages/mirai_modbus.yaml` per evitare il vincolo HA sui duplicati `host:port`
+- Evidenza storica `2026-03-30` in HA:
+  - `sensor.mirai_probe_temp_outdoor_c` e` rimasto piatto a `11.7°C` per tutta la giornata (range `0`), salvo brevi `unavailable`
+  - `sensor.t_out` nello stesso intervallo ha variato circa `3.1°C -> 19.0°C`
+  - conclusione operativa: il match puntuale serale `11.7°C == 11.7°C` non valida `3515` come vera sonda esterna
+- Discovery path attuale per trovare la vera esterna MIRAI:
+  - `3515` e` bocciato come `outdoor` reale
+  - `4000/9050/9086` sono bocciati come `outdoor` reale
+  - `3548/9087` resta solo come probe dinamico non promosso
+  - shortlist read-only stage 2, in ordine di priorita`:
+    - `9058`
+    - `9068`
+    - `9078`
+    - `9079`
+    - `8986`
+    - `8987`
+    - `8988`
+  - motivazione: sono gli unici registri extra-profilo gia` emersi nelle evidenze storiche come superficie Modbus MIRAI oltre ai probe attuali; vanno sondati uno per volta e fuori dal profilo stabile
+  - criterio di promozione a `vera esterna`:
+    - correlazione multi-oraria con `sensor.t_out`
+    - bassa dipendenza dallo stato RUN macchina
+    - nessun rumore Modbus persistente introdotto nel profilo stabile
 - Questi valori sono trattati come `probe` finche' non vengono correlati con verita' fisica macchina/campo; non sono ancora promossi a naming semantico definitivo (`mandata`, `ritorno`, `ACS`, `esterna`) senza evidenza addizionale.
 - Riferimenti vendor correnti:
   - `docs/vendor/mirai/manuale_pdc.md` (parametri RS-485: RTU 9600, 8E1, address 1, timeout 1000)

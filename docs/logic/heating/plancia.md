@@ -2,6 +2,10 @@
 
 Riferimento: `lovelace/climate_heating_plancia.yaml`.
 
+Stato sidebar:
+- `2-heating` resta registrata ma non visibile (`show_in_sidebar: false`).
+- L'accesso utente operativo per il dominio clima e` `1-clima-casa`.
+
 Sezioni principali:
 - "Stato generale": `binary_sensor.heating_should_run`, priorità/motivo e failsafe.
 - "Termostati reali (TEMP)": area osservativa con ESP32 `camera1/camera2` esposti direttamente, sensori LDR raw per calibrazione e binding dinamico via `input_text.climateops_temp_thermostat_*`.

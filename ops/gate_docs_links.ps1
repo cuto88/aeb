@@ -71,10 +71,20 @@ function Resolve-LinkPath {
     }
 
     $trimmed = [System.Uri]::UnescapeDataString($trimmed)
+    if ($trimmed -match '^[a-zA-Z][a-zA-Z0-9+\-.]*:') {
+        if ($trimmed -match '^[a-zA-Z]:[\\/]' -or $trimmed -match '^\\\\') {
+            return [System.IO.Path]::GetFullPath($trimmed)
+        }
+        return $null
+    }
     $trimmed = $trimmed -replace '/', [System.IO.Path]::DirectorySeparatorChar
 
     if (-not $trimmed) {
         return $null
+    }
+
+    if ([System.IO.Path]::IsPathRooted($trimmed)) {
+        return [System.IO.Path]::GetFullPath($trimmed)
     }
 
     $combined = Join-Path $BaseDir $trimmed

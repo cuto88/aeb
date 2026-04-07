@@ -9,6 +9,26 @@
 - Percorso config HA da usare come default: `/homeassistant`
 - Nota: se `/homeassistant` non contiene `configuration.yaml`, provare `/config`
 
+## Workspace Tooling (`C:\2_OPS`)
+
+- Riferimento workspace globale: `C:\2_OPS\AGENT.md`
+- Shell preferita: `pwsh`
+- Workspace root condiviso: `C:\2_OPS`
+- Helper di navigazione disponibili nel profilo PowerShell:
+  - `repo` / `cgit` per saltare tra repository noti
+  - `ops` / `cops` per saltare tra cartelle di `C:\2_OPS`
+- Tool CLI disponibili e preferibili quando utili:
+  - `fd`, `bat`, `jq`, `yq`, `eza`, `delta`, `zoxide`, `lazygit`
+- Guida comandi condivisa:
+  - `C:\2_OPS\01_docs\powershell-command-reference.md`
+
+## Uso operativo del tooling
+
+- Per ricerca file, preferire `fd` o `rg --files`.
+- Per lettura file, preferire `bat` o `Get-Content` a seconda del contesto.
+- Per JSON/YAML, preferire `jq` e `yq` invece di parsing manuale fragile.
+- Prima di assumere convenzioni globali di shell o PATH, verificare `C:\2_OPS\AGENT.md`.
+
 ## Comandi SSH rapidi (read-only)
 
 - Test connessione:

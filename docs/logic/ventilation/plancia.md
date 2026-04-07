@@ -4,8 +4,8 @@ Obiettivo: descrivere la plancia legacy `lovelace/climate_ventilation_plancia.ya
 
 Stato sidebar:
 - `configuration.yaml` mantiene la plancia legacy registrata come `1-ventilazione`, ma con `show_in_sidebar: false`.
-- La plancia operativa esposta resta `lovelace/climate_ventilation_plancia_v2.yaml`.
-- E' presente anche la plancia unificata `lovelace/climate_casa_unified_plancia.yaml` (`1-clima-casa`) come entrypoint moderno cross-modulo.
+- `lovelace/climate_ventilation_plancia_v2.yaml` resta registrata come fallback tecnico, ma con `show_in_sidebar: false`.
+- `lovelace/climate_casa_unified_plancia.yaml` (`1-clima-casa`) e` l'entrypoint operativo moderno cross-modulo.
 
 Struttura (legacy):
 - "Stato generale": `sensor.ventilation_priority`, `sensor.ventilation_reason`, `binary_sensor.vmc_sensors_ok`.
@@ -18,7 +18,7 @@ Struttura (legacy):
 
 Note:
 - La sezione finestre non contiene più placeholder TODO; usa gli aggregati runtime del modulo `packages/climate_ventilation_windows.yaml`.
-- Layout legacy a cards semplici; la versione `v2` resta il riferimento principale per uso quotidiano.
+- Layout legacy a cards semplici; la versione `v2` resta un fallback tecnico, mentre l'uso quotidiano passa dalla plancia unificata.
 - La card `ClimateOps Cutover` e i relativi toggle sono stati rimossi dalla `v2` per ridurre rumore operativo UI.
 
 ## Riferimenti logici
