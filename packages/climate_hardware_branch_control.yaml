@@ -1,0 +1,129 @@
+---
+# Consensi hardware globali per rami stagionalmente disalimentati da quadro.
+# Servono a distinguere "branch volontariamente spento" da "runtime broken/unavailable".
+
+input_boolean:
+  cm_ac_branch_powered:
+    name: "CM AC branch powered"
+    icon: mdi:air-conditioner
+
+  cm_mirai_branch_powered:
+    name: "CM MIRAI branch powered"
+    icon: mdi:heat-pump
+
+template:
+  - binary_sensor:
+      - name: "CM AC branch powered"
+        unique_id: cm_ac_branch_powered
+        device_class: power
+        state: "{{ is_state('input_boolean.cm_ac_branch_powered', 'on') }}"
+
+      - name: "CM MIRAI branch powered"
+        unique_id: cm_mirai_branch_powered
+        device_class: power
+        state: "{{ is_state('input_boolean.cm_mirai_branch_powered', 'on') }}"
+
+      - name: "CM AC branch should be powered"
+        unique_id: cm_ac_branch_should_be_powered
+        icon: mdi:lightning-bolt-circle
+        state: >-
+          {{
+            is_state('binary_sensor.cm_ac_branch_in_season', 'on')
+            or states('sensor.cm_system_mode_suggested') in ['COOL_DAY', 'COOL_NIGHT']
+            or is_state('binary_sensor.climateops_request_cool', 'on')
+          }}
+
+      - name: "CM MIRAI branch should be powered"
+        unique_id: cm_mirai_branch_should_be_powered
+        icon: mdi:lightning-bolt-circle-outline
+        state: >-
+          {{
+            is_state('binary_sensor.cm_mirai_branch_in_season', 'on')
+            or states('sensor.cm_system_mode_suggested') == 'HEAT'
+            or is_state('binary_sensor.heating_should_run', 'on')
+          }}
+
+      - name: "CM AC branch in season"
+        unique_id: cm_ac_branch_in_season
+        icon: mdi:weather-sunny
+        state: "{{ is_state('binary_sensor.stagione_calda', 'on') }}"
+
+      - name: "CM MIRAI branch in season"
+        unique_id: cm_mirai_branch_in_season
+        icon: mdi:snowflake-thermometer
+        state: "{{ is_state('binary_sensor.stagione_calda', 'off') }}"
+
+      - name: "CM AC branch should run"
+        unique_id: cm_ac_branch_should_run
+        icon: mdi:play-circle-outline
+        state: >-
+          {{
+            states('sensor.cm_system_mode_suggested') in ['COOL_DAY', 'COOL_NIGHT']
+            or is_state('binary_sensor.climateops_request_cool', 'on')
+          }}
+
+      - name: "CM MIRAI branch should run"
+        unique_id: cm_mirai_branch_should_run
+        icon: mdi:play-circle-outline
+        state: >-
+          {{
+            states('sensor.cm_system_mode_suggested') == 'HEAT'
+            or is_state('binary_sensor.heating_should_run', 'on')
+          }}
+
+  - sensor:
+      - name: "CM AC branch advice"
+        unique_id: cm_ac_branch_advice
+        icon: mdi:air-conditioner
+        state: >-
+          {% set powered = is_state('binary_sensor.cm_ac_branch_powered', 'on') %}
+          {% set in_season = is_state('binary_sensor.cm_ac_branch_in_season', 'on') %}
+          {% set should_run = is_state('binary_sensor.cm_ac_branch_should_run', 'on') %}
+          {% if should_run and powered %}
+            ready_now
+          {% elif should_run and not powered %}
+            should_power_on_now
+          {% elif in_season and powered %}
+            season_ready
+          {% elif in_season and not powered %}
+            consider_power_on_for_season
+          {% elif powered and not in_season %}
+            can_power_off
+          {% else %}
+            off_in_seasonal_rest
+          {% endif %}
+        attributes:
+          system_mode: "{{ states('sensor.cm_system_mode_suggested') }}"
+          system_reason: "{{ states('sensor.cm_system_reason') }}"
+          hot_season: "{{ states('binary_sensor.stagione_calda') }}"
+          in_season: "{{ states('binary_sensor.cm_ac_branch_in_season') }}"
+          should_run: "{{ states('binary_sensor.cm_ac_branch_should_run') }}"
+          climateops_request_cool: "{{ states('binary_sensor.climateops_request_cool') }}"
+
+      - name: "CM MIRAI branch advice"
+        unique_id: cm_mirai_branch_advice
+        icon: mdi:heat-pump
+        state: >-
+          {% set powered = is_state('binary_sensor.cm_mirai_branch_powered', 'on') %}
+          {% set in_season = is_state('binary_sensor.cm_mirai_branch_in_season', 'on') %}
+          {% set should_run = is_state('binary_sensor.cm_mirai_branch_should_run', 'on') %}
+          {% if should_run and powered %}
+            ready_now
+          {% elif should_run and not powered %}
+            should_power_on_now
+          {% elif in_season and powered %}
+            season_ready
+          {% elif in_season and not powered %}
+            consider_power_on_for_season
+          {% elif powered and not in_season %}
+            can_power_off
+          {% else %}
+            off_in_seasonal_rest
+          {% endif %}
+        attributes:
+          system_mode: "{{ states('sensor.cm_system_mode_suggested') }}"
+          system_reason: "{{ states('sensor.cm_system_reason') }}"
+          hot_season: "{{ states('binary_sensor.stagione_calda') }}"
+          in_season: "{{ states('binary_sensor.cm_mirai_branch_in_season') }}"
+          should_run: "{{ states('binary_sensor.cm_mirai_branch_should_run') }}"
+          heating_should_run: "{{ states('binary_sensor.heating_should_run') }}"

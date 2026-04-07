@@ -1,0 +1,188 @@
+---
+# Stima operativa dell'efficienza dell'involucro.
+# Non e' una certificazione energetica: usa solo segnali runtime disponibili.
+
+input_number:
+  envelope_min_delta_c:
+    name: "Envelope - min indoor/outdoor delta (°C)"
+    min: 0
+    max: 20
+    step: 0.5
+    initial: 2.0
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer-lines
+
+  envelope_good_loss_per_delta_cph:
+    name: "Envelope - good loss per delta (°C/h/°C)"
+    min: 0.01
+    max: 0.2
+    step: 0.005
+    initial: 0.03
+    unit_of_measurement: "°C/h/°C"
+    icon: mdi:shield-home
+
+  envelope_poor_loss_per_delta_cph:
+    name: "Envelope - poor loss per delta (°C/h/°C)"
+    min: 0.02
+    max: 0.3
+    step: 0.005
+    initial: 0.12
+    unit_of_measurement: "°C/h/°C"
+    icon: mdi:home-thermometer
+
+template:
+  - binary_sensor:
+      - name: "Envelope efficiency inputs ready"
+        unique_id: envelope_efficiency_inputs_ready
+        state: >-
+          {{
+            states('sensor.t_in_med') not in ['unknown', 'unavailable', '']
+            and states('sensor.t_out') not in ['unknown', 'unavailable', '']
+            and states('sensor.delta_t_in_out') not in ['unknown', 'unavailable', '']
+            and states('binary_sensor.casa_chiusa') not in ['unknown', 'unavailable', '']
+            and states('switch.heating_master') not in ['unknown', 'unavailable', '']
+          }}
+
+      - name: "Envelope free decay candidate"
+        unique_id: envelope_free_decay_candidate
+        state: >-
+          {% set dt = states('sensor.delta_t_in_out') | float(default=none) %}
+          {% set dt_min = states('input_number.envelope_min_delta_c') | float(2.0) %}
+          {% set closed = is_state('binary_sensor.casa_chiusa', 'on') %}
+          {% set heating_off = is_state('switch.heating_master', 'off') %}
+          {% set ac_off = is_state('binary_sensor.cm_ac_branch_powered', 'off')
+             or (is_state('switch.ac_giorno', 'off') and is_state('switch.ac_notte', 'off')) %}
+          {{
+            is_state('binary_sensor.envelope_efficiency_inputs_ready', 'on')
+            and dt is number
+            and dt >= dt_min
+            and closed
+            and heating_off
+            and ac_off
+          }}
+
+  - sensor:
+      - name: "Envelope indoor drift rate cph"
+        unique_id: envelope_indoor_drift_rate_cph
+        unit_of_measurement: "°C/h"
+        icon: mdi:thermometer-chevron-down
+        state: "{{ states('sensor.envelope_indoor_drift_rate_cph_raw') }}"
+
+      - name: "Envelope cooldown rate cph"
+        unique_id: envelope_cooldown_rate_cph
+        unit_of_measurement: "°C/h"
+        icon: mdi:snowflake-thermometer
+        state: >-
+          {% set drift = states('sensor.envelope_indoor_drift_rate_cph_raw') | float(default=none) %}
+          {% if is_state('binary_sensor.envelope_free_decay_candidate', 'on') and drift is number and drift < 0 %}
+            {{ (drift | abs) | round(3) }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: "Envelope loss per delta cph"
+        unique_id: envelope_loss_per_delta_cph
+        unit_of_measurement: "°C/h/°C"
+        icon: mdi:home-arrow-right-outline
+        state: >-
+          {% set cooldown = states('sensor.envelope_cooldown_rate_cph') | float(default=none) %}
+          {% set dt = states('sensor.delta_t_in_out') | float(default=none) %}
+          {% if cooldown is number and dt is number and dt > 0 %}
+            {{ (cooldown / dt) | round(4) }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: "Envelope retention score"
+        unique_id: envelope_retention_score
+        unit_of_measurement: "%"
+        icon: mdi:shield-home-outline
+        state: >-
+          {% set metric = states('sensor.envelope_loss_per_delta_cph') | float(default=none) %}
+          {% set good = states('input_number.envelope_good_loss_per_delta_cph') | float(0.03) %}
+          {% set poor = states('input_number.envelope_poor_loss_per_delta_cph') | float(0.12) %}
+          {% if not is_state('binary_sensor.envelope_free_decay_candidate', 'on') or metric is not number %}
+            0
+          {% elif metric <= good %}
+            100
+          {% elif metric >= poor %}
+            0
+          {% else %}
+            {{ (((poor - metric) / (poor - good)) * 100) | round(0) }}
+          {% endif %}
+        attributes:
+          interpretation: "Piu alto = involucro piu trattenente in free-decay"
+
+      - name: "Envelope solar utilization score"
+        unique_id: envelope_solar_utilization_score
+        unit_of_measurement: "%"
+        icon: mdi:white-balance-sunny
+        state: >-
+          {% set idx = states('sensor.solar_gain_passive_index') | float(default=0) %}
+          {% set hours = states('sensor.solar_gain_passive_candidate_hours_today') | float(default=0) %}
+          {% set h_score = [hours * 20, 100] | min %}
+          {{ (((idx * 0.7) + (h_score * 0.3))) | round(0) }}
+        attributes:
+          interpretation: "Sfruttamento operativo del guadagno solare passivo"
+
+      - name: "Envelope efficiency level"
+        unique_id: envelope_efficiency_level
+        icon: mdi:home-analytics
+        state: >-
+          {% set retention = states('sensor.envelope_retention_score') | float(default=0) %}
+          {% set solar = states('sensor.envelope_solar_utilization_score') | float(default=0) %}
+          {% if is_state('binary_sensor.envelope_free_decay_candidate', 'on') %}
+            {% set composite = (retention * 0.7) + (solar * 0.3) %}
+          {% else %}
+            {% set composite = solar %}
+          {% endif %}
+          {% if composite >= 75 %}
+            high
+          {% elif composite >= 45 %}
+            medium
+          {% elif composite > 0 %}
+            low
+          {% else %}
+            observing
+          {% endif %}
+
+      - name: "Envelope efficiency reason"
+        unique_id: envelope_efficiency_reason
+        icon: mdi:text-box-search-outline
+        state: >-
+          {% if not is_state('binary_sensor.envelope_efficiency_inputs_ready', 'on') %}
+            inputs_not_ready
+          {% elif not is_state('binary_sensor.envelope_free_decay_candidate', 'on') %}
+            waiting_free_decay_window
+          {% elif states('sensor.envelope_retention_score') | float(0) >= 75 %}
+            strong_retention
+          {% elif states('sensor.envelope_retention_score') | float(0) >= 45 %}
+            moderate_retention
+          {% else %}
+            weak_retention
+          {% endif %}
+        attributes:
+          t_in_med_c: "{{ states('sensor.t_in_med') }}"
+          t_out_c: "{{ states('sensor.t_out') }}"
+          delta_t_in_out_c: "{{ states('sensor.delta_t_in_out') }}"
+          casa_chiusa: "{{ states('binary_sensor.casa_chiusa') }}"
+          heating_master: "{{ states('switch.heating_master') }}"
+          solar_gain_level: "{{ states('sensor.solar_gain_passive_level') }}"
+
+sensor:
+  - platform: derivative
+    name: "Envelope indoor drift rate cph raw"
+    unique_id: envelope_indoor_drift_rate_cph_raw
+    source: sensor.t_in_med
+    unit_time: h
+    time_window: "01:00:00"
+    round: 3
+
+  - platform: history_stats
+    name: "Envelope free decay hours today"
+    unique_id: envelope_free_decay_hours_today
+    entity_id: binary_sensor.envelope_free_decay_candidate
+    state: "on"
+    type: time
+    start: "{{ today_at('00:00') }}"
+    end: "{{ now() }}"

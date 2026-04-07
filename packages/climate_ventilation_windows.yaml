@@ -14,29 +14,39 @@ input_boolean:
   vent_finestra_giorno1_aperta:
     name: "Ventilazione – Finestra zona giorno 1"
     icon: mdi:window-open-variant
+    initial: false
   vent_finestra_giorno2_aperta:
     name: "Ventilazione – Finestra zona giorno 2"
     icon: mdi:window-open-variant
+    initial: false
   vent_portoncino_ingresso_aperto:
     name: "Ventilazione – Portoncino ingresso"
     icon: mdi:door-open
+    initial: false
   vent_foro_cappa_aperto:
     name: "Ventilazione – Foro cappa"
     icon: mdi:tailwind
+    initial: false
   vent_finestra_notte1_aperta:
     name: "Ventilazione – Finestra zona notte 1"
     icon: mdi:window-open-variant
+    initial: false
   vent_finestra_notte2_aperta:
     name: "Ventilazione – Finestra zona notte 2"
     icon: mdi:window-open-variant
+    initial: false
   vent_finestra_notte3_aperta:
     name: "Ventilazione – Finestra zona notte 3"
     icon: mdi:window-open-variant
+    initial: false
   vent_finestra_bagno_aperta:
     name: "Ventilazione – Finestra bagno"
     icon: mdi:window-open-variant
+    initial: false
 
-# TODO: sostituire gli input_boolean con i sensori finestra reali (binary_sensor.*)
+# Default operativo: considerare casa chiusa finche' non arrivano i sensori reali.
+# Il portoncino puo' essere in futuro riallineato a una lock entity reale (es. lock.kkk)
+# senza cambiare gli aggregati che consumano input_boolean.vent_portoncino_ingresso_aperto.
 
 group:
   windows_zona_giorno:

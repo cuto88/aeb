@@ -45,6 +45,18 @@ input_text:
     name: "ClimateOps AEB MVP Last Action"
     max: 255
 
+counter:
+  climateops_aeb_mvp_live_requests_total:
+    name: "ClimateOps AEB MVP Live Requests Total"
+    initial: 0
+    step: 1
+    restore: true
+  climateops_aeb_mvp_holds_total:
+    name: "ClimateOps AEB MVP Holds Total"
+    initial: 0
+    step: 1
+    restore: true
+
 template:
   - sensor:
       - name: "ClimateOps AEB MVP Target Now"
@@ -56,7 +68,7 @@ template:
           {% if is_state('binary_sensor.policy_allow_shift_load', 'on')
                 and is_state('binary_sensor.policy_prefer_self_consumption', 'on')
                 and is_state('binary_sensor.policy_grid_import_high', 'off')
-                and is_state('binary_sensor.heating_should_run', 'off') %}
+                and is_state('binary_sensor.climateops_heating_conflict_real', 'off') %}
             {{ boost | round(1) }}
           {% else %}
             {{ base | round(1) }}
@@ -93,7 +105,7 @@ template:
             feedback_unavailable
           {% elif now_ts - last_ts < cooldown_s %}
             cooldown_active
-          {% elif is_state('binary_sensor.heating_should_run', 'on') %}
+          {% elif is_state('binary_sensor.climateops_heating_conflict_real', 'on') %}
             heating_priority
           {% elif not is_state('binary_sensor.policy_allow_shift_load', 'on') %}
             shift_load_blocked
@@ -113,7 +125,51 @@ template:
             ok
           {% endif %}
 
+      - name: "ClimateOps AEB MVP Last Outcome"
+        unique_id: climateops_aeb_mvp_last_outcome
+        icon: mdi:clipboard-pulse-outline
+        state: >-
+          {% set action = states('input_text.climateops_aeb_mvp_last_action') %}
+          {% set write = states('input_text.climateops_dhw_write_result') %}
+          {% set reason = states('sensor.climateops_aeb_mvp_reason') %}
+          {% if action.startswith('LIVE_REQUEST:') and write.startswith('LIVE_WRITE_SENT:') %}
+            live_write_sent
+          {% elif action.startswith('LIVE_REQUEST:') %}
+            live_request_emitted
+          {% elif action.startswith('DRY_RUN:') %}
+            dry_run_only
+          {% elif reason not in ['unknown', 'unavailable', 'disabled', 'ok', 'dry_run_only', 'cooldown_active', 'already_at_target'] %}
+            hold_{{ reason }}
+          {% else %}
+            {{ reason }}
+          {% endif %}
+        attributes:
+          last_action: "{{ states('input_text.climateops_aeb_mvp_last_action') }}"
+          write_result: "{{ states('input_text.climateops_dhw_write_result') }}"
+
+      - name: "ClimateOps AEB MVP Target Actual Delta C"
+        unique_id: climateops_aeb_mvp_target_actual_delta_c
+        unit_of_measurement: "°C"
+        icon: mdi:thermometer-chevron-up
+        state: >-
+          {% set target = states('sensor.climateops_aeb_mvp_target_now') | float(default=none) %}
+          {% set actual = states('sensor.climateops_dhw_actual_feedback') | float(default=none) %}
+          {% if target is number and actual is number %}
+            {{ (target - actual) | round(1) }}
+          {% else %}
+            {{ none }}
+          {% endif %}
+
   - binary_sensor:
+      - name: "ClimateOps Heating Conflict Real"
+        unique_id: climateops_heating_conflict_real
+        icon: mdi:radiator-disabled
+        state: >-
+          {{
+            is_state('switch.heating_master', 'on')
+            and is_state('binary_sensor.mirai_machine_running_by_power', 'on')
+          }}
+
       - name: "ClimateOps AEB MVP Permitted"
         unique_id: climateops_aeb_mvp_permitted
         icon: mdi:check-decagram-outline
@@ -132,7 +188,7 @@ template:
             and is_state('binary_sensor.policy_allow_shift_load', 'on')
             and is_state('binary_sensor.policy_prefer_self_consumption', 'on')
             and is_state('binary_sensor.policy_grid_import_high', 'off')
-            and is_state('binary_sensor.heating_should_run', 'off')
+            and is_state('binary_sensor.climateops_heating_conflict_real', 'off')
             and is_state('binary_sensor.cm_modbus_ehw_ready', 'on')
           }}
 
@@ -145,6 +201,55 @@ template:
           {{ target is not none and target > base + 0.01 }}
 
 automation:
+  - id: climateops_aeb_mvp_live_request_counter
+    alias: "ClimateOps - AEB MVP Live Request Counter"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: input_text.climateops_aeb_mvp_last_action
+    condition:
+      - condition: template
+        value_template: "{{ trigger.to_state is not none and trigger.to_state.state.startswith('LIVE_REQUEST:') }}"
+      - condition: template
+        value_template: "{{ trigger.from_state is none or trigger.from_state.state != trigger.to_state.state }}"
+    action:
+      - service: counter.increment
+        target:
+          entity_id: counter.climateops_aeb_mvp_live_requests_total
+
+  - id: climateops_aeb_mvp_hold_counter
+    alias: "ClimateOps - AEB MVP Hold Counter"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: sensor.climateops_aeb_mvp_reason
+    condition:
+      - condition: state
+        entity_id: input_boolean.climateops_aeb_mvp_enable
+        state: "on"
+      - condition: template
+        value_template: >-
+          {{
+            trigger.to_state is not none
+            and trigger.to_state.state in [
+              'modbus_not_ready',
+              'dhw_cutover_off',
+              'feedback_unavailable',
+              'heating_priority',
+              'shift_load_blocked',
+              'no_self_consumption_window',
+              'grid_import_high',
+              'writer_dry_run_on',
+              'writer_write_enable_off'
+            ]
+          }}
+      - condition: template
+        value_template: "{{ trigger.from_state is none or trigger.from_state.state != trigger.to_state.state }}"
+    action:
+      - service: counter.increment
+        target:
+          entity_id: counter.climateops_aeb_mvp_holds_total
+
   - id: climateops_aeb_mvp_dispatch
     alias: "ClimateOps – AEB MVP Dispatch"
     mode: single
@@ -163,6 +268,9 @@ automation:
           - binary_sensor.policy_prefer_self_consumption
           - binary_sensor.policy_grid_import_high
           - binary_sensor.heating_should_run
+          - binary_sensor.climateops_heating_conflict_real
+          - binary_sensor.mirai_machine_running_by_power
+          - switch.heating_master
       - platform: time_pattern
         minutes: "/15"
     action:
@@ -173,7 +281,7 @@ automation:
             {% if is_state('binary_sensor.policy_allow_shift_load', 'on')
                   and is_state('binary_sensor.policy_prefer_self_consumption', 'on')
                   and is_state('binary_sensor.policy_grid_import_high', 'off')
-                  and is_state('binary_sensor.heating_should_run', 'off') %}
+                  and is_state('binary_sensor.climateops_heating_conflict_real', 'off') %}
               {{ boost | round(1) }}
             {% else %}
               {{ base | round(1) }}
@@ -193,7 +301,7 @@ automation:
               feedback_unavailable
             {% elif now_ts - last_ts < cooldown_s %}
               cooldown_active
-            {% elif is_state('binary_sensor.heating_should_run', 'on') %}
+            {% elif is_state('binary_sensor.climateops_heating_conflict_real', 'on') %}
               heating_priority
             {% elif not is_state('binary_sensor.policy_allow_shift_load', 'on') %}
               shift_load_blocked

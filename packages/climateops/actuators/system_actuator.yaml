@@ -34,6 +34,7 @@ automation:
           mode: "{{ states('sensor.cm_system_mode_suggested') }}"
           vmc_cutover_on: "{{ is_state('input_boolean.climateops_cutover_vmc','on') }}"
           vmc_target: "{{ states('sensor.vmc_vel_target') | int(1) }}"
+          ac_branch_powered: "{{ is_state('binary_sensor.cm_ac_branch_powered','on') }}"
           policy_reason: >-
             {% set policy = states('sensor.cm_policy_reason') %}
             {% if policy not in ['unknown','unavailable',''] %}
@@ -43,7 +44,8 @@ automation:
             {% endif %}
           ac_available: >-
             {{
-              states('switch.ac_giorno') not in ['unknown','unavailable']
+              (ac_branch_powered | bool)
+              and states('switch.ac_giorno') not in ['unknown','unavailable']
               and states('switch.ac_notte') not in ['unknown','unavailable']
             }}
           ac_policy_ok: "{{ is_state('binary_sensor.policy_allow_ac','on') }}"
@@ -228,9 +230,11 @@ automation:
     action:
       - variables:
           mode: "{{ states('sensor.cm_system_mode_suggested') }}"
+          ac_branch_powered: "{{ is_state('binary_sensor.cm_ac_branch_powered','on') }}"
           ac_available: >-
             {{
-              states('switch.ac_giorno') not in ['unknown','unavailable']
+              (ac_branch_powered | bool)
+              and states('switch.ac_giorno') not in ['unknown','unavailable']
               and states('switch.ac_notte') not in ['unknown','unavailable']
             }}
           ac_policy_ok: "{{ is_state('binary_sensor.policy_allow_ac','on') }}"

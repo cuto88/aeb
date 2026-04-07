@@ -259,3 +259,48 @@ automation:
       - service: input_boolean.turn_off
         target:
           entity_id: input_boolean.climateops_dhw_request
+
+  - id: climateops_dhw_writer_reconcile_post_live
+    alias: "ClimateOps - DHW Writer Reconcile Post Live"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.climateops_dhw_actual_feedback
+          - input_text.climateops_dhw_write_result
+    condition:
+      - condition: state
+        entity_id: binary_sensor.cm_modbus_ehw_ready
+        state: "on"
+      - condition: template
+        value_template: "{{ states('input_text.climateops_dhw_write_result').startswith('LIVE_WRITE_SENT:') }}"
+    action:
+      - variables:
+          payload: "{{ states('input_text.climateops_dhw_write_result') }}"
+          target_match: "{{ payload | regex_findall_index('target_c=([0-9]+(?:\\.[0-9]+)?)', 0) }}"
+          expected_match: "{{ payload | regex_findall_index('expected_c=([0-9]+(?:\\.[0-9]+)?)', 0) }}"
+          target_c: "{{ target_match | float(default=none) }}"
+          expected_c: "{{ expected_match | float(default=none) }}"
+          actual_c: "{{ states('sensor.climateops_dhw_actual_feedback') | float(default=none) }}"
+          requested_c: "{{ states('input_number.climateops_dhw_requested_setpoint') | float(default=none) }}"
+      - condition: template
+        value_template: >-
+          {{
+            target_c is number
+            and expected_c is number
+            and actual_c is number
+            and requested_c is number
+            and (expected_c - actual_c) | abs <= 0.05
+            and (target_c - requested_c) | abs > 0.01
+          }}
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.climateops_dhw_requested_setpoint
+        data:
+          value: "{{ target_c }}"
+      - service: logbook.log
+        data:
+          name: "ClimateOps DHW writer"
+          entity_id: automation.climateops_dhw_writer_reconcile_post_live
+          message: >-
+            Post-live semantic reconciliation applied. requested_setpoint={{ target_c | round(1) }}, actual_c={{ actual_c }}.

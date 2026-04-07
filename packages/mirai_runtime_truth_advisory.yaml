@@ -1,0 +1,149 @@
+---
+# Advisory indipendente per chiusura runtime-truth MIRAI.
+# Non introduce actuation: espone solo segnali di coerenza osservativa.
+
+input_number:
+  mirai_runtime_truth_min_run_w:
+    name: "MIRAI runtime truth - min run power (W)"
+    min: 50
+    max: 5000
+    step: 10
+    initial: 150
+    unit_of_measurement: "W"
+    icon: mdi:flash
+
+template:
+  - binary_sensor:
+      - name: "MIRAI runtime truth inputs ready"
+        unique_id: mirai_runtime_truth_inputs_ready
+        state: >-
+          {{
+            is_state('binary_sensor.cm_mirai_branch_powered', 'on')
+            and
+            states('sensor.mirai_power_w_effective') not in ['unknown','unavailable','']
+            and states('binary_sensor.cm_modbus_mirai_ready') not in ['unknown','unavailable','']
+            and states('sensor.mirai_status_word_effective') not in ['unknown','unavailable','']
+            and states('binary_sensor.mirai_machine_running_by_power') not in ['unknown','unavailable','']
+            and states('binary_sensor.mirai_pump_candidate_running') not in ['unknown','unavailable','']
+          }}
+
+      - name: "MIRAI runtime truth run window candidate"
+        unique_id: mirai_runtime_truth_run_window_candidate
+        delay_on:
+          minutes: 5
+        delay_off:
+          minutes: 5
+        state: >-
+          {% set p = states('sensor.mirai_power_w_effective') | float(default=none) %}
+          {% set pmin = states('input_number.mirai_runtime_truth_min_run_w') | float(150) %}
+          {{
+            p is number
+            and p >= pmin
+            and is_state('binary_sensor.mirai_machine_running_by_power', 'on')
+          }}
+
+      - name: "MIRAI runtime truth modbus run confirmed"
+        unique_id: mirai_runtime_truth_modbus_run_confirmed
+        delay_on:
+          minutes: 2
+        delay_off:
+          minutes: 2
+        state: >-
+          {{
+            is_state('binary_sensor.cm_modbus_mirai_ready', 'on')
+            and is_state('binary_sensor.mirai_status_word_bit_01', 'on')
+          }}
+
+      - name: "MIRAI runtime truth pump corroborated"
+        unique_id: mirai_runtime_truth_pump_corroborated
+        delay_on:
+          minutes: 2
+        delay_off:
+          minutes: 2
+        state: >-
+          {{
+            is_state('binary_sensor.mirai_pump_candidate_running', 'on')
+            and is_state('binary_sensor.mirai_machine_running_by_power', 'on')
+          }}
+
+      - name: "MIRAI runtime truth coherent run"
+        unique_id: mirai_runtime_truth_coherent_run
+        delay_on:
+          minutes: 3
+        delay_off:
+          minutes: 3
+        state: >-
+          {{
+            is_state('binary_sensor.mirai_runtime_truth_run_window_candidate', 'on')
+            and is_state('binary_sensor.mirai_runtime_truth_modbus_run_confirmed', 'on')
+            and is_state('binary_sensor.mirai_runtime_truth_pump_corroborated', 'on')
+          }}
+
+  - sensor:
+      - name: "MIRAI runtime truth score"
+        unique_id: mirai_runtime_truth_score
+        unit_of_measurement: "%"
+        icon: mdi:check-decagram-outline
+        state: >-
+          {% set score = 0 %}
+          {% if is_state('binary_sensor.mirai_runtime_truth_inputs_ready', 'on') %}
+            {% set score = score + 10 %}
+          {% endif %}
+          {% if is_state('binary_sensor.mirai_runtime_truth_run_window_candidate', 'on') %}
+            {% set score = score + 35 %}
+          {% endif %}
+          {% if is_state('binary_sensor.mirai_runtime_truth_modbus_run_confirmed', 'on') %}
+            {% set score = score + 30 %}
+          {% endif %}
+          {% if is_state('binary_sensor.mirai_runtime_truth_pump_corroborated', 'on') %}
+            {% set score = score + 25 %}
+          {% endif %}
+          {{ score }}
+
+      - name: "MIRAI runtime truth reason"
+        unique_id: mirai_runtime_truth_reason
+        icon: mdi:text-box-search-outline
+        state: >-
+          {% if is_state('binary_sensor.cm_mirai_branch_powered', 'off') %}
+            branch_powered_off
+          {% elif not is_state('binary_sensor.mirai_runtime_truth_inputs_ready', 'on') %}
+            inputs_not_ready
+          {% elif is_state('binary_sensor.mirai_runtime_truth_coherent_run', 'on') %}
+            coherent_run_observed
+          {% elif is_state('binary_sensor.mirai_runtime_truth_run_window_candidate', 'off') %}
+            no_run_window
+          {% elif is_state('binary_sensor.mirai_runtime_truth_modbus_run_confirmed', 'off') and is_state('binary_sensor.mirai_runtime_truth_pump_corroborated', 'off') %}
+            power_only_no_modbus_or_pump_confirmation
+          {% elif is_state('binary_sensor.mirai_runtime_truth_modbus_run_confirmed', 'off') %}
+            power_without_modbus_run_confirmation
+          {% elif is_state('binary_sensor.mirai_runtime_truth_pump_corroborated', 'off') %}
+            power_without_pump_corroboration
+          {% else %}
+            observing
+          {% endif %}
+        attributes:
+          machine_state: "{{ states('sensor.mirai_machine_state') }}"
+          machine_source: "{{ states('sensor.mirai_machine_running_source') }}"
+          power_w_effective: "{{ states('sensor.mirai_power_w_effective') }}"
+          status_word_effective: "{{ states('sensor.mirai_status_word_effective') }}"
+          status_bits_on: "{{ states('sensor.mirai_status_bits_on') }}"
+          pump_candidate_running: "{{ states('binary_sensor.mirai_pump_candidate_running') }}"
+
+sensor:
+  - platform: history_stats
+    name: "MIRAI runtime truth run window hours today"
+    unique_id: mirai_runtime_truth_run_window_hours_today
+    entity_id: binary_sensor.mirai_runtime_truth_run_window_candidate
+    state: "on"
+    type: time
+    start: "{{ today_at('00:00') }}"
+    end: "{{ now() }}"
+
+  - platform: history_stats
+    name: "MIRAI runtime truth coherent run hours today"
+    unique_id: mirai_runtime_truth_coherent_run_hours_today
+    entity_id: binary_sensor.mirai_runtime_truth_coherent_run
+    state: "on"
+    type: time
+    start: "{{ today_at('00:00') }}"
+    end: "{{ now() }}"

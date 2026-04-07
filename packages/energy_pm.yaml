@@ -139,6 +139,20 @@ counter:
 
 # --- UTILITY METER (kWh giorno/mese) -------------------------
 utility_meter:
+  mirai_energy_daily:
+    source: sensor.mirai_energy_total
+    cycle: daily
+  mirai_energy_monthly:
+    source: sensor.mirai_energy_total
+    cycle: monthly
+
+  ehw_energy_daily:
+    source: sensor.ehw_energy_total
+    cycle: daily
+  ehw_energy_monthly:
+    source: sensor.ehw_energy_total
+    cycle: monthly
+
   pm2_energy_daily:
     source: sensor.pm2_mss310_energy_kwh_main_channel
     cycle: daily
@@ -210,6 +224,15 @@ sensor:
 # --- FRIENDLY NAMES (coerenza UI) ----------------------------
 homeassistant:
   customize:
+    sensor.local_meters_power_w: {friendly_name: "Misuratori locali - Somma potenze"}
+    sensor.global_consumption_estimated_w: {friendly_name: "Consumo totale casa stimato"}
+    sensor.local_meters_global_incidence_pct: {friendly_name: "Incidenza misuratori locali"}
+    sensor.mirai_energy_total: {friendly_name: "Mirai - Energia totale"}
+    sensor.mirai_energy_daily: {friendly_name: "Mirai - kWh / giorno"}
+    sensor.mirai_energy_monthly: {friendly_name: "Mirai - kWh / mese"}
+    sensor.ehw_energy_total: {friendly_name: "EHW - Energia totale"}
+    sensor.ehw_energy_daily: {friendly_name: "EHW - kWh / giorno"}
+    sensor.ehw_energy_monthly: {friendly_name: "EHW - kWh / mese"}
     sensor.pm1_energy_daily: {friendly_name: "Romeo - kWh / giorno"}
     sensor.pm1_energy_monthly: {friendly_name: "Romeo - kWh / mese"}
     sensor.pm2_energy_daily: {friendly_name: "Lavatrice - kWh / giorno"}
@@ -221,6 +244,258 @@ homeassistant:
 # --- TEMPLATE: ore ON oggi (per KPI plancia) -----------------
 template:
   - sensor:
+      - name: "Mirai energy total"
+        unique_id: mirai_energy_total
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+        icon: mdi:counter
+        availability: "{{ states('sensor.a_energia_prelevata_forward') not in ['unknown','unavailable'] }}"
+        state: >
+          {{ states('sensor.a_energia_prelevata_forward') }}
+
+      - name: "EHW energy total"
+        unique_id: ehw_energy_total
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+        icon: mdi:counter
+        availability: "{{ states('sensor.b_energia_prelevata_forward') not in ['unknown','unavailable'] }}"
+        state: >
+          {{ states('sensor.b_energia_prelevata_forward') }}
+
+      - name: "Local meters power w"
+        unique_id: local_meters_power_w
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        icon: mdi:meter-electric
+        state: >
+          {% set mirai = states('sensor.mirai_power_w') | float(0) %}
+          {% set ehw = states('sensor.ehw_power_w') | float(0) %}
+          {% set ds01 = states('sensor.ds_01_power_w') | float(0) %}
+          {% set pm1 = states('sensor.pm1_mss310_power_w_main_channel') | float(0) %}
+          {% set pm2 = states('sensor.pm2_mss310_power_w_main_channel') | float(0) %}
+          {% set pm3 = states('sensor.pm3_mss310_power_w_main_channel') | float(0) %}
+          {{
+            [
+              mirai if mirai > 0 else 0,
+              ehw if ehw > 0 else 0,
+              ds01 if ds01 > 0 else 0,
+              pm1 if pm1 > 0 else 0,
+              pm2 if pm2 > 0 else 0,
+              pm3 if pm3 > 0 else 0
+            ] | sum | round(0)
+          }}
+        attributes:
+          mirai_w: "{{ [states('sensor.mirai_power_w') | float(0), 0] | max }}"
+          ehw_w: "{{ [states('sensor.ehw_power_w') | float(0), 0] | max }}"
+          ds01_w: "{{ [states('sensor.ds_01_power_w') | float(0), 0] | max }}"
+          pm1_w: "{{ [states('sensor.pm1_mss310_power_w_main_channel') | float(0), 0] | max }}"
+          pm2_w: "{{ [states('sensor.pm2_mss310_power_w_main_channel') | float(0), 0] | max }}"
+          pm3_w: "{{ [states('sensor.pm3_mss310_power_w_main_channel') | float(0), 0] | max }}"
+
+      - name: "Global consumption estimated w"
+        unique_id: global_consumption_estimated_w
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        icon: mdi:transmission-tower
+        availability: >
+          {{
+            states('sensor.grid_power_w') | float(default=none) is number
+            and states('sensor.pv_power_now') | float(default=none) is number
+          }}
+        state: >
+          {% set grid = states('sensor.grid_power_w') | float(default=none) %}
+          {% set pv = states('sensor.pv_power_now') | float(default=none) %}
+          {% if grid is number and pv is number %}
+            {{ ([pv + grid, 0] | max) | round(0) }}
+          {% else %}
+            {{ none }}
+          {% endif %}
+        attributes:
+          source: "sensor.pv_power_now + sensor.grid_power_w"
+          note: "Consumo totale casa stimato come produzione PV piu scambio rete signed"
+
+      - name: "Local meters energy daily total"
+        unique_id: local_meters_energy_daily_total
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total
+        icon: mdi:counter
+        state: >
+          {% set vals = [
+            states('sensor.mirai_energy_daily') | float(0),
+            states('sensor.ehw_energy_daily') | float(0),
+            states('sensor.ds01_energy_daily') | float(0),
+            states('sensor.pm1_energy_daily') | float(0),
+            states('sensor.pm2_energy_daily') | float(0),
+            states('sensor.pm3_energy_daily') | float(0)
+          ] %}
+          {{ (vals | sum) | round(3) }}
+
+      - name: "Mirai daily share pct"
+        unique_id: mirai_daily_share_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:heat-pump
+        availability: "{{ states('sensor.local_meters_energy_daily_total') | float(0) > 0 }}"
+        state: >
+          {% set num = states('sensor.mirai_energy_daily') | float(0) %}
+          {% set den = states('sensor.local_meters_energy_daily_total') | float(0) %}
+          {{ ((num / den) * 100) | round(1) if den > 0 else none }}
+
+      - name: "EHW daily share pct"
+        unique_id: ehw_daily_share_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:water-boiler
+        availability: "{{ states('sensor.local_meters_energy_daily_total') | float(0) > 0 }}"
+        state: >
+          {% set num = states('sensor.ehw_energy_daily') | float(0) %}
+          {% set den = states('sensor.local_meters_energy_daily_total') | float(0) %}
+          {{ ((num / den) * 100) | round(1) if den > 0 else none }}
+
+      - name: "ds01 daily share pct"
+        unique_id: ds01_daily_share_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:desktop-tower-monitor
+        availability: "{{ states('sensor.local_meters_energy_daily_total') | float(0) > 0 }}"
+        state: >
+          {% set num = states('sensor.ds01_energy_daily') | float(0) %}
+          {% set den = states('sensor.local_meters_energy_daily_total') | float(0) %}
+          {{ ((num / den) * 100) | round(1) if den > 0 else none }}
+
+      - name: "PM1 daily share pct"
+        unique_id: pm1_daily_share_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:fan
+        availability: "{{ states('sensor.local_meters_energy_daily_total') | float(0) > 0 }}"
+        state: >
+          {% set num = states('sensor.pm1_energy_daily') | float(0) %}
+          {% set den = states('sensor.local_meters_energy_daily_total') | float(0) %}
+          {{ ((num / den) * 100) | round(1) if den > 0 else none }}
+
+      - name: "PM2 daily share pct"
+        unique_id: pm2_daily_share_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:washing-machine
+        availability: "{{ states('sensor.local_meters_energy_daily_total') | float(0) > 0 }}"
+        state: >
+          {% set num = states('sensor.pm2_energy_daily') | float(0) %}
+          {% set den = states('sensor.local_meters_energy_daily_total') | float(0) %}
+          {{ ((num / den) * 100) | round(1) if den > 0 else none }}
+
+      - name: "PM3 daily share pct"
+        unique_id: pm3_daily_share_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:tumble-dryer
+        availability: "{{ states('sensor.local_meters_energy_daily_total') | float(0) > 0 }}"
+        state: >
+          {% set num = states('sensor.pm3_energy_daily') | float(0) %}
+          {% set den = states('sensor.local_meters_energy_daily_total') | float(0) %}
+          {{ ((num / den) * 100) | round(1) if den > 0 else none }}
+
+      - name: "Local meters daily share pct"
+        unique_id: local_meters_daily_share_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:chart-donut
+        availability: "{{ states('sensor.local_meters_energy_daily_total') | float(0) > 0 }}"
+        state: >
+          100
+
+      - name: "Local meters global incidence pct"
+        unique_id: local_meters_global_incidence_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:chart-donut
+        availability: >
+          {% set total = states('sensor.global_consumption_estimated_w') | float(default=none) %}
+          {{ total is number and total > 0 }}
+        state: >
+          {% set local = states('sensor.local_meters_power_w') | float(default=none) %}
+          {% set total = states('sensor.global_consumption_estimated_w') | float(default=none) %}
+          {% if local is number and total is number and total > 0 %}
+            {{ ((local / total) * 100) | round(1) }}
+          {% else %}
+            {{ none }}
+          {% endif %}
+        attributes:
+          interpretation: "Quota dei misuratori locali sul totale di riferimento letto da SDM120"
+          denominator_source: "{{ state_attr('sensor.global_consumption_estimated_w', 'source') }}"
+
+      - name: "Mirai global incidence pct"
+        unique_id: mirai_global_incidence_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:heat-pump
+        availability: "{{ states('sensor.global_consumption_estimated_w') | float(default=none) is number and states('sensor.global_consumption_estimated_w') | float(0) > 0 }}"
+        state: >
+          {% set num = [states('sensor.mirai_power_w') | float(0), 0] | max %}
+          {% set den = states('sensor.global_consumption_estimated_w') | float(0) %}
+          {{ ((num / den) * 100) | round(1) if den > 0 else none }}
+
+      - name: "EHW global incidence pct"
+        unique_id: ehw_global_incidence_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:water-boiler
+        availability: "{{ states('sensor.global_consumption_estimated_w') | float(default=none) is number and states('sensor.global_consumption_estimated_w') | float(0) > 0 }}"
+        state: >
+          {% set num = [states('sensor.ehw_power_w') | float(0), 0] | max %}
+          {% set den = states('sensor.global_consumption_estimated_w') | float(0) %}
+          {{ ((num / den) * 100) | round(1) if den > 0 else none }}
+
+      - name: "ds01 global incidence pct"
+        unique_id: ds01_global_incidence_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:desktop-tower-monitor
+        availability: "{{ states('sensor.global_consumption_estimated_w') | float(default=none) is number and states('sensor.global_consumption_estimated_w') | float(0) > 0 }}"
+        state: >
+          {% set num = [states('sensor.ds_01_power_w') | float(0), 0] | max %}
+          {% set den = states('sensor.global_consumption_estimated_w') | float(0) %}
+          {{ ((num / den) * 100) | round(1) if den > 0 else none }}
+
+      - name: "PM1 global incidence pct"
+        unique_id: pm1_global_incidence_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:fan
+        availability: "{{ states('sensor.global_consumption_estimated_w') | float(default=none) is number and states('sensor.global_consumption_estimated_w') | float(0) > 0 }}"
+        state: >
+          {% set num = [states('sensor.pm1_mss310_power_w_main_channel') | float(0), 0] | max %}
+          {% set den = states('sensor.global_consumption_estimated_w') | float(0) %}
+          {{ ((num / den) * 100) | round(1) if den > 0 else none }}
+
+      - name: "PM2 global incidence pct"
+        unique_id: pm2_global_incidence_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:washing-machine
+        availability: "{{ states('sensor.global_consumption_estimated_w') | float(default=none) is number and states('sensor.global_consumption_estimated_w') | float(0) > 0 }}"
+        state: >
+          {% set num = [states('sensor.pm2_mss310_power_w_main_channel') | float(0), 0] | max %}
+          {% set den = states('sensor.global_consumption_estimated_w') | float(0) %}
+          {{ ((num / den) * 100) | round(1) if den > 0 else none }}
+
+      - name: "PM3 global incidence pct"
+        unique_id: pm3_global_incidence_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        icon: mdi:tumble-dryer
+        availability: "{{ states('sensor.global_consumption_estimated_w') | float(default=none) is number and states('sensor.global_consumption_estimated_w') | float(0) > 0 }}"
+        state: >
+          {% set num = [states('sensor.pm3_mss310_power_w_main_channel') | float(0), 0] | max %}
+          {% set den = states('sensor.global_consumption_estimated_w') | float(0) %}
+          {{ ((num / den) * 100) | round(1) if den > 0 else none }}
+
       - name: "Lavatrice – h ON oggi"
         unique_id: pm2_on_time_today
         unit_of_measurement: "h"

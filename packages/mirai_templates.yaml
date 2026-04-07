@@ -163,6 +163,7 @@ template:
         event: start
       - platform: state
         entity_id:
+          - binary_sensor.cm_mirai_branch_powered
           - sensor.mirai_u1_status_word_raw
           - sensor.mirai_status_word_raw
       - platform: time_pattern
@@ -172,7 +173,48 @@ template:
         unique_id: cm_modbus_mirai_ready
         icon: mdi:check-network
         state: >
-          {{ is_number(states('sensor.mirai_u1_status_word_raw')) or is_number(states('sensor.mirai_status_word_raw')) }}
+          {{
+            is_state('binary_sensor.cm_mirai_branch_powered', 'on')
+            and (
+              is_number(states('sensor.mirai_u1_status_word_raw'))
+              or is_number(states('sensor.mirai_status_word_raw'))
+            )
+          }}
+
+      - name: "CM Modbus MIRAI expected ready"
+        unique_id: cm_modbus_mirai_expected_ready
+        icon: mdi:connection
+        state: >
+          {{ is_state('binary_sensor.cm_mirai_branch_powered', 'on') }}
+
+      - name: "CM Modbus MIRAI posture ok"
+        unique_id: cm_modbus_mirai_posture_ok
+        icon: mdi:shield-check-outline
+        state: >
+          {{
+            is_state('binary_sensor.cm_mirai_branch_powered', 'off')
+            or is_state('binary_sensor.cm_modbus_mirai_ready', 'on')
+          }}
+
+    sensor:
+      - name: "CM Modbus MIRAI reason"
+        unique_id: cm_modbus_mirai_reason
+        icon: mdi:text-box-search-outline
+        state: >
+          {% if is_state('binary_sensor.cm_mirai_branch_powered', 'off') %}
+            branch_powered_off
+          {% elif is_state('binary_sensor.cm_modbus_mirai_ready', 'on') %}
+            link_ready
+          {% elif states('sensor.mirai_u1_status_word_raw') in ['unknown', 'unavailable', ''] and states('sensor.mirai_status_word_raw') in ['unknown', 'unavailable', ''] %}
+            no_status_word_available
+          {% else %}
+            invalid_status_word_payload
+          {% endif %}
+        attributes:
+          branch_powered: "{{ states('binary_sensor.cm_mirai_branch_powered') }}"
+          expected_ready: "{{ states('binary_sensor.cm_modbus_mirai_expected_ready') }}"
+          status_word_u1_raw: "{{ states('sensor.mirai_u1_status_word_raw') }}"
+          status_word_raw: "{{ states('sensor.mirai_status_word_raw') }}"
 
   - trigger:
       - platform: homeassistant

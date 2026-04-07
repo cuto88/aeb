@@ -2,10 +2,28 @@ template:
   - binary_sensor:
       - name: "ClimateOps AC Giorno Is On"
         unique_id: climateops_ac_giorno_is_on
-        state: "{{ is_state('switch.ac_giorno','on') }}"
-        availability: "{{ states('switch.ac_giorno') not in ['unknown','unavailable'] }}"
+        state: >-
+          {% if is_state('binary_sensor.cm_ac_branch_powered', 'off') %}
+            false
+          {% else %}
+            {{ is_state('switch.ac_giorno','on') }}
+          {% endif %}
+        availability: >-
+          {{
+            is_state('binary_sensor.cm_ac_branch_powered', 'off')
+            or states('switch.ac_giorno') not in ['unknown','unavailable']
+          }}
 
       - name: "ClimateOps AC Notte Is On"
         unique_id: climateops_ac_notte_is_on
-        state: "{{ is_state('switch.ac_notte','on') }}"
-        availability: "{{ states('switch.ac_notte') not in ['unknown','unavailable'] }}"
+        state: >-
+          {% if is_state('binary_sensor.cm_ac_branch_powered', 'off') %}
+            false
+          {% else %}
+            {{ is_state('switch.ac_notte','on') }}
+          {% endif %}
+        availability: >-
+          {{
+            is_state('binary_sensor.cm_ac_branch_powered', 'off')
+            or states('switch.ac_notte') not in ['unknown','unavailable']
+          }}

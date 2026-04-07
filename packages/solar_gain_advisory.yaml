@@ -1,0 +1,285 @@
+---
+# Advisory indipendente per stimare guadagno solare passivo e rischio surriscaldamento.
+# Nessuna attuazione automatica: espone solo sensori/flag di supporto operatore.
+
+input_number:
+  solar_gain_pv_active_w:
+    name: "Solar gain - PV active threshold (W)"
+    min: 0
+    max: 10000
+    step: 50
+    initial: 1200
+    unit_of_measurement: "W"
+    icon: mdi:solar-power
+  solar_gain_pv_strong_w:
+    name: "Solar gain - PV strong threshold (W)"
+    min: 0
+    max: 10000
+    step: 50
+    initial: 2200
+    unit_of_measurement: "W"
+    icon: mdi:solar-power-variant
+  solar_gain_indoor_warm_c:
+    name: "Solar gain - indoor warm threshold (°C)"
+    min: 18
+    max: 35
+    step: 0.1
+    initial: 24.5
+    unit_of_measurement: "°C"
+    icon: mdi:home-thermometer-outline
+  solar_gain_indoor_hot_c:
+    name: "Solar gain - indoor hot threshold (°C)"
+    min: 18
+    max: 35
+    step: 0.1
+    initial: 25.5
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer-high
+  solar_gain_rise_warn_cph:
+    name: "Solar gain - rise warn threshold (°C/h)"
+    min: 0
+    max: 5
+    step: 0.05
+    initial: 0.25
+    unit_of_measurement: "°C/h"
+    icon: mdi:thermometer-chevron-up
+  solar_gain_rise_high_cph:
+    name: "Solar gain - rise high threshold (°C/h)"
+    min: 0
+    max: 5
+    step: 0.05
+    initial: 0.45
+    unit_of_measurement: "°C/h"
+    icon: mdi:thermometer-chevron-up
+  solar_gain_outdoor_hotter_delta_c:
+    name: "Solar gain - outdoor hotter delta (°C)"
+    min: -5
+    max: 15
+    step: 0.1
+    initial: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer-alert
+
+template:
+  - binary_sensor:
+      - name: "Solar gain advisory inputs ready"
+        unique_id: solar_gain_advisory_inputs_ready
+        state: >-
+          {{
+            states('sensor.t_in_med') not in ['unknown', 'unavailable', '']
+            and states('sensor.t_out') not in ['unknown', 'unavailable', '']
+            and states('sensor.pv_power_now') not in ['unknown', 'unavailable', '']
+            and states('binary_sensor.casa_chiusa') not in ['unknown', 'unavailable', '']
+            and states('switch.heating_master') not in ['unknown', 'unavailable', '']
+          }}
+
+      - name: "Solar gain passive candidate"
+        unique_id: solar_gain_passive_candidate
+        delay_on:
+          minutes: 10
+        delay_off:
+          minutes: 10
+        state: >-
+          {% set pv = states('sensor.pv_power_now') | float(default=none) %}
+          {% set pv_active = states('input_number.solar_gain_pv_active_w') | float(1200) %}
+          {% set closed = is_state('binary_sensor.casa_chiusa', 'on') %}
+          {% set heating_off = is_state('switch.heating_master', 'off') %}
+          {% set ac_off = is_state('binary_sensor.cm_ac_branch_powered', 'off')
+             or (is_state('switch.ac_giorno', 'off') and is_state('switch.ac_notte', 'off')) %}
+          {{
+            pv is number
+            and pv >= pv_active
+            and closed
+            and heating_off
+            and ac_off
+          }}
+
+      - name: "Close shutters recommended"
+        unique_id: close_shutters_recommended
+        delay_on:
+          minutes: 10
+        delay_off:
+          minutes: 15
+        state: >-
+          {% set ready = is_state('binary_sensor.solar_gain_advisory_inputs_ready', 'on') %}
+          {% set passive = is_state('binary_sensor.solar_gain_passive_candidate', 'on') %}
+          {% set pv = states('sensor.pv_power_now') | float(default=none) %}
+          {% set pv_strong = states('input_number.solar_gain_pv_strong_w') | float(2200) %}
+          {% set t_in = states('sensor.t_in_med') | float(default=none) %}
+          {% set t_out = states('sensor.t_out') | float(default=none) %}
+          {% set warm = states('input_number.solar_gain_indoor_warm_c') | float(24.5) %}
+          {% set hot = states('input_number.solar_gain_indoor_hot_c') | float(25.5) %}
+          {% set rate = states('sensor.solar_gain_indoor_rise_rate_cph') | float(default=none) %}
+          {% set rise_warn = states('input_number.solar_gain_rise_warn_cph') | float(0.25) %}
+          {% set rise_high = states('input_number.solar_gain_rise_high_cph') | float(0.45) %}
+          {% set out_delta = states('input_number.solar_gain_outdoor_hotter_delta_c') | float(0.5) %}
+          {{
+            ready
+            and passive
+            and (
+              (t_in is number and t_in >= hot)
+              or (
+                t_in is number
+                and t_out is number
+                and rate is number
+                and pv is number
+                and t_in >= warm
+                and rate >= rise_warn
+                and pv >= pv_strong
+                and t_out >= t_in - out_delta
+              )
+              or (
+                t_in is number
+                and rate is number
+                and pv is number
+                and t_in >= warm
+                and rate >= rise_high
+                and pv >= pv_strong
+              )
+            )
+          }}
+
+  - sensor:
+      - name: "Solar gain indoor rise rate cph"
+        unique_id: solar_gain_indoor_rise_rate_cph
+        unit_of_measurement: "°C/h"
+        icon: mdi:thermometer-chevron-up
+        state: >-
+          {% set now_v = states('sensor.t_in_med') | float(default=none) %}
+          {% set prev_v = state_attr('sensor.t_in_med', '24h_ago') %}
+          {% if now_v is number and prev_v is not none %}
+            {{ none }}
+          {% else %}
+            {{ states('sensor.solar_gain_indoor_rise_rate_cph_raw') }}
+          {% endif %}
+        availability: "{{ states('sensor.solar_gain_indoor_rise_rate_cph_raw') not in ['unknown', 'unavailable', ''] }}"
+
+      - name: "Solar gain passive index"
+        unique_id: solar_gain_passive_index
+        unit_of_measurement: "%"
+        icon: mdi:white-balance-sunny
+        state: >-
+          {% set ready = is_state('binary_sensor.solar_gain_advisory_inputs_ready', 'on') %}
+          {% set passive = is_state('binary_sensor.solar_gain_passive_candidate', 'on') %}
+          {% set pv = states('sensor.pv_power_now') | float(default=none) %}
+          {% set pv_active = states('input_number.solar_gain_pv_active_w') | float(1200) %}
+          {% set pv_strong = states('input_number.solar_gain_pv_strong_w') | float(2200) %}
+          {% set t_in = states('sensor.t_in_med') | float(default=none) %}
+          {% set t_out = states('sensor.t_out') | float(default=none) %}
+          {% set warm = states('input_number.solar_gain_indoor_warm_c') | float(24.5) %}
+          {% set hot = states('input_number.solar_gain_indoor_hot_c') | float(25.5) %}
+          {% set rate = states('sensor.solar_gain_indoor_rise_rate_cph_raw') | float(default=none) %}
+          {% set rise_warn = states('input_number.solar_gain_rise_warn_cph') | float(0.25) %}
+          {% set rise_high = states('input_number.solar_gain_rise_high_cph') | float(0.45) %}
+          {% set out_delta = states('input_number.solar_gain_outdoor_hotter_delta_c') | float(0.5) %}
+          {% if not ready or not passive %}
+            0
+          {% else %}
+            {% set pv_score = 0 %}
+            {% if pv is number %}
+              {% if pv <= pv_active %}
+                {% set pv_score = 0 %}
+              {% elif pv >= pv_strong %}
+                {% set pv_score = 35 %}
+              {% else %}
+                {% set pv_score = (((pv - pv_active) / (pv_strong - pv_active)) * 35) | round(0) %}
+              {% endif %}
+            {% endif %}
+            {% set rate_score = 0 %}
+            {% if rate is number %}
+              {% if rate <= 0 %}
+                {% set rate_score = 0 %}
+              {% elif rate >= rise_high %}
+                {% set rate_score = 35 %}
+              {% else %}
+                {% set rate_score = ((rate / rise_high) * 35) | round(0) %}
+              {% endif %}
+            {% endif %}
+            {% set indoor_score = 0 %}
+            {% if t_in is number %}
+              {% if t_in >= hot %}
+                {% set indoor_score = 20 %}
+              {% elif t_in >= warm %}
+                {% set indoor_score = (((t_in - warm) / (hot - warm)) * 20) | round(0) %}
+              {% endif %}
+            {% endif %}
+            {% set outdoor_score = 0 %}
+            {% if t_in is number and t_out is number %}
+              {% if t_out >= t_in + out_delta %}
+                {% set outdoor_score = 10 %}
+              {% elif t_out >= t_in - out_delta %}
+                {% set outdoor_score = 5 %}
+              {% endif %}
+            {% endif %}
+            {{ [pv_score + rate_score + indoor_score + outdoor_score, 100] | min }}
+          {% endif %}
+        attributes:
+          proxy_source: "sensor.pv_power_now"
+          interpretation: "Indice percentuale di guadagno solare passivo e rischio surriscaldamento"
+
+      - name: "Solar gain passive level"
+        unique_id: solar_gain_passive_level
+        icon: mdi:solar-power-variant-outline
+        state: >-
+          {% set idx = states('sensor.solar_gain_passive_index') | float(0) %}
+          {% if idx >= 75 %}
+            high
+          {% elif idx >= 40 %}
+            medium
+          {% elif idx > 0 %}
+            low
+          {% else %}
+            idle
+          {% endif %}
+
+      - name: "Solar gain overheating reason"
+        unique_id: solar_gain_overheating_reason
+        icon: mdi:text-box-search-outline
+        state: >-
+          {% if not is_state('binary_sensor.solar_gain_advisory_inputs_ready', 'on') %}
+            inputs_not_ready
+          {% elif is_state('binary_sensor.casa_chiusa', 'off') %}
+            windows_open
+          {% elif is_state('switch.heating_master', 'on') %}
+            heating_active
+          {% elif is_state('switch.ac_giorno', 'on') or is_state('switch.ac_notte', 'on') %}
+            ac_active
+          {% elif not is_state('binary_sensor.solar_gain_passive_candidate', 'on') %}
+            low_solar_proxy
+          {% elif is_state('binary_sensor.close_shutters_recommended', 'on') %}
+            close_shutters_now
+          {% else %}
+            monitor_only
+          {% endif %}
+        attributes:
+          t_in_med_c: "{{ states('sensor.t_in_med') }}"
+          t_out_c: "{{ states('sensor.t_out') }}"
+          pv_power_w: "{{ states('sensor.pv_power_now') }}"
+          indoor_rise_rate_cph: "{{ states('sensor.solar_gain_indoor_rise_rate_cph_raw') }}"
+
+sensor:
+  - platform: derivative
+    name: "Solar gain indoor rise rate cph raw"
+    unique_id: solar_gain_indoor_rise_rate_cph_raw
+    source: sensor.t_in_med
+    unit_time: h
+    time_window: "00:30:00"
+    round: 3
+
+  - platform: history_stats
+    name: "Solar gain passive candidate hours today"
+    unique_id: solar_gain_passive_candidate_hours_today
+    entity_id: binary_sensor.solar_gain_passive_candidate
+    state: "on"
+    type: time
+    start: "{{ today_at('00:00') }}"
+    end: "{{ now() }}"
+
+  - platform: history_stats
+    name: "Close shutters recommended hours today"
+    unique_id: close_shutters_recommended_hours_today
+    entity_id: binary_sensor.close_shutters_recommended
+    state: "on"
+    type: time
+    start: "{{ today_at('00:00') }}"
+    end: "{{ now() }}"
