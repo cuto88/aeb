@@ -46,12 +46,14 @@ if ($missingFiles.Count -gt 0) {
 $trackedRaw = (& git -C $repoRoot ls-files -- "lovelace/*.yaml" "lovelace/*.yml")
 $tracked = @()
 if ($trackedRaw) {
-  $tracked = $trackedRaw | ForEach-Object { [System.IO.Path]::GetFileName($_) } | Sort-Object -Unique
+  $tracked = $trackedRaw |
+    Where-Object { Test-Path (Join-Path $repoRoot $_) } |
+    ForEach-Object { [System.IO.Path]::GetFileName($_) } |
+    Sort-Object -Unique
 }
 
 $allowOrphans = @(
-  ".gitkeep",
-  "climateops_step7_plancia.yaml"
+  ".gitkeep"
 )
 $orphans = $tracked | Where-Object { -not $active.Contains($_) -and $_ -notin $allowOrphans }
 if ($orphans.Count -gt 0) {

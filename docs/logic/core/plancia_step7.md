@@ -1,6 +1,6 @@
 # Plancia ClimateOps Step7
 
-File dashboard: `lovelace/climateops_step7_plancia.yaml`
+File dashboard storico: `lovelace/_archive/climateops_step7_plancia.yaml`
 
 ## Scopo
 Dashboard tecnica per osservare in un unico punto:
@@ -41,3 +41,5 @@ Dashboard tecnica per osservare in un unico punto:
 - `policy_enable_tariff_grid` resta di default `off`.
 - Se le entità forecast non sono ancora disponibili a runtime, i relativi stati possono
   risultare `unknown` in bootstrap e poi convergere con i feed attivi.
+- La dashboard non fa piu' parte del set Lovelace attivo.
+- Il duplicato runtime `lovelace/climateops_step7_plancia.yaml` e` stato rimosso dal repo attivo; resta solo la copia storica in archivio.

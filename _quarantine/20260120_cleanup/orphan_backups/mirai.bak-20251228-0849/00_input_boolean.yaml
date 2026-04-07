@@ -1,7 +1,0 @@
-mirai_debug_enable:
-  name: "MIRAI debug"
-  icon: mdi:bug
-
-mirai_modbus_autodiscovery_enabled:
-  name: "MIRAI Modbus autodiscovery"
-  icon: mdi:auto-fix

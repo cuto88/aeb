@@ -61,6 +61,8 @@ docs/runtime_evidence/
 # Local temp and tooling artifacts (never sync)
 # ==================================================
 _runtime/
+.git-local/
+.git.acl.bak
 tmp/
 tmp_configuration.yaml
 tmp_core.device_registry

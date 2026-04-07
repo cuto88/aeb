@@ -1,9 +1,0 @@
-- sensor:
-    - name: "MIRAI state"
-      unique_id: mirai_state
-      state: >
-        {% if is_state('binary_sensor.mirai_any_activity','on') %}
-          active
-        {% else %}
-          idle
-        {% endif %}

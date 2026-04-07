@@ -1,8 +1,0 @@
-input_boolean: !include ../mirai/00_input_boolean.yaml
-shell_command: !include ../mirai/01_shell_command.yaml
-modbus: !include ../mirai/10_modbus.yaml
-automation: !include ../mirai/30_automations.yaml
-template:
-  - !include ../mirai/20_templates_bits.yaml
-  - !include ../mirai/22_state.yaml
-  - !include ../mirai/23_fault.yaml

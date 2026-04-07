@@ -1,4 +1,0 @@
-binary_sensor:
-  - name: "MIRAI | Fault"
-    unique_id: mirai_fault
-    state: "{{ is_state('binary_sensor.mirai_status_word_bit_07','on') }}"

@@ -1,6 +1,0 @@
-name,address,function,input_type,data_type,signed,scale,observed_values,notes
-status_word,1003,0x03,holding,uint16,false,1,"1,256","Stato macchina (1=idle, 256=running)"
-bitmask_4000,4000,0x03,holding,uint16,false,1,"376,30720,34816","Flags generali sistema"
-bitmask_4001,4001,0x03,holding,uint16,false,1,"376,392,30721","Flags avanzati / diagnostica"
-status_code,1208,0x03,holding,uint16,false,1,"128,32768","Codice stato operativo"
-fault_code,1209,0x03,holding,uint16,false,1,"128,32768","Codice errore / fault"

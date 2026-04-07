@@ -1,3 +1,0 @@
-mirai_ensure_log_dir: >-
-  bash -c "mkdir -p /config/mirai"
-mirai_noop: "bash -lc 'true'"
