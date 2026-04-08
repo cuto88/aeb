@@ -37,7 +37,15 @@ Scopo:
 | `9087` | `sensor.mirai_probe_temp_b_dup_9087_raw` | `uint16` | duplicato coerente di `3548` | candidato forte |
 | `3515` | `sensor.mirai_probe_temp_outdoor_raw`, `sensor.mirai_probe_temp_outdoor_c` | `uint16` | candidato outdoor | smentito come vera esterna |
 | `1015` | `sensor.mirai_probe_counter_1015_raw` | `uint16` | contatore/probe diagnostico | candidato debole |
-| `3547` | `sensor.mirai_probe_state_3547_raw`, `binary_sensor.mirai_pump_candidate_running` | `uint16` | probe di stato legato alla pompa/runtime | candidato medio |
+| `3547` | `sensor.mirai_probe_state_3547_raw`, `binary_sensor.mirai_pump_candidate_running` | `uint16` | probe storico di stato legato alla pompa/runtime | candidato secondario |
+| `9007` | `sensor.mirai_discovery_pump_do4_9007_raw`, `binary_sensor.mirai_pump_do4_running` | `uint16` | stato DO4 Smart-MT, circolatore PdC | candidato forte |
+| `9043` | `sensor.mirai_discovery_compressor_9043_raw` | `uint16` | segnale compressore 0-10V da ingresso remoto | candidato debole |
+| `9051` | `sensor.mirai_discovery_target_9051_raw` | `uint16` | target attuale regolazione frequenza compressore (`L561`) | candidato forte |
+| `9052` | `sensor.mirai_discovery_reference_9052_raw` | `uint16` | riferimento attuale regolazione frequenza compressore (`L562`) | candidato forte |
+| `8986` | `sensor.mirai_discovery_outdoor_8986_raw` | `uint16` | outdoor air temperature da manuale (`L163`) | candidato vivo |
+| `8987` | `sensor.mirai_discovery_outlet_8987_raw` | `uint16` | water outlet da manuale (`L162`) | candidato vivo |
+| `8988` | `sensor.mirai_discovery_inlet_8988_raw` | `uint16` | water inlet da manuale (`L161`) | sospetto |
+| `9121` | `sensor.mirai_discovery_power_absorbed_9121_raw` | `uint16` | potenza elettrica assorbita da manuale (`L302`) | smentito nel profilo reale |
 
 ## Corrispondenza con il manuale vendor
 
@@ -50,17 +58,20 @@ Il file vendor [manual_mirai_address.md](C:\2_OPS\aeb\docs\vendor\mirai\manual_m
 
 | Registro | Etichetta manuale | Significato manuale | Valutazione attuale |
 |---|---|---|---|
-| `8986` | `L163` | outdoor air temperature | miglior candidato documentato per la vera esterna MIRAI |
-| `8987` | `L162` | water outlet from heat pump | miglior candidato documentato per leaving water |
-| `8988` | `L161` | water inlet to heat pump | miglior candidato documentato per entering water |
+| `8986` | `L163` | outdoor air temperature | candidato vivo, ma scala fisica ancora da chiudere |
+| `8987` | `L162` | water outlet from heat pump | candidato vivo, ma scala fisica ancora da chiudere |
+| `8988` | `L161` | water inlet to heat pump | documentato, ma molto sospetto sul campo (`32768` fisso) |
 | `9007` | `L204` | Smart-MT DO4, circulator | miglior candidato documentato per corroborazione pompa |
-| `9043` | `L170` | 0-10 V compressor signal | miglior candidato documentato per activity/compressor correlation |
+| `9043` | `L170` | 0-10 V compressor signal | documentato, ma non discriminante nel profilo reale osservato |
+| `9051` | `L561` | current target temperature for compressor frequency adjustment | segnale utile e coerente nel profilo reale |
+| `9052` | `L562` | current reference temperature for compressor frequency adjustment | segnale utile e coerente nel profilo reale |
+| `9120..9123` | `L301..L312` | flow / electric / thermal power | documentati ma a zero nel profilo reale osservato |
 
 ### Effetto sul mapping corrente
 
 - `3515` non va piu' considerato il candidato principale per outdoor, anche se resta esposto nel profilo stabile come probe storico.
-- `3547` resta utile come segnale candidato di stato, ma `9007` ha priorita' piu' alta come potenziale verita' pompa, perche' e' descritto esplicitamente dal manuale.
-- `8986 / 8987 / 8988 / 9007 / 9043` diventano la nuova shortlist canonica per discovery read-only.
+- `3547` resta utile come segnale storico candidato di stato, ma `9007` ha priorita' piu' alta come verita' pompa, perche' e' descritto esplicitamente dal manuale ed e' coerente sul campo.
+- `8986 / 8987 / 9007 / 9051 / 9052` sono oggi la shortlist canonica piu' utile di discovery/diagnostica.
 
 ## Status word 1003
 
@@ -107,9 +118,9 @@ Il file vendor [manual_mirai_address.md](C:\2_OPS\aeb\docs\vendor\mirai\manual_m
 | `idle` | nessuna finestra run valida |
 | `power_only_run` | run visto solo dai consumi |
 | `power_plus_modbus` | run visto da consumi + attivita' Modbus coerente |
-| `fully_corroborated_run` | run confermato da consumi + Modbus + pompa |
+| `fully_corroborated_run` | run confermato da consumi + Modbus + pompa (`9007`) |
 
-## Evidenza runtime del 2026-04-08
+## Evidenza runtime del 2026-04-08 / 2026-04-09
 
 Finestra manuale controllata con setpoint alzato per forzare un run reale:
 
@@ -120,19 +131,40 @@ Finestra manuale controllata con setpoint alzato per forzare un run reale:
 - `status_bits_on = bit 00`;
 - `bit 01 = off`;
 - livello runtime truth corretto: `power_plus_modbus`;
-- corroborazione pompa rimasta `off`.
+- `9007` osservato in progressione `0 -> 1 -> 10`, coerente con startup e run;
+- `9043` rimasto `10` sia fuori run sia in run;
+- letture dirette fuori da HA, in `RUN`, via Modbus TCP:
+  - `1003=1`
+  - `1208=128`
+  - `1209=32768`
+  - `3515=117`
+  - `3547=20992`
+  - `8986=338/339`
+  - `8987=284/285`
+  - `8988=32768`
+  - `9007=10`
+  - `9043=10`
+  - `9051=339`
+  - `9052=340`
+  - `9120=0`
+  - `9121=0`
+  - `9122=0`
+  - `9123=0`
+- test FC4 sugli stessi registri: `EXC:1` su tutti.
 
 Conclusione:
 - il remap semantico su `bit 00` e' giustificato;
-- la corroborazione pompa resta ancora aperta;
+- la corroborazione pompa va spostata da `3547` a `9007`;
 - il mapping `bit 01 == RUN` e' da considerare superato come assunzione unica.
+- `PW 59` nel manuale corretto indica il livello service HMI dello Smart-MT, non un unlock Modbus documentato.
 
 ## Elementi ancora non chiusi
 
 | Oggetto | Stato | Nota |
 |---|---|---|
-| vera sonda outdoor MIRAI | aperto | `3515` non valida come esterna reale |
-| semantica piena `3547` | aperto | utile come pump candidate, non ancora chiusa |
+| vera sonda outdoor MIRAI | aperto | `3515` non valida come esterna reale; `8986` resta il candidato vivo migliore |
+| scala fisica `8987` | aperto | segnale vivo, ma semantica/scaling ancora da chiudere |
+| semantica piena `3547` | aperto ma secondario | utile come storico, non piu' candidato principale pompa |
 | significato vendor ufficiale di `bit 00` e `bit 01` | aperto | manca conferma documentale vendor numerica |
 
 ## Nuova shortlist di discovery
@@ -141,17 +173,17 @@ Ordine consigliato, read-only e uno per volta:
 
 1. `8986`
 2. `8987`
-3. `8988`
-4. `9007`
-5. `9043`
+3. `9007`
+4. `9051`
+5. `9052`
 
 Seconda fascia, solo dopo:
 
-1. `9003`
-2. `9004`
-3. `9005`
-4. `9002`
-5. `9001`
+1. `8988`
+2. `9043`
+3. `9003`
+4. `9004`
+5. `9005`
 
 Regola:
 - nessun nuovo registro entra nel profilo stabile senza correlazione ripetuta con realta' fisica e runtime.
@@ -162,6 +194,7 @@ Regola:
 - Non usare `bit 01` come unico criterio di `RUN`.
 - Non usare `bit 00` come `RUN` puro senza potenza reale.
 - Trattare `3515` come probe non validato, non come verita' meteo.
+- Non assumere che `PW 59` sia una password Modbus: oggi il manuale la documenta solo come livello service HMI.
 
 ## Riferimenti
 

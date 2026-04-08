@@ -37,6 +37,14 @@ Riferimento vendor utile per discovery:
 | `sensor.mirai_probe_temp_outdoor_raw` | 1 | 3515 | `uint16` | 30s |
 | `sensor.mirai_probe_counter_1015_raw` | 1 | 1015 | `uint16` | 30s |
 | `sensor.mirai_probe_state_3547_raw` | 1 | 3547 | `uint16` | 30s |
+| `sensor.mirai_discovery_pump_do4_9007_raw` | 1 | 9007 | `uint16` | 60s |
+| `sensor.mirai_discovery_compressor_9043_raw` | 1 | 9043 | `uint16` | 60s |
+| `sensor.mirai_discovery_target_9051_raw` | 1 | 9051 | `uint16` | 60s |
+| `sensor.mirai_discovery_reference_9052_raw` | 1 | 9052 | `uint16` | 60s |
+| `sensor.mirai_discovery_outdoor_8986_raw` | 1 | 8986 | `uint16` | 60s |
+| `sensor.mirai_discovery_outlet_8987_raw` | 1 | 8987 | `uint16` | 60s |
+| `sensor.mirai_discovery_inlet_8988_raw` | 1 | 8988 | `uint16` | 60s |
+| `sensor.mirai_discovery_power_absorbed_9121_raw` | 1 | 9121 | `uint16` | 60s |
 
 ## Sensori template di riferimento
 
@@ -49,7 +57,8 @@ Riferimento vendor utile per discovery:
 - `sensor.mirai_probe_temp_a_c`: candidato temperatura scalata `x10` dal registro `4000` (dupliche coerenti su `9050/9086`).
 - `sensor.mirai_probe_temp_b_c`: candidato temperatura scalata `x10` dal registro `3548` (duplica coerente su `9087`).
 - `sensor.mirai_probe_temp_outdoor_c`: candidato temperatura scalata `x10` dal registro `3515`, ma mapping outdoor non confermato e attualmente sospetto; non trattarlo come verita' fisica esterna senza correlazione storica aggiuntiva.
-- `binary_sensor.mirai_pump_candidate_running`: candidato stato pompa/runtime dal registro `3547`; oggi e` `on` con valori ~`22528/22784` e `off` con valori ~`9984`.
+- `binary_sensor.mirai_pump_candidate_running`: candidato storico stato pompa/runtime dal registro `3547`; non piu' candidato principale.
+- `binary_sensor.mirai_pump_do4_running`: corroborazione pompa preferita dal registro `9007` (`L204`, DO4 circolatore PdC); oggi e` il segnale piu' promettente osservato sul campo.
 - `binary_sensor.cm_modbus_mirai_ready`: usa `sensor.mirai_status_word_effective` per readiness reale.
 - `binary_sensor.mirai_machine_running`: usa `status_word_effective` (bit 01) come semantica primaria di RUN, ma accetta anche un override da consumi quando `sensor.mirai_power_w` supera la soglia operativa pur con Modbus disponibile.
 - `sensor.mirai_snapshot`: snapshot operativo allineato al profilo corrente `status_only_unit1`.
@@ -68,8 +77,8 @@ Riferimento vendor utile per discovery:
     - arancio = `B` / negativo
     - bianco/verde = `GND`
   - nota di campo: un precedente errore di cablaggio sul ramo SDM120 impediva la risposta Modbus; corretto il wiring, lo slave `2` e` tornato leggibile sullo stesso path di MIRAI.
-- Il profilo MIRAI oggi e` volutamente `status-only`: nel repo restano supportati solo i registri stabili `1003/1208/1209`.
-- I registri estesi storici (`9058`, `9068`, `9078`, `9079`, `8986`, `8987`, `8988`) non fanno parte del profilo operativo corrente perche' hanno generato timeout/runtime noise nelle evidenze di fine febbraio.
+- Il profilo MIRAI oggi e` volutamente `status-only` per il layer stabile; i registri extra restano come probe read-only lenti per audit mirato.
+- I probe documentati attivi piu' utili oggi sono `9007`, `9051`, `9052`, `8986`, `8987`, `8988`, `9121`.
 - Nota storica: indicazioni STEP23 (01 marzo 2026) sono supersedute da validazione runtime successiva.
 - Il fallback da consumi (`binary_sensor.mirai_machine_running_by_power`) resta attivo come resilienza se Modbus non risponde.
 - Il ramo consumi operativo usa `sensor.mirai_power_w_effective` per evitare che un alias template fermo blocchi la rilevazione RUN.
@@ -99,23 +108,15 @@ Riferimento vendor utile per discovery:
   - `sensor.mirai_probe_temp_outdoor_c` e` rimasto piatto a `11.7°C` per tutta la giornata (range `0`), salvo brevi `unavailable`
   - `sensor.t_out` nello stesso intervallo ha variato circa `3.1°C -> 19.0°C`
   - conclusione operativa: il match puntuale serale `11.7°C == 11.7°C` non valida `3515` come vera sonda esterna
-- Discovery path attuale per trovare la vera esterna MIRAI:
-  - `3515` e` bocciato come `outdoor` reale
-  - `4000/9050/9086` sono bocciati come `outdoor` reale
-  - `3548/9087` resta solo come probe dinamico non promosso
-  - shortlist read-only stage 2, in ordine di priorita`:
-    - `9058`
-    - `9068`
-    - `9078`
-    - `9079`
-    - `8986`
-    - `8987`
-    - `8988`
-  - motivazione: sono gli unici registri extra-profilo gia` emersi nelle evidenze storiche come superficie Modbus MIRAI oltre ai probe attuali; vanno sondati uno per volta e fuori dal profilo stabile
-  - criterio di promozione a `vera esterna`:
-    - correlazione multi-oraria con `sensor.t_out`
-    - bassa dipendenza dallo stato RUN macchina
-    - nessun rumore Modbus persistente introdotto nel profilo stabile
+- Audit live 2026-04-08 / 2026-04-09:
+  - `9007` promosso a miglior candidato pompa/circolatore
+  - `9043` declassato: non discrimina `OFF` vs `RUN`
+  - `9120/9121/9122/9123` declassati: a `0` anche in `RUN`
+  - `9051/9052` promossi come segnali di controllo utili (`L561/L562`)
+  - `8988` molto sospetto (`32768` fisso)
+  - `8986/8987` restano candidati vivi ma da chiarire come scala/semantica fisica
+- Nota password:
+  - `PW 59` nel manuale corretto e` un livello menu/service dello Smart-MT, non una password Modbus documentata da inviare al bus.
 - Questi valori sono trattati come `probe` finche' non vengono correlati con verita' fisica macchina/campo; non sono ancora promossi a naming semantico definitivo (`mandata`, `ritorno`, `ACS`, `esterna`) senza evidenza addizionale.
 - Riferimenti vendor correnti:
   - `docs/vendor/mirai/manuale_pdc.md` (parametri RS-485: RTU 9600, 8E1, address 1, timeout 1000)

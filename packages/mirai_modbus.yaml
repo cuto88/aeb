@@ -141,6 +141,54 @@ modbus:
         scan_interval: 60
         slave: 1
 
+      - name: "mirai_discovery_target_9051_raw"
+        unique_id: mirai_discovery_target_9051_raw
+        address: 9051
+        input_type: holding
+        data_type: uint16
+        scan_interval: 60
+        slave: 1
+
+      - name: "mirai_discovery_reference_9052_raw"
+        unique_id: mirai_discovery_reference_9052_raw
+        address: 9052
+        input_type: holding
+        data_type: uint16
+        scan_interval: 60
+        slave: 1
+
+      - name: "mirai_discovery_outdoor_8986_raw"
+        unique_id: mirai_discovery_outdoor_8986_raw
+        address: 8986
+        input_type: holding
+        data_type: uint16
+        scan_interval: 60
+        slave: 1
+
+      - name: "mirai_discovery_outlet_8987_raw"
+        unique_id: mirai_discovery_outlet_8987_raw
+        address: 8987
+        input_type: holding
+        data_type: uint16
+        scan_interval: 60
+        slave: 1
+
+      - name: "mirai_discovery_inlet_8988_raw"
+        unique_id: mirai_discovery_inlet_8988_raw
+        address: 8988
+        input_type: holding
+        data_type: uint16
+        scan_interval: 60
+        slave: 1
+
+      - name: "mirai_discovery_power_absorbed_9121_raw"
+        unique_id: mirai_discovery_power_absorbed_9121_raw
+        address: 9121
+        input_type: holding
+        data_type: uint16
+        scan_interval: 60
+        slave: 1
+
       - name: "sdm120_ch2_voltage_v_raw"
         unique_id: sdm120_ch2_voltage_v_raw
         address: 0

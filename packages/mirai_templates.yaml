@@ -252,6 +252,14 @@ template:
         state: >
           {{ states('sensor.mirai_probe_state_3547_raw') | int(0) >= 16384 }}
 
+      - name: "mirai_pump_do4_running"
+        unique_id: mirai_pump_do4_running
+        icon: mdi:pump
+        availability: >
+          {{ is_number(states('sensor.mirai_discovery_pump_do4_9007_raw')) }}
+        state: >
+          {{ states('sensor.mirai_discovery_pump_do4_9007_raw') | int(0) > 0 }}
+
   - trigger:
       - platform: homeassistant
         event: start
@@ -383,8 +391,11 @@ template:
           - binary_sensor.mirai_probe_temp_a_consistent
           - binary_sensor.mirai_probe_temp_b_consistent
           - binary_sensor.mirai_pump_candidate_running
+          - binary_sensor.mirai_pump_do4_running
           - sensor.mirai_probe_counter_1015_raw
           - sensor.mirai_probe_state_3547_raw
+          - sensor.mirai_discovery_target_9051_raw
+          - sensor.mirai_discovery_reference_9052_raw
       - platform: time_pattern
         seconds: "/30"
     sensor:
@@ -479,8 +490,11 @@ template:
           probe_temp_a_consistent: "{{ states('binary_sensor.mirai_probe_temp_a_consistent') }}"
           probe_temp_b_consistent: "{{ states('binary_sensor.mirai_probe_temp_b_consistent') }}"
           pump_candidate_running: "{{ states('binary_sensor.mirai_pump_candidate_running') }}"
+          pump_do4_running: "{{ states('binary_sensor.mirai_pump_do4_running') }}"
           probe_counter_1015_raw: "{{ states('sensor.mirai_probe_counter_1015_raw') }}"
           probe_state_3547_raw: "{{ states('sensor.mirai_probe_state_3547_raw') }}"
+          discovery_target_9051_raw: "{{ states('sensor.mirai_discovery_target_9051_raw') }}"
+          discovery_reference_9052_raw: "{{ states('sensor.mirai_discovery_reference_9052_raw') }}"
           status_word_raw: "{{ states('sensor.mirai_status_word_raw') }}"
           status_word_effective: "{{ states('sensor.mirai_status_word_effective') }}"
           status_bits_on: "{{ states('sensor.mirai_status_bits_on') }}"

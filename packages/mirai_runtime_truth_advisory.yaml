@@ -24,7 +24,7 @@ template:
             and states('binary_sensor.cm_modbus_mirai_ready') not in ['unknown','unavailable','']
             and states('sensor.mirai_status_word_effective') not in ['unknown','unavailable','']
             and states('binary_sensor.mirai_machine_running_by_power') not in ['unknown','unavailable','']
-            and states('binary_sensor.mirai_pump_candidate_running') not in ['unknown','unavailable','']
+            and states('binary_sensor.mirai_pump_do4_running') not in ['unknown','unavailable','']
           }}
 
       - name: "MIRAI runtime truth run window candidate"
@@ -93,7 +93,7 @@ template:
           minutes: 2
         state: >-
           {{
-            is_state('binary_sensor.mirai_pump_candidate_running', 'on')
+            is_state('binary_sensor.mirai_pump_do4_running', 'on')
             and is_state('binary_sensor.mirai_machine_running_by_power', 'on')
           }}
 
@@ -193,6 +193,7 @@ template:
           modbus_bit01_confirmed: "{{ states('binary_sensor.mirai_runtime_truth_modbus_run_confirmed') }}"
           modbus_any_run_signal: "{{ states('binary_sensor.mirai_runtime_truth_modbus_any_run_signal') }}"
           pump_candidate_running: "{{ states('binary_sensor.mirai_pump_candidate_running') }}"
+          pump_do4_running: "{{ states('binary_sensor.mirai_pump_do4_running') }}"
 
 sensor:
   - platform: history_stats
