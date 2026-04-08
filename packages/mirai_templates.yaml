@@ -269,9 +269,10 @@ template:
           {% if is_state('binary_sensor.cm_modbus_mirai_ready', 'on') %}
             {% set status_state = states('sensor.mirai_status_word_effective') %}
             {% set status_valid = status_state not in ['unknown','unavailable','none','None',''] %}
+            {% set bit00 = (status_state | int(0)) | bitwise_and(2**0) != 0 %}
             {% set bit01 = (status_state | int(0)) | bitwise_and(2**1) != 0 %}
             {% set p_on = is_state('binary_sensor.mirai_machine_running_by_power', 'on') %}
-            {{ (status_valid and bit01) or p_on }}
+            {{ (status_valid and bit01) or (status_valid and bit00 and p_on) or p_on }}
           {% elif is_state('binary_sensor.mirai_machine_running_by_power', 'on') %}
             true
           {% elif is_state('binary_sensor.mirai_machine_running_by_power', 'off') %}
@@ -366,6 +367,7 @@ template:
           - binary_sensor.cm_modbus_mirai_ready
           - binary_sensor.mirai_machine_running
           - binary_sensor.mirai_machine_running_by_power
+          - binary_sensor.mirai_status_word_bit_00
           - binary_sensor.mirai_status_word_bit_01
           - sensor.mirai_power_w_effective
           - sensor.mirai_status_word_effective
@@ -436,14 +438,17 @@ template:
         icon: mdi:source-branch
         state: >
           {% if is_state('binary_sensor.cm_modbus_mirai_ready', 'on') %}
+            {% set bit00 = is_state('binary_sensor.mirai_status_word_bit_00', 'on') %}
             {% set bit01 = is_state('binary_sensor.mirai_status_word_bit_01', 'on') %}
             {% set p_on = is_state('binary_sensor.mirai_machine_running_by_power', 'on') %}
             {% if bit01 %}
               MODBUS_STATUS
+            {% elif bit00 and p_on %}
+              MODBUS_ACTIVITY_BIT00
             {% elif p_on %}
               POWER_OVERRIDE
             {% else %}
-              MODBUS_STATUS
+              MODBUS_IDLE
             {% endif %}
           {% elif is_state('binary_sensor.mirai_machine_running_by_power', 'on') or is_state('binary_sensor.mirai_machine_running_by_power', 'off') %}
             POWER_FALLBACK
@@ -464,6 +469,7 @@ template:
           power_override_active: >
             {{ is_state('binary_sensor.cm_modbus_mirai_ready', 'on')
                and is_state('binary_sensor.mirai_machine_running_by_power', 'on')
+               and is_state('binary_sensor.mirai_status_word_bit_00', 'off')
                and is_state('binary_sensor.mirai_status_word_bit_01', 'off') }}
           mirai_power_w: "{{ states('sensor.mirai_power_w') }}"
           mirai_power_w_effective: "{{ states('sensor.mirai_power_w_effective') }}"
