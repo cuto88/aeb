@@ -8,8 +8,9 @@ Ventilation — ventilazione naturale + VMC.
 - Massimizzare il raffrescamento passivo evitando ingressi di umidità, vento forte, pioggia o PM elevati e rispettando le priorità core VMC.
 
 ## Entrypoints
-- YAML: `packages/1_ventilation.yaml`, `packages/1_ventilation_windows.yaml` (opzionale per monitor finestre).
-- Lovelace: `lovelace/1_ventilation_plancia.yaml` (plancia principale).
+- YAML: `packages/climate_ventilation.yaml`, `packages/climate_ventilation_windows.yaml`.
+- Lovelace tecnica: `lovelace/climate_ventilation_plancia.yaml` (con fallback `lovelace/climate_ventilation_plancia_v2.yaml`).
+- Entrypoint utente corrente: `lovelace/climate_casa_unified_plancia.yaml`.
 
 ## KPI / Entità principali
 ### Input (sensori, KPI, stati)

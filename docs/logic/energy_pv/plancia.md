@@ -15,6 +15,6 @@ Hardening applicato:
 - Sensore diagnostico sorgente attiva: `sensor.pv_potenza_sorgente` (`solaredge`, `localtuya_fallback`, `unavailable`).
 
 ## Riferimenti logici
-- [Modulo Surplus](../surplus/README.md)
+- [Modulo Energy PV](README.md)
 - [Regole plancia](../core/regole_plancia.md)
 - [Regole core logiche](../core/regole_core_logiche.md)

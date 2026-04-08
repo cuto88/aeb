@@ -10,7 +10,8 @@ AC — split (dry/cool) con lock anti-ciclo e coordinamento VMC.
 
 ## Entrypoints
 - YAML: `packages/climate_ac_mapping.yaml`, `packages/climate_ac_logic.yaml`.
-- Lovelace: `lovelace/3_ac_plancia.yaml`.
+- Lovelace tecnica: `lovelace/climate_ac_plancia.yaml` (con fallback `lovelace/climate_ac_plancia_v2.yaml`).
+- Entrypoint utente corrente: `lovelace/climate_casa_unified_plancia.yaml`.
 
 ## KPI / Entità principali
 ### Mappa priorità
@@ -34,7 +35,7 @@ AC — split (dry/cool) con lock anti-ciclo e coordinamento VMC.
 - Manuale può scavalcare blocco fascia ma non il failsafe sensori; termina col timer o con lo stesso toggle.
 
 ### Note operative
-- Plancia `lovelace/3_ac_plancia.yaml` mostra motivi/priorità, stato lock e timer; usare `sensor.ac_priority` come riferimento.
+- Plancia `lovelace/climate_ac_plancia.yaml` mostra motivi/priorità, stato lock e timer; usare `sensor.ac_priority` come riferimento.
 - Helper, slider e script IR stanno in `packages/climate_ac_mapping.yaml`; le automazioni restano in `packages/climate_ac_logic.yaml`.
 - Coordinamento con VMC avviene solo tramite gli hook indicati, evitando duplicazioni di logica ΔT/ΔAH.
 

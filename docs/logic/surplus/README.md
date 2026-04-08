@@ -8,8 +8,10 @@ Surplus — logica surplus FV (decisionale).
 - Attivare carichi a priorità progressiva e, quando utile, abilitare pre-carica del pavimento radiante.
 
 ## Entrypoints
-- YAML: `packages/6_surplus_energy.yaml`.
-- Lovelace: `lovelace/6_surplus_plancia.yaml`.
+- Policy/runtime layer attuale: `packages/climate_policy_energy.yaml`.
+- Osservabilita` PV correlata: `packages/energy_pv_solaredge.yaml`.
+- Dashboard energia attiva: `lovelace/energy_pv_solaredge_plancia.yaml`.
+- Nota storica: i riferimenti `6_surplus_*` restano come naming legacy nel ragionamento, non come file runtime attivi dedicati.
 
 ## KPI / Entità principali
 ### Sensori e metriche energia
@@ -26,7 +28,7 @@ Surplus — logica surplus FV (decisionale).
 - Comfort: nessuna forzatura COOL; pre-carica heating solo se comfort non già raggiunto e lock heating rispettati.
 
 ### Note di implementazione YAML
-- Automazioni/helper in `packages/6_surplus_energy.yaml`; binary_sensor di stato surplus/deficit e contatori in 0_sensors.yaml.
+- Binary sensor e reason canonici in `packages/climate_policy_energy.yaml`.
 - Ogni step usa switch dedicati e timer `timer.surplus_step_*` per lock; entità debug abilitate da `input_boolean.energy_debug`.
 - Hook verso heating gestito da automation dedicata con timeout 180m e rispetto min_off prima di nuovo invio.
 
