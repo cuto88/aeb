@@ -179,6 +179,40 @@ if ($statusLines) {
   }
 }
 
+function Mirror-Allowed {
+  param(
+    [string]$SourceRoot,
+    [string]$TargetRoot,
+    [string[]]$AllowedDirs,
+    [string[]]$AllowedFiles
+  )
+
+  foreach ($dir in $AllowedDirs) {
+    $srcDir = Join-Path $SourceRoot $dir
+    if (Test-Path $srcDir) {
+      $dstDir = Join-Path $TargetRoot $dir
+      Say "-> backup dir  $dir"
+      & robocopy $srcDir $dstDir /MIR /R:1 /W:1 /NFL /NDL /NP /NJH /NJS
+      if ($LASTEXITCODE -ge 8) {
+        throw "Backup robocopy failed for '$dir' (RC=$LASTEXITCODE)"
+      }
+    }
+  }
+
+  foreach ($file in $AllowedFiles) {
+    $srcFile = Join-Path $SourceRoot $file
+    if (Test-Path $srcFile) {
+      $dstFile = Join-Path $TargetRoot $file
+      $dstParent = Split-Path -Parent $dstFile
+      if ($dstParent) {
+        New-Item -ItemType Directory -Force -Path $dstParent | Out-Null
+      }
+      Say "-> backup file $file"
+      Copy-Item -Path $srcFile -Destination $dstFile -Force
+    }
+  }
+}
+
 # --------------------------------------------------
 # 0a) Path stato operativo (repo)
 # --------------------------------------------------
@@ -307,37 +341,27 @@ New-Item -ItemType Directory -Force -Path $backupDir | Out-Null
 
 Say "`n==> BACKUP target to $backupDir"
 
-$excludeFiles = @(
-  "*.db","*.db-shm","*.db-wal",
-  "*.log","*.log.*","*.fault",
-  "ha_run.lock",".ha_run.lock",
-  "secrets.yaml"
+$backupAllowedDirs = @(
+  "packages",
+  "lovelace",
+  "custom_components",
+  "themes"
 )
 
-$excludeDirs  = @(
-  ".git",
-  ".storage",              # <<< CRITICAL EXCLUDE
-  ".cloud",
-  "backup",
-  "backups",
-  "media",
-  "deps",
-  "__pycache__",
-  "_backup",
-  "_ha_runtime_backups",
-  "ops\_logs"
+if ($IncludeBlueprints) { $backupAllowedDirs += "blueprints" }
+if ($IncludeWww) { $backupAllowedDirs += "www" }
+if ($IncludeTts) { $backupAllowedDirs += "tts" }
+
+$backupAllowedFiles = @(
+  "configuration.yaml",
+  "automations.yaml",
+  "scripts.yaml",
+  "scenes.yaml",
+  "groups.yaml",
+  "customize.yaml"
 )
 
-$optionalExcludeDirs = @()
-if (-not $IncludeTts) { $optionalExcludeDirs += "tts" }
-if (-not $IncludeWww) { $optionalExcludeDirs += "www" }
-
-& robocopy $Target $backupDir /MIR /R:1 /W:1 /NFL /NDL /NP /NJH /NJS `
-  /XF $excludeFiles /XD @($excludeDirs + $optionalExcludeDirs)
-
-if ($LASTEXITCODE -ge 8) {
-  throw "Backup robocopy failed (RC=$LASTEXITCODE)"
-}
+Mirror-Allowed -SourceRoot $Target -TargetRoot $backupDir -AllowedDirs $backupAllowedDirs -AllowedFiles $backupAllowedFiles
 
 # --------------------------------------------------
 # 4) DEPLOY repo -> TARGET (NO .storage)
