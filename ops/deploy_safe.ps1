@@ -77,6 +77,42 @@ function Write-OpsStateFile {
   [System.IO.File]::WriteAllLines($Path, $content, $utf8NoBom)
 }
 
+function Resolve-BackupRoot {
+  param(
+    [string]$RepoRoot,
+    [string]$ConfiguredBackupRoot
+  )
+
+  $candidates = @()
+
+  if ($ConfiguredBackupRoot) {
+    if ([System.IO.Path]::IsPathRooted($ConfiguredBackupRoot)) {
+      $candidates += $ConfiguredBackupRoot
+    } else {
+      $candidates += (Join-Path $RepoRoot $ConfiguredBackupRoot)
+    }
+  }
+
+  $externalArchiveRoot = Join-Path ([System.IO.Path]::GetDirectoryName($RepoRoot)) "_repo_archives\aeb\_ha_runtime_backups"
+  if ($candidates -notcontains $externalArchiveRoot) {
+    $candidates += $externalArchiveRoot
+  }
+
+  foreach ($candidate in $candidates) {
+    if ([string]::IsNullOrWhiteSpace($candidate)) { continue }
+    if (Test-Path $candidate) {
+      return (Resolve-Path $candidate).Path
+    }
+  }
+
+  $preferred = $candidates[0]
+  if (-not [System.IO.Path]::IsPathRooted($preferred)) {
+    $preferred = Join-Path $RepoRoot $preferred
+  }
+  New-Item -ItemType Directory -Force -Path $preferred | Out-Null
+  return (Resolve-Path $preferred).Path
+}
+
 function Copy-Allowed {
   param(
     [string]$SourceRoot,
@@ -265,7 +301,8 @@ if (-not $skipLocalGates) {
 # 3) BACKUP target -> LOCAL backup (NO .storage)
 # --------------------------------------------------
 $stamp = (Get-Date -Format "yyyyMMdd_HHmmss")
-$backupDir = Join-Path (Resolve-Path $BackupRoot) ("deploy_" + $stamp)
+$resolvedBackupRoot = Resolve-BackupRoot -RepoRoot $repoRoot -ConfiguredBackupRoot $BackupRoot
+$backupDir = Join-Path $resolvedBackupRoot ("deploy_" + $stamp)
 New-Item -ItemType Directory -Force -Path $backupDir | Out-Null
 
 Say "`n==> BACKUP target to $backupDir"
