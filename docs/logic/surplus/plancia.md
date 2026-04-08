@@ -1,4 +1,10 @@
-###############################################################################
+# Surplus - Plancia
+
+Riferimento operativo corrente: `lovelace/energy_pv_solaredge_plancia.yaml`.
+
+Nota storica:
+- la naming `6_surplus_plancia` resta solo come riferimento concettuale;
+- l'osservabilita` energia/PV attiva oggi vive nella plancia `PV SolarEdge`.
 # Surplus — Documentazione layout plancia energia
 # Descrive lovelace/6_surplus_plancia.yaml (monitor produzione/consumi PV).
 ###############################################################################

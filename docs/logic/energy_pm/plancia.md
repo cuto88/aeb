@@ -1,4 +1,9 @@
-###############################################################################
+# Energy PM - Plancia
+
+Riferimento: `lovelace/consumi_mirai_ehw_plancia.yaml`.
+
+Nota:
+- le sezioni legacy sotto restano valide come descrizione del layout corrente, ma il riferimento dashboard e` stato riallineato al file runtime attivo.
 # Energy PM — Documentazione layout plancia consumi
 # Copre lovelace/5_pm_plancia.yaml per monitorare prese smart PM1/2/3.
 ###############################################################################
