@@ -112,6 +112,7 @@ input_number:
     min: 5
     max: 180
     step: 5
+    initial: 15
     unit_of_measurement: "min"
     icon: mdi:timer-play
   heating_min_off_minutes:
