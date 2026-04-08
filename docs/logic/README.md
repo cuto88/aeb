@@ -5,7 +5,7 @@ Questa cartella contiene la documentazione delle logiche di Casa Mercurio.
 - Panoramica e struttura: [`README_struttura_sistemi.md`](README_struttura_sistemi.md)
 - Audit index completo: [`../audits/README.md`](../audits/README.md)
 - Entry point storico: [`../audits/STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md`](../audits/STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md)
-- Stato runtime sintetico: [`../audits/STATUS_RUNTIME_CURRENT_2026-02-23.md`](../audits/STATUS_RUNTIME_CURRENT_2026-02-23.md)
+- Stato runtime sintetico corrente: [`../audits/CURRENT_RUNTIME_STATUS_2026-04-08.md`](../audits/CURRENT_RUNTIME_STATUS_2026-04-08.md)
 - Quadro operativo recente: [`../audits/STEP49_OPEN_ITEMS_AND_CLOSURE_SEQUENCE_2026-04-07.md`](../audits/STEP49_OPEN_ITEMS_AND_CLOSURE_SEQUENCE_2026-04-07.md)
 - Moduli principali:
   - Ventilation (ventilazione naturale + VMC):

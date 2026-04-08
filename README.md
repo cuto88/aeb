@@ -27,7 +27,7 @@ Indice completo e organizzato:
 
 Entry point consigliati:
 - baseline storica: `docs/audits/STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md`
-- stato runtime sintetico: `docs/audits/STATUS_RUNTIME_CURRENT_2026-02-23.md`
+- stato runtime sintetico corrente: `docs/audits/CURRENT_RUNTIME_STATUS_2026-04-08.md`
 - quadro operativo recente: `docs/audits/STEP49_OPEN_ITEMS_AND_CLOSURE_SEQUENCE_2026-04-07.md`
 - ultimo audit runtime esteso: `docs/audits/STEP47_POST_DEPLOY_RUNTIME_AUDIT_2026-04-06.md`
 
