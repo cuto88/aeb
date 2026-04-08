@@ -49,6 +49,12 @@ views:
                 name: "AC bloccata da VMC"
               - entity: binary_sensor.heating_should_run
                 name: "Heating run"
+              - entity: binary_sensor.heating_demand_active
+                name: "Heating demand"
+              - entity: binary_sensor.heating_held_by_min_on_lock
+                name: "Held by min ON"
+              - entity: sensor.heating_should_run_source
+                name: "Heating source"
       - type: grid
         cards:
           - type: heading
@@ -268,6 +274,12 @@ views:
                 name: "Lock min ON ok"
               - entity: binary_sensor.heating_lock_min_off_ok
                 name: "Lock min OFF ok"
+              - entity: binary_sensor.heating_demand_active
+                name: "Demand active"
+              - entity: binary_sensor.heating_held_by_min_on_lock
+                name: "Held by min ON"
+              - entity: sensor.heating_should_run_source
+                name: "Should run source"
 
       - type: grid
         cards:
@@ -443,6 +455,10 @@ views:
                 name: "MIRAI in season"
               - entity: binary_sensor.cm_mirai_branch_should_run
                 name: "MIRAI should run"
+              - entity: binary_sensor.cm_mirai_branch_should_run_by_heating_demand
+                name: "MIRAI by demand"
+              - entity: binary_sensor.cm_mirai_branch_should_run_by_heating_hold
+                name: "MIRAI by hold"
               - entity: binary_sensor.cm_mirai_branch_should_be_powered
                 name: "MIRAI should be powered"
               - entity: sensor.cm_mirai_branch_advice
@@ -455,6 +471,14 @@ views:
                 name: "MIRAI modbus expected"
               - entity: binary_sensor.heating_should_run
                 name: "Heating should run"
+              - entity: binary_sensor.heating_demand_active
+                name: "Heating demand"
+              - entity: binary_sensor.heating_held_by_min_on_lock
+                name: "Held by min ON"
+              - entity: sensor.heating_should_run_source
+                name: "Heating source"
+              - entity: sensor.cm_system_heat_source
+                name: "System heat source"
               - entity: sensor.mirai_machine_state
                 name: "MIRAI machine state"
               - entity: sensor.mirai_machine_running_source

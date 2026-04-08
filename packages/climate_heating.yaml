@@ -481,6 +481,46 @@ template:
             {% endif %}
           {% endif %}
 
+      - name: "Heating demand active"
+        unique_id: heating_demand_active
+        state: >-
+          {% if is_state('binary_sensor.heating_failsafe_sensors_bad','on') %}
+            false
+          {% else %}
+            {{ state_attr('sensor.heating_reason','action') == 'on' }}
+          {% endif %}
+
+      - name: "Heating held by min on lock"
+        unique_id: heating_held_by_min_on_lock
+        state: >-
+          {{
+            is_state('switch.heating_master','on')
+            and is_state('binary_sensor.heating_demand_active','off')
+            and is_state('binary_sensor.heating_lock_min_on_ok','off')
+          }}
+
+  - sensor:
+      - name: "Heating should run source"
+        unique_id: heating_should_run_source
+        icon: mdi:source-branch
+        state: >-
+          {% if is_state('binary_sensor.heating_failsafe_sensors_bad','on') %}
+            failsafe
+          {% elif is_state('binary_sensor.heating_demand_active','on') %}
+            demand
+          {% elif is_state('binary_sensor.heating_held_by_min_on_lock','on') %}
+            hold_min_on_lock
+          {% else %}
+            idle
+          {% endif %}
+        attributes:
+          heating_reason: "{{ states('sensor.heating_reason') }}"
+          heating_priority: "{{ states('sensor.heating_priority') }}"
+          desired_action: "{{ state_attr('sensor.heating_reason','action') }}"
+          lock_min_on_ok: "{{ states('binary_sensor.heating_lock_min_on_ok') }}"
+          lock_min_off_ok: "{{ states('binary_sensor.heating_lock_min_off_ok') }}"
+          minutes_since_change: "{{ states('sensor.heating_minutes_since_change') }}"
+
   - switch:
       - name: "Riscaldamento  comando"
         unique_id: heating_master

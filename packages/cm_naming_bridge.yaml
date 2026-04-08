@@ -135,6 +135,21 @@ template:
           {% endif %}
         availability: "{{ true }}"
 
+      - name: "CM System Heat Source"
+        unique_id: cm_system_heat_source
+        state: >-
+          {% if states('sensor.cm_system_mode_suggested') != 'HEAT' %}
+            inactive
+          {% elif is_state('binary_sensor.heating_held_by_min_on_lock', 'on') %}
+            heating_hold
+          {% elif is_state('binary_sensor.heating_demand_active', 'on') %}
+            heating_demand
+          {% elif is_state('binary_sensor.climateops_request_heat', 'on') %}
+            climateops_request_heat
+          {% else %}
+            other
+          {% endif %}
+
   - trigger:
       - platform: homeassistant
         event: start
