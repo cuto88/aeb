@@ -9,6 +9,8 @@ Indice operativo degli audit e delle note runtime del repository `aeb`.
 
 ## Current entrypoint
 - [`CURRENT_RUNTIME_STATUS_2026-04-08.md`](CURRENT_RUNTIME_STATUS_2026-04-08.md)
+- [`CURRENT_DHW_WRITER_STATUS_2026-04-08.md`](CURRENT_DHW_WRITER_STATUS_2026-04-08.md)
+- [`CURRENT_SOLAR_GAIN_AND_BRANCH_POSTURE_STATUS_2026-04-08.md`](CURRENT_SOLAR_GAIN_AND_BRANCH_POSTURE_STATUS_2026-04-08.md)
 
 ## Core baseline
 - [`STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md`](STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md)
@@ -88,5 +90,5 @@ Indice operativo degli audit e delle note runtime del repository `aeb`.
 
 ## Candidate future consolidation
 - `STATUS_RUNTIME_CURRENT_2026-02-23.md`, `DELTA_AUDIT_STATUS_2026-02-25.md`, `STEP33_GENERAL_AUDIT_STATUS_2026-03-13.md`, `STEP34_RUNTIME_REFRESH_AUDIT_2026-03-13.md`, `STEP37_RUNTIME_REFRESH_FOLLOWUP_2026-03-21.md`, `STEP47_POST_DEPLOY_RUNTIME_AUDIT_2026-04-06.md` sono ora assorbiti operativamente da `CURRENT_RUNTIME_STATUS_2026-04-08.md`, ma restano utili come sorgenti storiche.
-- `STEP40`-`STEP43` formano una mini-serie molto coerente sul writer DHW/EHW e potrebbero in futuro essere riassunti in un singolo closure note con links ai dettagli.
-- `STEP48`, `STEP52`, `STEP53` formano ormai una trilogia unica su Solar Gain e branch posture.
+- `STEP40`-`STEP43` sono ora assorbiti operativamente da `CURRENT_DHW_WRITER_STATUS_2026-04-08.md`, ma restano utili come note di validazione progressiva.
+- `STEP48`, `STEP52`, `STEP53` sono ora assorbiti operativamente da `CURRENT_SOLAR_GAIN_AND_BRANCH_POSTURE_STATUS_2026-04-08.md`, ma restano utili come audit di dettaglio e forensic trail.
