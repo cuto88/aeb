@@ -54,9 +54,9 @@ Exactly one forward write and one rollback write were executed against register 
 
 ## Evidence
 
-- [ehw_writer_validation_1104_forward_20260323_092256.csv](C:\2_OPS\aeb\docs\runtime_evidence\2026-03-22\ehw_writer_validation_1104_forward_20260323_092256.csv)
-- [ehw_writer_validation_1104_rollback_20260323_092256.csv](C:\2_OPS\aeb\docs\runtime_evidence\2026-03-22\ehw_writer_validation_1104_rollback_20260323_092256.csv)
-- [ehw_writer_validation_1104_result_20260323_092256.md](C:\2_OPS\aeb\docs\runtime_evidence\2026-03-22\ehw_writer_validation_1104_result_20260323_092256.md)
+- [ehw_writer_validation_1104_forward_20260323_092256.csv](../runtime_evidence/2026-03-22/ehw_writer_validation_1104_forward_20260323_092256.csv)
+- [ehw_writer_validation_1104_rollback_20260323_092256.csv](../runtime_evidence/2026-03-22/ehw_writer_validation_1104_rollback_20260323_092256.csv)
+- [ehw_writer_validation_1104_result_20260323_092256.md](../runtime_evidence/2026-03-22/ehw_writer_validation_1104_result_20260323_092256.md)
 
 ## Cleanup
 

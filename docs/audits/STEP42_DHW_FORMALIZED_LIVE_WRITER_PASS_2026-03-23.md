@@ -6,7 +6,7 @@ Document the successful reversible live validation of the formalized DHW writer 
 
 ## Deploy / Activation
 
-- patched [climateops_dhw_writer.yaml](C:\2_OPS\aeb\packages\climateops_dhw_writer.yaml) deployed to `/homeassistant/packages/climateops_dhw_writer.yaml`
+- patched [climateops_dhw_writer.yaml](../../packages/climateops_dhw_writer.yaml) deployed to `/homeassistant/packages/climateops_dhw_writer.yaml`
 - runtime activation via:
   - `ha core check`
   - `ha core restart`

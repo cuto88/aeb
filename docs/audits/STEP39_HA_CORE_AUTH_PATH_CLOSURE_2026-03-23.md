@@ -7,7 +7,7 @@ Document the validated Home Assistant Core API path for this workspace using `HA
 ## Effective Environment
 
 - `HA_URL=http://192.168.178.84:8123`
-- `HA_TOKEN` stored in [`.env`](C:\2_OPS\aeb\.env)
+- `HA_TOKEN` stored in `.env`
 
 ## Validation Method
 

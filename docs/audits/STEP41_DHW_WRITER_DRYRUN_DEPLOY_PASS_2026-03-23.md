@@ -6,7 +6,7 @@ Document the controlled deploy and dry-run validation pass of the additive DHW w
 
 ## Deploy Method
 
-- single-file deploy of [climateops_dhw_writer.yaml](C:\2_OPS\aeb\packages\climateops_dhw_writer.yaml) to `/homeassistant/packages/climateops_dhw_writer.yaml`
+- single-file deploy of [climateops_dhw_writer.yaml](../../packages/climateops_dhw_writer.yaml) to `/homeassistant/packages/climateops_dhw_writer.yaml`
 - activation via:
   - `ha core check`
   - `ha core restart`
@@ -72,7 +72,7 @@ Proof:
 
 ## Evidence
 
-- [ehw_dhw_writer_dryrun_validation_20260323_100643.md](C:\2_OPS\aeb\docs\runtime_evidence\2026-03-23\ehw_dhw_writer_dryrun_validation_20260323_100643.md)
+- [ehw_dhw_writer_dryrun_validation_20260323_100643.md](../runtime_evidence/2026-03-23/ehw_dhw_writer_dryrun_validation_20260323_100643.md)
 
 ## Decision
 
