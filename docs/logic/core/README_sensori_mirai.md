@@ -2,6 +2,9 @@
 
 Single source of truth per la mappa registri MIRAI usata in Home Assistant.
 
+Documento canonico di mapping:
+- [MIRAI_MODBUS_MAPPING.md](C:\2_OPS\aeb\docs\logic\core\MIRAI_MODBUS_MAPPING.md)
+
 ## Hub Modbus
 
 - Hub: `mirai`
