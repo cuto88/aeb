@@ -54,6 +54,30 @@ template:
             and is_state('binary_sensor.mirai_status_word_bit_01', 'on')
           }}
 
+      - name: "MIRAI runtime truth modbus bit00 active"
+        unique_id: mirai_runtime_truth_modbus_bit00_active
+        delay_on:
+          minutes: 2
+        delay_off:
+          minutes: 2
+        state: >-
+          {{
+            is_state('binary_sensor.cm_modbus_mirai_ready', 'on')
+            and is_state('binary_sensor.mirai_status_word_bit_00', 'on')
+          }}
+
+      - name: "MIRAI runtime truth modbus any run signal"
+        unique_id: mirai_runtime_truth_modbus_any_run_signal
+        delay_on:
+          minutes: 2
+        delay_off:
+          minutes: 2
+        state: >-
+          {{
+            is_state('binary_sensor.mirai_runtime_truth_modbus_run_confirmed', 'on')
+            or is_state('binary_sensor.mirai_runtime_truth_modbus_bit00_active', 'on')
+          }}
+
       - name: "MIRAI runtime truth pump corroborated"
         unique_id: mirai_runtime_truth_pump_corroborated
         delay_on:
@@ -75,7 +99,7 @@ template:
         state: >-
           {{
             is_state('binary_sensor.mirai_runtime_truth_run_window_candidate', 'on')
-            and is_state('binary_sensor.mirai_runtime_truth_modbus_run_confirmed', 'on')
+            and is_state('binary_sensor.mirai_runtime_truth_modbus_any_run_signal', 'on')
             and is_state('binary_sensor.mirai_runtime_truth_pump_corroborated', 'on')
           }}
 
@@ -92,13 +116,35 @@ template:
           {% if is_state('binary_sensor.mirai_runtime_truth_run_window_candidate', 'on') %}
             {% set score = score + 35 %}
           {% endif %}
+          {% if is_state('binary_sensor.mirai_runtime_truth_modbus_bit00_active', 'on') %}
+            {% set score = score + 15 %}
+          {% endif %}
           {% if is_state('binary_sensor.mirai_runtime_truth_modbus_run_confirmed', 'on') %}
-            {% set score = score + 30 %}
+            {% set score = score + 15 %}
           {% endif %}
           {% if is_state('binary_sensor.mirai_runtime_truth_pump_corroborated', 'on') %}
             {% set score = score + 25 %}
           {% endif %}
           {{ score }}
+
+      - name: "MIRAI runtime truth level"
+        unique_id: mirai_runtime_truth_level
+        icon: mdi:stairs
+        state: >-
+          {% if is_state('binary_sensor.cm_mirai_branch_powered', 'off') %}
+            branch_powered_off
+          {% elif not is_state('binary_sensor.mirai_runtime_truth_inputs_ready', 'on') %}
+            inputs_not_ready
+          {% elif is_state('binary_sensor.mirai_runtime_truth_coherent_run', 'on') %}
+            fully_corroborated_run
+          {% elif is_state('binary_sensor.mirai_runtime_truth_run_window_candidate', 'on')
+              and is_state('binary_sensor.mirai_runtime_truth_modbus_any_run_signal', 'on') %}
+            power_plus_modbus
+          {% elif is_state('binary_sensor.mirai_runtime_truth_run_window_candidate', 'on') %}
+            power_only_run
+          {% else %}
+            idle
+          {% endif %}
 
       - name: "MIRAI runtime truth reason"
         unique_id: mirai_runtime_truth_reason
@@ -110,6 +156,15 @@ template:
             inputs_not_ready
           {% elif is_state('binary_sensor.mirai_runtime_truth_coherent_run', 'on') %}
             coherent_run_observed
+          {% elif is_state('binary_sensor.mirai_runtime_truth_run_window_candidate', 'on')
+              and is_state('binary_sensor.mirai_runtime_truth_modbus_run_confirmed', 'off')
+              and is_state('binary_sensor.mirai_runtime_truth_modbus_bit00_active', 'on')
+              and is_state('binary_sensor.mirai_runtime_truth_pump_corroborated', 'off') %}
+            power_plus_modbus_bit00_no_pump_confirmation
+          {% elif is_state('binary_sensor.mirai_runtime_truth_run_window_candidate', 'on')
+              and is_state('binary_sensor.mirai_runtime_truth_modbus_bit00_active', 'on')
+              and is_state('binary_sensor.mirai_runtime_truth_pump_corroborated', 'on') %}
+            power_plus_modbus_bit00_with_pump
           {% elif is_state('binary_sensor.mirai_runtime_truth_run_window_candidate', 'off') %}
             no_run_window
           {% elif is_state('binary_sensor.mirai_runtime_truth_modbus_run_confirmed', 'off') and is_state('binary_sensor.mirai_runtime_truth_pump_corroborated', 'off') %}
@@ -127,6 +182,9 @@ template:
           power_w_effective: "{{ states('sensor.mirai_power_w_effective') }}"
           status_word_effective: "{{ states('sensor.mirai_status_word_effective') }}"
           status_bits_on: "{{ states('sensor.mirai_status_bits_on') }}"
+          modbus_bit00_active: "{{ states('binary_sensor.mirai_runtime_truth_modbus_bit00_active') }}"
+          modbus_bit01_confirmed: "{{ states('binary_sensor.mirai_runtime_truth_modbus_run_confirmed') }}"
+          modbus_any_run_signal: "{{ states('binary_sensor.mirai_runtime_truth_modbus_any_run_signal') }}"
           pump_candidate_running: "{{ states('binary_sensor.mirai_pump_candidate_running') }}"
 
 sensor:

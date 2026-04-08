@@ -487,6 +487,18 @@ views:
                 name: "MIRAI modbus posture ok"
               - entity: sensor.mirai_runtime_truth_reason
                 name: "MIRAI runtime truth"
+              - entity: sensor.mirai_runtime_truth_level
+                name: "MIRAI truth level"
+              - entity: sensor.mirai_runtime_truth_score
+                name: "MIRAI truth score"
+              - entity: binary_sensor.mirai_runtime_truth_modbus_bit00_active
+                name: "MIRAI bit00 active"
+              - entity: binary_sensor.mirai_runtime_truth_modbus_run_confirmed
+                name: "MIRAI bit01 confirmed"
+              - entity: binary_sensor.mirai_runtime_truth_modbus_any_run_signal
+                name: "MIRAI any modbus run"
+              - entity: binary_sensor.mirai_runtime_truth_pump_corroborated
+                name: "MIRAI pump corroborated"
               - entity: sensor.cm_modbus_mirai_reason
                 name: "MIRAI modbus reason"
               - entity: binary_sensor.cm_modbus_mirai_ready
