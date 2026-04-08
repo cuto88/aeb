@@ -39,6 +39,29 @@ Scopo:
 | `1015` | `sensor.mirai_probe_counter_1015_raw` | `uint16` | contatore/probe diagnostico | candidato debole |
 | `3547` | `sensor.mirai_probe_state_3547_raw`, `binary_sensor.mirai_pump_candidate_running` | `uint16` | probe di stato legato alla pompa/runtime | candidato medio |
 
+## Corrispondenza con il manuale vendor
+
+Il file vendor [manual_mirai_address.md](C:\2_OPS\aeb\docs\vendor\mirai\manual_mirai_address.md) e' coerente con il quadro runtime attuale in un punto importante:
+
+- i registri stabili `1003 / 1208 / 1209` restano un namespace separato e gia' affidabile per `status / status code / fault`;
+- la shortlist migliore per espandere il mapping non e' il cluster storico `3515 / 3547 / 3548 / 4000` da solo, ma il set documentato dal manuale Smart-MT.
+
+### Registri manuale con migliore rispondenza pratica
+
+| Registro | Etichetta manuale | Significato manuale | Valutazione attuale |
+|---|---|---|---|
+| `8986` | `L163` | outdoor air temperature | miglior candidato documentato per la vera esterna MIRAI |
+| `8987` | `L162` | water outlet from heat pump | miglior candidato documentato per leaving water |
+| `8988` | `L161` | water inlet to heat pump | miglior candidato documentato per entering water |
+| `9007` | `L204` | Smart-MT DO4, circulator | miglior candidato documentato per corroborazione pompa |
+| `9043` | `L170` | 0-10 V compressor signal | miglior candidato documentato per activity/compressor correlation |
+
+### Effetto sul mapping corrente
+
+- `3515` non va piu' considerato il candidato principale per outdoor, anche se resta esposto nel profilo stabile come probe storico.
+- `3547` resta utile come segnale candidato di stato, ma `9007` ha priorita' piu' alta come potenziale verita' pompa, perche' e' descritto esplicitamente dal manuale.
+- `8986 / 8987 / 8988 / 9007 / 9043` diventano la nuova shortlist canonica per discovery read-only.
+
 ## Status word 1003
 
 ### Bit osservati
@@ -112,6 +135,27 @@ Conclusione:
 | semantica piena `3547` | aperto | utile come pump candidate, non ancora chiusa |
 | significato vendor ufficiale di `bit 00` e `bit 01` | aperto | manca conferma documentale vendor numerica |
 
+## Nuova shortlist di discovery
+
+Ordine consigliato, read-only e uno per volta:
+
+1. `8986`
+2. `8987`
+3. `8988`
+4. `9007`
+5. `9043`
+
+Seconda fascia, solo dopo:
+
+1. `9003`
+2. `9004`
+3. `9005`
+4. `9002`
+5. `9001`
+
+Regola:
+- nessun nuovo registro entra nel profilo stabile senza correlazione ripetuta con realta' fisica e runtime.
+
 ## Regole operative
 
 - Non promuovere nuovi registri nel profilo stabile senza evidenza runtime.
@@ -122,6 +166,7 @@ Conclusione:
 ## Riferimenti
 
 - [GOVERNANCE_MIRAI.md](C:\2_OPS\aeb\docs\GOVERNANCE_MIRAI.md)
+- [manual_mirai_address.md](C:\2_OPS\aeb\docs\vendor\mirai\manual_mirai_address.md)
 - [STEP50_MIRAI_RUNTIME_TRUTH_ADVISORY_2026-04-07.md](C:\2_OPS\aeb\docs\audits\STEP50_MIRAI_RUNTIME_TRUTH_ADVISORY_2026-04-07.md)
 - [STEP51_MIRAI_MANUAL_RUN_WINDOW_PLAN_2026-04-07.md](C:\2_OPS\aeb\docs\audits\STEP51_MIRAI_MANUAL_RUN_WINDOW_PLAN_2026-04-07.md)
 - [STEP53_MIRAI_BRANCH_POWER_AND_SOLAR_GAIN_CLOSURE_2026-04-07.md](C:\2_OPS\aeb\docs\audits\STEP53_MIRAI_BRANCH_POWER_AND_SOLAR_GAIN_CLOSURE_2026-04-07.md)
