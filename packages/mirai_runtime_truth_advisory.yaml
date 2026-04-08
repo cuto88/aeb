@@ -44,6 +44,11 @@ template:
 
       - name: "MIRAI runtime truth modbus run confirmed"
         unique_id: mirai_runtime_truth_modbus_run_confirmed
+        availability: >-
+          {{
+            states('binary_sensor.cm_modbus_mirai_ready') not in ['unknown','unavailable','']
+            and states('binary_sensor.mirai_status_word_bit_01') not in ['unknown','unavailable','']
+          }}
         delay_on:
           minutes: 2
         delay_off:
@@ -56,10 +61,11 @@ template:
 
       - name: "MIRAI runtime truth modbus bit00 active"
         unique_id: mirai_runtime_truth_modbus_bit00_active
-        delay_on:
-          minutes: 2
-        delay_off:
-          minutes: 2
+        availability: >-
+          {{
+            states('binary_sensor.cm_modbus_mirai_ready') not in ['unknown','unavailable','']
+            and states('binary_sensor.mirai_status_word_bit_00') not in ['unknown','unavailable','']
+          }}
         state: >-
           {{
             is_state('binary_sensor.cm_modbus_mirai_ready', 'on')
@@ -68,10 +74,11 @@ template:
 
       - name: "MIRAI runtime truth modbus any run signal"
         unique_id: mirai_runtime_truth_modbus_any_run_signal
-        delay_on:
-          minutes: 2
-        delay_off:
-          minutes: 2
+        availability: >-
+          {{
+            states('binary_sensor.mirai_runtime_truth_modbus_run_confirmed') not in ['unknown','unavailable','']
+            and states('binary_sensor.mirai_runtime_truth_modbus_bit00_active') not in ['unknown','unavailable','']
+          }}
         state: >-
           {{
             is_state('binary_sensor.mirai_runtime_truth_modbus_run_confirmed', 'on')
