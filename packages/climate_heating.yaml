@@ -523,6 +523,34 @@ template:
           lock_min_off_ok: "{{ states('binary_sensor.heating_lock_min_off_ok') }}"
           minutes_since_change: "{{ states('sensor.heating_minutes_since_change') }}"
 
+      - name: "Heating  lock min ON remaining"
+        unique_id: heating_lock_min_on_remaining
+        unit_of_measurement: "min"
+        icon: mdi:timer-play-outline
+        state: >-
+          {% set mins = states('input_number.heating_min_on_minutes') | float(15) %}
+          {% set runtime = states('sensor.heating_minutes_since_change') | float(default=0) %}
+          {% set relay_on = is_state('switch.heating_master','on') %}
+          {% if relay_on and runtime < mins %}
+            {{ (mins - runtime) | round(1) }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: "Heating  lock min OFF remaining"
+        unique_id: heating_lock_min_off_remaining
+        unit_of_measurement: "min"
+        icon: mdi:timer-off-outline
+        state: >-
+          {% set mins = states('input_number.heating_min_off_minutes') | float(15) %}
+          {% set runtime = states('sensor.heating_minutes_since_change') | float(default=0) %}
+          {% set relay_on = is_state('switch.heating_master','on') %}
+          {% if (not relay_on) and runtime < mins %}
+            {{ (mins - runtime) | round(1) }}
+          {% else %}
+            0
+          {% endif %}
+
   - switch:
       - name: "Riscaldamento  comando"
         unique_id: heating_master

@@ -123,6 +123,24 @@ modbus:
         scan_interval: 30
         slave: 1
 
+      # Temporary read-only discovery probes from vendor Smart-MT notes.
+      # Keep polling slow and raw-only until repeated field evidence justifies promotion.
+      - name: "mirai_discovery_pump_do4_9007_raw"
+        unique_id: mirai_discovery_pump_do4_9007_raw
+        address: 9007
+        input_type: holding
+        data_type: uint16
+        scan_interval: 60
+        slave: 1
+
+      - name: "mirai_discovery_compressor_9043_raw"
+        unique_id: mirai_discovery_compressor_9043_raw
+        address: 9043
+        input_type: holding
+        data_type: uint16
+        scan_interval: 60
+        slave: 1
+
       - name: "sdm120_ch2_voltage_v_raw"
         unique_id: sdm120_ch2_voltage_v_raw
         address: 0

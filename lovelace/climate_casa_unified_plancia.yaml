@@ -270,10 +270,20 @@ views:
                 name: "Modalita manuale"
               - entity: timer.heating_manual_timeout
                 name: "Timeout manuale"
+              - entity: input_number.heating_min_on_minutes
+                name: "Min ON"
+              - entity: input_number.heating_min_off_minutes
+                name: "Min OFF"
               - entity: binary_sensor.heating_lock_min_on_ok
                 name: "Lock min ON ok"
+              - entity: sensor.heating_lock_min_on_remaining
+                name: "Min ON residuo"
               - entity: binary_sensor.heating_lock_min_off_ok
                 name: "Lock min OFF ok"
+              - entity: sensor.heating_lock_min_off_remaining
+                name: "Min OFF residuo"
+              - entity: sensor.heating_minutes_since_change
+                name: "Min da ultimo cambio"
               - entity: binary_sensor.heating_demand_active
                 name: "Demand active"
               - entity: binary_sensor.heating_held_by_min_on_lock
@@ -475,6 +485,16 @@ views:
                 name: "Heating demand"
               - entity: binary_sensor.heating_held_by_min_on_lock
                 name: "Held by min ON"
+              - entity: binary_sensor.heating_lock_min_on_ok
+                name: "Min ON ok"
+              - entity: sensor.heating_lock_min_on_remaining
+                name: "Min ON residuo"
+              - entity: binary_sensor.heating_lock_min_off_ok
+                name: "Min OFF ok"
+              - entity: sensor.heating_lock_min_off_remaining
+                name: "Min OFF residuo"
+              - entity: sensor.heating_minutes_since_change
+                name: "Min da cambio"
               - entity: sensor.heating_should_run_source
                 name: "Heating source"
               - entity: sensor.cm_system_heat_source
