@@ -199,6 +199,7 @@ Uso pratico dei trend:
 ## Deliverable futuri
 - KPI stanza-per-stanza in runtime
 - indice globale casa
+- plancia dedicata involucro / ombreggiamento / night flush
 - tabella stagionale primavera / estate / mezza stagione
 - manuale operativo sintetico per uso umano
 - eventuale automazione prudente solo dopo calibrazione
@@ -206,4 +207,5 @@ Uso pratico dei trend:
 ## Riferimenti
 - [README_sensori_clima.md](README_sensori_clima.md)
 - [regole_core_logiche.md](regole_core_logiche.md)
+- [plancia_involucro.md](plancia_involucro.md)
 - [README_ClimaSystem.md](../../../README_ClimaSystem.md)

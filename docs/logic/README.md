@@ -5,6 +5,7 @@ Questa cartella contiene la documentazione delle logiche di Casa Mercurio.
 - Panoramica e struttura: [`README_struttura_sistemi.md`](README_struttura_sistemi.md)
 - Manuale involucro / strategie passive: [`core/manuale_involucro_casa.md`](core/manuale_involucro_casa.md)
 - Spec tecnica involucro stanza-per-stanza: [`core/spec_involucro_room_model.md`](core/spec_involucro_room_model.md)
+- Plancia dedicata involucro: [`core/plancia_involucro.md`](core/plancia_involucro.md)
 - Audit index completo: [`../audits/README.md`](../audits/README.md)
 - Entry point storico: [`../audits/STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md`](../audits/STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md)
 - Stato runtime sintetico corrente: [`../audits/CURRENT_RUNTIME_STATUS_2026-04-08.md`](../audits/CURRENT_RUNTIME_STATUS_2026-04-08.md)

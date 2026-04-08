@@ -168,6 +168,12 @@ Valori suggeriti:
 - recommended action
 - AC justified
 
+### Fase 5. Plancia dedicata
+- vista involucro separata dalla plancia clima unificata
+- header stato casa
+- tabella stanza-per-stanza
+- trend esterni e storico breve
+
 ## Vincoli progettuali
 - Nessuna automazione attiva in questa fase.
 - Le entita` devono essere osservabili e spiegabili prima di essere usate per attuazione.
@@ -175,5 +181,6 @@ Valori suggeriti:
 
 ## Riferimenti
 - [manuale_involucro_casa.md](manuale_involucro_casa.md)
+- [plancia_involucro.md](plancia_involucro.md)
 - [README_sensori_clima.md](README_sensori_clima.md)
 - [regole_core_logiche.md](regole_core_logiche.md)
