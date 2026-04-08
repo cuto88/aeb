@@ -43,7 +43,7 @@ views:
           - sensor.envelope_giorno_overheating_risk
           - binary_sensor.envelope_giorno_shade_recommended
           - binary_sensor.envelope_giorno_night_flush_candidate
-          - binary_sensor.windows_giorno_any
+          - binary_sensor.finestre_zona_giorno_aperte
 
       - type: entities
         title: Zona Notte
@@ -65,7 +65,7 @@ views:
           - sensor.envelope_notte2_overheating_risk
           - binary_sensor.envelope_notte2_shade_recommended
           - binary_sensor.envelope_notte2_night_flush_candidate
-          - binary_sensor.windows_notte_any
+          - binary_sensor.finestre_zona_notte_aperte
 
       - type: entities
         title: Bagno
@@ -79,7 +79,7 @@ views:
           - sensor.envelope_bagno_overheating_risk
           - binary_sensor.envelope_bagno_shade_recommended
           - binary_sensor.envelope_bagno_night_flush_candidate
-          - binary_sensor.windows_bagno_any
+          - binary_sensor.finestre_bagno_aperte
 
       - type: custom:mini-graph-card
         name: Trend Involucro
