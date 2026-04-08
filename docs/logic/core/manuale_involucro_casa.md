@@ -19,7 +19,7 @@ Documento operativo per modellare come la casa reagisce a sole, ombreggiamento, 
 
 Nota:
 - queste soglie sono iniziali e vanno tarate stanza per stanza;
-- il criterio non e` solo temperatura assoluta, ma `temperatura + velocita` di salita + contesto esterno`.
+- il criterio non e` solo temperatura assoluta, ma `temperatura + velocita` di salita + contesto esterno + trend esterno`.
 
 ## Livelli di analisi
 
@@ -48,6 +48,12 @@ La casa aggrega la situazione delle stanze e risponde a:
 - `switch.heating_master`
 - `switch.ac_giorno`
 - `switch.ac_notte`
+
+### Trend esterni
+- `t_out_rise_rate_cph`
+- `t_out_drop_rate_cph`
+- `delta_t_in_out_trend`
+- eventuale finestra termica utile stimata per il raffrescamento
 
 ### Per stanza
 - `sensor.t_in_giorno`
@@ -90,6 +96,12 @@ Naming suggerito:
 - `house_ac_justified`
 - `recommended_envelope_action`
 
+### KPI globali esterni / di contesto
+- `outdoor_cooling_window_state`
+- `time_to_cool_window`
+- `thermal_rebound_risk`
+- `outdoor_thermal_trend_state`
+
 ## Stati decisionali da raggiungere
 
 ### Guardo il sole come utile
@@ -116,6 +128,7 @@ Azione:
 Condizioni tipiche:
 - casa carica di calore nel tardo pomeriggio/sera
 - esterno sensibilmente piu` fresco
+- esterno in raffreddamento, non solo momentaneamente piu` basso
 - umidita` esterna accettabile
 - niente pioggia / vento eccessivo / condizioni sfavorevoli
 
@@ -128,6 +141,7 @@ Condizioni tipiche:
 - sole non piu` gestibile con schermatura
 - night flush non disponibile o insufficiente
 - inerzia dell'involucro gia` troppo carica
+- trend esterno non favorevole a uno scarico naturale rapido
 
 Azione:
 - AC come ultima misura
@@ -138,9 +152,20 @@ Azione:
 | --- | --- | --- |
 | Sole utile, casa ancora fresca | stanza < `24.5 C`, salita moderata | lasciare entrare il sole |
 | Sole forte, stanza in salita rapida | stanza >= `24.5 C`, rise rate elevato | chiudere scuri / schermare |
-| Casa calda ma sera favorevole | esterno piu` fresco, casa chiusa, umidita` ok | aprire per night flush |
-| Casa calda e fuori non aiuta | esterno non abbastanza favorevole | tenere chiuso e limitare apporti |
+| Casa calda ma sera favorevole | esterno piu` fresco e in raffreddamento, casa chiusa, umidita` ok | aprire per night flush |
+| Casa calda e fuori non aiuta | esterno non abbastanza favorevole o ancora in riscaldamento | tenere chiuso e limitare apporti |
 | Comfort gia` perso | stanza/e oltre soglia alta e senza scarico utile | AC giustificata |
+
+## Perche' servono i trend esterni
+- La temperatura esterna istantanea non basta per decidere aperture e night flush.
+- Un esterno "accettabile adesso" puo` diventare penalizzante pochi minuti dopo se sta ancora salendo.
+- Un esterno solo leggermente piu` fresco puo` diventare molto utile se sta scendendo rapidamente.
+
+Uso pratico dei trend:
+- `t_out_rise_rate_cph` aiuta a capire quando chiudere prima che fuori peggiori.
+- `t_out_drop_rate_cph` aiuta a capire quando aprire davvero per scaricare massa termica.
+- `delta_t_in_out_trend` dice se il margine di raffrescamento si sta aprendo o si sta chiudendo.
+- `thermal_rebound_risk` stima il rischio di peggiorare aprendo troppo presto.
 
 ## Strategia di raccolta misure
 
@@ -159,11 +184,17 @@ Azione:
 - confrontare casa chiusa vs night flush
 - capire quanto margine si recupera prima della mattina successiva
 
+### Fase 4. Relazione trend esterno -> timing azione
+- misurare quando l'esterno smette di peggiorare e inizia davvero a diventare utile
+- distinguere "esterno fresco adesso" da "esterno in raffreddamento stabile"
+- stimare il momento corretto per aprire, non solo la condizione corretta
+
 ## Regole operative iniziali
 - Non usare la media casa per decidere schermatura locale se una stanza e` chiaramente piu` esposta.
 - La prima soglia utile per azione preventiva e` `24.5 C`, non `25.5 C`.
 - La soglia `25.5 C` va trattata come limite da non inseguire in ritardo.
 - L'AC non deve essere il primo correttivo del sole: prima involucro, poi ventilazione, poi AC.
+- I trend esterni devono pesare nelle decisioni di apertura/chiusura, non solo il valore istantaneo di `t_out`.
 
 ## Deliverable futuri
 - KPI stanza-per-stanza in runtime
