@@ -1,0 +1,116 @@
+title: Involucro Casa
+views:
+  - title: Involucro
+    path: involucro
+    icon: mdi:home-thermometer-outline
+    cards:
+      - type: entities
+        title: Stato Casa
+        show_header_toggle: false
+        entities:
+          - sensor.envelope_recommended_action
+          - sensor.envelope_house_passive_gain_state
+          - sensor.envelope_house_night_flush_potential
+          - binary_sensor.envelope_house_ac_justified
+          - sensor.envelope_worst_room_name
+          - sensor.envelope_worst_room_overheating_risk
+          - sensor.envelope_rooms_shade_recommended_count
+          - sensor.envelope_rooms_night_flush_candidate_count
+
+      - type: entities
+        title: Contesto Esterno
+        show_header_toggle: false
+        entities:
+          - sensor.t_out
+          - sensor.ur_out
+          - sensor.pv_power_now
+          - sensor.envelope_t_out_rise_rate_cph
+          - sensor.envelope_t_out_drop_rate_cph
+          - sensor.envelope_delta_t_in_out_trend
+          - sensor.envelope_outdoor_cooling_window_state
+          - sensor.envelope_time_to_cool_window
+          - sensor.envelope_thermal_rebound_risk
+
+      - type: entities
+        title: Zona Giorno
+        show_header_toggle: false
+        entities:
+          - sensor.t_in_giorno
+          - sensor.envelope_giorno_rise_rate_cph
+          - sensor.envelope_giorno_delta_vs_outdoor_c
+          - sensor.envelope_giorno_delta_vs_house_avg_c
+          - sensor.envelope_giorno_solar_gain_score
+          - sensor.envelope_giorno_overheating_risk
+          - binary_sensor.envelope_giorno_shade_recommended
+          - binary_sensor.envelope_giorno_night_flush_candidate
+          - binary_sensor.windows_giorno_any
+
+      - type: entities
+        title: Zona Notte
+        show_header_toggle: false
+        entities:
+          - sensor.t_in_notte1
+          - sensor.envelope_notte1_rise_rate_cph
+          - sensor.envelope_notte1_delta_vs_outdoor_c
+          - sensor.envelope_notte1_delta_vs_house_avg_c
+          - sensor.envelope_notte1_solar_gain_score
+          - sensor.envelope_notte1_overheating_risk
+          - binary_sensor.envelope_notte1_shade_recommended
+          - binary_sensor.envelope_notte1_night_flush_candidate
+          - sensor.t_in_notte2
+          - sensor.envelope_notte2_rise_rate_cph
+          - sensor.envelope_notte2_delta_vs_outdoor_c
+          - sensor.envelope_notte2_delta_vs_house_avg_c
+          - sensor.envelope_notte2_solar_gain_score
+          - sensor.envelope_notte2_overheating_risk
+          - binary_sensor.envelope_notte2_shade_recommended
+          - binary_sensor.envelope_notte2_night_flush_candidate
+          - binary_sensor.windows_notte_any
+
+      - type: entities
+        title: Bagno
+        show_header_toggle: false
+        entities:
+          - sensor.t_in_bagno
+          - sensor.envelope_bagno_rise_rate_cph
+          - sensor.envelope_bagno_delta_vs_outdoor_c
+          - sensor.envelope_bagno_delta_vs_house_avg_c
+          - sensor.envelope_bagno_solar_gain_score
+          - sensor.envelope_bagno_overheating_risk
+          - binary_sensor.envelope_bagno_shade_recommended
+          - binary_sensor.envelope_bagno_night_flush_candidate
+          - binary_sensor.windows_bagno_any
+
+      - type: custom:mini-graph-card
+        name: Trend Involucro
+        hours_to_show: 12
+        points_per_hour: 2
+        show:
+          fill: false
+        entities:
+          - entity: sensor.t_in_med
+            name: T casa
+          - entity: sensor.t_out
+            name: T esterna
+          - entity: sensor.t_in_giorno
+            name: Giorno
+          - entity: sensor.t_in_notte1
+            name: Notte1
+          - entity: sensor.t_in_notte2
+            name: Notte2
+
+      - type: custom:mini-graph-card
+        name: Trend Dinamica
+        hours_to_show: 12
+        points_per_hour: 2
+        show:
+          fill: false
+        entities:
+          - entity: sensor.envelope_giorno_rise_rate_cph
+            name: Giorno rise
+          - entity: sensor.envelope_notte1_rise_rate_cph
+            name: Notte1 rise
+          - entity: sensor.envelope_notte2_rise_rate_cph
+            name: Notte2 rise
+          - entity: sensor.envelope_t_out_drop_rate_cph
+            name: T out drop

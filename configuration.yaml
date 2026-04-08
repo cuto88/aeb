@@ -47,6 +47,13 @@ lovelace:
       show_in_sidebar: true
       filename: lovelace/climate_casa_unified_plancia.yaml
 
+    1-involucro:
+      mode: yaml
+      title: "1 Involucro"
+      icon: mdi:home-thermometer-outline
+      show_in_sidebar: true
+      filename: lovelace/envelope_involucro_plancia.yaml
+
     2-heating:
       mode: yaml
       title: "2 Riscaldamento"

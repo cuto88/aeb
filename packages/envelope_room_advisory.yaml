@@ -1,0 +1,618 @@
+---
+# Advisory stanza-per-stanza per involucro / guadagno solare / night flush.
+# Nessuna attuazione automatica: espone solo sensori osservabili e consigli operativi.
+
+input_number:
+  envelope_night_flush_delta_c:
+    name: "Envelope room - night flush delta (°C)"
+    min: 0.5
+    max: 5
+    step: 0.1
+    initial: 1.0
+    unit_of_measurement: "°C"
+    icon: mdi:window-open-variant
+
+  envelope_outdoor_trend_active_cph:
+    name: "Envelope room - outdoor trend active (°C/h)"
+    min: 0.05
+    max: 2
+    step: 0.05
+    initial: 0.15
+    unit_of_measurement: "°C/h"
+    icon: mdi:chart-line
+
+template:
+  - binary_sensor:
+      - name: "Envelope room advisory inputs ready"
+        unique_id: envelope_room_advisory_inputs_ready
+        state: >-
+          {{
+            states('sensor.t_in_med') not in ['unknown', 'unavailable', '']
+            and states('sensor.t_out') not in ['unknown', 'unavailable', '']
+            and states('sensor.pv_power_now') not in ['unknown', 'unavailable', '']
+            and states('switch.heating_master') not in ['unknown', 'unavailable', '']
+            and states('switch.ac_giorno') not in ['unknown', 'unavailable', '']
+            and states('switch.ac_notte') not in ['unknown', 'unavailable', '']
+          }}
+
+  - sensor:
+      - name: "Envelope giorno rise rate cph"
+        unique_id: envelope_giorno_rise_rate_cph
+        unit_of_measurement: "°C/h"
+        icon: mdi:thermometer-chevron-up
+        state: "{{ states('sensor.envelope_giorno_rise_rate_cph_raw') }}"
+
+      - name: "Envelope notte1 rise rate cph"
+        unique_id: envelope_notte1_rise_rate_cph
+        unit_of_measurement: "°C/h"
+        icon: mdi:thermometer-chevron-up
+        state: "{{ states('sensor.envelope_notte1_rise_rate_cph_raw') }}"
+
+      - name: "Envelope notte2 rise rate cph"
+        unique_id: envelope_notte2_rise_rate_cph
+        unit_of_measurement: "°C/h"
+        icon: mdi:thermometer-chevron-up
+        state: "{{ states('sensor.envelope_notte2_rise_rate_cph_raw') }}"
+
+      - name: "Envelope bagno rise rate cph"
+        unique_id: envelope_bagno_rise_rate_cph
+        unit_of_measurement: "°C/h"
+        icon: mdi:thermometer-chevron-up
+        state: "{{ states('sensor.envelope_bagno_rise_rate_cph_raw') }}"
+
+      - name: "Envelope giorno delta vs outdoor c"
+        unique_id: envelope_giorno_delta_vs_outdoor_c
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set room = states('sensor.t_in_giorno') | float(default=none) %}
+          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% if room is number and out is number %}{{ (room - out) | round(2) }}{% else %}unknown{% endif %}
+
+      - name: "Envelope notte1 delta vs outdoor c"
+        unique_id: envelope_notte1_delta_vs_outdoor_c
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set room = states('sensor.t_in_notte1') | float(default=none) %}
+          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% if room is number and out is number %}{{ (room - out) | round(2) }}{% else %}unknown{% endif %}
+
+      - name: "Envelope notte2 delta vs outdoor c"
+        unique_id: envelope_notte2_delta_vs_outdoor_c
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set room = states('sensor.t_in_notte2') | float(default=none) %}
+          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% if room is number and out is number %}{{ (room - out) | round(2) }}{% else %}unknown{% endif %}
+
+      - name: "Envelope bagno delta vs outdoor c"
+        unique_id: envelope_bagno_delta_vs_outdoor_c
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set room = states('sensor.t_in_bagno') | float(default=none) %}
+          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% if room is number and out is number %}{{ (room - out) | round(2) }}{% else %}unknown{% endif %}
+
+      - name: "Envelope giorno delta vs house avg c"
+        unique_id: envelope_giorno_delta_vs_house_avg_c
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set room = states('sensor.t_in_giorno') | float(default=none) %}
+          {% set avg = states('sensor.t_in_med') | float(default=none) %}
+          {% if room is number and avg is number %}{{ (room - avg) | round(2) }}{% else %}unknown{% endif %}
+
+      - name: "Envelope notte1 delta vs house avg c"
+        unique_id: envelope_notte1_delta_vs_house_avg_c
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set room = states('sensor.t_in_notte1') | float(default=none) %}
+          {% set avg = states('sensor.t_in_med') | float(default=none) %}
+          {% if room is number and avg is number %}{{ (room - avg) | round(2) }}{% else %}unknown{% endif %}
+
+      - name: "Envelope notte2 delta vs house avg c"
+        unique_id: envelope_notte2_delta_vs_house_avg_c
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set room = states('sensor.t_in_notte2') | float(default=none) %}
+          {% set avg = states('sensor.t_in_med') | float(default=none) %}
+          {% if room is number and avg is number %}{{ (room - avg) | round(2) }}{% else %}unknown{% endif %}
+
+      - name: "Envelope bagno delta vs house avg c"
+        unique_id: envelope_bagno_delta_vs_house_avg_c
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set room = states('sensor.t_in_bagno') | float(default=none) %}
+          {% set avg = states('sensor.t_in_med') | float(default=none) %}
+          {% if room is number and avg is number %}{{ (room - avg) | round(2) }}{% else %}unknown{% endif %}
+
+      - name: "Envelope giorno solar gain score"
+        unique_id: envelope_giorno_solar_gain_score
+        unit_of_measurement: "%"
+        icon: mdi:white-balance-sunny
+        state: >-
+          {% set pv = states('sensor.pv_power_now') | float(default=none) %}
+          {% set pv_active = states('input_number.solar_gain_pv_active_w') | float(1200) %}
+          {% set pv_strong = states('input_number.solar_gain_pv_strong_w') | float(2200) %}
+          {% set rise = states('sensor.envelope_giorno_rise_rate_cph_raw') | float(default=none) %}
+          {% set rise_high = states('input_number.solar_gain_rise_high_cph') | float(0.45) %}
+          {% set delta_avg = states('sensor.envelope_giorno_delta_vs_house_avg_c') | float(default=none) %}
+          {% if pv is not number or rise is not number or delta_avg is not number %}0
+          {% elif pv < pv_active or rise <= 0 or delta_avg <= 0 %}0
+          {% else %}
+            {% set pv_score = 40 if pv >= pv_strong else (((pv - pv_active) / (pv_strong - pv_active)) * 40) | round(0) %}
+            {% set rise_score = 40 if rise >= rise_high else ((rise / rise_high) * 40) | round(0) %}
+            {% set room_score = 20 if delta_avg >= 1 else ((delta_avg / 1) * 20) | round(0) %}
+            {{ [pv_score + rise_score + room_score, 100] | min }}
+          {% endif %}
+
+      - name: "Envelope notte1 solar gain score"
+        unique_id: envelope_notte1_solar_gain_score
+        unit_of_measurement: "%"
+        icon: mdi:white-balance-sunny
+        state: >-
+          {% set pv = states('sensor.pv_power_now') | float(default=none) %}
+          {% set pv_active = states('input_number.solar_gain_pv_active_w') | float(1200) %}
+          {% set pv_strong = states('input_number.solar_gain_pv_strong_w') | float(2200) %}
+          {% set rise = states('sensor.envelope_notte1_rise_rate_cph_raw') | float(default=none) %}
+          {% set rise_high = states('input_number.solar_gain_rise_high_cph') | float(0.45) %}
+          {% set delta_avg = states('sensor.envelope_notte1_delta_vs_house_avg_c') | float(default=none) %}
+          {% if pv is not number or rise is not number or delta_avg is not number %}0
+          {% elif pv < pv_active or rise <= 0 or delta_avg <= 0 %}0
+          {% else %}
+            {% set pv_score = 40 if pv >= pv_strong else (((pv - pv_active) / (pv_strong - pv_active)) * 40) | round(0) %}
+            {% set rise_score = 40 if rise >= rise_high else ((rise / rise_high) * 40) | round(0) %}
+            {% set room_score = 20 if delta_avg >= 1 else ((delta_avg / 1) * 20) | round(0) %}
+            {{ [pv_score + rise_score + room_score, 100] | min }}
+          {% endif %}
+
+      - name: "Envelope notte2 solar gain score"
+        unique_id: envelope_notte2_solar_gain_score
+        unit_of_measurement: "%"
+        icon: mdi:white-balance-sunny
+        state: >-
+          {% set pv = states('sensor.pv_power_now') | float(default=none) %}
+          {% set pv_active = states('input_number.solar_gain_pv_active_w') | float(1200) %}
+          {% set pv_strong = states('input_number.solar_gain_pv_strong_w') | float(2200) %}
+          {% set rise = states('sensor.envelope_notte2_rise_rate_cph_raw') | float(default=none) %}
+          {% set rise_high = states('input_number.solar_gain_rise_high_cph') | float(0.45) %}
+          {% set delta_avg = states('sensor.envelope_notte2_delta_vs_house_avg_c') | float(default=none) %}
+          {% if pv is not number or rise is not number or delta_avg is not number %}0
+          {% elif pv < pv_active or rise <= 0 or delta_avg <= 0 %}0
+          {% else %}
+            {% set pv_score = 40 if pv >= pv_strong else (((pv - pv_active) / (pv_strong - pv_active)) * 40) | round(0) %}
+            {% set rise_score = 40 if rise >= rise_high else ((rise / rise_high) * 40) | round(0) %}
+            {% set room_score = 20 if delta_avg >= 1 else ((delta_avg / 1) * 20) | round(0) %}
+            {{ [pv_score + rise_score + room_score, 100] | min }}
+          {% endif %}
+
+      - name: "Envelope bagno solar gain score"
+        unique_id: envelope_bagno_solar_gain_score
+        unit_of_measurement: "%"
+        icon: mdi:white-balance-sunny
+        state: >-
+          {% set pv = states('sensor.pv_power_now') | float(default=none) %}
+          {% set pv_active = states('input_number.solar_gain_pv_active_w') | float(1200) %}
+          {% set pv_strong = states('input_number.solar_gain_pv_strong_w') | float(2200) %}
+          {% set rise = states('sensor.envelope_bagno_rise_rate_cph_raw') | float(default=none) %}
+          {% set rise_high = states('input_number.solar_gain_rise_high_cph') | float(0.45) %}
+          {% set delta_avg = states('sensor.envelope_bagno_delta_vs_house_avg_c') | float(default=none) %}
+          {% if pv is not number or rise is not number or delta_avg is not number %}0
+          {% elif pv < pv_active or rise <= 0 or delta_avg <= 0 %}0
+          {% else %}
+            {% set pv_score = 40 if pv >= pv_strong else (((pv - pv_active) / (pv_strong - pv_active)) * 40) | round(0) %}
+            {% set rise_score = 40 if rise >= rise_high else ((rise / rise_high) * 40) | round(0) %}
+            {% set room_score = 20 if delta_avg >= 1 else ((delta_avg / 1) * 20) | round(0) %}
+            {{ [pv_score + rise_score + room_score, 100] | min }}
+          {% endif %}
+
+      - name: "Envelope giorno overheating risk"
+        unique_id: envelope_giorno_overheating_risk
+        unit_of_measurement: "%"
+        icon: mdi:home-thermometer
+        state: >-
+          {% set t_room = states('sensor.t_in_giorno') | float(default=none) %}
+          {% set warm = states('input_number.solar_gain_indoor_warm_c') | float(24.5) %}
+          {% set hot = states('input_number.solar_gain_indoor_hot_c') | float(25.5) %}
+          {% set rise = states('sensor.envelope_giorno_rise_rate_cph_raw') | float(default=none) %}
+          {% set rise_high = states('input_number.solar_gain_rise_high_cph') | float(0.45) %}
+          {% set delta_avg = states('sensor.envelope_giorno_delta_vs_house_avg_c') | float(default=none) %}
+          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% if t_room is not number or rise is not number or delta_avg is not number or out is not number %}0
+          {% else %}
+            {% set temp_score = 40 if t_room >= hot else (((t_room - warm) / (hot - warm)) * 40) | round(0) if t_room >= warm else 0 %}
+            {% set rise_score = 30 if rise >= rise_high else ((rise / rise_high) * 30) | round(0) if rise > 0 else 0 %}
+            {% set exp_score = 20 if delta_avg >= 1 else ((delta_avg / 1) * 20) | round(0) if delta_avg > 0 else 0 %}
+            {% set out_score = 10 if out >= t_room - 0.5 else 5 if out >= t_room - 1 else 0 %}
+            {{ [temp_score + rise_score + exp_score + out_score, 100] | min }}
+          {% endif %}
+
+      - name: "Envelope notte1 overheating risk"
+        unique_id: envelope_notte1_overheating_risk
+        unit_of_measurement: "%"
+        icon: mdi:home-thermometer
+        state: >-
+          {% set t_room = states('sensor.t_in_notte1') | float(default=none) %}
+          {% set warm = states('input_number.solar_gain_indoor_warm_c') | float(24.5) %}
+          {% set hot = states('input_number.solar_gain_indoor_hot_c') | float(25.5) %}
+          {% set rise = states('sensor.envelope_notte1_rise_rate_cph_raw') | float(default=none) %}
+          {% set rise_high = states('input_number.solar_gain_rise_high_cph') | float(0.45) %}
+          {% set delta_avg = states('sensor.envelope_notte1_delta_vs_house_avg_c') | float(default=none) %}
+          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% if t_room is not number or rise is not number or delta_avg is not number or out is not number %}0
+          {% else %}
+            {% set temp_score = 40 if t_room >= hot else (((t_room - warm) / (hot - warm)) * 40) | round(0) if t_room >= warm else 0 %}
+            {% set rise_score = 30 if rise >= rise_high else ((rise / rise_high) * 30) | round(0) if rise > 0 else 0 %}
+            {% set exp_score = 20 if delta_avg >= 1 else ((delta_avg / 1) * 20) | round(0) if delta_avg > 0 else 0 %}
+            {% set out_score = 10 if out >= t_room - 0.5 else 5 if out >= t_room - 1 else 0 %}
+            {{ [temp_score + rise_score + exp_score + out_score, 100] | min }}
+          {% endif %}
+
+      - name: "Envelope notte2 overheating risk"
+        unique_id: envelope_notte2_overheating_risk
+        unit_of_measurement: "%"
+        icon: mdi:home-thermometer
+        state: >-
+          {% set t_room = states('sensor.t_in_notte2') | float(default=none) %}
+          {% set warm = states('input_number.solar_gain_indoor_warm_c') | float(24.5) %}
+          {% set hot = states('input_number.solar_gain_indoor_hot_c') | float(25.5) %}
+          {% set rise = states('sensor.envelope_notte2_rise_rate_cph_raw') | float(default=none) %}
+          {% set rise_high = states('input_number.solar_gain_rise_high_cph') | float(0.45) %}
+          {% set delta_avg = states('sensor.envelope_notte2_delta_vs_house_avg_c') | float(default=none) %}
+          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% if t_room is not number or rise is not number or delta_avg is not number or out is not number %}0
+          {% else %}
+            {% set temp_score = 40 if t_room >= hot else (((t_room - warm) / (hot - warm)) * 40) | round(0) if t_room >= warm else 0 %}
+            {% set rise_score = 30 if rise >= rise_high else ((rise / rise_high) * 30) | round(0) if rise > 0 else 0 %}
+            {% set exp_score = 20 if delta_avg >= 1 else ((delta_avg / 1) * 20) | round(0) if delta_avg > 0 else 0 %}
+            {% set out_score = 10 if out >= t_room - 0.5 else 5 if out >= t_room - 1 else 0 %}
+            {{ [temp_score + rise_score + exp_score + out_score, 100] | min }}
+          {% endif %}
+
+      - name: "Envelope bagno overheating risk"
+        unique_id: envelope_bagno_overheating_risk
+        unit_of_measurement: "%"
+        icon: mdi:home-thermometer
+        state: >-
+          {% set t_room = states('sensor.t_in_bagno') | float(default=none) %}
+          {% set warm = states('input_number.solar_gain_indoor_warm_c') | float(24.5) %}
+          {% set hot = states('input_number.solar_gain_indoor_hot_c') | float(25.5) %}
+          {% set rise = states('sensor.envelope_bagno_rise_rate_cph_raw') | float(default=none) %}
+          {% set rise_high = states('input_number.solar_gain_rise_high_cph') | float(0.45) %}
+          {% set delta_avg = states('sensor.envelope_bagno_delta_vs_house_avg_c') | float(default=none) %}
+          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% if t_room is not number or rise is not number or delta_avg is not number or out is not number %}0
+          {% else %}
+            {% set temp_score = 40 if t_room >= hot else (((t_room - warm) / (hot - warm)) * 40) | round(0) if t_room >= warm else 0 %}
+            {% set rise_score = 30 if rise >= rise_high else ((rise / rise_high) * 30) | round(0) if rise > 0 else 0 %}
+            {% set exp_score = 20 if delta_avg >= 1 else ((delta_avg / 1) * 20) | round(0) if delta_avg > 0 else 0 %}
+            {% set out_score = 10 if out >= t_room - 0.5 else 5 if out >= t_room - 1 else 0 %}
+            {{ [temp_score + rise_score + exp_score + out_score, 100] | min }}
+          {% endif %}
+
+      - name: "Envelope rooms shade recommended count"
+        unique_id: envelope_rooms_shade_recommended_count
+        icon: mdi:window-shutter-alert
+        state: >-
+          {{
+            [
+              is_state('binary_sensor.envelope_giorno_shade_recommended', 'on'),
+              is_state('binary_sensor.envelope_notte1_shade_recommended', 'on'),
+              is_state('binary_sensor.envelope_notte2_shade_recommended', 'on'),
+              is_state('binary_sensor.envelope_bagno_shade_recommended', 'on')
+            ] | select('equalto', true) | list | count
+          }}
+
+      - name: "Envelope rooms night flush candidate count"
+        unique_id: envelope_rooms_night_flush_candidate_count
+        icon: mdi:window-open-variant
+        state: >-
+          {{
+            [
+              is_state('binary_sensor.envelope_giorno_night_flush_candidate', 'on'),
+              is_state('binary_sensor.envelope_notte1_night_flush_candidate', 'on'),
+              is_state('binary_sensor.envelope_notte2_night_flush_candidate', 'on'),
+              is_state('binary_sensor.envelope_bagno_night_flush_candidate', 'on')
+            ] | select('equalto', true) | list | count
+          }}
+
+      - name: "Envelope worst room name"
+        unique_id: envelope_worst_room_name
+        icon: mdi:home-alert-outline
+        state: >-
+          {% set pairs = [
+            ('giorno', states('sensor.envelope_giorno_overheating_risk') | float(default=0)),
+            ('notte1', states('sensor.envelope_notte1_overheating_risk') | float(default=0)),
+            ('notte2', states('sensor.envelope_notte2_overheating_risk') | float(default=0)),
+            ('bagno', states('sensor.envelope_bagno_overheating_risk') | float(default=0))
+          ] %}
+          {% set ns = namespace(name='none', score=0) %}
+          {% for name, score in pairs %}
+            {% if score > ns.score %}
+              {% set ns.name = name %}
+              {% set ns.score = score %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.name }}
+
+      - name: "Envelope worst room overheating risk"
+        unique_id: envelope_worst_room_overheating_risk
+        unit_of_measurement: "%"
+        icon: mdi:home-thermometer-outline
+        state: >-
+          {{
+            [
+              states('sensor.envelope_giorno_overheating_risk') | float(default=0),
+              states('sensor.envelope_notte1_overheating_risk') | float(default=0),
+              states('sensor.envelope_notte2_overheating_risk') | float(default=0),
+              states('sensor.envelope_bagno_overheating_risk') | float(default=0)
+            ] | max | round(0)
+          }}
+
+      - name: "Envelope t out rise rate cph"
+        unique_id: envelope_t_out_rise_rate_cph
+        unit_of_measurement: "°C/h"
+        icon: mdi:thermometer-chevron-up
+        state: >-
+          {% set rate = states('sensor.envelope_t_out_rate_cph_raw') | float(default=none) %}
+          {% if rate is number and rate > 0 %}{{ rate | round(3) }}{% else %}0{% endif %}
+
+      - name: "Envelope t out drop rate cph"
+        unique_id: envelope_t_out_drop_rate_cph
+        unit_of_measurement: "°C/h"
+        icon: mdi:thermometer-chevron-down
+        state: >-
+          {% set rate = states('sensor.envelope_t_out_rate_cph_raw') | float(default=none) %}
+          {% if rate is number and rate < 0 %}{{ (rate | abs) | round(3) }}{% else %}0{% endif %}
+
+      - name: "Envelope delta t in out trend"
+        unique_id: envelope_delta_t_in_out_trend
+        unit_of_measurement: "°C/h"
+        icon: mdi:chart-bell-curve-cumulative
+        state: "{{ states('sensor.envelope_delta_t_in_out_trend_raw') }}"
+
+      - name: "Envelope outdoor cooling window state"
+        unique_id: envelope_outdoor_cooling_window_state
+        icon: mdi:weather-sunset-down
+        state: >-
+          {% set dt = states('sensor.delta_t_in_out') | float(default=none) %}
+          {% set drop = states('sensor.envelope_t_out_drop_rate_cph') | float(default=0) %}
+          {% set rise = states('sensor.envelope_t_out_rise_rate_cph') | float(default=0) %}
+          {% set trend = states('input_number.envelope_outdoor_trend_active_cph') | float(0.15) %}
+          {% set nf = states('input_number.envelope_night_flush_delta_c') | float(1.0) %}
+          {% if dt is not number %}unknown
+          {% elif dt >= nf and drop >= trend %}favorable
+          {% elif dt >= 0.5 and drop > 0 %}opening
+          {% elif dt > 0 and rise < trend %}watch
+          {% else %}penalizing
+          {% endif %}
+
+      - name: "Envelope time to cool window"
+        unique_id: envelope_time_to_cool_window
+        icon: mdi:timeline-clock-outline
+        state: >-
+          {% set state = states('sensor.envelope_outdoor_cooling_window_state') %}
+          {% set drop = states('sensor.envelope_t_out_drop_rate_cph') | float(default=0) %}
+          {% if state == 'favorable' %}now
+          {% elif state == 'opening' %}soon
+          {% elif drop > 0 %}monitor
+          {% else %}not_expected
+          {% endif %}
+
+      - name: "Envelope thermal rebound risk"
+        unique_id: envelope_thermal_rebound_risk
+        icon: mdi:thermometer-alert
+        state: >-
+          {% set rise = states('sensor.envelope_t_out_rise_rate_cph') | float(default=0) %}
+          {% set dt = states('sensor.delta_t_in_out') | float(default=none) %}
+          {% set trend = states('input_number.envelope_outdoor_trend_active_cph') | float(0.15) %}
+          {% if dt is not number %}unknown
+          {% elif rise >= trend and dt <= 1 %}high
+          {% elif rise > 0 and dt <= 2 %}medium
+          {% else %}low
+          {% endif %}
+
+      - name: "Envelope house passive gain state"
+        unique_id: envelope_house_passive_gain_state
+        icon: mdi:solar-power-variant
+        state: >-
+          {% set max_solar = [
+            states('sensor.envelope_giorno_solar_gain_score') | float(default=0),
+            states('sensor.envelope_notte1_solar_gain_score') | float(default=0),
+            states('sensor.envelope_notte2_solar_gain_score') | float(default=0),
+            states('sensor.envelope_bagno_solar_gain_score') | float(default=0)
+          ] | max %}
+          {% set worst = states('sensor.envelope_worst_room_overheating_risk') | float(default=0) %}
+          {% set shade = states('sensor.envelope_rooms_shade_recommended_count') | int(0) %}
+          {% if not is_state('binary_sensor.envelope_room_advisory_inputs_ready', 'on') %}idle
+          {% elif shade > 0 or worst >= 65 %}excess
+          {% elif max_solar >= 20 %}useful
+          {% elif max_solar > 0 %}neutral
+          {% else %}idle
+          {% endif %}
+
+      - name: "Envelope house night flush potential"
+        unique_id: envelope_house_night_flush_potential
+        icon: mdi:weather-night
+        state: >-
+          {% set cnt = states('sensor.envelope_rooms_night_flush_candidate_count') | int(0) %}
+          {% set outdoor = states('sensor.envelope_outdoor_cooling_window_state') %}
+          {% if cnt >= 2 and outdoor == 'favorable' %}high
+          {% elif cnt >= 1 and outdoor in ['favorable', 'opening'] %}medium
+          {% elif outdoor in ['opening', 'watch'] %}low
+          {% else %}none
+          {% endif %}
+
+      - name: "Envelope recommended action"
+        unique_id: envelope_recommended_action
+        icon: mdi:tooltip-check-outline
+        state: >-
+          {% set passive = states('sensor.envelope_house_passive_gain_state') %}
+          {% set flush = states('sensor.envelope_house_night_flush_potential') %}
+          {% set shade = states('sensor.envelope_rooms_shade_recommended_count') | int(0) %}
+          {% set outdoor = states('sensor.envelope_outdoor_cooling_window_state') %}
+          {% if is_state('binary_sensor.envelope_house_ac_justified', 'on') %}ac_justified
+          {% elif flush in ['high', 'medium'] and outdoor == 'favorable' %}open_for_night_flush
+          {% elif flush == 'low' and outdoor in ['opening', 'watch'] %}prepare_night_flush
+          {% elif shade > 0 %}shade_now
+          {% elif passive == 'useful' %}let_sun_in
+          {% else %}keep_closed
+          {% endif %}
+
+  - binary_sensor:
+      - name: "Envelope giorno shade recommended"
+        unique_id: envelope_giorno_shade_recommended
+        delay_on:
+          minutes: 10
+        delay_off:
+          minutes: 10
+        state: "{{ states('sensor.envelope_giorno_overheating_risk') | float(0) >= 65 }}"
+
+      - name: "Envelope notte1 shade recommended"
+        unique_id: envelope_notte1_shade_recommended
+        delay_on:
+          minutes: 10
+        delay_off:
+          minutes: 10
+        state: "{{ states('sensor.envelope_notte1_overheating_risk') | float(0) >= 65 }}"
+
+      - name: "Envelope notte2 shade recommended"
+        unique_id: envelope_notte2_shade_recommended
+        delay_on:
+          minutes: 10
+        delay_off:
+          minutes: 10
+        state: "{{ states('sensor.envelope_notte2_overheating_risk') | float(0) >= 65 }}"
+
+      - name: "Envelope bagno shade recommended"
+        unique_id: envelope_bagno_shade_recommended
+        delay_on:
+          minutes: 10
+        delay_off:
+          minutes: 10
+        state: "{{ states('sensor.envelope_bagno_overheating_risk') | float(0) >= 65 }}"
+
+      - name: "Envelope giorno night flush candidate"
+        unique_id: envelope_giorno_night_flush_candidate
+        delay_on:
+          minutes: 10
+        delay_off:
+          minutes: 10
+        state: >-
+          {% set d = states('sensor.envelope_giorno_delta_vs_outdoor_c') | float(default=none) %}
+          {% set nf = states('input_number.envelope_night_flush_delta_c') | float(1.0) %}
+          {{ d is number and d >= nf and states('sensor.envelope_outdoor_cooling_window_state') in ['favorable', 'opening'] }}
+
+      - name: "Envelope notte1 night flush candidate"
+        unique_id: envelope_notte1_night_flush_candidate
+        delay_on:
+          minutes: 10
+        delay_off:
+          minutes: 10
+        state: >-
+          {% set d = states('sensor.envelope_notte1_delta_vs_outdoor_c') | float(default=none) %}
+          {% set nf = states('input_number.envelope_night_flush_delta_c') | float(1.0) %}
+          {{ d is number and d >= nf and states('sensor.envelope_outdoor_cooling_window_state') in ['favorable', 'opening'] }}
+
+      - name: "Envelope notte2 night flush candidate"
+        unique_id: envelope_notte2_night_flush_candidate
+        delay_on:
+          minutes: 10
+        delay_off:
+          minutes: 10
+        state: >-
+          {% set d = states('sensor.envelope_notte2_delta_vs_outdoor_c') | float(default=none) %}
+          {% set nf = states('input_number.envelope_night_flush_delta_c') | float(1.0) %}
+          {{ d is number and d >= nf and states('sensor.envelope_outdoor_cooling_window_state') in ['favorable', 'opening'] }}
+
+      - name: "Envelope bagno night flush candidate"
+        unique_id: envelope_bagno_night_flush_candidate
+        delay_on:
+          minutes: 10
+        delay_off:
+          minutes: 10
+        state: >-
+          {% set d = states('sensor.envelope_bagno_delta_vs_outdoor_c') | float(default=none) %}
+          {% set nf = states('input_number.envelope_night_flush_delta_c') | float(1.0) %}
+          {{ d is number and d >= nf and states('sensor.envelope_outdoor_cooling_window_state') in ['favorable', 'opening'] }}
+
+      - name: "Envelope house AC justified"
+        unique_id: envelope_house_ac_justified
+        delay_on:
+          minutes: 15
+        delay_off:
+          minutes: 10
+        state: >-
+          {% set worst = states('sensor.envelope_worst_room_overheating_risk') | float(default=0) %}
+          {% set t_in = states('sensor.t_in_med') | float(default=none) %}
+          {% set hot = states('input_number.solar_gain_indoor_hot_c') | float(25.5) %}
+          {{
+            t_in is number
+            and t_in >= hot
+            and worst >= 85
+            and states('sensor.envelope_house_night_flush_potential') in ['low', 'none']
+            and states('sensor.envelope_outdoor_cooling_window_state') not in ['favorable', 'opening']
+          }}
+
+sensor:
+  - platform: derivative
+    name: "Envelope giorno rise rate cph raw"
+    unique_id: envelope_giorno_rise_rate_cph_raw
+    source: sensor.t_in_giorno
+    unit_time: h
+    time_window: "00:30:00"
+    round: 3
+
+  - platform: derivative
+    name: "Envelope notte1 rise rate cph raw"
+    unique_id: envelope_notte1_rise_rate_cph_raw
+    source: sensor.t_in_notte1
+    unit_time: h
+    time_window: "00:30:00"
+    round: 3
+
+  - platform: derivative
+    name: "Envelope notte2 rise rate cph raw"
+    unique_id: envelope_notte2_rise_rate_cph_raw
+    source: sensor.t_in_notte2
+    unit_time: h
+    time_window: "00:30:00"
+    round: 3
+
+  - platform: derivative
+    name: "Envelope bagno rise rate cph raw"
+    unique_id: envelope_bagno_rise_rate_cph_raw
+    source: sensor.t_in_bagno
+    unit_time: h
+    time_window: "00:30:00"
+    round: 3
+
+  - platform: derivative
+    name: "Envelope t out rate cph raw"
+    unique_id: envelope_t_out_rate_cph_raw
+    source: sensor.t_out
+    unit_time: h
+    time_window: "00:30:00"
+    round: 3
+
+  - platform: derivative
+    name: "Envelope delta t in out trend raw"
+    unique_id: envelope_delta_t_in_out_trend_raw
+    source: sensor.delta_t_in_out
+    unit_time: h
+    time_window: "00:30:00"
+    round: 3
