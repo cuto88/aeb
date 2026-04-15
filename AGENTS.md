@@ -29,6 +29,18 @@
 - Per JSON/YAML, preferire `jq` e `yq` invece di parsing manuale fragile.
 - Prima di assumere convenzioni globali di shell o PATH, verificare `C:\2_OPS\AGENT.md`.
 
+## Git operativo in questo repo
+
+- Questo repository usa `.git` puntato a `.git-local`.
+- In questo ambiente i comandi Git mutanti dentro `.git-local` possono fallire nel sandbox con sintomi tipo:
+  - `index.lock` che resta presente
+  - creazione file OK ma delete/unlink KO dentro `.git-local`
+  - `unable to unlink`, `failed to insert into database`, `Permission denied` su `.git-local/objects`
+- Regola operativa: per `git add`, `git commit`, `git merge`, `git rebase`, `git stash`, `git gc` e in generale per ogni comando Git che scrive in `.git-local`, preferire esecuzione fuori sandbox.
+- I comandi Git read-only possono restare in sandbox.
+- Prima di considerare il lock come unico problema, ricordare che su questo repo il blocco osservato puo` essere del sandbox su `.git-local`, non solo un vero problema NTFS/ACL.
+- Se compare `index.lock`, usare prima il cleanup stale lock gia` documentato; se il problema persiste, rieseguire il comando Git mutante fuori sandbox invece di forzare modifiche al layout `.git-local`.
+
 ## Comandi SSH rapidi (read-only)
 
 - Test connessione:

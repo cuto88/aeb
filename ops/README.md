@@ -5,6 +5,13 @@
 - Run `ops/check_utf8_mojibake.ps1` (or `ops/gates_run.ps1`) to detect mojibake regressions.
 - `ops/gates_run.ps1` includes the DOCS gate for markdown link/reference validation.
 
+## Git note for this repo
+- `aeb` uses `.git` redirected to `.git-local`.
+- In this environment, mutating Git commands can fail inside sandbox because `.git-local` allows create/write but blocks delete/unlink operations needed by Git.
+- Operational rule: prefer running `git add`, `git commit`, `git merge`, `git rebase`, `git stash`, and other Git write operations outside sandbox for this repo.
+- Read-only Git commands can stay in sandbox.
+- If `index.lock` appears, try stale lock cleanup first; if the issue persists, rerun the Git write command outside sandbox instead of assuming a normal repo corruption case.
+
 ## supervisor/
 - Host-side scripts for the AEB supervisor bridge contract.
 - Current scripts:
