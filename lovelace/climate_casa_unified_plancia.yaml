@@ -395,6 +395,10 @@ views:
         title: "Stato rapido"
         cards:
           - type: tile
+            entity: input_boolean.policy_vacation_mode
+            name: "Vacation mode"
+            color: purple
+          - type: tile
             entity: sensor.cm_system_mode_suggested
             name: "System mode"
             color: teal
@@ -530,6 +534,10 @@ views:
           - type: entities
             show_header_toggle: false
             entities:
+              - entity: input_boolean.policy_vacation_mode
+                name: "Vacation mode"
+              - entity: binary_sensor.cm_policy_vacation_mode
+                name: "CM vacation mode"
               - entity: binary_sensor.cm_contract_actuators_defined
                 name: "Actuators defined"
               - entity: binary_sensor.cm_contract_actuators_ready
@@ -586,6 +594,10 @@ views:
             heading: "Stato rapido"
             icon: mdi:flash-outline
           - type: tile
+            entity: input_boolean.policy_vacation_mode
+            name: "Vacation mode"
+            color: purple
+          - type: tile
             entity: binary_sensor.policy_forecast_inputs_ready
             name: "Forecast ready"
             color: teal
@@ -624,6 +636,8 @@ views:
             title: "Policy contracts"
             show_header_toggle: false
             entities:
+              - entity: input_boolean.policy_vacation_mode
+                name: "Vacation mode"
               - entity: binary_sensor.contract_forecast_inputs_ready
                 name: "Contract forecast ready"
               - entity: sensor.contract_forecast_reason
