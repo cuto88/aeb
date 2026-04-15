@@ -1,0 +1,350 @@
+{
+  "id": "jBKupupJhgR94T36",
+  "name": "aeb_supervisor_readonly_mvp",
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "aeb-sup-0001",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        180,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 4 * * *"
+            }
+          ]
+        }
+      },
+      "id": "aeb-sup-0003",
+      "name": "Schedule Trigger 04:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        180,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "trigger_source",
+              "value": "manual"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "aeb-sup-0004",
+      "name": "Manual Run Context",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        420,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "trigger_source",
+              "value": "schedule_0400"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "aeb-sup-0006",
+      "name": "Scheduled Run Context 04:00",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        420,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:8787/aeb/supervisor/payload?max_audits=3",
+        "options": {}
+      },
+      "id": "aeb-sup-0007",
+      "name": "Fetch Supervisor Payload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        700,
+        420
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = $json || {};\nif (!payload.ok) {\n  throw new Error('Invalid supervisor payload');\n}\nconst triggerSource = String($items('Fetch Supervisor Payload', 0, 0)?.[0]?.json?.trigger_source || $json.trigger_source || 'unknown');\nconst model = String($env.AEB_SUPERVISOR_MODEL || 'gpt-5.2').trim();\nconst systemPrompt = `You are the read-only supervisor for the \\`aeb\\` repository.\\n\\nYour role is to analyze current repository posture and recent audit evidence, then produce a concise operational status report.\\n\\nYou are not an executor.\\nYou must not propose direct runtime changes without explicit evidence and human approval.\\nYou must not recommend actions that violate repository hard rules.\\n\\nHard constraints:\\n- Read-only advisory posture.\\n- Do not rename production entity IDs.\\n- Do not expose or request secrets.\\n- Do not recommend direct Home Assistant runtime writes.\\n- Do not recommend deploy without explicit human approval.\\n- If evidence is incomplete or conflicting, prefer NO-GO or human review.\\n\\nOutput requirements:\\n- Output must be valid Markdown only.\\n- Use exactly these sections in this order:\\n  1. FACT\\n  2. RISKS\\n  3. DRIFT\\n  4. PRIORITY\\n  5. NEXT ACTION\\n  6. RECOMMENDED OWNER\\n  7. GO / NO-GO\\n\\nSection rules:\\n- FACT: only evidence-backed statements from the input payload.\\n- RISKS: concrete project or runtime risks.\\n- DRIFT: repo/runtime/process drift or \\\"none confirmed\\\".\\n- PRIORITY: one of LOW, MEDIUM, HIGH, CRITICAL.\\n- NEXT ACTION: exactly one bounded next action.\\n- RECOMMENDED OWNER: one of Human, Codex, Observe.\\n- GO / NO-GO: one of GO, NO-GO.`;\nconst userPrompt = `Analyze the following \\`aeb\\` supervisor payload and produce the required markdown status report.\\n\\nTrigger source: ${triggerSource}\\n\\nPayload:\\n${JSON.stringify(payload, null, 2)}`;\nreturn [{ json: { trigger_source: triggerSource, model, payload, system_prompt: systemPrompt, user_prompt: userPrompt } }];"
+      },
+      "id": "aeb-sup-0008",
+      "name": "Build Supervisor Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        940,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5.2",
+          "mode": "list",
+          "cachedResultName": "GPT-5.2"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "={{$json.system_prompt}}"
+            },
+            {
+              "content": "={{$json.user_prompt}}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "aeb-sup-0009",
+      "name": "Call OpenAI Responses",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        1200,
+        420
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "openAiApi": {
+          "id": "lFIkp57HgMqURuEU",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function collectText(resp) {\n  if (typeof resp.output_text === 'string' && resp.output_text.trim()) {\n    return resp.output_text.trim();\n  }\n  const texts = [];\n  for (const item of resp.output || []) {\n    for (const part of item.content || []) {\n      if (typeof part.text === 'string' && part.text.trim()) {\n        texts.push(part.text.trim());\n      }\n    }\n  }\n  return texts.join('\\n\\n').trim();\n}\nconst response = $json || {};\nconst promptCtx = ($items('Build Supervisor Prompt', 0, 0) || [])[0]?.json || {};\nconst markdown = collectText(response);\nif (!markdown) {\n  throw new Error('Empty supervisor response');\n}\nconst priorityMatch = markdown.match(/##?\\s*PRIORITY[\\s\\S]*?(LOW|MEDIUM|HIGH|CRITICAL)/i);\nconst goMatch = markdown.match(/##?\\s*GO\\s*\\/\\s*NO-GO[\\s\\S]*?\\b(GO|NO-GO)\\b/i);\nconst ownerMatch = markdown.match(/##?\\s*RECOMMENDED OWNER[\\s\\S]*?\\b(Human|Codex|Observe)\\b/i);\nconst lines = markdown.split(/\\r?\\n/).map(x => x.trim()).filter(Boolean);\nconst highlights = lines.filter(line => !line.startsWith('#')).slice(0, 3);\nconst timestamp = new Date().toISOString();\nconst finalReport = `# Current Supervisor Status\\n\\n- Generated at: ${timestamp}\\n- Trigger source: ${promptCtx.trigger_source || 'unknown'}\\n- Model: ${promptCtx.model || 'unknown'}\\n- Report path: docs/audits/CURRENT_SUPERVISOR_STATUS.md\\n\\n${markdown.trim()}\\n`;\nreturn [{ json: { trigger_source: promptCtx.trigger_source || 'unknown', model: promptCtx.model || 'unknown', markdown, final_report: finalReport, report_b64_url: encodeURIComponent(Buffer.from(finalReport, 'utf8').toString('base64')), priority: priorityMatch ? priorityMatch[1].toUpperCase() : 'UNKNOWN', go_no_go: goMatch ? goMatch[1].toUpperCase() : 'UNKNOWN', recommended_owner: ownerMatch ? ownerMatch[1] : 'Unknown', highlights, report_path: 'docs/audits/CURRENT_SUPERVISOR_STATUS.md' } }];"
+      },
+      "id": "aeb-sup-0010",
+      "name": "Parse Supervisor Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1460,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{'http://host.docker.internal:8787/aeb/supervisor/write_report?report_b64=' + $json.report_b64_url}}",
+        "options": {}
+      },
+      "id": "aeb-sup-0011",
+      "name": "Write Supervisor Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1710,
+        420
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "jsCode": "const parsed = ($items('Parse Supervisor Response', 0, 0) || [])[0]?.json || {};\nconst writeResult = $json || {};\nconst highlights = Array.isArray(parsed.highlights) ? parsed.highlights.slice(0, 3) : [];\nconst bulletItems = highlights.map(line => `<li>${line.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</li>`).join('');\nconst generatedAt = new Date().toISOString();\nconst subject = `AEB Supervisor ${parsed.priority || 'UNKNOWN'} ${generatedAt.slice(0, 10)}`;\nconst html = [\n  `<h2>AEB Supervisor</h2>`,\n  `<p><strong>Priority:</strong> ${parsed.priority || 'UNKNOWN'} | <strong>${parsed.go_no_go || 'UNKNOWN'}</strong></p>`,\n  `<p><strong>Owner:</strong> ${parsed.recommended_owner || 'Unknown'}</p>`,\n  bulletItems ? `<ul>${bulletItems}</ul>` : '',\n  `<p><strong>Report:</strong> ${parsed.report_path || 'docs/audits/CURRENT_SUPERVISOR_STATUS.md'}</p>`,\n  `<p><strong>Write:</strong> ${writeResult.ok ? 'OK' : 'FAIL'}</p>`,\n  `<hr>`,\n  `<pre>${(parsed.markdown || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>`\n].filter(Boolean).join('');\nreturn [{ json: { subject, html } }];"
+      },
+      "id": "aeb-sup-0012",
+      "name": "Build Email Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1960,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "scomparindavide@gmail.com",
+        "subject": "={{$json.subject}}",
+        "emailType": "html",
+        "message": "={{$json.html}}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "aeb-sup-0013",
+      "name": "Gmail - send supervisor report",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2210,
+        420
+      ],
+      "continueOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "EYwmOwfRdKiEvpfM",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Manual Run Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger 04:00": {
+      "main": [
+        [
+          {
+            "node": "Scheduled Run Context 04:00",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Run Context": {
+      "main": [
+        [
+          {
+            "node": "Fetch Supervisor Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scheduled Run Context 04:00": {
+      "main": [
+        [
+          {
+            "node": "Fetch Supervisor Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Supervisor Payload": {
+      "main": [
+        [
+          {
+            "node": "Build Supervisor Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Supervisor Prompt": {
+      "main": [
+        [
+          {
+            "node": "Call OpenAI Responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call OpenAI Responses": {
+      "main": [
+        [
+          {
+            "node": "Parse Supervisor Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Supervisor Response": {
+      "main": [
+        [
+          {
+            "node": "Write Supervisor Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Supervisor Report": {
+      "main": [
+        [
+          {
+            "node": "Build Email Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Email Summary": {
+      "main": [
+        [
+          {
+            "node": "Gmail - send supervisor report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": null,
+  "versionId": "aeb-sup-v1",
+  "triggerCount": 0,
+  "tags": []
+}
