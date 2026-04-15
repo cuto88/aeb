@@ -5,9 +5,10 @@ Indice operativo degli audit e delle note runtime del repository `aeb`.
 ## Uso consigliato
 - Se ti serve il contesto storico completo, parti da `STEP0` e segui la sequenza numerica.
 - Se ti serve lo stato operativo recente, parti da `STEP47` in poi.
-- Se ti serve un punto di ingresso sintetico, leggi prima `CURRENT_RUNTIME_STATUS_2026-04-08.md`.
+- Se ti serve un punto di ingresso sintetico, leggi prima `CURRENT_RUNTIME_STATUS_2026-04-15.md`.
 
 ## Current entrypoint
+- [`CURRENT_RUNTIME_STATUS_2026-04-15.md`](CURRENT_RUNTIME_STATUS_2026-04-15.md)
 - [`CURRENT_RUNTIME_STATUS_2026-04-08.md`](CURRENT_RUNTIME_STATUS_2026-04-08.md)
 - [`CURRENT_DHW_WRITER_STATUS_2026-04-08.md`](CURRENT_DHW_WRITER_STATUS_2026-04-08.md)
 - [`CURRENT_SOLAR_GAIN_AND_BRANCH_POSTURE_STATUS_2026-04-08.md`](CURRENT_SOLAR_GAIN_AND_BRANCH_POSTURE_STATUS_2026-04-08.md)
