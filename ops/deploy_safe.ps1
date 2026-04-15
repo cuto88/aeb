@@ -15,6 +15,19 @@ $ErrorActionPreference = "Stop"
 function Say($m){ Write-Host $m }
 function Fail($m){ throw $m }
 
+function Resolve-StaleGitIndexLocks {
+  param([string]$RepoPath)
+
+  $resolverPath = Join-Path $RepoPath "..\00_shared\scripts\Resolve-StaleGitLocks.ps1"
+  if (-not (Test-Path $resolverPath)) {
+    return
+  }
+
+  $repoFullPath = (Resolve-Path $RepoPath).Path
+  Say "Preflight: checking stale git index locks in $repoFullPath"
+  & $resolverPath -Root $repoFullPath -MinAgeMinutes 15 | Out-Host
+}
+
 function Assert-HaConfigTarget {
   param([string]$Path)
 
@@ -148,6 +161,7 @@ Say "== Deploy SAFE =="
 # --------------------------------------------------
 # Repo context
 # --------------------------------------------------
+Resolve-StaleGitIndexLocks -RepoPath $PSScriptRoot\..
 $repoRoot = (git rev-parse --show-toplevel)
 Set-Location $repoRoot
 

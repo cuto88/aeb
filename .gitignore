@@ -64,6 +64,9 @@ _runtime/
 .git-local/
 .git.acl.bak
 tmp/
+.tmp/
+index.*.tmp.lock
+*.tmp.lock
 tmp_configuration.yaml
 tmp_core.device_registry
 tmp_core.entity_registry
