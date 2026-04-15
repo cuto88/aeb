@@ -286,7 +286,9 @@ template:
       - name: "Policy allow shift load"
         unique_id: policy_allow_shift_load
         state: >-
-          {% if is_state('input_boolean.policy_enable_tariff_grid','off') %}
+          {% if is_state('input_boolean.policy_vacation_mode', 'on') %}
+            false
+          {% elif is_state('input_boolean.policy_enable_tariff_grid','off') %}
             true
           {% else %}
             {{
@@ -388,7 +390,9 @@ template:
       - name: "Policy tariff grid reason"
         unique_id: policy_tariff_grid_reason
         state: >-
-          {% if is_state('input_boolean.policy_enable_tariff_grid','off') %}
+          {% if is_state('input_boolean.policy_vacation_mode', 'on') %}
+            VACATION_MODE
+          {% elif is_state('input_boolean.policy_enable_tariff_grid','off') %}
             DISABLED_FALLBACK
           {% elif is_state('binary_sensor.policy_grid_price_ready','off') %}
             ENABLED_PRICE_UNAVAILABLE

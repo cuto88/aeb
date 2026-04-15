@@ -107,6 +107,8 @@ template:
             cooldown_active
           {% elif is_state('binary_sensor.climateops_heating_conflict_real', 'on') %}
             heating_priority
+          {% elif is_state('input_boolean.policy_vacation_mode', 'on') %}
+            vacation_mode
           {% elif not is_state('binary_sensor.policy_allow_shift_load', 'on') %}
             shift_load_blocked
           {% elif not is_state('binary_sensor.policy_prefer_self_consumption', 'on') %}
@@ -236,6 +238,7 @@ automation:
               'dhw_cutover_off',
               'feedback_unavailable',
               'heating_priority',
+              'vacation_mode',
               'shift_load_blocked',
               'no_self_consumption_window',
               'grid_import_high',
@@ -264,6 +267,7 @@ automation:
           - input_boolean.climateops_dhw_write_enable
           - input_boolean.climateops_dhw_dry_run
           - binary_sensor.cm_modbus_ehw_ready
+          - input_boolean.policy_vacation_mode
           - binary_sensor.policy_allow_shift_load
           - binary_sensor.policy_prefer_self_consumption
           - binary_sensor.policy_grid_import_high
@@ -303,6 +307,8 @@ automation:
               cooldown_active
             {% elif is_state('binary_sensor.climateops_heating_conflict_real', 'on') %}
               heating_priority
+            {% elif is_state('input_boolean.policy_vacation_mode', 'on') %}
+              vacation_mode
             {% elif not is_state('binary_sensor.policy_allow_shift_load', 'on') %}
               shift_load_blocked
             {% elif not is_state('binary_sensor.policy_prefer_self_consumption', 'on') %}

@@ -16,6 +16,9 @@ template:
       - name: "CM Policy Allow VMC Boost"
         unique_id: cm_policy_allow_vmc_boost
         state: "{{ is_state('binary_sensor.policy_allow_vmc_boost','on') }}"
+      - name: "CM Policy Vacation Mode"
+        unique_id: cm_policy_vacation_mode
+        state: "{{ is_state('input_boolean.policy_vacation_mode','on') }}"
       - name: "CM Policy Forecast Inputs Ready"
         unique_id: cm_policy_forecast_inputs_ready
         state: "{{ is_state('binary_sensor.policy_forecast_inputs_ready','on') }}"

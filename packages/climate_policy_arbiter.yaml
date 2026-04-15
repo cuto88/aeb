@@ -2,6 +2,9 @@
 # Policy arbiter: disaccoppia AC/VMC da dipendenze dirette orizzontali.
 
 input_boolean:
+  policy_vacation_mode:
+    name: "Policy – Vacation mode"
+    initial: false
   policy_force_allow_ac:
     name: "Policy – Force allow AC"
     initial: false
@@ -31,7 +34,9 @@ template:
       - name: "Policy allow AC"
         unique_id: policy_allow_ac
         state: >-
-          {% if is_state('input_boolean.policy_force_allow_ac', 'on') %}
+          {% if is_state('input_boolean.policy_vacation_mode', 'on') %}
+            false
+          {% elif is_state('input_boolean.policy_force_allow_ac', 'on') %}
             true
           {% elif is_state('input_boolean.policy_force_block_ac', 'on') %}
             false
@@ -44,7 +49,9 @@ template:
       - name: "Policy allow VMC boost"
         unique_id: policy_allow_vmc_boost
         state: >-
-          {% if is_state('input_boolean.policy_force_allow_vmc_boost', 'on') %}
+          {% if is_state('input_boolean.policy_vacation_mode', 'on') %}
+            false
+          {% elif is_state('input_boolean.policy_force_allow_vmc_boost', 'on') %}
             true
           {% elif is_state('input_boolean.policy_force_block_vmc_boost', 'on') %}
             false
@@ -56,7 +63,9 @@ template:
       - name: "Policy arbiter reason"
         unique_id: policy_arbiter_reason
         state: >-
-          {% if is_state('input_boolean.policy_force_allow_ac', 'on')
+          {% if is_state('input_boolean.policy_vacation_mode', 'on') %}
+            VACATION_MODE
+          {% elif is_state('input_boolean.policy_force_allow_ac', 'on')
                 or is_state('input_boolean.policy_force_allow_vmc_boost', 'on') %}
             FORCE_ALLOW
           {% elif is_state('input_boolean.policy_force_block_ac', 'on')
@@ -71,6 +80,7 @@ template:
   - trigger:
       - platform: state
         entity_id:
+          - input_boolean.policy_vacation_mode
           - input_boolean.policy_force_allow_ac
           - input_boolean.policy_force_block_ac
           - input_boolean.policy_force_allow_vmc_boost

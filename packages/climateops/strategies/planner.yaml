@@ -3,13 +3,17 @@ template:
       - name: "ClimateOps Noncritical Loads Allowed"
         unique_id: climateops_noncritical_loads_allowed
         state: >-
-          {% if is_state('input_boolean.policy_enable_tariff_grid','off') %}
+          {% if is_state('input_boolean.policy_vacation_mode', 'on') %}
+            false
+          {% elif is_state('input_boolean.policy_enable_tariff_grid','off') %}
             true
           {% else %}
             {{ is_state('binary_sensor.policy_allow_shift_load','on') }}
           {% endif %}
         availability: >-
           {{
+            states('input_boolean.policy_vacation_mode') not in ['unknown','unavailable']
+            and
             states('input_boolean.policy_enable_tariff_grid') not in ['unknown','unavailable']
             and states('binary_sensor.policy_allow_shift_load') not in ['unknown','unavailable']
           }}
@@ -73,12 +77,17 @@ template:
           {% set vmc_target = states('sensor.vmc_vel_target') | int(-1) %}
           {% set vmc_boost_ok = is_state('binary_sensor.policy_allow_vmc_boost','on') %}
           {% set noncritical = is_state('binary_sensor.climateops_noncritical_loads_allowed','on') %}
+          {% set vacation = is_state('input_boolean.policy_vacation_mode', 'on') %}
           {% if heat_req %}
             PRIORITY_HEAT
+          {% elif cool_req and vacation %}
+            HOLD_COOL_VACATION_MODE
           {% elif cool_req and not noncritical %}
             HOLD_COOL_POLICY_TARIFF_GRID
           {% elif cool_req and noncritical %}
             PRIORITY_COOL
+          {% elif vmc_target == 3 and vacation %}
+            HOLD_VENT_BOOST_VACATION_MODE
           {% elif vmc_target == 3 and not noncritical %}
             HOLD_VENT_BOOST_POLICY_TARIFF_GRID
           {% elif vmc_target == 3 and not vmc_boost_ok %}
