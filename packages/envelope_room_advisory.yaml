@@ -21,6 +21,27 @@ input_number:
     unit_of_measurement: "°C/h"
     icon: mdi:chart-line
 
+input_boolean:
+  envelope_giorno_shade_applied:
+    name: "Envelope giorno - shade applied"
+    icon: mdi:window-shutter
+    initial: false
+
+  envelope_notte1_shade_applied:
+    name: "Envelope notte1 - shade applied"
+    icon: mdi:window-shutter
+    initial: false
+
+  envelope_notte2_shade_applied:
+    name: "Envelope notte2 - shade applied"
+    icon: mdi:window-shutter
+    initial: false
+
+  envelope_bagno_shade_applied:
+    name: "Envelope bagno - shade applied"
+    icon: mdi:window-shutter
+    initial: false
+
 template:
   - binary_sensor:
       - name: "Envelope room advisory inputs ready"
@@ -35,7 +56,43 @@ template:
             and states('switch.ac_notte') not in ['unknown', 'unavailable', '']
           }}
 
+      - name: "Envelope any shade applied"
+        unique_id: envelope_any_shade_applied
+        icon: mdi:window-shutter
+        state: >-
+          {{
+            is_state('input_boolean.envelope_giorno_shade_applied', 'on')
+            or is_state('input_boolean.envelope_notte1_shade_applied', 'on')
+            or is_state('input_boolean.envelope_notte2_shade_applied', 'on')
+            or is_state('input_boolean.envelope_bagno_shade_applied', 'on')
+          }}
+
   - sensor:
+      - name: "Envelope shade applied rooms count"
+        unique_id: envelope_shade_applied_rooms_count
+        unit_of_measurement: "rooms"
+        icon: mdi:counter
+        state: >-
+          {{
+            [
+              states('input_boolean.envelope_giorno_shade_applied'),
+              states('input_boolean.envelope_notte1_shade_applied'),
+              states('input_boolean.envelope_notte2_shade_applied'),
+              states('input_boolean.envelope_bagno_shade_applied')
+            ] | select('eq', 'on') | list | count
+          }}
+
+      - name: "Envelope shade applied rooms"
+        unique_id: envelope_shade_applied_rooms
+        icon: mdi:format-list-bulleted
+        state: >-
+          {% set rooms = [] %}
+          {% if is_state('input_boolean.envelope_giorno_shade_applied', 'on') %}{% set rooms = rooms + ['giorno'] %}{% endif %}
+          {% if is_state('input_boolean.envelope_notte1_shade_applied', 'on') %}{% set rooms = rooms + ['notte1'] %}{% endif %}
+          {% if is_state('input_boolean.envelope_notte2_shade_applied', 'on') %}{% set rooms = rooms + ['notte2'] %}{% endif %}
+          {% if is_state('input_boolean.envelope_bagno_shade_applied', 'on') %}{% set rooms = rooms + ['bagno'] %}{% endif %}
+          {{ rooms | join(', ') if rooms else 'none' }}
+
       - name: "Envelope giorno rise rate cph"
         unique_id: envelope_giorno_rise_rate_cph
         unit_of_measurement: "°C/h"

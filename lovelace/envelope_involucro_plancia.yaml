@@ -12,6 +12,9 @@ views:
           - sensor.envelope_house_passive_gain_state
           - sensor.envelope_house_night_flush_potential
           - binary_sensor.envelope_house_ac_justified
+          - binary_sensor.envelope_any_shade_applied
+          - sensor.envelope_shade_applied_rooms_count
+          - sensor.envelope_shade_applied_rooms
           - sensor.envelope_worst_room_name
           - sensor.envelope_worst_room_overheating_risk
           - sensor.envelope_rooms_shade_recommended_count
@@ -42,6 +45,7 @@ views:
           - sensor.envelope_giorno_solar_gain_score
           - sensor.envelope_giorno_overheating_risk
           - binary_sensor.envelope_giorno_shade_recommended
+          - input_boolean.envelope_giorno_shade_applied
           - binary_sensor.envelope_giorno_night_flush_candidate
           - binary_sensor.finestre_zona_giorno_aperte
 
@@ -56,6 +60,7 @@ views:
           - sensor.envelope_notte1_solar_gain_score
           - sensor.envelope_notte1_overheating_risk
           - binary_sensor.envelope_notte1_shade_recommended
+          - input_boolean.envelope_notte1_shade_applied
           - binary_sensor.envelope_notte1_night_flush_candidate
           - sensor.t_in_notte2
           - sensor.envelope_notte2_rise_rate_cph
@@ -64,6 +69,7 @@ views:
           - sensor.envelope_notte2_solar_gain_score
           - sensor.envelope_notte2_overheating_risk
           - binary_sensor.envelope_notte2_shade_recommended
+          - input_boolean.envelope_notte2_shade_applied
           - binary_sensor.envelope_notte2_night_flush_candidate
           - binary_sensor.finestre_zona_notte_aperte
 
@@ -78,6 +84,7 @@ views:
           - sensor.envelope_bagno_solar_gain_score
           - sensor.envelope_bagno_overheating_risk
           - binary_sensor.envelope_bagno_shade_recommended
+          - input_boolean.envelope_bagno_shade_applied
           - binary_sensor.envelope_bagno_night_flush_candidate
           - binary_sensor.finestre_bagno_aperte
 

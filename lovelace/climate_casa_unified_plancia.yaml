@@ -768,6 +768,10 @@ views:
             entity: binary_sensor.close_shutters_recommended
             name: "Chiudere scuri"
             color: amber
+          - type: tile
+            entity: sensor.envelope_shade_applied_rooms_count
+            name: "Scuri applicati"
+            color: teal
 
       - type: grid
         cards:
@@ -850,8 +854,30 @@ views:
                 name: "Guadagno passivo in corso"
               - entity: binary_sensor.casa_chiusa
                 name: "Casa chiusa"
+              - entity: sensor.envelope_shade_applied_rooms
+                name: "Scuri applicati"
               - entity: switch.heating_master
                 name: "Heating master"
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Shading"
+            icon: mdi:window-shutter
+          - type: entities
+            title: "Feedback manuale scuri"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.envelope_giorno_shade_applied
+                name: "Scuri giorno chiusi"
+              - entity: input_boolean.envelope_notte1_shade_applied
+                name: "Scuri notte1 chiusi"
+              - entity: input_boolean.envelope_notte2_shade_applied
+                name: "Scuri notte2 chiusi"
+              - entity: input_boolean.envelope_bagno_shade_applied
+                name: "Scuri bagno chiusi"
+              - entity: sensor.envelope_shade_applied_rooms
+                name: "Zone schermate"
 
       - type: grid
         cards:
