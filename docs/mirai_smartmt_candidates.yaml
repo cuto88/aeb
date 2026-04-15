@@ -1,0 +1,260 @@
+candidates:
+  - register: 1003
+    symbolic_name: machine_status_word
+    layer: machine
+    expected_semantics: primary machine status word
+    hardware_dependency: mirai_machine
+    test_priority: stable
+    live_write_allowed: false
+    current_status: proven
+    notes: Proven runtime namespace. Keep untouched.
+
+  - register: 1208
+    symbolic_name: machine_status_code
+    layer: machine
+    expected_semantics: primary machine status code
+    hardware_dependency: mirai_machine
+    test_priority: stable
+    live_write_allowed: false
+    current_status: proven
+    notes: Proven runtime namespace. Keep untouched.
+
+  - register: 1209
+    symbolic_name: machine_fault_code
+    layer: machine
+    expected_semantics: primary machine fault code
+    hardware_dependency: mirai_machine
+    test_priority: stable
+    live_write_allowed: false
+    current_status: proven
+    notes: Proven runtime namespace. Keep untouched.
+
+  - register: 8986
+    symbolic_name: smartmt_outdoor_air_temp
+    layer: smartmt
+    expected_semantics: outdoor air temperature
+    hardware_dependency: smartmt_controller
+    test_priority: p1
+    live_write_allowed: false
+    current_status: candidate
+    notes: Best documented outdoor candidate. Needs scale/runtime validation.
+
+  - register: 8987
+    symbolic_name: smartmt_leaving_water_temp
+    layer: smartmt
+    expected_semantics: leaving water temperature from heat pump
+    hardware_dependency: smartmt_controller
+    test_priority: p1
+    live_write_allowed: false
+    current_status: candidate
+    notes: Candidate alive in runtime. Needs semantic/scaling closure.
+
+  - register: 8988
+    symbolic_name: smartmt_entering_water_temp
+    layer: smartmt
+    expected_semantics: entering water temperature to heat pump
+    hardware_dependency: smartmt_controller
+    test_priority: p2
+    live_write_allowed: false
+    current_status: candidate
+    notes: Documented, but suspicious in runtime on some sessions.
+
+  - register: 9007
+    symbolic_name: smartmt_do4_circulator_state
+    layer: smartmt
+    expected_semantics: DO4 output state for heat pump circulator
+    hardware_dependency: smartmt_controller
+    test_priority: p1
+    live_write_allowed: false
+    current_status: candidate
+    notes: Strongest current pump corroboration candidate.
+
+  - register: 9043
+    symbolic_name: smartmt_compressor_0_10v_signal
+    layer: smartmt
+    expected_semantics: compressor activity analog signal from remote input
+    hardware_dependency: smartmt_controller
+    test_priority: p2
+    live_write_allowed: false
+    current_status: candidate
+    notes: Documented. Runtime evidence so far weak.
+
+  - register: 9003
+    symbolic_name: smartmt_do1_output_state
+    layer: smartmt
+    expected_semantics: digital output DO1 state
+    hardware_dependency: smartmt_controller
+    test_priority: p2
+    live_write_allowed: false
+    current_status: untested
+    notes: Read-only candidate. Semantics need runtime correlation.
+
+  - register: 9004
+    symbolic_name: smartmt_do2_output_state
+    layer: smartmt
+    expected_semantics: digital output DO2 state
+    hardware_dependency: smartmt_controller
+    test_priority: p2
+    live_write_allowed: false
+    current_status: untested
+    notes: Read-only candidate. Semantics need runtime correlation.
+
+  - register: 9005
+    symbolic_name: smartmt_do3_output_state
+    layer: smartmt
+    expected_semantics: digital output DO3 state
+    hardware_dependency: smartmt_controller
+    test_priority: p2
+    live_write_allowed: false
+    current_status: untested
+    notes: Read-only candidate. Semantics need runtime correlation.
+
+  - register: 9002
+    symbolic_name: smartmt_do6_output_state
+    layer: smartmt
+    expected_semantics: digital output DO6 state
+    hardware_dependency: smartmt_controller
+    test_priority: p2
+    live_write_allowed: false
+    current_status: untested
+    notes: Manual documents DO6 on Smart-MT terminal block.
+
+  - register: 9001
+    symbolic_name: smartmt_ao1_analog_output
+    layer: smartmt
+    expected_semantics: analog output AO1 state
+    hardware_dependency: smartmt_controller
+    test_priority: p3
+    live_write_allowed: false
+    current_status: untested
+    notes: Lower priority until DO outputs are understood.
+
+  - register: 8989
+    symbolic_name: smartmt_dhw_related_probe
+    layer: smartmt
+    expected_semantics: dhw/acs related
+    hardware_dependency: dhw_connected
+    test_priority: excluded
+    live_write_allowed: false
+    current_status: excluded
+    notes: ACS/DHW not connected.
+
+  - register: 16395
+    symbolic_name: smartmt_dhw_offset_write
+    layer: smartmt
+    expected_semantics: dhw offset/service write
+    hardware_dependency: dhw_connected
+    test_priority: excluded
+    live_write_allowed: false
+    current_status: excluded
+    notes: ACS/DHW not connected. Write/service register.
+
+  - register: 9146
+    symbolic_name: febos_room_probe_9146
+    layer: smartmt
+    expected_semantics: febos-crono related
+    hardware_dependency: febos_crono_master
+    test_priority: excluded
+    live_write_allowed: false
+    current_status: excluded
+    notes: Febos-Crono Master not installed.
+
+  - register: 9147
+    symbolic_name: febos_room_probe_9147
+    layer: smartmt
+    expected_semantics: febos-crono related
+    hardware_dependency: febos_crono_master
+    test_priority: excluded
+    live_write_allowed: false
+    current_status: excluded
+    notes: Febos-Crono Master not installed.
+
+  - register: 9148
+    symbolic_name: febos_dewpoint_probe
+    layer: smartmt
+    expected_semantics: indoor dewpoint from Febos-Crono Master
+    hardware_dependency: febos_crono_master
+    test_priority: excluded
+    live_write_allowed: false
+    current_status: excluded
+    notes: Febos-Crono Master not installed.
+
+  - register: 9151
+    symbolic_name: febos_unsatisfied_temp_consent
+    layer: smartmt
+    expected_semantics: ambient temperature not satisfied consent
+    hardware_dependency: febos_crono_master
+    test_priority: excluded
+    live_write_allowed: false
+    current_status: excluded
+    notes: Febos-Crono Master not installed.
+
+  - register: 9066
+    symbolic_name: febos_related_probe_9066
+    layer: smartmt
+    expected_semantics: febos-crono related
+    hardware_dependency: febos_crono_master
+    test_priority: excluded
+    live_write_allowed: false
+    current_status: excluded
+    notes: Febos-Crono Master not installed.
+
+  - register: 9152
+    symbolic_name: febos_related_probe_9152
+    layer: smartmt
+    expected_semantics: febos-crono related
+    hardware_dependency: febos_crono_master
+    test_priority: excluded
+    live_write_allowed: false
+    current_status: excluded
+    notes: Febos-Crono Master not installed.
+
+  - register: 9153
+    symbolic_name: febos_related_probe_9153
+    layer: smartmt
+    expected_semantics: febos-crono related
+    hardware_dependency: febos_crono_master
+    test_priority: excluded
+    live_write_allowed: false
+    current_status: excluded
+    notes: Febos-Crono Master not installed.
+
+  - register: 9024
+    symbolic_name: smartmt_service_register_9024
+    layer: smartmt
+    expected_semantics: service/config register
+    hardware_dependency: smartmt_controller
+    test_priority: excluded
+    live_write_allowed: false
+    current_status: excluded
+    notes: Service/config. Do not write live.
+
+  - register: 16394
+    symbolic_name: smartmt_c161_inlet_temp_offset
+    layer: smartmt
+    expected_semantics: inlet temperature offset
+    hardware_dependency: smartmt_controller
+    test_priority: excluded
+    live_write_allowed: false
+    current_status: excluded
+    notes: Service/config write register. Do not touch live.
+
+  - register: 16392
+    symbolic_name: smartmt_c162_outlet_temp_offset
+    layer: smartmt
+    expected_semantics: outlet temperature offset
+    hardware_dependency: smartmt_controller
+    test_priority: excluded
+    live_write_allowed: false
+    current_status: excluded
+    notes: Service/config write register. Do not touch live.
+
+  - register: 16393
+    symbolic_name: smartmt_c163_outdoor_temp_offset
+    layer: smartmt
+    expected_semantics: outdoor temperature offset
+    hardware_dependency: smartmt_controller
+    test_priority: excluded
+    live_write_allowed: false
+    current_status: excluded
+    notes: Service/config write register. Do not touch live.

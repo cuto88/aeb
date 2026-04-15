@@ -1,0 +1,128 @@
+# DISABLED BY DEFAULT
+# Purpose:
+# - draft probe package for Smart-MT candidate validation
+# - read-only only
+# - profile-separated from the stable MIRAI machine namespace
+# - do not enable until a dedicated runtime validation window is planned
+#
+# Safe enable path:
+# 1. copy the block below into a temporary validation package, or
+# 2. uncomment the block during a controlled audit window only
+#
+# Rules:
+# - no writes
+# - no service/config registers
+# - slow polling only
+# - preserve proven machine namespace in packages/mirai_modbus.yaml
+
+# input_number:
+#   mirai_smartmt_probe_unit_id:
+#     name: "MIRAI Smart-MT probe unit id"
+#     min: 1
+#     max: 247
+#     step: 1
+#     mode: box
+#     initial: 1
+#
+# modbus:
+#   - name: mirai_smartmt_probe
+#     type: tcp
+#     host: !secret mirai_modbus_host
+#     port: 502
+#     delay: 2
+#     timeout: 1
+#     retries: 0
+#     message_wait_milliseconds: 30
+#     retry_on_empty: true
+#     close_comm_on_error: true
+#
+#     sensors:
+#       # Smart-MT documented candidate: outdoor air temperature
+#       - name: "mirai_smartmt_l163_8986_raw"
+#         unique_id: mirai_smartmt_l163_8986_raw
+#         address: 8986
+#         input_type: holding
+#         data_type: uint16
+#         scan_interval: 60
+#         slave: 1
+#
+#       # Smart-MT documented candidate: leaving water temperature
+#       - name: "mirai_smartmt_l162_8987_raw"
+#         unique_id: mirai_smartmt_l162_8987_raw
+#         address: 8987
+#         input_type: holding
+#         data_type: uint16
+#         scan_interval: 60
+#         slave: 1
+#
+#       # Smart-MT documented candidate: entering water temperature
+#       - name: "mirai_smartmt_l161_8988_raw"
+#         unique_id: mirai_smartmt_l161_8988_raw
+#         address: 8988
+#         input_type: holding
+#         data_type: uint16
+#         scan_interval: 60
+#         slave: 1
+#
+#       # Smart-MT documented candidate: DO4 circulator output
+#       - name: "mirai_smartmt_l204_9007_raw"
+#         unique_id: mirai_smartmt_l204_9007_raw
+#         address: 9007
+#         input_type: holding
+#         data_type: uint16
+#         scan_interval: 60
+#         slave: 1
+#
+#       # Smart-MT documented candidate: compressor 0-10V remote input signal
+#       - name: "mirai_smartmt_l170_9043_raw"
+#         unique_id: mirai_smartmt_l170_9043_raw
+#         address: 9043
+#         input_type: holding
+#         data_type: uint16
+#         scan_interval: 60
+#         slave: 1
+#
+#       # Smart-MT documented candidate: DO1 output state
+#       - name: "mirai_smartmt_do1_9003_raw"
+#         unique_id: mirai_smartmt_do1_9003_raw
+#         address: 9003
+#         input_type: holding
+#         data_type: uint16
+#         scan_interval: 60
+#         slave: 1
+#
+#       # Smart-MT documented candidate: DO2 output state
+#       - name: "mirai_smartmt_do2_9004_raw"
+#         unique_id: mirai_smartmt_do2_9004_raw
+#         address: 9004
+#         input_type: holding
+#         data_type: uint16
+#         scan_interval: 60
+#         slave: 1
+#
+#       # Smart-MT documented candidate: DO3 output state
+#       - name: "mirai_smartmt_do3_9005_raw"
+#         unique_id: mirai_smartmt_do3_9005_raw
+#         address: 9005
+#         input_type: holding
+#         data_type: uint16
+#         scan_interval: 60
+#         slave: 1
+#
+#       # Smart-MT documented candidate: DO6 output state
+#       - name: "mirai_smartmt_do6_9002_raw"
+#         unique_id: mirai_smartmt_do6_9002_raw
+#         address: 9002
+#         input_type: holding
+#         data_type: uint16
+#         scan_interval: 60
+#         slave: 1
+#
+#       # Smart-MT documented candidate: AO1 analog output
+#       - name: "mirai_smartmt_ao1_9001_raw"
+#         unique_id: mirai_smartmt_ao1_9001_raw
+#         address: 9001
+#         input_type: holding
+#         data_type: uint16
+#         scan_interval: 60
+#         slave: 1
