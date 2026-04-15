@@ -301,7 +301,7 @@ template:
             {% set anti = states('input_number.heating_antifreeze_threshold') | float(8) %}
             {% set boost = states('input_number.heating_boost_delta') | float(0.3) %}
             {% set tmin = states('sensor.t_in_min') | float(default=none) %}
-            {% set tout = states('sensor.t_out') | float(default=none) %}
+            {% set tout = states('sensor.t_out_effective') | float(default=none) %}
             {% set window_comfort = is_state('binary_sensor.heating_finestra_oraria','on') %}
             {% set pv_hook = is_state('binary_sensor.policy_surplus_ok','on') %}
             {% set enable = is_state('input_boolean.heating_enable','on') %}
@@ -383,7 +383,7 @@ template:
             states('sensor.t_in_notte1'),
             states('sensor.t_in_notte2'),
             states('sensor.t_in_bagno'),
-            states('sensor.t_out')
+            states('sensor.t_out_effective')
           ] %}
           {% set valid = temps | reject('in', ['unknown','unavailable','']) | list %}
           {% if valid | length != temps | length %}
@@ -432,7 +432,7 @@ template:
       - name: "Heating  esterna fredda"
         unique_id: heating_esterna_fredda
         state: >-
-          {% set tout = states('sensor.t_out') %}
+          {% set tout = states('sensor.t_out_effective') %}
           {% if tout in ['unknown','unavailable',''] %}
             false
           {% else %}

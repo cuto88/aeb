@@ -2,15 +2,15 @@ template:
   - binary_sensor:
       - name: "ClimateOps Request Heat"
         unique_id: climateops_request_heat
-        state: "{{ is_state('sensor.climateops_planner_recommended_mode','HEAT') }}"
-        availability: "{{ states('sensor.climateops_planner_recommended_mode') not in ['unknown','unavailable'] }}"
+        state: "{{ is_state('sensor.planner_recommended_mode','HEAT') }}"
+        availability: "{{ states('sensor.planner_recommended_mode') not in ['unknown','unavailable'] }}"
 
       - name: "ClimateOps Request Cool"
         unique_id: climateops_request_cool
-        state: "{{ is_state('sensor.climateops_planner_recommended_mode','COOL') }}"
-        availability: "{{ states('sensor.climateops_planner_recommended_mode') not in ['unknown','unavailable'] }}"
+        state: "{{ is_state('sensor.planner_recommended_mode','COOL') }}"
+        availability: "{{ states('sensor.planner_recommended_mode') not in ['unknown','unavailable'] }}"
 
       - name: "ClimateOps Request Idle"
         unique_id: climateops_request_idle
-        state: "{{ is_state('sensor.climateops_planner_recommended_mode','IDLE') }}"
-        availability: "{{ states('sensor.climateops_planner_recommended_mode') not in ['unknown','unavailable'] }}"
+        state: "{{ is_state('sensor.planner_recommended_mode','IDLE') }}"
+        availability: "{{ states('sensor.planner_recommended_mode') not in ['unknown','unavailable'] }}"

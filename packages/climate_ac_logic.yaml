@@ -41,7 +41,7 @@ template:
         state: >
           {% set sensors = {
             'sensor.t_in_med': (-20, 50),
-            'sensor.t_out': (-30, 60),
+            'sensor.t_out_effective': (-30, 60),
             'sensor.ur_in_media': (0, 100),
             'sensor.ur_out': (0, 100)
           } %}

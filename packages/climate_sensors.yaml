@@ -10,6 +10,34 @@ template:
           {{ is_state('switch.ac_giorno', 'on') or is_state('switch.ac_notte', 'on') }}
         attributes:
           friendly_name: "AC richiesta dal clima"
+      - name: "t_out stale"
+        unique_id: t_out_stale
+        device_class: problem
+        state: >-
+          {% set raw = states('sensor.t_out') | float(default=none) %}
+          {% set weather_current = state_attr('weather.forecast_casa', 'temperature') %}
+          {% set weather_forecast = states('sensor.weather_forecast_temperature_1h') | float(default=none) %}
+          {% set ref = weather_current if weather_current is number else weather_forecast %}
+          {% set raw_obj = states.sensor.t_out %}
+          {% set age_h = ((as_timestamp(now()) - as_timestamp(raw_obj.last_changed, default=0)) / 3600) if raw_obj is not none else none %}
+          {{
+            raw is number
+            and ref is number
+            and age_h is number
+            and age_h >= 2
+            and ((raw - ref) | abs) >= 0.8
+          }}
+        attributes:
+          raw_value_c: "{{ states('sensor.t_out') }}"
+          weather_current_c: "{{ state_attr('weather.forecast_casa', 'temperature') }}"
+          weather_forecast_1h_c: "{{ states('sensor.weather_forecast_temperature_1h') }}"
+          raw_age_h: >-
+            {% set raw_obj = states.sensor.t_out %}
+            {% if raw_obj is not none %}
+              {{ ((as_timestamp(now()) - as_timestamp(raw_obj.last_changed, default=0)) / 3600) | round(2) }}
+            {% else %}
+              unknown
+            {% endif %}
   - sensor:
       - name: ventilation_state_reason
         unique_id: ventilation_state_reason
@@ -203,6 +231,56 @@ template:
             unknown
           {% endif %}
 
+      - name: t_out_effective
+        unique_id: t_out_effective
+        icon: mdi:thermometer
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        attributes:
+          friendly_name: "T esterna effettiva"
+          source: >-
+            {% set raw = states('sensor.t_out') | float(default=none) %}
+            {% set weather_current = state_attr('weather.forecast_casa', 'temperature') %}
+            {% set weather_forecast = states('sensor.weather_forecast_temperature_1h') | float(default=none) %}
+            {% if raw is number and is_state('binary_sensor.t_out_stale', 'off') %}
+              sensor.t_out
+            {% elif weather_current is number %}
+              weather.forecast_casa.temperature
+            {% elif weather_forecast is number %}
+              sensor.weather_forecast_temperature_1h
+            {% elif raw is number %}
+              sensor.t_out_no_fallback_available
+            {% else %}
+              unavailable
+            {% endif %}
+          raw_value_c: "{{ states('sensor.t_out') }}"
+          weather_current_c: "{{ state_attr('weather.forecast_casa', 'temperature') }}"
+          weather_forecast_1h_c: "{{ states('sensor.weather_forecast_temperature_1h') }}"
+          raw_age_h: >-
+            {% set raw_obj = states.sensor.t_out %}
+            {% if raw_obj is not none %}
+              {{ ((as_timestamp(now()) - as_timestamp(raw_obj.last_changed, default=0)) / 3600) | round(2) }}
+            {% else %}
+              unknown
+            {% endif %}
+          stale_flag: "{{ states('binary_sensor.t_out_stale') }}"
+        state: >-
+          {% set raw = states('sensor.t_out') | float(default=none) %}
+          {% set weather_current = state_attr('weather.forecast_casa', 'temperature') %}
+          {% set weather_forecast = states('sensor.weather_forecast_temperature_1h') | float(default=none) %}
+          {% if raw is number and is_state('binary_sensor.t_out_stale', 'off') %}
+            {{ raw | round(1) }}
+          {% elif weather_current is number %}
+            {{ weather_current | round(1) }}
+          {% elif weather_forecast is number %}
+            {{ weather_forecast | round(1) }}
+          {% elif raw is number %}
+            {{ raw | round(1) }}
+          {% else %}
+            unknown
+          {% endif %}
+
       - name: ah_out
         unique_id: ah_out
         icon: mdi:water-outline
@@ -211,10 +289,10 @@ template:
         attributes:
           friendly_name: "AH esterna"
         availability: >-
-          {{ states('sensor.t_out') not in ['unknown','unavailable',''] and
+          {{ states('sensor.t_out_effective') not in ['unknown','unavailable',''] and
              states('sensor.ur_out') not in ['unknown','unavailable',''] }}
         state: >-
-          {% set T = states('sensor.t_out')|float(default=none) %}
+          {% set T = states('sensor.t_out_effective')|float(default=none) %}
           {% set RH = states('sensor.ur_out')|float(default=none) %}
           {% if T is number and RH is number %}
             {% set RHc = [[RH, 100]|min, 1]|max %}
@@ -236,7 +314,7 @@ template:
           friendly_name: "Delta T in-out"
         state: >-
           {% set tin = states('sensor.t_in_med')|float(default=none) %}
-          {% set tout = states('sensor.t_out')|float(default=none) %}
+          {% set tout = states('sensor.t_out_effective')|float(default=none) %}
           {% if tin is number and tout is number %}
             {{ (tin - tout) | round(2) }}
           {% else %}

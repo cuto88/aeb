@@ -37,7 +37,7 @@ template:
         state: >-
           {{
             states('sensor.t_in_med') not in ['unknown', 'unavailable', '']
-            and states('sensor.t_out') not in ['unknown', 'unavailable', '']
+            and states('sensor.t_out_effective') not in ['unknown', 'unavailable', '']
             and states('sensor.delta_t_in_out') not in ['unknown', 'unavailable', '']
             and states('binary_sensor.casa_chiusa') not in ['unknown', 'unavailable', '']
             and states('switch.heating_master') not in ['unknown', 'unavailable', '']
@@ -163,7 +163,7 @@ template:
           {% endif %}
         attributes:
           t_in_med_c: "{{ states('sensor.t_in_med') }}"
-          t_out_c: "{{ states('sensor.t_out') }}"
+          t_out_c: "{{ states('sensor.t_out_effective') }}"
           delta_t_in_out_c: "{{ states('sensor.delta_t_in_out') }}"
           casa_chiusa: "{{ states('binary_sensor.casa_chiusa') }}"
           heating_master: "{{ states('switch.heating_master') }}"

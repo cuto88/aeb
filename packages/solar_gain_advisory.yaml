@@ -67,7 +67,7 @@ template:
         state: >-
           {{
             states('sensor.t_in_med') not in ['unknown', 'unavailable', '']
-            and states('sensor.t_out') not in ['unknown', 'unavailable', '']
+            and states('sensor.t_out_effective') not in ['unknown', 'unavailable', '']
             and states('sensor.pv_power_now') not in ['unknown', 'unavailable', '']
             and states('binary_sensor.casa_chiusa') not in ['unknown', 'unavailable', '']
             and states('switch.heating_master') not in ['unknown', 'unavailable', '']
@@ -106,7 +106,7 @@ template:
           {% set pv = states('sensor.pv_power_now') | float(default=none) %}
           {% set pv_strong = states('input_number.solar_gain_pv_strong_w') | float(2200) %}
           {% set t_in = states('sensor.t_in_med') | float(default=none) %}
-          {% set t_out = states('sensor.t_out') | float(default=none) %}
+          {% set t_out = states('sensor.t_out_effective') | float(default=none) %}
           {% set warm = states('input_number.solar_gain_indoor_warm_c') | float(24.5) %}
           {% set hot = states('input_number.solar_gain_indoor_hot_c') | float(25.5) %}
           {% set rate = states('sensor.solar_gain_indoor_rise_rate_cph') | float(default=none) %}
@@ -165,7 +165,7 @@ template:
           {% set pv_active = states('input_number.solar_gain_pv_active_w') | float(1200) %}
           {% set pv_strong = states('input_number.solar_gain_pv_strong_w') | float(2200) %}
           {% set t_in = states('sensor.t_in_med') | float(default=none) %}
-          {% set t_out = states('sensor.t_out') | float(default=none) %}
+          {% set t_out = states('sensor.t_out_effective') | float(default=none) %}
           {% set warm = states('input_number.solar_gain_indoor_warm_c') | float(24.5) %}
           {% set hot = states('input_number.solar_gain_indoor_hot_c') | float(25.5) %}
           {% set rate = states('sensor.solar_gain_indoor_rise_rate_cph_raw') | float(default=none) %}
@@ -253,7 +253,7 @@ template:
           {% endif %}
         attributes:
           t_in_med_c: "{{ states('sensor.t_in_med') }}"
-          t_out_c: "{{ states('sensor.t_out') }}"
+          t_out_c: "{{ states('sensor.t_out_effective') }}"
           pv_power_w: "{{ states('sensor.pv_power_now') }}"
           indoor_rise_rate_cph: "{{ states('sensor.solar_gain_indoor_rise_rate_cph_raw') }}"
 

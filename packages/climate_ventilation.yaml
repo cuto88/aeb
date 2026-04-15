@@ -213,7 +213,7 @@ template:
             'sensor.ur_in_notte1',
             'sensor.ur_in_notte2',
             'sensor.ur_in_bagno',
-            'sensor.t_out',
+            'sensor.t_out_effective',
             'sensor.ur_out',
             'sensor.ah_in',
             'sensor.ah_out'
@@ -267,7 +267,7 @@ template:
         unique_id: vmc_freecooling_candidate
         state: >-
           {% set tin = states('sensor.t_in_med')|float(default=none) %}
-          {% set tout = states('sensor.t_out')|float(default=none) %}
+          {% set tout = states('sensor.t_out_effective')|float(default=none) %}
           {% set dah = states('sensor.delta_ah_in_out')|float(default=none) %}
           {% set dt_min = states('input_number.vmc_freecooling_delta')|float(2) %}
           {% set dah_min = states('input_number.vmc_freecooling_delta_ah')|float(2) %}

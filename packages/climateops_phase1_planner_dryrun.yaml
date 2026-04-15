@@ -6,7 +6,7 @@ template:
         unit_of_measurement: "°C"
         state: >-
           {% set t_in = states('sensor.t_in_med') | float(default=none) %}
-          {% set t_out = states('sensor.t_out') | float(default=none) %}
+          {% set t_out = states('sensor.t_out_effective') | float(default=none) %}
           {% set surplus = is_state('binary_sensor.policy_surplus_ok', 'on') %}
           {% set forecast_ready = is_state('binary_sensor.policy_forecast_inputs_ready', 'on')
             or is_state('binary_sensor.contract_forecast_inputs_ready', 'on') %}
@@ -28,7 +28,7 @@ template:
         unit_of_measurement: "°C"
         state: >-
           {% set t_in = states('sensor.t_in_med') | float(default=none) %}
-          {% set t_out = states('sensor.t_out') | float(default=none) %}
+          {% set t_out = states('sensor.t_out_effective') | float(default=none) %}
           {% set surplus = is_state('binary_sensor.policy_surplus_ok', 'on') %}
           {% set forecast_ready = is_state('binary_sensor.policy_forecast_inputs_ready', 'on')
             or is_state('binary_sensor.contract_forecast_inputs_ready', 'on') %}
@@ -66,7 +66,7 @@ template:
           {% set forecast_ready = is_state('binary_sensor.policy_forecast_inputs_ready', 'on')
             or is_state('binary_sensor.contract_forecast_inputs_ready', 'on') %}
           {% set t_in = states('sensor.t_in_med') %}
-          {% set t_out = states('sensor.t_out') %}
+          {% set t_out = states('sensor.t_out_effective') %}
           {% if t_in in ['unknown', 'unavailable', ''] or t_out in ['unknown', 'unavailable', ''] %}
             dryrun:missing_temp_inputs
           {% elif surplus and forecast_ready %}

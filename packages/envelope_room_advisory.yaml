@@ -28,7 +28,7 @@ template:
         state: >-
           {{
             states('sensor.t_in_med') not in ['unknown', 'unavailable', '']
-            and states('sensor.t_out') not in ['unknown', 'unavailable', '']
+            and states('sensor.t_out_effective') not in ['unknown', 'unavailable', '']
             and states('sensor.pv_power_now') not in ['unknown', 'unavailable', '']
             and states('switch.heating_master') not in ['unknown', 'unavailable', '']
             and states('switch.ac_giorno') not in ['unknown', 'unavailable', '']
@@ -67,7 +67,7 @@ template:
         state_class: measurement
         state: >-
           {% set room = states('sensor.t_in_giorno') | float(default=none) %}
-          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% set out = states('sensor.t_out_effective') | float(default=none) %}
           {% if room is number and out is number %}{{ (room - out) | round(2) }}{% else %}unknown{% endif %}
 
       - name: "Envelope notte1 delta vs outdoor c"
@@ -77,7 +77,7 @@ template:
         state_class: measurement
         state: >-
           {% set room = states('sensor.t_in_notte1') | float(default=none) %}
-          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% set out = states('sensor.t_out_effective') | float(default=none) %}
           {% if room is number and out is number %}{{ (room - out) | round(2) }}{% else %}unknown{% endif %}
 
       - name: "Envelope notte2 delta vs outdoor c"
@@ -87,7 +87,7 @@ template:
         state_class: measurement
         state: >-
           {% set room = states('sensor.t_in_notte2') | float(default=none) %}
-          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% set out = states('sensor.t_out_effective') | float(default=none) %}
           {% if room is number and out is number %}{{ (room - out) | round(2) }}{% else %}unknown{% endif %}
 
       - name: "Envelope bagno delta vs outdoor c"
@@ -97,7 +97,7 @@ template:
         state_class: measurement
         state: >-
           {% set room = states('sensor.t_in_bagno') | float(default=none) %}
-          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% set out = states('sensor.t_out_effective') | float(default=none) %}
           {% if room is number and out is number %}{{ (room - out) | round(2) }}{% else %}unknown{% endif %}
 
       - name: "Envelope giorno delta vs house avg c"
@@ -231,7 +231,7 @@ template:
           {% set rise = states('sensor.envelope_giorno_rise_rate_cph_raw') | float(default=none) %}
           {% set rise_high = states('input_number.solar_gain_rise_high_cph') | float(0.45) %}
           {% set delta_avg = states('sensor.envelope_giorno_delta_vs_house_avg_c') | float(default=none) %}
-          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% set out = states('sensor.t_out_effective') | float(default=none) %}
           {% if t_room is not number or rise is not number or delta_avg is not number or out is not number %}0
           {% else %}
             {% set temp_score = 40 if t_room >= hot else (((t_room - warm) / (hot - warm)) * 40) | round(0) if t_room >= warm else 0 %}
@@ -252,7 +252,7 @@ template:
           {% set rise = states('sensor.envelope_notte1_rise_rate_cph_raw') | float(default=none) %}
           {% set rise_high = states('input_number.solar_gain_rise_high_cph') | float(0.45) %}
           {% set delta_avg = states('sensor.envelope_notte1_delta_vs_house_avg_c') | float(default=none) %}
-          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% set out = states('sensor.t_out_effective') | float(default=none) %}
           {% if t_room is not number or rise is not number or delta_avg is not number or out is not number %}0
           {% else %}
             {% set temp_score = 40 if t_room >= hot else (((t_room - warm) / (hot - warm)) * 40) | round(0) if t_room >= warm else 0 %}
@@ -273,7 +273,7 @@ template:
           {% set rise = states('sensor.envelope_notte2_rise_rate_cph_raw') | float(default=none) %}
           {% set rise_high = states('input_number.solar_gain_rise_high_cph') | float(0.45) %}
           {% set delta_avg = states('sensor.envelope_notte2_delta_vs_house_avg_c') | float(default=none) %}
-          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% set out = states('sensor.t_out_effective') | float(default=none) %}
           {% if t_room is not number or rise is not number or delta_avg is not number or out is not number %}0
           {% else %}
             {% set temp_score = 40 if t_room >= hot else (((t_room - warm) / (hot - warm)) * 40) | round(0) if t_room >= warm else 0 %}
@@ -294,7 +294,7 @@ template:
           {% set rise = states('sensor.envelope_bagno_rise_rate_cph_raw') | float(default=none) %}
           {% set rise_high = states('input_number.solar_gain_rise_high_cph') | float(0.45) %}
           {% set delta_avg = states('sensor.envelope_bagno_delta_vs_house_avg_c') | float(default=none) %}
-          {% set out = states('sensor.t_out') | float(default=none) %}
+          {% set out = states('sensor.t_out_effective') | float(default=none) %}
           {% if t_room is not number or rise is not number or delta_avg is not number or out is not number %}0
           {% else %}
             {% set temp_score = 40 if t_room >= hot else (((t_room - warm) / (hot - warm)) * 40) | round(0) if t_room >= warm else 0 %}
@@ -604,7 +604,7 @@ sensor:
   - platform: derivative
     name: "Envelope t out rate cph raw"
     unique_id: envelope_t_out_rate_cph_raw
-    source: sensor.t_out
+    source: sensor.t_out_effective
     unit_time: h
     time_window: "00:30:00"
     round: 3
