@@ -60,6 +60,13 @@
   - `automation.climateops_system_actuate`
   - `script.ac_giorno_apply` / `script.ac_notte_apply`
   - stato `switch.ac_giorno` / `switch.ac_notte`
+- Quality gates:
+  - non modificare un gate per nascondere o silenziare un problema reale;
+  - se un gate fallisce, diagnosticare prima se il problema e` nel contenuto, nella policy o nel gate;
+  - correggere i contenuti quando la documentazione punta a file del repo con link non portabili o rotti;
+  - usare riferimenti testuali, non link Markdown, per file locali/non versionati o per path esterni al repo;
+  - modificare un gate solo per rendere la policy piu` precisa e difendibile, non piu` permissiva;
+  - dopo ogni modifica a gate o documentazione, rieseguire `ops/gates_run_ci.ps1` prima di dichiarare chiuso.
 
 ## Progress visibility (sempre attiva)
 
