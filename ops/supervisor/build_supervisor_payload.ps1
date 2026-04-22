@@ -97,8 +97,11 @@ function Get-AuditSummaries {
   )
 
   $auditsRoot = Join-Path $RepoRoot "docs\audits"
-  $files = Get-ChildItem -LiteralPath $auditsRoot -Filter "CURRENT_*.md" -File -ErrorAction Stop |
-    Where-Object { $_.Name -ne "CURRENT_SUPERVISOR_STATUS.md" } |
+  $files = Get-ChildItem -LiteralPath $auditsRoot -Filter "*.md" -File -ErrorAction Stop |
+    Where-Object {
+      $_.Name -ne "CURRENT_SUPERVISOR_STATUS.md" -and
+      ($_.Name -like "CURRENT_*.md" -or $_.Name -like "STEP*.md")
+    } |
     Sort-Object LastWriteTime -Descending |
     Select-Object -First $MaxCount
 
