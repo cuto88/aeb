@@ -1,11 +1,20 @@
 $ErrorActionPreference = 'Stop'
 
 function Get-RepoRoot {
-    $root = (& git rev-parse --show-toplevel 2>$null)
-    if (-not $root) {
-        throw 'Unable to resolve git repo root.'
+    $root = $null
+    try {
+        $root = (& git rev-parse --show-toplevel 2>$null)
+    } catch {
+        $root = $null
     }
-    return $root.Trim()
+    if ($root) {
+        return $root.Trim()
+    }
+    $fallback = Split-Path -Parent $PSScriptRoot
+    if ((Test-Path -LiteralPath (Join-Path $fallback 'docs')) -and (Test-Path -LiteralPath (Join-Path $fallback 'ops'))) {
+        return $fallback
+    }
+    throw 'Unable to resolve repo root.'
 }
 
 function Get-MarkdownFiles {
@@ -34,14 +43,26 @@ function Get-TrackedYamlFiles {
     )
 
     $tracked = @()
-    $output = & git -C $Root ls-files -z -- $Pattern 2>$null
-    if ($LASTEXITCODE -ne 0) {
-        throw "Unable to enumerate tracked YAML files for pattern ${Pattern}."
+    $output = $null
+    $gitOk = $false
+    try {
+        $output = & git -C $Root ls-files -z -- $Pattern 2>$null
+        $gitOk = ($LASTEXITCODE -eq 0)
+    } catch {
+        $gitOk = $false
     }
-    if ($output) {
+    if ($gitOk -and $output) {
         $tracked = $output -split "`0" | Where-Object { $_ -ne '' }
+        return $tracked
     }
-    return $tracked
+    $base = if ($Pattern -like 'packages/*') { 'packages' } elseif ($Pattern -like 'lovelace/*') { 'lovelace' } else { '' }
+    if (-not $base) { return @() }
+    $dir = Join-Path $Root $base
+    if (-not (Test-Path -LiteralPath $dir)) { return @() }
+    return @(
+        Get-ChildItem -Path $dir -File -Include '*.yaml', '*.yml' |
+            ForEach-Object { "$base/$($_.Name)" }
+    )
 }
 
 try {
