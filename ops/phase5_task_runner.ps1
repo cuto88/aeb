@@ -14,6 +14,11 @@ try {
   if ($LASTEXITCODE -ne 0) {
     throw "phase4_daily_runtime_report.ps1 failed (RC=$LASTEXITCODE)"
   }
+  & powershell -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "aeb_runtime_audit_snapshot.ps1") 2>&1 |
+    Tee-Object -FilePath $logFile -Append | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    throw "aeb_runtime_audit_snapshot.ps1 failed (RC=$LASTEXITCODE)"
+  }
   & powershell -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "phase6_no_go_guard.ps1") 2>&1 |
     Tee-Object -FilePath $logFile -Append | Out-Null
   if ($LASTEXITCODE -ne 0) {
