@@ -1,12 +1,21 @@
 $ErrorActionPreference = 'Stop'
 
 function Get-RepoRoot {
-    $root = (& git rev-parse --show-toplevel 2>$null)
-    if (-not $root) {
-        Write-Error 'Unable to resolve git repo root.'
-        exit 1
+    $root = $null
+    try {
+        $root = (& git rev-parse --show-toplevel 2>$null)
+    } catch {
+        $root = $null
     }
-    return $root.Trim()
+    if ($root) {
+        return $root.Trim()
+    }
+    $fallback = Split-Path -Parent $PSScriptRoot
+    if ((Test-Path -LiteralPath (Join-Path $fallback 'docs')) -and (Test-Path -LiteralPath (Join-Path $fallback 'ops'))) {
+        return $fallback
+    }
+    Write-Error 'Unable to resolve repo root.'
+    exit 1
 }
 
 function Get-MarkdownFiles {
