@@ -13,6 +13,8 @@ Scope: EHW semantic hardening, no writer change.
   - `sensor.ehw_setpoint - sensor.ehw_tank_top >= 1.0`
 - Therefore `binary_sensor.ehw_running` does not prove electrical or compressor/heater activity.
 - Existing entity is used by dashboards/contracts and is left unchanged for compatibility.
+- `packages/ehw_reconciliation.yaml` was copied to `/homeassistant/packages/ehw_reconciliation.yaml`.
+- `ha core check` completed successfully after the file deploy.
 
 ## IPOTESI
 
@@ -47,8 +49,14 @@ Scope: EHW semantic hardening, no writer change.
 - No Modbus polling changes.
 - No existing entity removed or renamed.
 
+## Verification
+
+- `yamllint packages/ehw_modbus.yaml packages/ehw_reconciliation.yaml`: PASS.
+- Runtime file deploy: PASS.
+- `ha core check`: PASS.
+
 ## Next Verification
 
-- Deploy package update in a controlled config-check pass.
+- Reload/restart Home Assistant in a controlled window so the new package is loaded.
 - Confirm new entities resolve in HA.
 - Watch whether `demand_no_power` is a normal waiting state or a persistent anomaly.
