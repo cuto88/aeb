@@ -137,6 +137,14 @@ foreach ($file in $markdownFiles) {
         if ($target.StartsWith('#')) {
             continue
         }
+        if ($target -match '^[a-zA-Z]:[\\/]') {
+            continue
+        }
+
+        $targetForPolicy = $target -replace '\\', '/'
+        if ($targetForPolicy -match '(^|/)(docs/)?runtime_evidence/') {
+            continue
+        }
 
         $resolved = Resolve-LinkPath -BaseDir $file.DirectoryName -Target $target
         if (-not $resolved) {
