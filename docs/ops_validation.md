@@ -9,6 +9,18 @@
   - `pwsh -NoProfile -ExecutionPolicy Bypass -File ops/gates_run_ci.ps1` (read-only, senza step mutanti locali e senza `ha core check`)
 - Verifica in UI: gli switch AC/VMC non devono essere richiamati se già nello stato target (logbook più pulito).
 
+## Policy qualità gate
+
+- I gate non si bypassano per ottenere un verde artificiale.
+- Un failure va classificato prima di agire:
+  - contenuto errato o link rotto: correggere il contenuto;
+  - policy incompleta o ambigua: documentare la semantica e rendere il gate piu` preciso;
+  - bug del gate: correggere il gate preservando o aumentando il livello di controllo.
+- Link Markdown verificabili devono puntare a file versionati e portabili nel repo.
+- Riferimenti a file locali, evidence non versionate o repository esterni devono restare testo/code span, non link verificabili.
+- Ogni modifica a un gate deve essere accompagnata da `ops/gates_run_ci.ps1` verde con la policy effettiva, non con eccezioni temporanee.
+- Se per emergenza serve disattivare un controllo, va trattato come `NO-GO` documentato con owner, scadenza e piano di ripristino.
+
 ## Compatibilità alias/comandi
 - Legacy compatibile: `ops/gates_run.ps1` resta disponibile.
 - Reindirizzamento consigliato:
