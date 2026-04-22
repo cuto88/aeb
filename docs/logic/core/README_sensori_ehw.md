@@ -29,15 +29,20 @@ Sorgenti vendor correnti:
 
 ---
 
-## Current runtime checkpoint (2026-03-23)
+## Current runtime checkpoint (2026-04-22)
 
-Stato consolidato dopo gli audit `STEP38` -> `STEP42`:
+Stato consolidato dopo gli audit `STEP38` -> `STEP42` e la riconciliazione runtime
+`STEP64` / `STEP68`:
 
 - `input_select.ehw_address_mode = doc_0_based`
 - `sensor.ehw_setpoint_raw_a` e` il path raw live usato in runtime
 - `sensor.ehw_setpoint_raw_calc` segue il raw live
 - `sensor.ehw_setpoint` e` coerente come feedback scalato
 - la catena read/feedback DHW e` chiusa e validata a runtime
+- `binary_sensor.ehw_running` resta indicatore legacy di domanda termica
+  (`setpoint - tank_top >= 1.0`), non prova di assorbimento elettrico
+- `sensor.ehw_operation_state` e` il nuovo stato diagnostico consigliato per distinguere
+  domanda termica, potenza confermata e mismatch
 
 Writer DHW attuale:
 
@@ -79,6 +84,7 @@ Boundary corrente:
 - multi-load orchestration / load shifting: `NOT ENABLED`
 - UI/plancia operativa aggiornata in `lovelace/climate_casa_unified_plancia.yaml`
 - plancia tecnica `lovelace/ehw_plancia.yaml` espone anche `sensor.ehw_power_w` come consumo istantaneo e nel grafico storico 24h
+- riconciliazione domanda/potenza in `packages/ehw_reconciliation.yaml`
 
 ---
 
@@ -156,12 +162,34 @@ Queste entità sono mantenute per retro-compatibilità con plance/automazioni es
 
 ---
 
+## Reconciliation entities
+
+Queste entita` separano la semantica di richiesta termica da quella di attivita`
+elettrica reale.
+
+| Entity ID canonico | Tipo | Source | Significato / note |
+|---|---|---|---|
+| `sensor.ehw_operation_state` | template sensor | `ehw_running` + `ehw_power_w` | Stato diagnostico: `idle`, `active_power_confirmed`, `demand_no_power`, `demand_power_unknown`, `idle_power_unknown` |
+| `binary_sensor.ehw_power_confirmed` | template binary | `sensor.ehw_power_w >= 30 W` | Conferma assorbimento elettrico reale sopra soglia conservativa |
+| `binary_sensor.ehw_demand_power_mismatch` | template binary | domanda termica ON + power non confermata | Flag diagnostico per domanda senza potenza significativa |
+
+Uso operativo:
+
+- Per capire se ACS/EHW sta chiedendo calore: `binary_sensor.ehw_running`.
+- Per capire se ACS/EHW sta realmente assorbendo potenza: `binary_sensor.ehw_power_confirmed`.
+- Per plance e diagnostica operatore: `sensor.ehw_operation_state`.
+- Per allarmi futuri: usare `binary_sensor.ehw_demand_power_mismatch` solo con durata persistente, non su singolo campione.
+
+---
+
 ## Known constraints
 
 - Su profilo runtime `190/unit3`, i registri `56/57/60` non sono affidabili per stato macchina e possono risultare non disponibili.
 - Le temperature utili provengono dal blocco `2019..2024` e dai parametri `1082/1088/1089/1104/1106`.
 - In caso di transport instability (`transaction_id mismatch`), il package riduce il polling
   dei registri diagnostici (T01..T06 + setpoint raw) a 180s per ridurre rumore Modbus.
+- `binary_sensor.ehw_running` non deve essere usato come prova di assorbimento elettrico.
+  Usare `binary_sensor.ehw_power_confirmed` o `sensor.ehw_operation_state`.
 
 ---
 
