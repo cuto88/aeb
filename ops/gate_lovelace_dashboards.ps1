@@ -9,7 +9,25 @@ function Warn([string]$msg) {
   Write-Host "[WARN] $msg"
 }
 
-$repoRoot = (& git rev-parse --show-toplevel).Trim()
+function Get-RepoRoot {
+  $root = $null
+  try {
+    $root = (& git rev-parse --show-toplevel 2>$null)
+  } catch {
+    $root = $null
+  }
+  if ($root) {
+    return $root.Trim()
+  }
+  $fallback = Split-Path -Parent $PSScriptRoot
+  if ((Test-Path -LiteralPath (Join-Path $fallback "configuration.yaml")) -and
+      (Test-Path -LiteralPath (Join-Path $fallback "lovelace"))) {
+    return $fallback
+  }
+  return $null
+}
+
+$repoRoot = Get-RepoRoot
 if (-not $repoRoot) {
   Fail "Unable to resolve repo root."
 }
@@ -43,7 +61,16 @@ if ($missingFiles.Count -gt 0) {
   Fail "Dashboard references missing files."
 }
 
-$trackedRaw = (& git -C $repoRoot ls-files -- "lovelace/*.yaml" "lovelace/*.yml")
+$trackedRaw = $null
+try {
+  $trackedRaw = (& git -C $repoRoot ls-files -- "lovelace/*.yaml" "lovelace/*.yml" 2>$null)
+} catch {
+  $trackedRaw = $null
+}
+if (-not $trackedRaw) {
+  $trackedRaw = Get-ChildItem -Path (Join-Path $repoRoot "lovelace") -File -Include "*.yaml", "*.yml" |
+    ForEach-Object { "lovelace/" + $_.Name }
+}
 $tracked = @()
 if ($trackedRaw) {
   $tracked = $trackedRaw |
