@@ -48,35 +48,66 @@ Write-Host ' Running Manual Quality Gates'
 Write-Host '========================================='
 
 function Get-RepoRoot {
-    $root = (& git rev-parse --show-toplevel 2>$null)
-    if (-not $root) {
-        Write-Error 'Unable to resolve git repo root.'
-        exit 1
+    $root = $null
+    try {
+        $root = (& git rev-parse --show-toplevel 2>$null)
+    } catch {
+        $root = $null
     }
-    return $root.Trim()
+    if ($root) {
+        return $root.Trim()
+    }
+    $fallback = Split-Path -Parent $PSScriptRoot
+    if ((Test-Path -LiteralPath (Join-Path $fallback 'packages')) -and (Test-Path -LiteralPath (Join-Path $fallback 'ops'))) {
+        Write-Host "Git repo root unavailable; using script-relative root: $fallback"
+        return $fallback
+    }
+    Write-Error 'Unable to resolve repo root.'
+    exit 1
 }
 
 function Get-TrackedYamlFiles {
     param([string]$Root)
     $tracked = @()
-    $output = & git -C $Root ls-files -z -- '*.yaml' '*.yml' 2>$null
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error 'Unable to enumerate tracked YAML files.'
-        exit 1
+    $output = $null
+    $gitOk = $false
+    try {
+        $output = & git -C $Root ls-files -z -- '*.yaml' '*.yml' 2>$null
+        $gitOk = ($LASTEXITCODE -eq 0)
+    } catch {
+        $gitOk = $false
     }
-    if ($output) {
+    if ($gitOk -and $output) {
         $tracked = $output -split "`0" | Where-Object { $_ -ne '' }
+        return $tracked
     }
-    return $tracked
+    if (Get-Command rg -ErrorAction SilentlyContinue) {
+        Write-Host 'Git tracked file list unavailable; using scoped rg YAML list.'
+        $tracked = & rg --files $Root -g '*.yaml' -g '*.yml' |
+            ForEach-Object { [System.IO.Path]::GetRelativePath($Root, $_) } |
+            Where-Object {
+                $_ -notmatch '(^|[\/])(_archive|_backup|docs[\/]logic[\/]_backup|ops[\/]disabled_runtime)([\/]|$)'
+            } |
+            Where-Object {
+                $_ -match '^(packages|lovelace|ops)([\/]|$)' -or $_ -match '^(configuration|automations|scripts|scenes|groups|customize)\.ya?ml$'
+            }
+        return @($tracked)
+    }
+    Write-Error 'Unable to enumerate YAML files without Git or rg.'
+    exit 1
 }
 
 $repoRoot = Get-RepoRoot
+$gitAvailable = $false
+try {
+    $gitAvailable = ((& git -C $repoRoot rev-parse --is-inside-work-tree 2>$null) -eq 'true')
+} catch {
+    $gitAvailable = $false
+}
 $trackedYamlFiles = Get-TrackedYamlFiles -Root $repoRoot
 
 $gates = @(
-    # HYGIENE = formatter/mutating scripts (non-validation).
     @{ Name = '[HYGIENE] ops/hygiene_fix_yaml_encoding.ps1 (mutating formatter)'; Gate = 'HYGIENE'; Script = 'ops/hygiene_fix_yaml_encoding.ps1'; Args = @(); UsePowerShell = $true },
-    # GATE = validation/non-mutating checks.
     @{ Name = '[GATE 1] yamllint tracked YAML (validation)'; Command = 'yamllint'; Args = @(); UsePowerShell = $false },
     @{ Name = '[GATE 2] ops/gate_include_tree.ps1'; Gate = 'GATE 2'; Script = 'ops/gate_include_tree.ps1'; Args = @(); UsePowerShell = $true },
     @{ Name = '[GATE 3] ops/gate_ha_structure.ps1 -CheckEntityMap'; Gate = 'GATE 3'; Script = 'ops/gate_ha_structure.ps1'; Args = @('-CheckEntityMap'); UsePowerShell = $true },
@@ -89,15 +120,16 @@ $gates = @(
 )
 
 foreach ($gate in $gates) {
+    if ($gate.Gate -eq 'HYGIENE' -and -not $gitAvailable) {
+        Write-Host ''
+        Write-Host ("==> Skipping {0} (Git unavailable in connector-first workspace)" -f $gate.Name)
+        continue
+    }
     if ($gate.UsePowerShell) {
         if (Test-Path -Path $gate.Script) {
             $code = Invoke-Gate -Name $gate.Gate -ScriptPath $gate.Script -Args @($gate.Args)
             if ($gate.Script -eq 'ops/gate_docs_links.ps1') {
-                if ($code -eq 0) {
-                    Write-Host 'DOCS_GATE: OK'
-                } else {
-                    Write-Host 'DOCS_GATE: FAIL'
-                }
+                if ($code -eq 0) { Write-Host 'DOCS_GATE: OK' } else { Write-Host 'DOCS_GATE: FAIL' }
             }
         } else {
             Write-Host ''
@@ -152,12 +184,11 @@ try {
 Write-Host ''
 Write-Host 'ALL GATES PASSED'
 
-# Scrive il marker gates.ok solo in caso di successo completo
 $opsStateDir = Join-Path $repoRoot ".ops_state"
 New-Item -ItemType Directory -Force -Path $opsStateDir | Out-Null
 
-$head = (git rev-parse HEAD).Trim()
-$branch = (git rev-parse --abbrev-ref HEAD).Trim()
+$head = if ($gitAvailable) { (git -C $repoRoot rev-parse HEAD).Trim() } else { "NO_LOCAL_GIT" }
+$branch = if ($gitAvailable) { (git -C $repoRoot rev-parse --abbrev-ref HEAD).Trim() } else { "connector-first" }
 $timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssK"
 
 $gatesContent = @(
