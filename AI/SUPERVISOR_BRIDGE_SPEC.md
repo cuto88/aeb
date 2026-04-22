@@ -10,9 +10,9 @@ This spec is intentionally aligned with the existing `life-os-2100` bridge patte
 - bridge endpoints are small, explicit, and auditable
 
 Reference pattern:
-- shared bridge owner: [n8n-bridge/README.md](C:/2_OPS/n8n-bridge/README.md)
-- canonical runtime entrypoint: [bridge_server.py](C:/2_OPS/n8n-bridge/scripts/bridge_server.py)
-- compatibility background: [OPERATING_CONTEXT.md](C:/2_OPS/life-os-2100/autopilot-core/specs/OPERATING_CONTEXT.md)
+- shared bridge owner: `C:/2_OPS/n8n-bridge/README.md`
+- canonical runtime entrypoint: `C:/2_OPS/n8n-bridge/scripts/bridge_server.py`
+- compatibility background: `C:/2_OPS/life-os-2100/autopilot-core/specs/OPERATING_CONTEXT.md`
 
 ## Design principles
 
