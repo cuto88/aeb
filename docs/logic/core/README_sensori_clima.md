@@ -85,9 +85,12 @@ Tutti i package clima **devono** usare **esattamente** questi `entity_id`.
 | AC should run (final decision)            | `binary_sensor.ac_should_run`              |
 | VMC target speed (0–3)                    | `sensor.vmc_vel_target`                    |
 | VMC speed index (debug)                   | `sensor.vmc_vel_index`                     |
+| VMC running proxy (observed/logic bridge) | `binary_sensor.vmc_is_running_proxy`       |
 | Ventilation priority (P0–P4)              | `sensor.ventilation_priority`              |
 | Ventilation reason (human-readable)       | `sensor.ventilation_reason`                |
 | Ventilation state change reason           | `sensor.ventilation_state_reason`          |
+| VMC power mean 15m (PM1/reallocation)     | `sensor.vmc_power_mean_15m`                |
+| VMC power max 24h (PM1/reallocation)      | `sensor.vmc_power_max_24h`                 |
 | Bathroom boost ETA spegnimento (debug)    | `sensor.vmc_boost_bagno_eta_spegnimento`   |
 | Freecooling textual status                | `sensor.vmc_freecooling_status`            |
 | Open windows recommended                  | `sensor.clima_open_windows_recommended`    |
@@ -154,8 +157,14 @@ Note operative VMC:
 | Min indoor T (all rooms)                  | `sensor.t_in_min`                          |
 | Rooms below target                        | `sensor.heating_rooms_below_target`        |
 | Failsafe bad sensors                      | `binary_sensor.heating_failsafe_sensors_bad`|
+| Heating demand active before locks        | `binary_sensor.heating_demand_active`      |
+| Heating held by min-ON lock               | `binary_sensor.heating_held_by_min_on_lock`|
+| Heating should-run source                 | `sensor.heating_should_run_source`         |
 | Min-ON lock ok                            | `binary_sensor.heating_lock_min_on_ok`     |
 | Min-OFF lock ok                           | `binary_sensor.heating_lock_min_off_ok`    |
+| Min-ON lock remaining                     | `sensor.heating_lock_min_on_remaining`     |
+| Min-OFF lock remaining                    | `sensor.heating_lock_min_off_remaining`    |
+| Heating master proxy (observed/logic bridge) | `binary_sensor.heating_master_is_on_proxy` |
 | Time-window active                        | `binary_sensor.heating_finestra_oraria`    |
 | External cold flag                        | `binary_sensor.heating_esterna_fredda`     |
 | At least one room below target            | `binary_sensor.heating_almeno_una_stanza_sotto_target` |
@@ -235,6 +244,8 @@ Non è un rename: la coesistenza è intenzionale. Warning alias possibile: `clim
 | AC day — last OFF                         | `sensor.ac_giorno_ultimo_off`             |
 | AC night — last ON                        | `sensor.ac_notte_ultimo_on`               |
 | AC night — last OFF                       | `sensor.ac_notte_ultimo_off`              |
+| AC day ON proxy (observed/logic bridge)   | `binary_sensor.ac_giorno_is_on_proxy`     |
+| AC night ON proxy (observed/logic bridge) | `binary_sensor.ac_notte_is_on_proxy`      |
 
 ---
 
