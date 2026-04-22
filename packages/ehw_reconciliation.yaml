@@ -1,0 +1,40 @@
+template:
+  - sensor:
+      - name: "EHW operation state"
+        unique_id: ehw_operation_state
+        availability: >-
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
+        icon: mdi:water-boiler
+        state: >-
+          {% set demand = is_state('binary_sensor.ehw_running', 'on') %}
+          {% set power = states('sensor.ehw_power_w') | float(default=none) %}
+          {% if power is none %}
+            {% if demand %}
+              demand_power_unknown
+            {% else %}
+              idle_power_unknown
+            {% endif %}
+          {% elif power >= 30 %}
+            active_power_confirmed
+          {% elif demand %}
+            demand_no_power
+          {% else %}
+            idle
+          {% endif %}
+
+  - binary_sensor:
+      - name: "EHW power confirmed"
+        unique_id: ehw_power_confirmed
+        availability: >-
+          {{ has_value('sensor.ehw_power_w') }}
+        icon: mdi:flash
+        state: >-
+          {{ states('sensor.ehw_power_w') | float(0) >= 30 }}
+
+      - name: "EHW demand power mismatch"
+        unique_id: ehw_demand_power_mismatch
+        availability: >-
+          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') and has_value('sensor.ehw_power_w') }}
+        icon: mdi:alert-circle
+        state: >-
+          {{ is_state('binary_sensor.ehw_running', 'on') and not is_state('binary_sensor.ehw_power_confirmed', 'on') }}
