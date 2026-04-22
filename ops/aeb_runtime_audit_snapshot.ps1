@@ -102,6 +102,17 @@ if ([string]::IsNullOrWhiteSpace($haToken)) {
   throw "HA_TOKEN missing in $resolvedEnvPath"
 }
 
+if (-not $PSBoundParameters.ContainsKey("HaBaseUrl") -and -not [string]::IsNullOrWhiteSpace($envMap["HA_URL"])) {
+  $HaBaseUrl = $envMap["HA_URL"]
+}
+
+$haUri = [System.Uri]$HaBaseUrl
+$noProxyHosts = @("localhost", "127.0.0.1", "::1", $haUri.Host) | Select-Object -Unique
+$env:NO_PROXY = ($noProxyHosts -join ",")
+$env:HTTP_PROXY = ""
+$env:HTTPS_PROXY = ""
+$env:ALL_PROXY = ""
+
 $date = Get-Date -Format "yyyy-MM-dd"
 $stamp = Get-Date -Format "yyyyMMdd_HHmmss"
 $capturedAt = Get-Date -Format "yyyy-MM-dd HH:mm:ss K"
@@ -137,8 +148,25 @@ $entityIds = @(
   "sensor.t_in_bagno",
   "sensor.t_out_effective",
   "switch.heating_master",
+  "binary_sensor.vmc_is_running_proxy",
+  "sensor.vmc_active_speed_proxy",
   "switch.ac_giorno",
-  "switch.ac_notte"
+  "switch.ac_notte",
+  "climate.ac_giorno",
+  "climate.ac_notte",
+  "input_boolean.cm_ac_branch_powered",
+  "sensor.cm_ac_branch_advice",
+  "input_boolean.cm_mirai_branch_powered",
+  "sensor.cm_mirai_branch_advice",
+  "binary_sensor.cm_modbus_mirai_ready",
+  "sensor.mirai_machine_state",
+  "binary_sensor.mirai_machine_running",
+  "sensor.mirai_power_w",
+  "binary_sensor.cm_modbus_ehw_ready",
+  "sensor.ehw_tank_top",
+  "sensor.ehw_tank_bottom",
+  "binary_sensor.ehw_running",
+  "sensor.ehw_power_w"
 )
 
 $states = [ordered]@{}
@@ -198,8 +226,29 @@ $md += New-Line "sensor.climateops_aeb_mvp_reason" (Get-StateValue $states["sens
 $md += New-Line "sensor.climateops_aeb_mvp_mode" (Get-StateValue $states["sensor.climateops_aeb_mvp_mode"])
 $md += New-Line "binary_sensor.climateops_aeb_mvp_permitted" (Get-StateValue $states["binary_sensor.climateops_aeb_mvp_permitted"])
 $md += New-Line "switch.heating_master" (Get-StateValue $states["switch.heating_master"])
+$md += New-Line "binary_sensor.vmc_is_running_proxy" (Get-StateValue $states["binary_sensor.vmc_is_running_proxy"])
+$md += New-Line "sensor.vmc_active_speed_proxy" (Get-StateValue $states["sensor.vmc_active_speed_proxy"])
 $md += New-Line "switch.ac_giorno" (Get-StateValue $states["switch.ac_giorno"])
 $md += New-Line "switch.ac_notte" (Get-StateValue $states["switch.ac_notte"])
+$md += New-Line "climate.ac_giorno" (Get-StateValue $states["climate.ac_giorno"])
+$md += New-Line "climate.ac_notte" (Get-StateValue $states["climate.ac_notte"])
+$md += ""
+$md += "## Branch feedback"
+$md += New-Line "input_boolean.cm_ac_branch_powered" (Get-StateValue $states["input_boolean.cm_ac_branch_powered"])
+$md += New-Line "sensor.cm_ac_branch_advice" (Get-StateValue $states["sensor.cm_ac_branch_advice"])
+$md += New-Line "input_boolean.cm_mirai_branch_powered" (Get-StateValue $states["input_boolean.cm_mirai_branch_powered"])
+$md += New-Line "sensor.cm_mirai_branch_advice" (Get-StateValue $states["sensor.cm_mirai_branch_advice"])
+$md += New-Line "binary_sensor.cm_modbus_mirai_ready" (Get-StateValue $states["binary_sensor.cm_modbus_mirai_ready"])
+$md += New-Line "binary_sensor.cm_modbus_ehw_ready" (Get-StateValue $states["binary_sensor.cm_modbus_ehw_ready"])
+$md += ""
+$md += "## MIRAI / EHW truth"
+$md += New-Line "sensor.mirai_machine_state" (Get-StateValue $states["sensor.mirai_machine_state"])
+$md += New-Line "binary_sensor.mirai_machine_running" (Get-StateValue $states["binary_sensor.mirai_machine_running"])
+$md += New-Line "sensor.mirai_power_w" (Get-StateValue $states["sensor.mirai_power_w"])
+$md += New-Line "sensor.ehw_tank_top" (Get-StateValue $states["sensor.ehw_tank_top"])
+$md += New-Line "sensor.ehw_tank_bottom" (Get-StateValue $states["sensor.ehw_tank_bottom"])
+$md += New-Line "binary_sensor.ehw_running" (Get-StateValue $states["binary_sensor.ehw_running"])
+$md += New-Line "sensor.ehw_power_w" (Get-StateValue $states["sensor.ehw_power_w"])
 $md += ""
 $md += "## Recorder health"
 $md += "### DB files"
