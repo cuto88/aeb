@@ -60,6 +60,21 @@
 - Example:
   - `.\ops\involucro_audit_snapshot.ps1 -WindowType night_flush`
 
+## aeb_runtime_audit_snapshot.ps1
+- Captures a compact read-only runtime snapshot outside the HA recorder.
+- Intended as a high-ROI fallback after recorder incidents.
+- Reads Home Assistant Core states through the local API and uses `HA_TOKEN` from `.env`.
+- Uses SSH only for recorder DB file status and recent recorder log checks.
+- Writes:
+  - `docs/runtime_evidence/<date>/aeb_runtime_audit_snapshot_<timestamp>.md`
+  - `docs/runtime_evidence/<date>/aeb_runtime_audit_snapshot_<timestamp>.json`
+- Includes:
+  - vacation mode and policy gates
+  - manual shading feedback
+  - envelope/worst-room state
+  - AEB/ClimateOps reason state
+  - recorder DB files and recent recorder log matches
+
 ## How to run
 Pipeline ufficiale:
 1) `repo_sync`
@@ -78,6 +93,7 @@ Esempi:
 - `.\ops\gates_run.ps1`
 - `.\ops\deploy_safe.ps1`
 - `.\ops\deploy_safe.ps1 -RunGates` (solo per uso standalone)
+- `.\ops\aeb_runtime_audit_snapshot.ps1`
 - `.\ops\involucro_audit_snapshot.ps1 -WindowType night_flush`
 - `.\ops\retention_runtime_evidence.ps1 -WhatIf`
 - `.\ops\retention_runtime_evidence.ps1`

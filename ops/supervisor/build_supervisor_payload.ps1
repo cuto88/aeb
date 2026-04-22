@@ -116,6 +116,33 @@ function Get-AuditSummaries {
   )
 }
 
+function Get-RuntimeEvidenceSummaries {
+  param(
+    [string]$RepoRoot,
+    [int]$MaxCount
+  )
+
+  $evidenceRoot = Join-Path $RepoRoot "docs\runtime_evidence"
+  if (-not (Test-Path -LiteralPath $evidenceRoot)) {
+    return @()
+  }
+
+  $files = Get-ChildItem -LiteralPath $evidenceRoot -Recurse -File -Filter "*.md" -ErrorAction Stop |
+    Where-Object { $_.FullName -notmatch "\\_templates\\" } |
+    Sort-Object LastWriteTime -Descending |
+    Select-Object -First $MaxCount
+
+  @(
+    foreach ($file in $files) {
+      [ordered]@{
+        path = (Get-RelativeRepoPath -RepoRoot $RepoRoot -FullPath $file.FullName)
+        last_write_time = $file.LastWriteTime.ToString("s")
+        summary = (Get-Excerpt -Path $file.FullName -MaxChars 700)
+      }
+    }
+  )
+}
+
 $resolvedRepoRoot = Resolve-AebRepoRoot -Candidate $RepoRoot
 
 $contextPath = Join-Path $resolvedRepoRoot "AI\CONTEXT.md"
@@ -138,6 +165,9 @@ $payload = [ordered]@{
   }
   audits = [ordered]@{
     latest_files = (Get-AuditSummaries -RepoRoot $resolvedRepoRoot -MaxCount $MaxAudits)
+  }
+  runtime_evidence = [ordered]@{
+    latest_files = (Get-RuntimeEvidenceSummaries -RepoRoot $resolvedRepoRoot -MaxCount 3)
   }
   timestamp = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
 }
