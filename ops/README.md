@@ -6,11 +6,11 @@
 - `ops/gates_run.ps1` includes the DOCS gate for markdown link/reference validation.
 
 ## Git note for this repo
-- `aeb` uses `.git` redirected to `.git-local`.
-- In this environment, mutating Git commands can fail inside sandbox because `.git-local` allows create/write but blocks delete/unlink operations needed by Git.
-- Operational rule: prefer running `git add`, `git commit`, `git merge`, `git rebase`, `git stash`, and other Git write operations outside sandbox for this repo.
-- Read-only Git commands can stay in sandbox.
-- If `index.lock` appears, try stale lock cleanup first; if the issue persists, rerun the Git write command outside sandbox instead of assuming a normal repo corruption case.
+- Git locale e` disattivato in questo workspace.
+- Source of truth operativo: GitHub `cuto88/aeb`.
+- Pubblicare via GitHub connector/app o da una clone pulita esterna.
+- Non usare `git add`, `git commit`, `git merge`, `git rebase`, `git stash`, `git gc` o push dentro `C:\2_OPS\aeb`.
+- `.git-local` puo` restare come archivio storico inerte, ma non e` backend operativo.
 
 ## supervisor/
 - Host-side scripts for the AEB supervisor bridge contract.
@@ -73,6 +73,10 @@
   - manual shading feedback
   - envelope/worst-room state
   - AEB/ClimateOps reason state
+  - branch power posture for AC and MIRAI
+  - VMC feedback
+  - MIRAI runtime truth state
+  - EHW running/power reconciliation signals
   - recorder DB files and recent recorder log matches
 
 ## How to run
@@ -81,7 +85,7 @@ Pipeline ufficiale:
 2) `gates_run`
 3) `deploy_safe`
 
-Nota: `repo_sync_and_gates` resta disponibile per compatibilità.
+Nota: `repo_sync_and_gates` resta disponibile per compatibilita.
 
 ## PowerShell shortcuts
 - The PowerShell shortcut functions live in `ops/profile.ps1`.
@@ -104,6 +108,7 @@ Esempi:
 - `.\ops\phase6_no_go_guard.ps1` validates latest Phase4 decision (`GO` => exit 0, `NO-GO` => exit 2 + alert file).
 - `.\ops\phase7_executive_status.ps1` writes a compact one-file executive snapshot.
 - Scheduled runner now also executes:
+  - `aeb_runtime_audit_snapshot.ps1`
   - `phase6_no_go_guard.ps1`
   - `retention_runtime_evidence.ps1`
   - `phase7_executive_status.ps1`
