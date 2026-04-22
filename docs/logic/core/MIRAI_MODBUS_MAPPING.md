@@ -10,10 +10,10 @@ Scopo:
 
 ## Sorgenti autoritative
 
-- Transport Modbus: [mirai_modbus.yaml](C:\2_OPS\aeb\packages\mirai_modbus.yaml)
-- Template runtime: [mirai_templates.yaml](C:\2_OPS\aeb\packages\mirai_templates.yaml)
-- Advisory runtime truth: [mirai_runtime_truth_advisory.yaml](C:\2_OPS\aeb\packages\mirai_runtime_truth_advisory.yaml)
-- Overview sensori: [README_sensori_mirai.md](C:\2_OPS\aeb\docs\logic\core\README_sensori_mirai.md)
+- Transport Modbus: [mirai_modbus.yaml](../../../packages/mirai_modbus.yaml)
+- Template runtime: [mirai_templates.yaml](../../../packages/mirai_templates.yaml)
+- Advisory runtime truth: [mirai_runtime_truth_advisory.yaml](../../../packages/mirai_runtime_truth_advisory.yaml)
+- Overview sensori: [README_sensori_mirai.md](README_sensori_mirai.md)
 
 ## Profilo stabile attuale
 
@@ -49,7 +49,7 @@ Scopo:
 
 ## Corrispondenza con il manuale vendor
 
-Il file vendor [manual_mirai_address.md](C:\2_OPS\aeb\docs\vendor\mirai\manual_mirai_address.md) e' coerente con il quadro runtime attuale in un punto importante:
+Il file vendor [manual_mirai_address.md](../../vendor/mirai/manual_mirai_address.md) e' coerente con il quadro runtime attuale in un punto importante:
 
 - i registri stabili `1003 / 1208 / 1209` restano un namespace separato e gia' affidabile per `status / status code / fault`;
 - la shortlist migliore per espandere il mapping non e' il cluster storico `3515 / 3547 / 3548 / 4000` da solo, ma il set documentato dal manuale Smart-MT.
@@ -198,8 +198,8 @@ Regola:
 
 ## Riferimenti
 
-- [GOVERNANCE_MIRAI.md](C:\2_OPS\aeb\docs\GOVERNANCE_MIRAI.md)
-- [manual_mirai_address.md](C:\2_OPS\aeb\docs\vendor\mirai\manual_mirai_address.md)
-- [STEP50_MIRAI_RUNTIME_TRUTH_ADVISORY_2026-04-07.md](C:\2_OPS\aeb\docs\audits\STEP50_MIRAI_RUNTIME_TRUTH_ADVISORY_2026-04-07.md)
-- [STEP51_MIRAI_MANUAL_RUN_WINDOW_PLAN_2026-04-07.md](C:\2_OPS\aeb\docs\audits\STEP51_MIRAI_MANUAL_RUN_WINDOW_PLAN_2026-04-07.md)
-- [STEP53_MIRAI_BRANCH_POWER_AND_SOLAR_GAIN_CLOSURE_2026-04-07.md](C:\2_OPS\aeb\docs\audits\STEP53_MIRAI_BRANCH_POWER_AND_SOLAR_GAIN_CLOSURE_2026-04-07.md)
+- [GOVERNANCE_MIRAI.md](../../GOVERNANCE_MIRAI.md)
+- [manual_mirai_address.md](../../vendor/mirai/manual_mirai_address.md)
+- [STEP50_MIRAI_RUNTIME_TRUTH_ADVISORY_2026-04-07.md](../../audits/STEP50_MIRAI_RUNTIME_TRUTH_ADVISORY_2026-04-07.md)
+- [STEP51_MIRAI_MANUAL_RUN_WINDOW_PLAN_2026-04-07.md](../../audits/STEP51_MIRAI_MANUAL_RUN_WINDOW_PLAN_2026-04-07.md)
+- [STEP53_MIRAI_BRANCH_POWER_AND_SOLAR_GAIN_CLOSURE_2026-04-07.md](../../audits/STEP53_MIRAI_BRANCH_POWER_AND_SOLAR_GAIN_CLOSURE_2026-04-07.md)
