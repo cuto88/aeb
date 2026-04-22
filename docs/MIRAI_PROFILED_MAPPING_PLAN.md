@@ -15,7 +15,7 @@
   - `1209` fault code
 - Smart-MT documenta registri aggiuntivi, ma l'evidenza runtime mostra drift o disponibilita' parziale su alcuni parametri.
 - il manuale corretto usa `PW 59` come livello service HMI, non come procedura Modbus di unlock documentata.
-- il repo contiene gia' un mapping stabile separato in [MIRAI_MODBUS_MAPPING.md](C:\2_OPS\aeb\docs\logic\core\MIRAI_MODBUS_MAPPING.md).
+- il repo contiene gia' un mapping stabile separato in [MIRAI_MODBUS_MAPPING.md](logic/core/MIRAI_MODBUS_MAPPING.md).
 
 ## Current Constraints
 
@@ -139,6 +139,6 @@
 
 ## NEXT STEP
 
-- usare [mirai_smartmt_candidates.yaml](C:\2_OPS\aeb\docs\mirai_smartmt_candidates.yaml) come registry operativo.
-- abilitare temporaneamente [mirai_smartmt_probe.yaml](C:\2_OPS\aeb\packages\mirai_smartmt_probe.yaml) solo durante finestre di validazione.
-- validare con la checklist in [MIRAI_SMARTMT_VALIDATION_CHECKLIST.md](C:\2_OPS\aeb\docs\MIRAI_SMARTMT_VALIDATION_CHECKLIST.md).
+- usare [mirai_smartmt_candidates.yaml](mirai_smartmt_candidates.yaml) come registry operativo.
+- abilitare temporaneamente [mirai_smartmt_probe.yaml](../packages/mirai_smartmt_probe.yaml) solo durante finestre di validazione.
+- validare con la checklist in [MIRAI_SMARTMT_VALIDATION_CHECKLIST.md](MIRAI_SMARTMT_VALIDATION_CHECKLIST.md).
