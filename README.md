@@ -5,7 +5,7 @@ packages/ contiene automazioni e logica per domini HA.
 docs/logic/ ospita solo documentazione (nessun YAML runtime, automazioni o script): entry point `docs/logic/README.md`.
 lovelace/ conserva le dashboard YAML; docs/ e tools/ restano solo locali.
 ops/ include gli script di manutenzione: usa ops/repo_sync_and_gates.ps1 per sincronizzare verso Z:\config (con validation), ops/deploy_safe.ps1 per il deploy sicuro e ops/validate.ps1 come entrypoint unico dei controlli; gli script di hygiene/check sono di supporto.
-Lo script copia solo packages, docs/logic e lovelace in modalità mirror con esclusioni temporanee.
+Lo script di deploy corrente copia solo runtime HA: packages, lovelace, custom_components, themes e i YAML root ammessi. docs/ e tools/ restano locali; eventuali docs presenti su runtime sono residui storici da pulire con azione esplicita.
 
 Fonti di verità rapide: `docs/logic/core/README_sensori_clima.md` (mappa entità), `docs/logic/core/regole_core_logiche.md` (regole core), `docs/logic/core/prompt_codex_master.md` (governance prompt).
 
