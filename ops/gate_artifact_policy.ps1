@@ -1,12 +1,21 @@
 $ErrorActionPreference = 'Stop'
 
 function Get-RepoRoot {
-  $root = (& git rev-parse --show-toplevel 2>$null)
-  if (-not $root) {
-    Write-Error 'Unable to resolve git repo root.'
-    exit 1
+  $root = $null
+  try {
+    $root = (& git rev-parse --show-toplevel 2>$null)
+  } catch {
+    $root = $null
   }
-  return $root.Trim()
+  if ($root) {
+    return $root.Trim()
+  }
+  $fallback = Split-Path -Parent $PSScriptRoot
+  if ((Test-Path -LiteralPath (Join-Path $fallback 'packages')) -and (Test-Path -LiteralPath (Join-Path $fallback 'ops'))) {
+    return $fallback
+  }
+  Write-Error 'Unable to resolve repo root.'
+  exit 1
 }
 
 function Get-TrackedFilesByGlob {
@@ -14,15 +23,27 @@ function Get-TrackedFilesByGlob {
     [Parameter(Mandatory = $true)][string]$Root,
     [Parameter(Mandatory = $true)][string]$Glob
   )
-  $output = & git -C $Root ls-files -- $Glob 2>$null
-  if ($LASTEXITCODE -ne 0) {
-    Write-Error ("Unable to enumerate tracked files for pattern: {0}" -f $Glob)
-    exit 1
+  $output = $null
+  $gitOk = $false
+  try {
+    $output = & git -C $Root ls-files -- $Glob 2>$null
+    $gitOk = ($LASTEXITCODE -eq 0)
+  } catch {
+    $gitOk = $false
   }
-  if (-not $output) {
-    return @()
+  if ($gitOk) {
+    if (-not $output) {
+      return @()
+    }
+    return @($output)
   }
-  return @($output)
+  $pattern = $Glob -replace '^\*', '*'
+  $rootPrefix = $Root.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+  return @(
+    Get-ChildItem -Path $Root -Recurse -File -Filter $pattern -ErrorAction SilentlyContinue |
+      ForEach-Object { $_.FullName.Substring($rootPrefix.Length) -replace '\\', '/' } |
+      Where-Object { $_ -notmatch '(^|/)(\.git-local|tools|docs/runtime_evidence)(/|$)' }
+  )
 }
 
 function Get-DisallowedByRegexAllowlist {
@@ -48,17 +69,14 @@ function Get-DisallowedByRegexAllowlist {
 
 $repoRoot = Get-RepoRoot
 
-# Any tracked __pycache__ path is disallowed.
 $trackedPyCache = Get-TrackedFilesByGlob -Root $repoRoot -Glob '*__pycache__*'
 
-# Source maps are allowed only for vendored HACS frontend assets.
 $trackedMap = Get-TrackedFilesByGlob -Root $repoRoot -Glob '*.map'
 $mapAllowRegex = @(
   '^custom_components/hacs/hacs_frontend/.+\.map$'
 )
 $disallowedMap = Get-DisallowedByRegexAllowlist -Files $trackedMap -AllowRegex $mapAllowRegex
 
-# Gzip assets are allowed for vendored HACS frontend and selected Lovelace community cards.
 $trackedGz = Get-TrackedFilesByGlob -Root $repoRoot -Glob '*.gz'
 $gzAllowRegex = @(
   '^custom_components/hacs/hacs_frontend/.+\.gz$',
