@@ -50,7 +50,7 @@ switch ($Action) {
       -Trigger $trigger `
       -Settings $settings `
       -Principal $principal `
-      -Description "Casa Mercurio: daily runtime GO/NO-GO report for Phase4." `
+      -Description "Casa Mercurio: daily runtime GO/NO-GO report and recorder-safe AEB snapshot." `
       -Force | Out-Null
 
     Say "Task installed/updated: $TaskName at $StartTime"
