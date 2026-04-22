@@ -68,4 +68,4 @@ Energy PM — monitor consumi / power monitoring (dashboard-oriented).
 - [docs/logic/core/README_sensori_clima.md](../core/README_sensori_clima.md)
 - [docs/logic/core/regole_plancia.md](../core/regole_plancia.md)
 - [README_ClimaSystem.md](../../../README_ClimaSystem.md)
-- [docs/runtime_evidence/2026-03-01/REPORT_robot_romeo_baseline_for_vmc_reallocation_2026-03-01.md](../../runtime_evidence/2026-03-01/REPORT_robot_romeo_baseline_for_vmc_reallocation_2026-03-01.md)
+- Local runtime evidence: `docs/runtime_evidence/2026-03-01/REPORT_robot_romeo_baseline_for_vmc_reallocation_2026-03-01.md`
