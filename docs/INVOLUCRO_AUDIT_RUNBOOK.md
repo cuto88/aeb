@@ -6,7 +6,7 @@
 
 ## Sequence
 
-1. Aprire la plancia [envelope_involucro_plancia.yaml](C:\2_OPS\aeb\lovelace\envelope_involucro_plancia.yaml).
+1. Aprire la plancia [envelope_involucro_plancia.yaml](../lovelace/envelope_involucro_plancia.yaml).
 2. Verificare stato noto di:
    - finestre
    - scuri / schermature se osservabili
