@@ -16,6 +16,12 @@ template:
       - name: "CM Policy Allow VMC Boost"
         unique_id: cm_policy_allow_vmc_boost
         state: "{{ is_state('binary_sensor.policy_allow_vmc_boost','on') }}"
+      - name: "CM Policy Allow AC"
+        unique_id: cm_policy_allow_ac
+        state: "{{ is_state('binary_sensor.policy_allow_ac','on') }}"
+      - name: "CM Policy Surplus OK"
+        unique_id: cm_policy_surplus_ok
+        state: "{{ is_state('binary_sensor.policy_surplus_ok','on') }}"
       - name: "CM Policy Vacation Mode"
         unique_id: cm_policy_vacation_mode
         state: "{{ is_state('input_boolean.policy_vacation_mode','on') }}"
@@ -46,6 +52,18 @@ template:
       - name: "CM Noncritical Loads Allowed"
         unique_id: cm_noncritical_loads_allowed
         state: "{{ is_state('binary_sensor.climateops_noncritical_loads_allowed','on') }}"
+      - name: "CM Driver Heating Is On"
+        unique_id: cm_driver_heating_is_on
+        state: "{{ is_state('binary_sensor.heating_master_is_on_proxy','on') }}"
+      - name: "CM Driver VMC Is Running"
+        unique_id: cm_driver_vmc_is_running
+        state: "{{ is_state('binary_sensor.vmc_is_running_proxy','on') }}"
+      - name: "CM Driver AC Giorno Is On"
+        unique_id: cm_driver_ac_giorno_is_on
+        state: "{{ is_state('binary_sensor.ac_giorno_is_on_proxy','on') }}"
+      - name: "CM Driver AC Notte Is On"
+        unique_id: cm_driver_ac_notte_is_on
+        state: "{{ is_state('binary_sensor.ac_notte_is_on_proxy','on') }}"
 
   - sensor:
       - name: "CM Contract Missing Entities"
