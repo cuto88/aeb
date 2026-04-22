@@ -18,11 +18,11 @@
 ## FACT
 
 - base documentale gia' pronta:
-  - [manuale_involucro_casa.md](C:\2_OPS\aeb\docs\logic\core\manuale_involucro_casa.md)
-  - [spec_involucro_room_model.md](C:\2_OPS\aeb\docs\logic\core\spec_involucro_room_model.md)
-  - [plancia_involucro.md](C:\2_OPS\aeb\docs\logic\core\plancia_involucro.md)
-  - [INVOLUCRO_AUDIT_CHECKLIST.md](C:\2_OPS\aeb\docs\INVOLUCRO_AUDIT_CHECKLIST.md)
-  - [INVOLUCRO_AUDIT_RUNBOOK.md](C:\2_OPS\aeb\docs\INVOLUCRO_AUDIT_RUNBOOK.md)
+  - [manuale_involucro_casa.md](logic/core/manuale_involucro_casa.md)
+  - [spec_involucro_room_model.md](logic/core/spec_involucro_room_model.md)
+  - [plancia_involucro.md](logic/core/plancia_involucro.md)
+  - [INVOLUCRO_AUDIT_CHECKLIST.md](INVOLUCRO_AUDIT_CHECKLIST.md)
+  - [INVOLUCRO_AUDIT_RUNBOOK.md](INVOLUCRO_AUDIT_RUNBOOK.md)
 
 ## Next 2-4 Days
 
