@@ -5,6 +5,12 @@
 - Run `ops/check_utf8_mojibake.ps1` (or `ops/gates_run.ps1`) to detect mojibake regressions.
 - `ops/gates_run.ps1` includes the DOCS gate for markdown link/reference validation.
 
+## Quality gate policy
+- Gates protect repo/runtime quality; do not weaken them to hide failures.
+- Fix broken content first. Change a gate only when its policy is demonstrably wrong or underspecified.
+- Markdown links must be portable and point to versioned repo files. Local-only evidence, host paths and external workspace paths should be written as text/code spans.
+- After changing a gate or fixing gate failures, run `ops/gates_run_ci.ps1` and document any remaining warning as warning, not as a hidden pass.
+
 ## Git note for this repo
 - Git locale e` disattivato in questo workspace.
 - Source of truth operativo: GitHub `cuto88/aeb`.
