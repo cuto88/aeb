@@ -49,4 +49,17 @@ Scope: ClimateOps naming bridge and AC observed-state authority.
 ## Verification
 
 - Local `ops/gates_run_ci.ps1`: `ALL GATES PASSED`.
-- Runtime deploy still requires HA config check and restart/reload before final closure.
+- Runtime deploy completed for:
+  - `/homeassistant/packages/cm_naming_bridge.yaml`
+  - `/homeassistant/packages/climateops/strategies/arbiter.yaml`
+- `ha core check`: passed.
+- `template.reload`: completed without full HA restart.
+- Runtime API after reload:
+  - `binary_sensor.cm_policy_allow_ac = on`
+  - `binary_sensor.cm_policy_surplus_ok = off`
+  - `binary_sensor.cm_driver_heating_is_on = off`
+  - `binary_sensor.cm_driver_vmc_is_running = on`
+  - `binary_sensor.cm_driver_ac_giorno_is_on = off`
+  - `binary_sensor.cm_driver_ac_notte_is_on = off`
+  - `sensor.arbiter_suggested_mode = VENT`
+  - `sensor.arbiter_suggested_reason = VMC running (observed)`
