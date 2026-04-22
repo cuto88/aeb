@@ -72,7 +72,9 @@ Proof:
 
 ## Evidence
 
-- [ehw_dhw_writer_dryrun_validation_20260323_100643.md](../runtime_evidence/2026-03-23/ehw_dhw_writer_dryrun_validation_20260323_100643.md)
+Local runtime evidence, not guaranteed to be versioned in CI:
+
+- `docs/runtime_evidence/2026-03-23/ehw_dhw_writer_dryrun_validation_20260323_100643.md`
 
 ## Decision
 
