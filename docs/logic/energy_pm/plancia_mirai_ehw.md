@@ -44,6 +44,10 @@ File dashboard: `lovelace/consumi_mirai_ehw_plancia.yaml`
   - `sensor.ehw_tank_top`
   - `sensor.ehw_tank_bottom`
   - `sensor.ehw_setpoint`
+- Diagnostica domanda/potenza EHW:
+  - `sensor.ehw_operation_state`
+  - `binary_sensor.ehw_power_confirmed`
+  - `binary_sensor.ehw_demand_power_mismatch`
 - KPI AEB (runtime):
   - `binary_sensor.aeb_kpi_inputs_ready`
   - `sensor.aeb_kpi_reason`
@@ -61,6 +65,8 @@ File dashboard: `lovelace/consumi_mirai_ehw_plancia.yaml`
   dei consumi permanenti.
 - Per diagnosi completa EHW usare anche la plancia dedicata:
   - `lovelace/ehw_plancia.yaml`
+- `binary_sensor.ehw_running` indica domanda termica legacy, non assorbimento elettrico.
+  Per conferma attivita` usare `binary_sensor.ehw_power_confirmed`.
 
 ## Note operative
 
