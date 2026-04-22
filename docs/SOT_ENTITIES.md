@@ -20,10 +20,10 @@
 | POLICY | `binary_sensor.cm_policy_allow_vmc_boost` | `binary_sensor.policy_allow_vmc_boost` | Alias 1:1 |
 | POLICY | `binary_sensor.cm_policy_surplus_ok` | `binary_sensor.policy_surplus_ok` | Alias 1:1 |
 | POLICY | `sensor.cm_policy_reason` | `sensor.policy_arbiter_reason` | Reason policy principale (arbiter) |
-| DRIVER | `binary_sensor.cm_driver_heating_is_on` | `binary_sensor.climateops_heating_master_is_on` | Proxy hardware già presente |
-| DRIVER | `binary_sensor.cm_driver_vmc_is_running` | `binary_sensor.climateops_vmc_is_running` | Proxy hardware già presente |
-| DRIVER | `binary_sensor.cm_driver_ac_giorno_is_on` | `binary_sensor.climateops_ac_giorno_is_on` | Proxy hardware già presente |
-| DRIVER | `binary_sensor.cm_driver_ac_notte_is_on` | `binary_sensor.climateops_ac_notte_is_on` | Proxy hardware già presente |
+| DRIVER | `binary_sensor.cm_driver_heating_is_on` | `binary_sensor.heating_master_is_on_proxy` | Proxy runtime effettivo |
+| DRIVER | `binary_sensor.cm_driver_vmc_is_running` | `binary_sensor.vmc_is_running_proxy` | Proxy runtime effettivo |
+| DRIVER | `binary_sensor.cm_driver_ac_giorno_is_on` | `binary_sensor.ac_giorno_is_on_proxy` | Proxy runtime effettivo |
+| DRIVER | `binary_sensor.cm_driver_ac_notte_is_on` | `binary_sensor.ac_notte_is_on_proxy` | Proxy runtime effettivo |
 | SYSTEM | `sensor.cm_system_mode_suggested` | `sensor.arbiter_suggested_mode` | Suggested mode ClimateOps |
 | SYSTEM | `sensor.cm_system_reason` | `sensor.arbiter_suggested_reason` | Suggested reason ClimateOps |
 
@@ -43,3 +43,8 @@ Queste entità sono richieste dalla logica runtime ma non fanno parte del layer 
 | --- | --- | --- |
 | `input_boolean.ac_send_command_busy` | `packages/climate_ac_logic.yaml` | Lock anti-recursione invio comandi AC |
 | `sensor.vmc_boost_bagno_eta_spegnimento` | `packages/climate_ventilation.yaml` | ETA diagnostica boost bagno |
+
+## Runtime note 2026-04-22
+- Le entità `binary_sensor.climateops_*_is_on` restano sorgenti package/unique_id storiche, ma non sono l'entity_id runtime affidabile.
+- Le logiche operative devono consumare `binary_sensor.cm_driver_*`.
+- Il bridge `cm_*` punta ai proxy runtime effettivi `*_is_on_proxy` per evitare dipendenze fragili da entity registry rename.
