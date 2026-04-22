@@ -12,9 +12,9 @@
 ## FACT
 
 - il modello involucro esiste gia' in:
-  - [manuale_involucro_casa.md](C:\2_OPS\aeb\docs\logic\core\manuale_involucro_casa.md)
-  - [spec_involucro_room_model.md](C:\2_OPS\aeb\docs\logic\core\spec_involucro_room_model.md)
-  - [envelope_involucro_plancia.yaml](C:\2_OPS\aeb\lovelace\envelope_involucro_plancia.yaml)
+  - [manuale_involucro_casa.md](logic/core/manuale_involucro_casa.md)
+  - [spec_involucro_room_model.md](logic/core/spec_involucro_room_model.md)
+  - [envelope_involucro_plancia.yaml](../lovelace/envelope_involucro_plancia.yaml)
 
 ## Scope
 
