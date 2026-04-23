@@ -1,3 +1,8 @@
+param(
+  [switch]$SkipRetention,
+  [switch]$RetentionWhatIf
+)
+
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
@@ -24,10 +29,19 @@ try {
   if ($LASTEXITCODE -ne 0) {
     throw "phase6_no_go_guard.ps1 failed (RC=$LASTEXITCODE)"
   }
-  & powershell -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "retention_runtime_evidence.ps1") 2>&1 |
-    Tee-Object -FilePath $logFile -Append | Out-Null
-  if ($LASTEXITCODE -ne 0) {
-    throw "retention_runtime_evidence.ps1 failed (RC=$LASTEXITCODE)"
+  if ($SkipRetention) {
+    "retention_runtime_evidence.ps1 skipped by -SkipRetention" |
+      Tee-Object -FilePath $logFile -Append | Out-Null
+  } else {
+    $retentionArgs = @("-ExecutionPolicy", "Bypass", "-File", (Join-Path $PSScriptRoot "retention_runtime_evidence.ps1"))
+    if ($RetentionWhatIf) {
+      $retentionArgs += "-WhatIf"
+    }
+    & powershell @retentionArgs 2>&1 |
+      Tee-Object -FilePath $logFile -Append | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+      throw "retention_runtime_evidence.ps1 failed (RC=$LASTEXITCODE)"
+    }
   }
   & powershell -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "phase7_executive_status.ps1") 2>&1 |
     Tee-Object -FilePath $logFile -Append | Out-Null
