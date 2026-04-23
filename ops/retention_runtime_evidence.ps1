@@ -11,11 +11,20 @@ param(
 $ErrorActionPreference = "Stop"
 
 function Get-RepoRoot {
-  $root = (& git rev-parse --show-toplevel 2>$null)
-  if (-not $root) {
-    throw "Unable to resolve git repo root."
+  if (Test-Path -LiteralPath ".git") {
+    $root = (& git rev-parse --show-toplevel 2>$null)
+    if ($root) {
+      return $root.Trim()
+    }
   }
-  return $root.Trim()
+
+  $scriptRoot = Split-Path -Parent $PSScriptRoot
+  if ($scriptRoot -and (Test-Path -LiteralPath (Join-Path $scriptRoot "ops"))) {
+    Write-Host ("Git repo root unavailable; using script-relative root: {0}" -f $scriptRoot)
+    return $scriptRoot
+  }
+
+  throw "Unable to resolve repo root."
 }
 
 function Get-PruneCandidates {
