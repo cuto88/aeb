@@ -92,7 +92,7 @@ sensor:
   - platform: history_stats
     name: "ClimateOps KPI Raw AC Giorno Cycles Today"
     unique_id: climateops_kpi_raw_ac_giorno_cycles_today
-    entity_id: switch.ac_giorno
+    entity_id: binary_sensor.cm_driver_ac_giorno_is_on
     state: "on"
     type: count
     start: "{{ today_at('00:00') }}"
@@ -101,7 +101,7 @@ sensor:
   - platform: history_stats
     name: "ClimateOps KPI Raw AC Notte Cycles Today"
     unique_id: climateops_kpi_raw_ac_notte_cycles_today
-    entity_id: switch.ac_notte
+    entity_id: binary_sensor.cm_driver_ac_notte_is_on
     state: "on"
     type: count
     start: "{{ today_at('00:00') }}"
