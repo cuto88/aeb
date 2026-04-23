@@ -51,7 +51,10 @@ template:
           {% set closed = is_state('binary_sensor.casa_chiusa', 'on') %}
           {% set heating_off = is_state('switch.heating_master', 'off') %}
           {% set ac_off = is_state('binary_sensor.cm_ac_branch_powered', 'off')
-             or (is_state('switch.ac_giorno', 'off') and is_state('switch.ac_notte', 'off')) %}
+             or (
+               is_state('binary_sensor.cm_driver_ac_giorno_is_on', 'off')
+               and is_state('binary_sensor.cm_driver_ac_notte_is_on', 'off')
+             ) %}
           {{
             is_state('binary_sensor.envelope_efficiency_inputs_ready', 'on')
             and dt is number
