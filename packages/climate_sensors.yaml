@@ -7,7 +7,10 @@ template:
       - name: "clima_ac_from_vmc_request"
         unique_id: clima_ac_from_vmc_request
         state: >
-          {{ is_state('switch.ac_giorno', 'on') or is_state('switch.ac_notte', 'on') }}
+          {{
+            is_state('binary_sensor.cm_driver_ac_giorno_is_on', 'on')
+            or is_state('binary_sensor.cm_driver_ac_notte_is_on', 'on')
+          }}
         attributes:
           friendly_name: "AC richiesta dal clima"
       - name: "t_out stale"
