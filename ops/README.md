@@ -91,7 +91,7 @@ Pipeline ufficiale:
 2) `gates_run`
 3) `deploy_safe`
 
-Nota: `repo_sync_and_gates` resta disponibile per compatibilità.
+Nota: `repo_sync_and_gates` resta disponibile per compatibilita.
 
 ## PowerShell shortcuts
 - The PowerShell shortcut functions live in `ops/profile.ps1`.
@@ -119,6 +119,12 @@ Esempi:
   - `phase6_no_go_guard.ps1`
   - `retention_runtime_evidence.ps1`
   - `phase7_executive_status.ps1`
+- Scheduler closure status as of 2026-04-23:
+  - task installed as `CasaMercurio-Phase4-DailyRuntimeReport`
+  - next run at 07:30 local time
+  - validated with `LastTaskResult: 0`
+  - closure audit: `docs/audits/STEP73_SCHEDULER_CLOSURE_2026-04-23.md`
+- If `phase7_executive_status.ps1` runs inside the scheduled runner, `task_state=Running` is expected. In that case `task_result_interpretation=IN_PROGRESS_PREVIOUS_RESULT` means the Scheduler result is not yet final for the current run.
 - Known scheduler boundary: locked-down shells can deny Windows scheduled task registration (`Accesso negato`).
   In that case, use the runner manually/on-demand:
   `powershell -NoProfile -ExecutionPolicy Bypass -File ops\phase5_task_runner.ps1 -RetentionWhatIf`
