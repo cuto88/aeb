@@ -31,12 +31,18 @@ $taskName = "CasaMercurio-Phase4-DailyRuntimeReport"
 $taskState = "UNKNOWN"
 $taskNextRun = "UNKNOWN"
 $taskLastResult = "UNKNOWN"
+$taskResultInterpretation = "UNKNOWN"
 try {
   $task = Get-ScheduledTask -TaskName $taskName -ErrorAction Stop
   $info = Get-ScheduledTaskInfo -TaskName $taskName -ErrorAction Stop
   $taskState = [string]$task.State
   $taskNextRun = [string]$info.NextRunTime
   $taskLastResult = [string]$info.LastTaskResult
+  if ($taskState -eq "Running") {
+    $taskResultInterpretation = "IN_PROGRESS_PREVIOUS_RESULT"
+  } else {
+    $taskResultInterpretation = "IDLE_FINAL_RESULT"
+  }
 } catch {
 }
 
@@ -50,6 +56,7 @@ $lines += ("writer_scan_check=" + $writerCheck)
 $lines += ("task_state=" + $taskState)
 $lines += ("task_next_run=" + $taskNextRun)
 $lines += ("task_last_result=" + $taskLastResult)
+$lines += ("task_result_interpretation=" + $taskResultInterpretation)
 $lines += ("source_summary=" + $latestSummary.FullName)
 
 $lines | Set-Content -Path $execFile -Encoding utf8
