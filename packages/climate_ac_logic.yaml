@@ -9,10 +9,10 @@
 ###############################################################################
 
 # NOTE – Attuatori hardware AC
-# Le entità switch.ac_giorno e switch.ac_notte sono fornite da integrazioni
-# esterne (bridge IR, smart plug, ESPHome, ecc.). Non sono definite in questo
-# package: climate_ac_logic le usa solo come attuatori. Devono esistere con
-# esattamente questi entity_id.
+# Le entita` switch.ac_giorno e switch.ac_notte sono fornite da integrazioni
+# esterne (bridge IR, smart plug, ESPHome, ecc.) e restano il target fisico
+# degli script/attuatori. La telemetria/diagnostica deve invece leggere il
+# feedback canonico cm_driver_* per non dipendere dallo stato grezzo dello switch.
 
 # -----------------------------------------------------------------------------
 # PRIORITÀ AC (P0–P4)
@@ -86,7 +86,7 @@ template:
         unique_id: ac_lock_min_on_ok
         state: >
           {% set mins = states('input_number.ac_min_on_minutes') | float(15) %}
-          {% set entities = ['switch.ac_giorno', 'switch.ac_notte'] %}
+          {% set entities = ['binary_sensor.cm_driver_ac_giorno_is_on', 'binary_sensor.cm_driver_ac_notte_is_on'] %}
           {% for ent_id in entities %}
             {% if ent_id in states %}
               {% set s = states[ent_id] %}
@@ -101,7 +101,7 @@ template:
         unique_id: ac_lock_min_off_ok
         state: >
           {% set mins = states('input_number.ac_min_off_minutes') | float(15) %}
-          {% set entities = ['switch.ac_giorno', 'switch.ac_notte'] %}
+          {% set entities = ['binary_sensor.cm_driver_ac_giorno_is_on', 'binary_sensor.cm_driver_ac_notte_is_on'] %}
           {% for ent_id in entities %}
             {% if ent_id in states %}
               {% set s = states[ent_id] %}
@@ -164,7 +164,7 @@ template:
   # Ultimi ON/OFF (trigger-based) Giorno/Notte
   - trigger:
       - platform: state
-        entity_id: switch.ac_giorno
+        entity_id: binary_sensor.cm_driver_ac_giorno_is_on
         to: "on"
     sensor:
       - name: "AC Giorno – Ultimo ON"
@@ -174,7 +174,7 @@ template:
 
   - trigger:
       - platform: state
-        entity_id: switch.ac_giorno
+        entity_id: binary_sensor.cm_driver_ac_giorno_is_on
         to: "off"
     sensor:
       - name: "AC Giorno – Ultimo OFF"
@@ -184,7 +184,7 @@ template:
 
   - trigger:
       - platform: state
-        entity_id: switch.ac_notte
+        entity_id: binary_sensor.cm_driver_ac_notte_is_on
         to: "on"
     sensor:
       - name: "AC Notte – Ultimo ON"
@@ -194,7 +194,7 @@ template:
 
   - trigger:
       - platform: state
-        entity_id: switch.ac_notte
+        entity_id: binary_sensor.cm_driver_ac_notte_is_on
         to: "off"
     sensor:
       - name: "AC Notte – Ultimo OFF"
@@ -275,7 +275,7 @@ sensor:
   - platform: history_stats
     name: "AC Giorno – Tempo ON oggi"
     unique_id: ac_giorno_tempo_on_oggi
-    entity_id: switch.ac_giorno
+    entity_id: binary_sensor.cm_driver_ac_giorno_is_on
     state: "on"
     type: time
     start: "{{ today_at() }}"
@@ -284,7 +284,7 @@ sensor:
   - platform: history_stats
     name: "AC Giorno – Cicli ON oggi"
     unique_id: ac_giorno_cicli_on_oggi
-    entity_id: switch.ac_giorno
+    entity_id: binary_sensor.cm_driver_ac_giorno_is_on
     state: "on"
     type: count
     start: "{{ today_at() }}"
@@ -294,7 +294,7 @@ sensor:
   - platform: history_stats
     name: "AC Notte – Tempo ON oggi"
     unique_id: ac_notte_tempo_on_oggi
-    entity_id: switch.ac_notte
+    entity_id: binary_sensor.cm_driver_ac_notte_is_on
     state: "on"
     type: time
     start: "{{ today_at() }}"
@@ -303,7 +303,7 @@ sensor:
   - platform: history_stats
     name: "AC Notte – Cicli ON oggi"
     unique_id: ac_notte_cicli_on_oggi
-    entity_id: switch.ac_notte
+    entity_id: binary_sensor.cm_driver_ac_notte_is_on
     state: "on"
     type: count
     start: "{{ today_at() }}"
