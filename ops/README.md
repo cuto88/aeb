@@ -91,7 +91,7 @@ Pipeline ufficiale:
 2) `gates_run`
 3) `deploy_safe`
 
-Nota: `repo_sync_and_gates` resta disponibile per compatibilita.
+Nota: `repo_sync_and_gates` resta disponibile per compatibilità.
 
 ## PowerShell shortcuts
 - The PowerShell shortcut functions live in `ops/profile.ps1`.
@@ -107,6 +107,7 @@ Esempi:
 - `.\ops\involucro_audit_snapshot.ps1 -WindowType night_flush`
 - `.\ops\retention_runtime_evidence.ps1 -WhatIf`
 - `.\ops\retention_runtime_evidence.ps1`
+- `.\ops\phase5_task_runner.ps1 -RetentionWhatIf`
 - `.\ops\phase5_schedule_daily_report.ps1 -Action Install -StartTime 07:30`
 - `.\ops\phase5_schedule_daily_report.ps1 -Action Status`
 - `.\ops\phase5_schedule_daily_report.ps1 -Action RunNow`
@@ -118,3 +119,6 @@ Esempi:
   - `phase6_no_go_guard.ps1`
   - `retention_runtime_evidence.ps1`
   - `phase7_executive_status.ps1`
+- Known scheduler boundary: locked-down shells can deny Windows scheduled task registration (`Accesso negato`).
+  In that case, use the runner manually/on-demand:
+  `powershell -NoProfile -ExecutionPolicy Bypass -File ops\phase5_task_runner.ps1 -RetentionWhatIf`
