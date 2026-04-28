@@ -26,54 +26,40 @@ lovelace:
       icon: mdi:view-dashboard
       show_in_sidebar: false
 
-    1-ventilazione:
+    01-clima-casa:
       mode: yaml
-      title: "1 Ventilazione"
-      icon: mdi:fan
-      show_in_sidebar: false
-      filename: lovelace/climate_ventilation_plancia.yaml
-
-    1-ventilazione-v2:
-      mode: yaml
-      title: "1 Ventilazione (v2)"
-      icon: mdi:fan
-      show_in_sidebar: false
-      filename: lovelace/climate_ventilation_plancia_v2.yaml
-
-    1-clima-casa:
-      mode: yaml
-      title: "1 Clima Casa"
+      title: "1 ECLSS Casa"
       icon: mdi:home-thermometer
       show_in_sidebar: true
       filename: lovelace/climate_casa_unified_plancia.yaml
 
-    1-involucro:
+    02-vmc:
       mode: yaml
-      title: "1 Involucro"
-      icon: mdi:home-thermometer-outline
+      title: "2 Air Loop"
+      icon: mdi:fan
       show_in_sidebar: true
-      filename: lovelace/envelope_involucro_plancia.yaml
+      filename: lovelace/climate_ventilation_plancia_v2.yaml
 
-    2-heating:
+    03-riscaldamento:
       mode: yaml
-      title: "2 Riscaldamento"
+      title: "3 Heating Loop"
       icon: mdi:radiator
-      show_in_sidebar: false
+      show_in_sidebar: true
       filename: lovelace/climate_heating_plancia.yaml
 
-    3-ac:
+    04-ac:
       mode: yaml
-      title: "3 Clima"
-      icon: mdi:snowflake
-      show_in_sidebar: false
-      filename: lovelace/climate_ac_plancia.yaml
-
-    3-ac-v2:
-      mode: yaml
-      title: "3 AC (v2)"
+      title: "4 Cooling Loop"
       icon: mdi:air-conditioner
-      show_in_sidebar: false
+      show_in_sidebar: true
       filename: lovelace/climate_ac_plancia_v2.yaml
+
+    05-fv-solaredge:
+      mode: yaml
+      title: "5 PV Array"
+      icon: mdi:solar-power
+      show_in_sidebar: true
+      filename: lovelace/energy_pv_solaredge_plancia.yaml
 
     # 6-energia:
     #   mode: yaml
@@ -82,38 +68,52 @@ lovelace:
     #   show_in_sidebar: true
     #   filename: lovelace/6_surplus_plancia.yaml
 
-    6-consumi:
+    06-consumi:
       mode: yaml
-      title: "6 Consumi"
+      title: "6 Power Runtime"
       icon: mdi:flash
       show_in_sidebar: true
       filename: lovelace/consumi_mirai_ehw_plancia.yaml
 
-    7-modbus:
+    07-ehw-acs:
       mode: yaml
-      title: "7 Modbus"
+      title: "7 DHW / ACS"
+      icon: mdi:water-boiler
+      show_in_sidebar: true
+      filename: lovelace/ehw_plancia.yaml
+
+    08-mirai:
+      mode: yaml
+      title: "8 MIRAI Plant"
+      icon: mdi:heat-pump
+      show_in_sidebar: true
+      require_admin: false
+      filename: lovelace/8_mirai_plancia.yaml
+
+    09-modbus:
+      mode: yaml
+      title: "9 Fieldbus"
       icon: mdi:transit-connection-variant
       show_in_sidebar: true
       filename: lovelace/modbus_plancia.yaml
 
-    7-ehw:
+    10-involucro:
       mode: yaml
-      title: "7 EHW ACS"
-      icon: mdi:water-boiler
-      show_in_sidebar: false
-      filename: lovelace/ehw_plancia.yaml
-
-    pv-solaredge:
-      mode: yaml
-      title: "5 PV SolarEdge"
-      icon: mdi:solar-power
+      title: "10 Envelope"
+      icon: mdi:home-thermometer-outline
       show_in_sidebar: true
-      filename: lovelace/energy_pv_solaredge_plancia.yaml
+      filename: lovelace/envelope_involucro_plancia.yaml
 
-    8-mirai:
+    92-vmc-legacy:
       mode: yaml
-      title: "8 Mirai"
-      icon: mdi:heat-pump
+      title: "2 VMC (legacy)"
+      icon: mdi:fan
       show_in_sidebar: false
-      require_admin: false
-      filename: lovelace/8_mirai_plancia.yaml
+      filename: lovelace/climate_ventilation_plancia.yaml
+
+    94-ac-legacy:
+      mode: yaml
+      title: "4 AC (legacy)"
+      icon: mdi:snowflake
+      show_in_sidebar: false
+      filename: lovelace/climate_ac_plancia.yaml

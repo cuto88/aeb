@@ -1,5 +1,5 @@
 views:
-  - title: "2 Riscaldamento"
+  - title: "3 Heating Loop"
     path: heating
     icon: mdi:radiator
     type: sections
@@ -7,25 +7,28 @@ views:
 
     sections:
       - type: grid
-        title: "Heating – Stato generale"
+        title: "Heating – Runtime"
         cards:
-          - type: glance
-            columns: 4
-            entities:
-              - entity: binary_sensor.heating_should_run
-                name: Should run
-              - entity: sensor.heating_priority
-                name: Priorità
-              - entity: sensor.heating_reason
-                name: Reason
-              - entity: binary_sensor.heating_failsafe_sensors_bad
-                name: Failsafe
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: tile
+                entity: binary_sensor.heating_should_run
+                name: "Should run"
+              - type: tile
+                entity: sensor.heating_priority
+                name: "Priorità"
+              - type: tile
+                entity: sensor.heating_reason
+                name: "Reason"
+              - type: tile
+                entity: binary_sensor.heating_failsafe_sensors_bad
+                name: "Failsafe"
 
           - type: entities
             show_header_toggle: false
             entities:
-              - entity: input_boolean.heating_enable
-                name: Logica attiva
               - entity: binary_sensor.heating_lock_min_on_ok
                 name: Lock min ON ok
               - entity: binary_sensor.heating_lock_min_off_ok
@@ -34,8 +37,10 @@ views:
                 name: Manuale attivo
               - entity: input_select.heating_manual_mode
                 name: Modalità manuale
-              - entity: timer.heating_manual_timeout
-                name: Timeout manuale
+              - entity: switch.heating_master
+                name: Master heating
+              - entity: switch.4_ch_interruttore_3
+                name: Riduzione notturna termostati
 
       - type: grid
         title: "Heating – Termostati reali (TEMP)"
@@ -47,37 +52,6 @@ views:
               - ESP32 / LDR TEMP attualmente smontati
               - binding default lasciati volutamente vuoti
               - gli `input_text` restano disponibili per un futuro remap rapido
-
-          - type: entities
-            title: "Termostati (stato reale)"
-            show_header_toggle: false
-            entities:
-              - entity: binary_sensor.ldr_camera1_camera1_richiesta_calore
-                name: "ESP32 camera1 richiesta calore"
-              - entity: binary_sensor.ldr_camera2_richiesta_calore
-                name: "ESP32 camera2 richiesta calore"
-              - entity: binary_sensor.thermostat_giorno_temp
-                name: "Termostato Camera1"
-              - entity: binary_sensor.thermostat_notte_temp
-                name: "Termostato Camera2"
-              - entity: sensor.ldr_camera1_camera1_ldr_raw
-                name: "LDR camera1 raw"
-              - entity: sensor.ldr_camera2_camera2_ldr_raw
-                name: "LDR camera2 raw"
-              - entity: input_text.climateops_temp_thermostat_giorno_entity
-                name: "Entity ID Camera1 (sorgente)"
-              - entity: input_text.climateops_temp_thermostat_notte_entity
-                name: "Entity ID Camera2 (sorgente)"
-              - entity: input_text.climateops_temp_thermostat_giorno_raw_entity
-                name: "Entity ID Camera1 (LDR raw)"
-              - entity: input_text.climateops_temp_thermostat_notte_raw_entity
-                name: "Entity ID Camera2 (LDR raw)"
-              - entity: input_number.climateops_temp_thermostat_giorno_threshold_v
-                name: "Soglia Camera1 (V)"
-              - entity: input_number.climateops_temp_thermostat_notte_threshold_v
-                name: "Soglia Camera2 (V)"
-              - entity: input_number.climateops_temp_thermostat_hysteresis_v
-                name: "Isteresi (V)"
 
       - type: grid
         title: "Heating  Setpoint e comandi"
@@ -108,7 +82,7 @@ views:
                 name: Usa bagno
 
       - type: grid
-        title: "Heating  KPI e diagnostica"
+        title: "Heating – Diagnostica"
         cards:
           - type: entities
             entities:
@@ -118,8 +92,6 @@ views:
                 name: Errore zona notte
               - entity: sensor.heating_rooms_below_target
                 name: Stanze sotto target
-              - entity: sensor.heating_rooms_active
-                name: Stanze conteggiate
               - entity: binary_sensor.heating_finestra_oraria
                 name: Finestra comfort
               - entity: binary_sensor.heating_window_pv
@@ -168,14 +140,12 @@ views:
           - type: entities
             show_header_toggle: false
             entities:
+              - entity: sensor.heating_minutes_since_change
+                name: Minuti da ultimo cambio
               - entity: sensor.heating_hours_on_today
                 name: Ore ON oggi (storico)
               - entity: sensor.heating_hours_on_yesterday
                 name: Ore ON ieri (storico)
-              - entity: input_number.heating_hours_on_daily
-                name: Ore ON ieri (snapshot)
-              - entity: sensor.heating_minutes_since_change
-                name: Minuti da ultimo cambio
 
       - type: grid
         title: "Heating – Debug"
@@ -187,18 +157,12 @@ views:
                 name: T interna minima
               - entity: binary_sensor.surplus_ok
                 name: Surplus FV OK
-              - entity: binary_sensor.heating_finestra_oraria
-                name: Finestra comfort
-              - entity: binary_sensor.heating_window_pv
-                name: Finestra FV
-              - entity: binary_sensor.heating_window_night
-                name: Finestra notte
               - entity: binary_sensor.heating_failsafe_sensors_bad
                 name: Failsafe sensori
-              - entity: binary_sensor.heating_almeno_una_stanza_sotto_target
-                name: Almeno una stanza sotto target
+              - entity: switch.heating_master
+                name: Master heating
               - entity: switch.4_ch_interruttore_3
-                name: Relay fisico pompa
+                name: Riduzione notturna termostati
 
       - type: grid
         cards:
@@ -221,5 +185,26 @@ views:
                 name: Finestra notte
               - entity: binary_sensor.surplus_ok
                 name: Surplus FV OK
+
+      - type: grid
+        title: "Heating – Legacy TEMP / remap"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: input_text.climateops_temp_thermostat_giorno_entity
+                name: "Camera1 source entity"
+              - entity: input_text.climateops_temp_thermostat_notte_entity
+                name: "Camera2 source entity"
+              - entity: input_text.climateops_temp_thermostat_giorno_raw_entity
+                name: "Camera1 raw entity"
+              - entity: input_text.climateops_temp_thermostat_notte_raw_entity
+                name: "Camera2 raw entity"
+              - entity: input_number.climateops_temp_thermostat_giorno_threshold_v
+                name: "Soglia Camera1 (V)"
+              - entity: input_number.climateops_temp_thermostat_notte_threshold_v
+                name: "Soglia Camera2 (V)"
+              - entity: input_number.climateops_temp_thermostat_hysteresis_v
+                name: "Isteresi (V)"
 
 # Heating dashboard normalized to ENTITY MAP (2025-02)

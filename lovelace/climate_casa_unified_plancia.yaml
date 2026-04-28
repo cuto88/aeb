@@ -1,6 +1,6 @@
-title: "1 Clima Casa"
+title: "1 ECLSS Casa"
 views:
-  - title: "Clima Casa"
+  - title: "ECLSS"
     path: climate_casa
     icon: mdi:home-thermometer
     type: sections
@@ -30,25 +30,39 @@ views:
           - type: heading
             heading: "Stato generale"
             icon: mdi:transmission-tower
-          - type: glance
-            columns: 4
-            entities:
-              - entity: sensor.ventilation_priority
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: tile
+                entity: sensor.ventilation_priority
                 name: "Prio VMC"
-              - entity: sensor.ac_priority
+              - type: tile
+                entity: sensor.ac_priority
                 name: "Prio AC"
-              - entity: sensor.heating_priority
-                name: "Prio Heating"
-              - entity: binary_sensor.vmc_sensors_ok
+              - type: tile
+                entity: sensor.heating_priority
+                name: "Prio Heat"
+              - type: tile
+                entity: binary_sensor.vmc_sensors_ok
                 name: "Sensori VMC"
+                color: green
+              - type: tile
+                entity: binary_sensor.ac_block_by_vmc
+                name: "AC bloccata"
+                color: blue
+              - type: tile
+                entity: binary_sensor.heating_should_run
+                name: "Heat should run"
+                color: orange
+          - type: entities
+            title: "Diagnosi rapida"
+            show_header_toggle: false
+            entities:
               - entity: binary_sensor.ac_failsafe_sensors_bad
                 name: "Failsafe AC"
               - entity: binary_sensor.heating_failsafe_sensors_bad
                 name: "Failsafe Heat"
-              - entity: binary_sensor.ac_block_by_vmc
-                name: "AC bloccata da VMC"
-              - entity: binary_sensor.heating_should_run
-                name: "Heating run"
               - entity: binary_sensor.heating_demand_active
                 name: "Heating demand"
               - entity: binary_sensor.heating_held_by_min_on_lock
@@ -160,17 +174,14 @@ views:
             entity: sensor.ur_in_bagno
             name: "UR bagno"
           - type: tile
-            entity: input_number.vmc_bagno_on
-            name: "Soglia boost ON"
-          - type: tile
-            entity: input_number.vmc_bagno_off
-            name: "Soglia boost OFF"
-          - type: tile
             entity: input_boolean.vmc_boost_bagno
             name: "Boost manuale"
           - type: tile
             entity: binary_sensor.vmc_bagno_boost_auto
             name: "Boost auto"
+          - type: tile
+            entity: sensor.vmc_boost_bagno_eta_spegnimento
+            name: "ETA boost"
 
       - type: grid
         cards:
@@ -184,38 +195,20 @@ views:
             entity: input_boolean.vmc_manual
             name: "Manuale"
           - type: tile
-            entity: input_select.vmc_manual_speed
-            name: "Velocita manuale"
-          - type: tile
-            entity: timer.vmc_manual_timeout
-            name: "Timer manuale"
-          - type: tile
-            entity: switch.vmc_vel_0
-            name: "Vel 0"
-          - type: tile
-            entity: switch.vmc_vel_1
-            name: "Vel 1"
-          - type: tile
-            entity: switch.vmc_vel_2
-            name: "Vel 2"
-          - type: tile
-            entity: switch.vmc_vel_3
-            name: "Vel 3"
-          - type: tile
             entity: sensor.vmc_vel_target
-            name: "Velocita target"
+            name: "Vel target"
           - type: tile
             entity: sensor.vmc_vel_index
-            name: "Indice velocita"
-          - type: tile
-            entity: binary_sensor.vmc_freecooling_candidate
-            name: "Freecooling candidabile"
+            name: "Vel attuale"
           - type: tile
             entity: binary_sensor.vmc_freecooling_active
             name: "Freecooling attivo"
           - type: tile
             entity: sensor.vmc_freecooling_status
             name: "Stato freecooling"
+          - type: tile
+            entity: sensor.ventilation_reason
+            name: "Reason VMC"
 
       - type: grid
         cards:
@@ -229,22 +222,14 @@ views:
                 name: "AC giorno"
               - entity: switch.ac_notte
                 name: "AC notte"
-              - entity: input_number.ac_cool_setpoint
-                name: "Setpoint COOL"
-              - entity: input_number.ac_dry_ur_on
-                name: "UR ON DRY"
-              - entity: input_number.ac_dry_ur_off
-                name: "UR OFF DRY"
-              - entity: input_boolean.ac_manual
-                name: "Manuale attivo"
-              - entity: input_select.ac_manual_mode
-                name: "Modalita manuale"
-              - entity: timer.ac_manual_timeout
-                name: "Timeout manuale"
               - entity: input_boolean.ac_block_vmc
                 name: "Block da VMC"
-              - entity: timer.ac_block_vmc_timeout
-                name: "Timeout block VMC"
+              - entity: binary_sensor.ac_block_by_vmc
+                name: "AC bloccata"
+              - entity: sensor.ac_reason
+                name: "Reason AC"
+              - entity: input_boolean.ac_manual
+                name: "Manuale attivo"
 
       - type: grid
         cards:
@@ -256,40 +241,16 @@ views:
             entities:
               - entity: input_boolean.heating_enable
                 name: "Logica attiva"
-              - entity: input_number.temp_target_risc
-                name: "Setpoint comfort"
-              - entity: input_number.heating_setpoint_night
-                name: "Setpoint notte"
-              - entity: input_number.heating_antifreeze_threshold
-                name: "Soglia antigelo"
-              - entity: input_number.heating_boost_delta
-                name: "Delta boost FV"
-              - entity: input_boolean.heating_manual_active
-                name: "Manuale attivo"
-              - entity: input_select.heating_manual_mode
-                name: "Modalita manuale"
-              - entity: timer.heating_manual_timeout
-                name: "Timeout manuale"
-              - entity: input_number.heating_min_on_minutes
-                name: "Min ON"
-              - entity: input_number.heating_min_off_minutes
-                name: "Min OFF"
-              - entity: binary_sensor.heating_lock_min_on_ok
-                name: "Lock min ON ok"
-              - entity: sensor.heating_lock_min_on_remaining
-                name: "Min ON residuo"
-              - entity: binary_sensor.heating_lock_min_off_ok
-                name: "Lock min OFF ok"
-              - entity: sensor.heating_lock_min_off_remaining
-                name: "Min OFF residuo"
-              - entity: sensor.heating_minutes_since_change
-                name: "Min da ultimo cambio"
+              - entity: binary_sensor.heating_should_run
+                name: "Should run"
               - entity: binary_sensor.heating_demand_active
-                name: "Demand active"
+                name: "Demand"
               - entity: binary_sensor.heating_held_by_min_on_lock
                 name: "Held by min ON"
+              - entity: sensor.heating_reason
+                name: "Reason Heat"
               - entity: sensor.heating_should_run_source
-                name: "Should run source"
+                name: "Heat source"
 
       - type: grid
         cards:
@@ -297,23 +258,7 @@ views:
             heading: "DHW / EHW"
             icon: mdi:water-boiler
           - type: entities
-            title: "Controlli writer"
-            show_header_toggle: false
-            entities:
-              - entity: input_number.climateops_dhw_requested_setpoint
-                name: "Setpoint richiesto"
-              - entity: input_boolean.climateops_cutover_dhw
-                name: "Cutover DHW"
-              - entity: input_boolean.climateops_dhw_write_enable
-                name: "Write enable"
-              - entity: input_boolean.climateops_dhw_dry_run
-                name: "Dry-run"
-              - entity: input_boolean.climateops_dhw_request
-                name: "Request"
-              - entity: input_boolean.climateops_dhw_commanded
-                name: "Commanded"
-          - type: entities
-            title: "Feedback e stato"
+            title: "Stato rapido"
             show_header_toggle: false
             entities:
               - entity: sensor.climateops_dhw_actual_feedback
@@ -322,26 +267,12 @@ views:
                 name: "Feedback atteso"
               - entity: binary_sensor.climateops_dhw_feedback_matches_expected
                 name: "Feedback coerente"
-              - entity: binary_sensor.climateops_dhw_permitted
-                name: "Permitted"
-              - entity: sensor.climateops_dhw_blocked_reason
-                name: "Blocked reason"
-              - entity: input_text.climateops_dhw_write_result
-                name: "Write result"
-              - entity: input_datetime.climateops_dhw_last_write_ts
-                name: "Last write"
-          - type: entities
-            title: "Runtime EHW"
-            show_header_toggle: false
-            entities:
               - entity: binary_sensor.cm_modbus_ehw_ready
                 name: "Modbus ready"
-              - entity: sensor.ehw_setpoint_raw_a
-                name: "Setpoint raw A"
-              - entity: sensor.ehw_setpoint_raw_calc
-                name: "Setpoint raw calc"
               - entity: sensor.ehw_setpoint
                 name: "Setpoint scalato"
+              - entity: sensor.climateops_dhw_blocked_reason
+                name: "Blocked reason"
 
       - type: grid
         cards:
@@ -740,30 +671,28 @@ views:
             heading: "Stato rapido"
             icon: mdi:home-analytics
           - type: tile
-            entity: sensor.envelope_efficiency_level
-            name: "Envelope level"
+            entity: sensor.envelope_recommended_action
+            name: "Azione casa"
             color: teal
           - type: tile
-            entity: sensor.envelope_efficiency_reason
-            name: "Envelope reason"
+            entity: sensor.envelope_efficiency_level
+            name: "Envelope level"
+            color: green
           - type: tile
-            entity: sensor.envelope_retention_score
-            name: "Retention score"
+            entity: sensor.envelope_house_passive_gain_state
+            name: "Passive gain"
             color: amber
           - type: tile
-            entity: sensor.envelope_solar_utilization_score
-            name: "Solar utilization"
-            color: orange
+            entity: sensor.envelope_house_night_flush_potential
+            name: "Night flush"
+            color: blue
+          - type: tile
+            entity: binary_sensor.envelope_house_ac_justified
+            name: "AC giustificata"
+            color: red
           - type: tile
             entity: binary_sensor.envelope_free_decay_candidate
             name: "Free decay candidate"
-          - type: tile
-            entity: binary_sensor.envelope_efficiency_inputs_ready
-            name: "Inputs ready"
-          - type: tile
-            entity: sensor.solar_gain_passive_index
-            name: "Solar gain index"
-            color: yellow
           - type: tile
             entity: binary_sensor.close_shutters_recommended
             name: "Chiudere scuri"
@@ -772,117 +701,48 @@ views:
             entity: sensor.envelope_shade_applied_rooms_count
             name: "Scuri applicati"
             color: teal
+          - type: tile
+            entity: binary_sensor.envelope_efficiency_inputs_ready
+            name: "Inputs ready"
 
       - type: grid
         cards:
           - type: heading
-            heading: "Envelope"
+            heading: "Sintesi involucro"
             icon: mdi:gauge
           - type: entities
-            title: "Envelope runtime"
+            title: "Casa"
             show_header_toggle: false
             entities:
-              - entity: binary_sensor.envelope_efficiency_inputs_ready
-                name: "Inputs ready"
-              - entity: binary_sensor.envelope_free_decay_candidate
-                name: "Free decay candidate"
+              - entity: sensor.envelope_recommended_action
+                name: "Azione raccomandata"
               - entity: sensor.envelope_efficiency_reason
                 name: "Envelope reason"
-              - entity: sensor.envelope_efficiency_level
-                name: "Envelope level"
               - entity: sensor.envelope_retention_score
                 name: "Retention score"
               - entity: sensor.envelope_solar_utilization_score
-                name: "Solar utilization score"
-          - type: entities
-            title: "Observed metrics"
-            show_header_toggle: false
-            entities:
-              - entity: sensor.envelope_indoor_drift_rate_cph
-                name: "Indoor drift rate °C/h"
-              - entity: sensor.envelope_cooldown_rate_cph
-                name: "Cooldown rate °C/h"
-              - entity: sensor.envelope_loss_per_delta_cph
-                name: "Loss per delta"
+                name: "Solar utilization"
               - entity: sensor.envelope_free_decay_hours_today
-                name: "Free decay hours today"
-              - entity: sensor.solar_gain_passive_level
-                name: "Solar gain level"
-              - entity: sensor.solar_gain_passive_candidate_hours_today
-                name: "Solar gain hours today"
-
-      - type: grid
-        cards:
-          - type: heading
-            heading: "Solar Gain"
-            icon: mdi:white-balance-sunny
-          - type: gauge
-            name: "Solar gain index"
-            entity: sensor.solar_gain_passive_index
-            min: 0
-            max: 100
-            needle: true
-            severity:
-              green: 0
-              yellow: 40
-              red: 75
+                name: "Free decay oggi"
           - type: entities
-            title: "Contesto termico"
+            title: "Zone e schermature"
             show_header_toggle: false
             entities:
-              - entity: sensor.t_in_med
-                name: "T interna media"
-              - entity: sensor.t_out
-                name: "T esterna"
-              - entity: sensor.solar_gain_indoor_rise_rate_cph
-                name: "Salita interna"
-              - entity: sensor.delta_t_in_out
-                name: "Delta T in-out"
-              - entity: sensor.pv_power_now
-                name: "PV proxy sole"
-          - type: entities
-            title: "Diagnosi"
-            show_header_toggle: false
-            entities:
-              - entity: sensor.solar_gain_passive_level
-                name: "Livello"
-              - entity: sensor.solar_gain_overheating_reason
-                name: "Reason"
-              - entity: binary_sensor.solar_gain_advisory_inputs_ready
-                name: "Inputs ready"
-              - entity: binary_sensor.solar_gain_passive_candidate
-                name: "Guadagno passivo in corso"
-              - entity: binary_sensor.casa_chiusa
-                name: "Casa chiusa"
+              - entity: sensor.envelope_worst_room_name
+                name: "Worst room"
+              - entity: sensor.envelope_worst_room_overheating_risk
+                name: "Worst room risk"
+              - entity: sensor.envelope_rooms_shade_recommended_count
+                name: "Zone con scuri consigliati"
               - entity: sensor.envelope_shade_applied_rooms
                 name: "Scuri applicati"
-              - entity: switch.heating_master
-                name: "Heating master"
+              - entity: sensor.envelope_rooms_night_flush_candidate_count
+                name: "Zone night flush"
 
       - type: grid
         cards:
           - type: heading
-            heading: "Shading"
-            icon: mdi:window-shutter
-          - type: entities
-            title: "Feedback manuale scuri"
-            show_header_toggle: false
-            entities:
-              - entity: input_boolean.envelope_giorno_shade_applied
-                name: "Scuri giorno chiusi"
-              - entity: input_boolean.envelope_notte1_shade_applied
-                name: "Scuri notte1 chiusi"
-              - entity: input_boolean.envelope_notte2_shade_applied
-                name: "Scuri notte2 chiusi"
-              - entity: input_boolean.envelope_bagno_shade_applied
-                name: "Scuri bagno chiusi"
-              - entity: sensor.envelope_shade_applied_rooms
-                name: "Zone schermate"
-
-      - type: grid
-        cards:
-          - type: heading
-            heading: "Trend"
+            heading: "Trend e accesso"
             icon: mdi:chart-line
           - type: history-graph
             title: "Envelope 24h"
@@ -898,17 +758,6 @@ views:
               - entity: sensor.envelope_retention_score
                 name: "Retention"
           - type: history-graph
-            title: "Solar and decay 24h"
-            hours_to_show: 24
-            refresh_interval: 120
-            entities:
-              - entity: sensor.solar_gain_passive_index
-                name: "Solar gain index"
-              - entity: binary_sensor.envelope_free_decay_candidate
-                name: "Free decay"
-              - entity: sensor.envelope_solar_utilization_score
-                name: "Solar utilization"
-          - type: history-graph
             title: "Solar gain 24h"
             hours_to_show: 24
             refresh_interval: 120
@@ -919,37 +768,9 @@ views:
                 name: "Solar gain index"
               - entity: binary_sensor.close_shutters_recommended
                 name: "Chiudere scuri"
-
-      - type: grid
-        cards:
-          - type: heading
-            heading: "Taratura"
-            icon: mdi:tune
-          - type: entities
-            title: "Solar gain thresholds"
-            show_header_toggle: false
-            entities:
-              - entity: input_number.solar_gain_pv_active_w
-                name: "PV active threshold"
-              - entity: input_number.solar_gain_pv_strong_w
-                name: "PV strong threshold"
-              - entity: input_number.solar_gain_indoor_warm_c
-                name: "Indoor warm threshold"
-              - entity: input_number.solar_gain_indoor_hot_c
-                name: "Indoor hot threshold"
-              - entity: input_number.solar_gain_rise_warn_cph
-                name: "Rise warn threshold"
-              - entity: input_number.solar_gain_rise_high_cph
-                name: "Rise high threshold"
-              - entity: input_number.solar_gain_outdoor_hotter_delta_c
-                name: "Outdoor hotter delta"
-          - type: entities
-            title: "Envelope thresholds"
-            show_header_toggle: false
-            entities:
-              - entity: input_number.envelope_min_delta_c
-                name: "Min indoor/outdoor delta"
-              - entity: input_number.envelope_good_loss_per_delta_cph
-                name: "Good loss per delta"
-              - entity: input_number.envelope_poor_loss_per_delta_cph
-                name: "Poor loss per delta"
+          - type: button
+            name: "Apri 10 Involucro"
+            icon: mdi:arrow-top-right-bold-box-outline
+            tap_action:
+              action: navigate
+              navigation_path: /10-involucro/involucro

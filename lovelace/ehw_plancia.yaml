@@ -1,6 +1,6 @@
-title: "EcoHotWater (EHW)"
+title: "7 DHW / ACS"
 views:
-  - title: "EHW"
+  - title: "7 DHW / ACS"
     path: ehw
     icon: mdi:water-boiler
     type: sections

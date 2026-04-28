@@ -1,5 +1,5 @@
 views:
-  - title: "PV SolarEdge"
+  - title: "5 PV Array"
     path: pv_solaredge
     icon: mdi:solar-power
     type: sections

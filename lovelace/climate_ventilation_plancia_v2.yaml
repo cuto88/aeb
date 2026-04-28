@@ -1,7 +1,7 @@
-title: "1 Ventilazione (v2)"
+title: "2 Air Loop"
 views:
   - type: sections
-    title: "VMC"
+    title: "2 Air Loop"
     path: climate_vmc_v2
     icon: mdi:fan
     badges:
@@ -26,7 +26,7 @@ views:
     sections:
       - cards:
           - type: heading
-            heading: "Stato generale"
+            heading: "Runtime VMC"
             icon: mdi:fan
           - type: entities
             show_header_toggle: false
@@ -60,21 +60,10 @@ views:
             entity: sensor.ur_in_giorno
             name: "UR zona giorno"
           - type: tile
-            entity: climate.ac_giorno
-            name: AC Giorno
-            state_content:
-              - preset_mode
-              - current_temperature
-            vertical: false
-            features:
-              - type: target-temperature
-            features_position: bottom
-
-          - type: tile
-            entity: binary_sensor.windows_giorno1
+            entity: input_boolean.vent_finestra_giorno1_aperta
             name: "Finestra giorno1"
           - type: tile
-            entity: binary_sensor.windows_giorno2
+            entity: input_boolean.vent_finestra_giorno2_aperta
             name: "Finestra giorno2"
       - type: grid
         cards:
@@ -103,23 +92,14 @@ views:
             entity: sensor.ur_in_notte2
             name: "UR camera2"
           - type: tile
-            entity: sensor.t_in_notte3
-            name: "T camera3"
-          - type: tile
-            entity: sensor.ur_in_notte3
-            name: "UR camera3"
-          - type: tile
-            entity: climate.ac_notte
-            name: "AC notte"
-          - type: tile
-            entity: binary_sensor.windows_notte1
+            entity: input_boolean.vent_finestra_notte1_aperta
             name: "Finestre camera1"
           - type: tile
-            entity: binary_sensor.windows_notte2
+            entity: input_boolean.vent_finestra_notte2_aperta
             name: "Finestre camera2"
           - type: tile
-            entity: binary_sensor.windows_notte3
-            name: "Finestre camera3"
+            entity: input_boolean.vent_finestra_notte3_aperta
+            name: "Camera3 / finestra"
       - type: grid
         cards:
           - type: heading

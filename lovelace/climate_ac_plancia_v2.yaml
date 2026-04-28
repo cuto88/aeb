@@ -1,5 +1,5 @@
 views:
-  - title: "3 AC (v2)"
+  - title: "4 Cooling Loop"
     path: ac_v2
     icon: mdi:air-conditioner
     type: sections
@@ -54,33 +54,6 @@ views:
                     name: "UR esterna"
                   - entity: sensor.delta_ah_in_out
                     name: "ΔAH in-out"
-
-      - cards:
-          - type: heading
-            heading: "KPI clima"
-            icon: mdi:chart-line
-          - type: grid
-            columns: 2
-            square: false
-            cards:
-              - type: tile
-                entity: sensor.t_out
-                name: "T esterna"
-              - type: tile
-                entity: sensor.ur_out
-                name: "UR esterna"
-              - type: tile
-                entity: sensor.t_in_med
-                name: "T interna media"
-              - type: tile
-                entity: sensor.ur_in_media
-                name: "UR interna media"
-              - type: tile
-                entity: sensor.delta_t_in_out
-                name: "ΔT in-out"
-              - type: tile
-                entity: sensor.delta_ah_in_out
-                name: "ΔAH in-out"
 
       - cards:
           - type: heading
@@ -157,10 +130,6 @@ views:
                 show_header_toggle: false
                 title: "Notte 3"
                 entities:
-                  - entity: sensor.t_in_notte3
-                    name: "T"
-                  - entity: sensor.ur_in_notte3
-                    name: "UR"
                   - entity: input_boolean.vent_finestra_notte3_aperta
                     name: "Finestra"
               - type: entities
@@ -172,14 +141,4 @@ views:
                   - entity: sensor.ur_in_bagno
                     name: "UR"
                   - entity: input_boolean.vent_finestra_bagno_aperta
-                    name: "Finestra"
-              - type: entities
-                show_header_toggle: false
-                title: "Lavanderia"
-                entities:
-                  - entity: sensor.t_in_lavanderia
-                    name: "T"
-                  - entity: sensor.ur_in_lavanderia
-                    name: "UR"
-                  - entity: input_boolean.vent_finestra_lavanderia_aperta
                     name: "Finestra"
