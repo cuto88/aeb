@@ -104,6 +104,13 @@ lovelace:
       show_in_sidebar: true
       filename: lovelace/envelope_involucro_plancia.yaml
 
+    11-observability:
+      mode: yaml
+      title: "11 Observability"
+      icon: mdi:clipboard-pulse-outline
+      show_in_sidebar: true
+      filename: lovelace/observability_plancia.yaml
+
     92-vmc-legacy:
       mode: yaml
       title: "2 VMC (legacy)"

@@ -1,0 +1,200 @@
+title: "11 Observability"
+views:
+  - title: "11 Observability"
+    path: observability
+    icon: mdi:clipboard-pulse-outline
+    type: sections
+    max_columns: 3
+
+    sections:
+      - type: grid
+        title: "Runtime health"
+        cards:
+          - type: tile
+            entity: binary_sensor.cm_modbus_mirai_ready
+            name: "MIRAI Modbus"
+            color: green
+          - type: tile
+            entity: binary_sensor.cm_modbus_ehw_ready
+            name: "EHW Modbus"
+            color: green
+          - type: tile
+            entity: binary_sensor.vmc_sensors_ok
+            name: "VMC sensors"
+            color: teal
+          - type: tile
+            entity: binary_sensor.ac_failsafe_sensors_bad
+            name: "AC failsafe"
+            color: red
+          - type: tile
+            entity: binary_sensor.heating_failsafe_sensors_bad
+            name: "Heat failsafe"
+            color: orange
+          - type: tile
+            entity: binary_sensor.t_out_stale
+            name: "T_out stale"
+            color: amber
+          - type: tile
+            entity: binary_sensor.mirai_runtime_truth_inputs_ready
+            name: "MIRAI truth inputs"
+            color: blue
+          - type: tile
+            entity: binary_sensor.envelope_efficiency_inputs_ready
+            name: "Envelope inputs"
+            color: teal
+          - type: tile
+            entity: binary_sensor.solar_gain_advisory_inputs_ready
+            name: "Solar gain inputs"
+            color: yellow
+
+      - type: grid
+        title: "Contracts"
+        cards:
+          - type: entities
+            title: "State"
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.cm_contract_actuators_defined
+                name: "Actuators defined"
+              - entity: binary_sensor.cm_contract_actuators_ready
+                name: "Actuators ready"
+              - entity: sensor.cm_contract_missing_entities
+                name: "Missing entities"
+              - entity: binary_sensor.cm_policy_forecast_inputs_ready
+                name: "Forecast inputs"
+              - entity: binary_sensor.cm_contract_forecast_inputs_ready
+                name: "Forecast contract"
+              - entity: binary_sensor.cm_contract_tariff_grid_policy_ready
+                name: "Tariff/grid contract"
+              - entity: binary_sensor.cm_contract_hierarchy_mode_ready
+                name: "Hierarchy contract"
+          - type: entities
+            title: "Reasons"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.cm_contract_actuators_reason
+                name: "Actuator reason"
+              - entity: sensor.cm_contract_forecast_reason
+                name: "Forecast reason"
+              - entity: sensor.cm_contract_tariff_grid_reason
+                name: "Tariff/grid reason"
+              - entity: sensor.cm_contract_hierarchy_reason
+                name: "Hierarchy reason"
+
+      - type: grid
+        title: "Sensor hygiene"
+        cards:
+          - type: entities
+            title: "Outdoor fallback"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.t_out_effective
+                name: "T_out effective"
+              - entity: sensor.t_out
+                name: "T_out raw"
+              - entity: sensor.ur_out
+                name: "UR_out"
+              - entity: binary_sensor.t_out_stale
+                name: "T_out stale"
+          - type: entities
+            title: "Policy / KPI inputs"
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.policy_forecast_inputs_ready
+                name: "Forecast inputs ready"
+              - entity: binary_sensor.aeb_kpi_inputs_ready
+                name: "AEB KPI inputs"
+              - entity: sensor.cm_policy_forecast_reason
+                name: "Forecast policy reason"
+              - entity: sensor.cm_system_mode_suggested
+                name: "System mode"
+              - entity: sensor.cm_system_reason
+                name: "System reason"
+
+      - type: grid
+        title: "Unavailable / unknown"
+        cards:
+          - type: entity-filter
+            title: "Critical runtime"
+            show_empty: false
+            state_filter:
+              - "unknown"
+              - "unavailable"
+            entities:
+              - entity: switch.ac_giorno
+              - entity: switch.ac_notte
+              - entity: switch.heating_master
+              - entity: switch.vmc_vel_1
+              - entity: switch.vmc_vel_2
+              - entity: switch.vmc_vel_3
+              - entity: binary_sensor.cm_modbus_mirai_ready
+              - entity: binary_sensor.cm_modbus_ehw_ready
+              - entity: sensor.t_out_effective
+              - entity: sensor.ehw_setpoint
+              - entity: sensor.mirai_power_w_effective
+              - entity: sensor.t_in_giorno
+              - entity: sensor.ur_in_giorno
+              - entity: sensor.t_in_notte1
+              - entity: sensor.ur_in_notte1
+              - entity: sensor.t_in_notte2
+              - entity: sensor.ur_in_notte2
+              - entity: sensor.t_in_bagno
+              - entity: sensor.ur_in_bagno
+          - type: entities
+            title: "Known gaps kept explicit"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.vent_finestra_notte3_aperta
+                name: "Night3 window only"
+
+      - type: grid
+        title: "Battery / radio risk"
+        cards:
+          - type: tile
+            entity: sensor.batteria_giorno
+            name: "Batt giorno"
+            color: amber
+          - type: tile
+            entity: sensor.batteria_cam1
+            name: "Batt notte1"
+            color: amber
+          - type: tile
+            entity: sensor.batteria_cam2
+            name: "Batt notte2"
+            color: amber
+          - type: tile
+            entity: sensor.batteria_esterna
+            name: "Batt esterna"
+            color: red
+          - type: markdown
+            content: |
+              ### Radio / battery sensors
+              Questi sensori restano utili ma non vanno trattati come field-grade:
+              - giorno T/RH
+              - notte1 T/RH
+              - notte2 T/RH
+              - esterno T/RH
+
+      - type: grid
+        title: "Proxy vs physical"
+        cards:
+          - type: entities
+            title: "Driver truth"
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.heating_master_is_on_proxy
+                name: "Heating proxy"
+              - entity: binary_sensor.vmc_is_running_proxy
+                name: "VMC proxy"
+              - entity: binary_sensor.ac_giorno_is_on_proxy
+                name: "AC giorno proxy"
+              - entity: binary_sensor.ac_notte_is_on_proxy
+                name: "AC notte proxy"
+              - entity: switch.heating_master
+                name: "Heating command"
+              - entity: switch.vmc_vel_1
+                name: "VMC vel 1"
+              - entity: switch.vmc_vel_2
+                name: "VMC vel 2"
+              - entity: switch.vmc_vel_3
+                name: "VMC vel 3"
