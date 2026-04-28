@@ -47,7 +47,7 @@ Il sistema non è "bloccato": sta semplicemente applicando in modo coerente una 
 ## Root cause
 
 ## FACT
-Nel file [climate_ventilation.yaml](C:/2_OPS/aeb/packages/climate_ventilation.yaml) la regola `P1_delta_ur` non usa:
+Nel file `packages/climate_ventilation.yaml` la regola `P1_delta_ur` non usa:
 - isteresi dedicata;
 - timer minimo di persistenza;
 - soglia di rilascio separata;

@@ -110,6 +110,22 @@ views:
                 name: "System mode"
               - entity: sensor.cm_system_reason
                 name: "System reason"
+          - type: entities
+            title: "Bathroom T/RH"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.t_in_bagno
+                name: "T bagno"
+              - entity: sensor.ur_in_bagno
+                name: "UR bagno"
+          - type: markdown
+            content: |
+              ### Bathroom note
+              Il bagno usa:
+              - `sensor.t_in_bagno`
+              - `sensor.ur_in_bagno`
+
+              La telemetria batteria dedicata del sensore bagno non e` oggi esposta come entita` separata nel runtime.
 
       - type: grid
         title: "Unavailable / unknown"
@@ -173,6 +189,7 @@ views:
               - giorno T/RH
               - notte1 T/RH
               - notte2 T/RH
+              - bagno T/RH
               - esterno T/RH
 
       - type: grid

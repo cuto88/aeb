@@ -16,7 +16,7 @@ La regola viene rialzata a:
 `ur_in_media >= 55 and (ur_in_media - ur_out) >= 15`
 
 File modificato:
-- [climate_ventilation.yaml](C:/2_OPS/aeb/packages/climate_ventilation.yaml)
+- `packages/climate_ventilation.yaml`
 
 ## Motivazione tecnica
 
