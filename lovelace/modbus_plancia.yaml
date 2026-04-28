@@ -1,6 +1,6 @@
 title: "9 Fieldbus"
 views:
-  - title: "SDM120"
+  - title: "SDM120 raw"
     path: modbus-sdm120
     icon: mdi:meter-electric
     type: sections
@@ -8,8 +8,17 @@ views:
 
     sections:
       - type: grid
-        title: "Stato attuale"
+        title: "Bus health"
         cards:
+          - type: markdown
+            title: "Ruolo plancia"
+            content: |-
+              Questa vista mostra il **livello raw / fieldbus**.
+
+              Per lettura operativa usare:
+              - `6 Power Runtime` per energia sintetica
+              - `8 MIRAI Plant` per macchina MIRAI
+              - `7 DHW / ACS` per macchina ACS/EHW
           - type: entities
             title: "SSOT energia casa"
             show_header_toggle: false
@@ -82,7 +91,7 @@ views:
               - entity: sensor.grid_energy_import_kwh
                 name: Grid SSOT
 
-  - title: "MIRAI"
+  - title: "MIRAI raw"
     path: modbus-mirai
     icon: mdi:heat-pump
     type: sections
@@ -90,36 +99,29 @@ views:
 
     sections:
       - type: grid
-        title: "Stato generale"
+        title: "Bus health"
         cards:
+          - type: markdown
+            title: "Ruolo plancia"
+            content: |-
+              Vista raw MIRAI: link Modbus, registri e snapshot.
+
+              Per stato macchina e runtime truth usare `8 MIRAI Plant`.
           - type: entities
+            title: "Link e postura"
             show_header_toggle: false
             entities:
-              - binary_sensor.mirai_machine_running
-              - binary_sensor.mirai_machine_running_by_power
-              - sensor.mirai_machine_state
-              - sensor.mirai_machine_running_source
-              - sensor.mirai_power_w
-              - input_number.mirai_running_power_on_w
               - binary_sensor.cm_modbus_mirai_ready
               - binary_sensor.cm_modbus_mirai_expected_ready
               - binary_sensor.cm_modbus_mirai_posture_ok
               - sensor.cm_modbus_mirai_reason
+          - type: entities
+            title: "Raw e registri effettivi"
+            show_header_toggle: false
+            entities:
               - sensor.mirai_status_word_effective
               - sensor.mirai_status_code_effective
               - sensor.mirai_fault_code_effective
-              - sensor.mirai_probe_temp_a_c
-              - sensor.mirai_probe_temp_b_c
-              - sensor.mirai_probe_temp_outdoor_c
-              - binary_sensor.mirai_pump_candidate_running
-
-      - type: grid
-        title: "Diagnostica"
-        cards:
-          - type: entities
-            title: "Raw e snapshot"
-            show_header_toggle: false
-            entities:
               - sensor.mirai_u1_status_word_raw
               - sensor.mirai_u1_status_code_raw
               - sensor.mirai_u1_fault_code_raw
@@ -127,6 +129,10 @@ views:
               - sensor.mirai_probe_counter_1015_raw
               - sensor.mirai_probe_state_3547_raw
               - input_boolean.mirai_debug_enable
+
+      - type: grid
+        title: "Diagnostica"
+        cards:
           - type: markdown
             title: "Snapshot operativo"
             content: |-
@@ -158,7 +164,7 @@ views:
               - sensor.mirai_probe_temp_a_c
               - sensor.mirai_probe_temp_b_c
 
-  - title: "EHW"
+  - title: "EHW raw"
     path: modbus-ehw
     icon: mdi:water-boiler
     type: sections
@@ -166,10 +172,16 @@ views:
 
     sections:
       - type: grid
-        title: "Status"
+        title: "Bus health"
         cards:
+          - type: markdown
+            title: "Ruolo plancia"
+            content: |-
+              Vista raw EHW: readiness bus, mapping e registri.
+
+              Per lettura operativa ACS usare `7 DHW / ACS`.
           - type: entities
-            title: "Stato operativo"
+            title: "Readiness e mapping"
             show_header_toggle: false
             entities:
               - entity: binary_sensor.cm_modbus_ehw_ready
@@ -178,12 +190,6 @@ views:
                 name: Mapping health
               - entity: binary_sensor.ehw_mapping_suspect
                 name: Mapping suspect
-              - entity: sensor.ehw_tank_top
-                name: Tank top (°C)
-              - entity: sensor.ehw_tank_bottom
-                name: Tank bottom (°C)
-              - entity: sensor.ehw_setpoint
-                name: Setpoint (°C)
           - type: entities
             title: "Ultimo aggiornamento"
             show_header_toggle: false

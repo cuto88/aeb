@@ -8,7 +8,7 @@ views:
 
     sections:
       - type: grid
-        title: "Status"
+        title: "Runtime"
         cards:
           - type: entities
             title: "Stato operativo"
@@ -43,8 +43,14 @@ views:
                 secondary_info: last-updated
 
       - type: grid
-        title: "Debug"
+        title: "Diagnostica"
         cards:
+          - type: markdown
+            title: "Ruolo plancia"
+            content: |-
+              Questa plancia e` il **drill-down macchina ACS/EHW**.
+
+              Usa `9 Fieldbus` solo per forensic raw bus / mapping basso livello.
           - type: entities
             title: "Raw registers"
             show_header_toggle: false
