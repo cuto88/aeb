@@ -8,10 +8,19 @@ views:
 
     sections:
       - type: grid
-        title: "Stato attuale"
+        title: "Runtime energia"
         cards:
+          - type: markdown
+            title: "Ruolo plancia"
+            content: |-
+              Questa plancia mostra la **sintesi runtime energia locale**.
+
+              Per drill-down macchina usare:
+              - `7 DHW / ACS`
+              - `8 MIRAI Plant`
+              - `9 Fieldbus` solo per raw / forensic
           - type: entities
-            title: "Quote oggi sui misurati"
+            title: "Quote oggi"
             show_header_toggle: false
             entities:
               - entity: sensor.local_meters_energy_daily_total
@@ -32,6 +41,10 @@ views:
             title: "Potenze istantanee"
             show_header_toggle: false
             entities:
+              - entity: sensor.grid_power_w
+                name: Rete / SDM120 W
+              - entity: sensor.grid_direction
+                name: Direzione flusso
               - entity: sensor.mirai_power_w
                 name: Mirai Potenza W
               - entity: sensor.ehw_power_w
@@ -42,26 +55,10 @@ views:
                 name: PM2 / Lavatrice W
               - entity: sensor.pm3_mss310_power_w_main_channel
                 name: PM3 / Asciugatrice W
-              - entity: sensor.grid_direction
-                name: Direzione flusso
               - entity: sensor.ds_01_power_w
                 name: ds-01 / HA host W
           - type: entities
-            title: "EHW diagnostica mapping"
-            show_header_toggle: false
-            entities:
-              - entity: sensor.ehw_mapping_health
-                name: Mapping health
-              - entity: binary_sensor.ehw_mapping_suspect
-                name: Mapping suspect
-              - entity: sensor.ehw_tank_top
-                name: Tank top
-              - entity: sensor.ehw_tank_bottom
-                name: Tank bottom
-              - entity: sensor.ehw_setpoint
-                name: Setpoint
-          - type: entities
-            title: "ds-01 / Home Assistant host"
+            title: "Host locale ds-01"
             show_header_toggle: false
             entities:
               - entity: switch.t34_smart_plug_interruttore_1
@@ -113,7 +110,7 @@ views:
                 name: ds-01 kWh totale
 
       - type: grid
-        title: "Andamento 24h"
+        title: "Trend e KPI"
         cards:
           - type: history-graph
             title: "Potenze 24h - tutti i carichi locali"
