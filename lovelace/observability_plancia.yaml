@@ -156,6 +156,23 @@ views:
               - entity: sensor.ur_in_notte2
               - entity: sensor.t_in_bagno
               - entity: sensor.ur_in_bagno
+          - type: entity-filter
+            title: "Battery / radio sensors missing"
+            show_empty: false
+            state_filter:
+              - "unknown"
+              - "unavailable"
+            entities:
+              - entity: sensor.t_in_giorno
+              - entity: sensor.ur_in_giorno
+              - entity: sensor.t_in_notte1
+              - entity: sensor.ur_in_notte1
+              - entity: sensor.t_in_notte2
+              - entity: sensor.ur_in_notte2
+              - entity: sensor.t_in_bagno
+              - entity: sensor.ur_in_bagno
+              - entity: sensor.t_out
+              - entity: sensor.ur_out
           - type: entities
             title: "Known gaps kept explicit"
             show_header_toggle: false
@@ -166,22 +183,41 @@ views:
       - type: grid
         title: "Battery / radio risk"
         cards:
-          - type: tile
-            entity: sensor.batteria_giorno
-            name: "Batt giorno"
-            color: amber
-          - type: tile
-            entity: sensor.batteria_cam1
-            name: "Batt notte1"
-            color: amber
-          - type: tile
-            entity: sensor.batteria_cam2
-            name: "Batt notte2"
-            color: amber
-          - type: tile
-            entity: sensor.batteria_esterna
-            name: "Batt esterna"
-            color: red
+          - type: entities
+            title: "Battery telemetry"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.batteria_giorno
+                name: "Batt giorno"
+                secondary_info: last-updated
+              - entity: sensor.batteria_cam1
+                name: "Batt notte1"
+                secondary_info: last-updated
+              - entity: sensor.batteria_cam2
+                name: "Batt notte2"
+                secondary_info: last-updated
+              - entity: sensor.batteria_esterna
+                name: "Batt esterna"
+                secondary_info: last-updated
+          - type: entities
+            title: "Wireless dependency map"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.t_in_giorno
+                name: "Giorno T"
+                secondary_info: last-updated
+              - entity: sensor.t_in_notte1
+                name: "Notte1 T"
+                secondary_info: last-updated
+              - entity: sensor.t_in_notte2
+                name: "Notte2 T"
+                secondary_info: last-updated
+              - entity: sensor.t_in_bagno
+                name: "Bagno T"
+                secondary_info: last-updated
+              - entity: sensor.t_out
+                name: "Outdoor T"
+                secondary_info: last-updated
           - type: markdown
             content: |
               ### Radio / battery sensors
