@@ -8,34 +8,47 @@ views:
 
     sections:
       - type: grid
-        title: "Stato generale"
+        title: "Runtime macchina"
         cards:
+          - type: markdown
+            title: "Ruolo plancia"
+            content: |-
+              Questa plancia e` il **drill-down macchina MIRAI**.
+
+              Usa `9 Fieldbus` solo per raw bus / forensic basso livello.
           - type: entities
+            title: "Stato macchina"
             show_header_toggle: false
             entities:
               - binary_sensor.mirai_machine_running
-              - binary_sensor.mirai_machine_running_by_power
               - sensor.mirai_machine_state
               - sensor.mirai_machine_running_source
               - sensor.mirai_power_w
-              - input_number.mirai_running_power_on_w
+              - binary_sensor.cm_modbus_mirai_ready
+              - binary_sensor.cm_modbus_mirai_posture_ok
+              - sensor.cm_modbus_mirai_reason
               - binary_sensor.mirai_manual_unit_profile_ok
+          - type: entities
+            title: "Corroborazione"
+            show_header_toggle: false
+            entities:
+              - binary_sensor.mirai_machine_running_by_power
+              - binary_sensor.mirai_pump_candidate_running
               - sensor.mirai_status_word_effective
               - sensor.mirai_status_code_effective
               - sensor.mirai_fault_code_effective
-              - sensor.mirai_u1_status_code_raw
-              - sensor.mirai_u1_fault_code_raw
-              - sensor.mirai_u1_status_word_raw
-              - sensor.mirai_status_bits_on
+              - input_number.mirai_running_power_on_w
+          - type: entities
+            title: "Probe e raw candidati"
+            show_header_toggle: false
+            entities:
               - sensor.mirai_probe_temp_a_c
               - sensor.mirai_probe_temp_b_c
               - sensor.mirai_probe_temp_outdoor_c
               - binary_sensor.mirai_probe_temp_a_consistent
               - binary_sensor.mirai_probe_temp_b_consistent
-              - binary_sensor.mirai_pump_candidate_running
               - sensor.mirai_probe_counter_1015_raw
               - sensor.mirai_probe_state_3547_raw
-              - input_boolean.mirai_debug_enable
 
       - type: grid
         title: "Diagnostica"
@@ -55,10 +68,12 @@ views:
               - sensor.mirai_status_word_effective
               - sensor.mirai_status_code_effective
               - sensor.mirai_fault_code_effective
+              - sensor.mirai_power_w
               - sensor.mirai_u1_status_word_raw
               - sensor.mirai_u1_status_code_raw
               - sensor.mirai_u1_fault_code_raw
               - sensor.mirai_status_bits_on
+              - input_boolean.mirai_debug_enable
           - type: entities
             title: "Runtime truth closure"
             show_header_toggle: false
@@ -114,6 +129,7 @@ views:
             entities:
               - binary_sensor.mirai_machine_running
               - binary_sensor.mirai_machine_running_by_power
+              - sensor.mirai_power_w
               - sensor.mirai_status_word_effective
               - sensor.mirai_status_code_effective
               - sensor.mirai_fault_code_effective
