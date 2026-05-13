@@ -111,6 +111,13 @@ lovelace:
       show_in_sidebar: true
       filename: lovelace/observability_plancia.yaml
 
+    12-domestic-ops:
+      mode: yaml
+      title: "12 Domestic Ops"
+      icon: mdi:home-lightning-bolt-outline
+      show_in_sidebar: true
+      filename: lovelace/domestic_ops_plancia.yaml
+
     92-vmc-legacy:
       mode: yaml
       title: "2 VMC (legacy)"
