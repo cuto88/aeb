@@ -1,0 +1,366 @@
+# Ventilation templates extracted from legacy ventilation package.
+# Purpose: keep VMC template/state-machine entities separate from automations.
+---
+template:
+  - binary_sensor:
+      # Disponibilità sensori base (P0 – failsafe)
+      - name: "VMC sensors ok"
+        unique_id: vmc_sensors_ok
+        device_class: connectivity
+        state: >-
+          {% set required = [
+            'sensor.t_in_giorno',
+            'sensor.t_in_notte1',
+            'sensor.t_in_notte2',
+            'sensor.t_in_bagno',
+            'sensor.ur_in_giorno',
+            'sensor.ur_in_notte1',
+            'sensor.ur_in_notte2',
+            'sensor.ur_in_bagno',
+            'sensor.t_out_effective',
+            'sensor.ur_out',
+            'sensor.ah_in',
+            'sensor.ah_out'
+          ] %}
+          {% set invalid = ['unknown','unavailable','','none','None'] %}
+          {% set ns = namespace(ok=true) %}
+          {% for ent in required %}
+            {% if states(ent) in invalid %}
+              {% set ns.ok = false %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.ok }}
+      - name: "VMC anti-secco"
+        unique_id: vmc_anti_secco
+        state: >-
+          {% set night = now().hour >= 23 or now().hour < 7 %}
+          {% set winter = now().month in [11,12,1,2,3] %}
+          {% set ur_min = states('sensor.ur_in_min')|float(default=100) %}
+          {% set soglia = states('input_number.vmc_anti_secco_ur_min')|float(40) %}
+          {{ night and winter and ur_min <= soglia }}
+      - name: "VMC boost bagno automatico"
+        unique_id: vmc_bagno_boost_auto
+        delay_off: "00:03:00"
+        state: >-
+          {% set sensors_ok = is_state('binary_sensor.vmc_sensors_ok','on') %}
+          {% set ur_bath = states('sensor.ur_in_bagno')|float(default=none) %}
+          {% set ur_out = states('sensor.ur_out')|float(default=none) %}
+          {% set ur_on = states('input_number.vmc_bagno_on')|float(75) %}
+          {% set ur_off = states('input_number.vmc_bagno_off')|float(65) %}
+          {% set delta_trigger_enabled = is_state('input_boolean.vmc_bagno_delta_trigger_enable','on') %}
+          {% set delta_ur_on = states('input_number.vmc_bagno_delta_ur_on')|float(10) %}
+          {% set was_on = is_state('binary_sensor.vmc_bagno_boost_auto','on') %}
+          {% if not sensors_ok or ur_bath is none or ur_out is none %}
+            false
+          {% else %}
+            {% set delta_ur = ur_bath - ur_out %}
+            {% set delta_trigger = delta_trigger_enabled and (delta_ur >= delta_ur_on) and (ur_bath >= ur_off) %}
+            {% set on_condition = ((ur_bath >= ur_on) and (delta_ur >= 0)) or delta_trigger %}
+            {% set outside_wetter = (delta_ur <= -2) %}
+            {% set off_condition = ((ur_bath <= ur_off) and (delta_ur <= 6)) or outside_wetter %}
+            {% set max_run = 45 * 60 %}
+            {% set run_secs = (now().timestamp() - as_timestamp(this.last_changed, default=0)) if was_on else 0 %}
+            {% set timeout = was_on and run_secs > max_run %}
+            {% if was_on %}
+              {{ (not off_condition) and not timeout }}
+            {% else %}
+              {{ on_condition and not timeout }}
+            {% endif %}
+          {% endif %}
+      - name: "VMC freecooling candidabile"
+        unique_id: vmc_freecooling_candidate
+        state: >-
+          {% set tin = states('sensor.t_in_med')|float(default=none) %}
+          {% set tout = states('sensor.t_out_effective')|float(default=none) %}
+          {% set dah = states('sensor.delta_ah_in_out')|float(default=none) %}
+          {% set dt_min = states('input_number.vmc_freecooling_delta')|float(2) %}
+          {% set dah_min = states('input_number.vmc_freecooling_delta_ah')|float(2) %}
+          {% if tin is not none and tout is not none and dah is not none %}
+            {{ tin > 24 and (tin - tout) >= dt_min and dah >= dah_min }}
+          {% else %}
+            false
+          {% endif %}
+      - name: vmc_freecooling_active
+        unique_id: vmc_freecooling_active
+        state: >-
+          {{ is_state('sensor.ventilation_priority','P2_freecooling') }}
+
+  - sensor:
+      # Vista testuale derivata dalla SSOT stagionale climate.
+      - name: "Ventilazione stagione"
+        unique_id: vent_stagione
+        state: >-
+          {% if is_state('binary_sensor.stagione_calda','on') %}
+            estate
+          {% else %}
+            inverno
+          {% endif %}
+
+      - name: "VMC velocità target"
+        unique_id: vmc_vel_target
+        state: >-
+          {% set manual = is_state('input_boolean.vmc_manual','on') and is_state('input_select.vmc_mode','manual') %}
+          {% set mode_off = is_state('input_select.vmc_mode','off') %}
+          {% if mode_off %}
+            {% set legacy_target = 0 %}
+          {% elif manual %}
+            {% set sel = states('input_select.vmc_manual_speed') %}
+            {% set map = {
+              'off': 0,
+              'vel_0': 0,
+              'vel_1': 1,
+              'vel_2': 2,
+              'vel_3': 3
+            } %}
+            {% set legacy_target = map.get(sel,1) %}
+          {% else %}
+            {% set priority = states('sensor.ventilation_priority') %}
+            {% if priority in ['P0_failsafe','P0_off'] %}
+              {% set legacy_target = 0 %}
+            {% elif priority == 'P1_boost_bagno' %}
+              {% set legacy_target = 3 %}
+            {% elif priority == 'P1_delta_ur' %}
+              {% set legacy_target = 2 %}
+            {% elif priority == 'P1_anti_secco' %}
+              {% set legacy_target = 1 %}
+            {% elif priority == 'P2_freecooling' %}
+              {% set fc_status = states('sensor.vmc_freecooling_status') %}
+              {% if fc_status == 'strong' %}
+                {% set legacy_target = 3 %}
+              {% else %}
+                {% set legacy_target = 2 %}
+              {% endif %}
+            {% else %}
+              {% set legacy_target = 1 %}
+            {% endif %}
+          {% endif %}
+          {% set cutover_on = is_state('input_boolean.climateops_cutover_vmc','on') %}
+          {% set arbiter_mode = states('sensor.climateops_arbiter_suggested_mode') %}
+          {% set arbiter_available = arbiter_mode not in ['unknown','unavailable',''] %}
+          {% if not cutover_on %}
+            {{ legacy_target }}
+          {% elif not arbiter_available or arbiter_mode == 'IDLE' %}
+            {{ legacy_target }}
+          {% else %}
+            {% set arbiter_map = {
+              'VENT': 2,
+              'COOL': 1,
+              'HEAT': 1
+            } %}
+            {{ arbiter_map.get(arbiter_mode, legacy_target) }}
+          {% endif %}
+
+      - name: "VMC velocità indice"
+        unique_id: vmc_vel_index
+        state: >-
+          {% if is_state('switch.vmc_vel_3','on') %}
+            3
+          {% elif is_state('switch.vmc_vel_2','on') %}
+            2
+          {% elif is_state('switch.vmc_vel_1','on') %}
+            1
+          {% elif is_state('switch.vmc_vel_0','on') %}
+            0
+          {% else %}
+            0
+          {% endif %}
+
+      - name: "Ventilation priority"
+        unique_id: ventilation_priority
+        state: >-
+          {% set manual = is_state('input_boolean.vmc_manual','on') and is_state('input_select.vmc_mode','manual') %}
+          {% set mode_off = is_state('input_select.vmc_mode','off') %}
+          {% set sensors_ok = is_state('binary_sensor.vmc_sensors_ok','on') %}
+          {% set policy_blocks_boost = is_state('binary_sensor.policy_allow_vmc_boost','off') %}
+          {% set ur_bath = states('sensor.ur_in_bagno')|float(default=none) %}
+          {% set ur_out = states('sensor.ur_out')|float(default=none) %}
+          {% set ur_on = states('input_number.vmc_bagno_on')|float(75) %}
+          {% set outside_wetter = ur_bath is not none and ur_out is not none and (ur_bath - ur_out) <= -2 %}
+          {% set boost_manual = is_state('input_boolean.vmc_boost_bagno','on') %}
+          {% set boost_auto_valid = is_state('binary_sensor.vmc_bagno_boost_auto','on')
+             and ur_bath is not none and ur_bath >= ur_on and not outside_wetter %}
+          {% set boost_requested = boost_manual or boost_auto_valid %}
+          {% set ur_in_media = states('sensor.ur_in_media')|float(default=0) %}
+          {% if mode_off %}
+            P0_off
+          {% elif manual %}
+            P_manual
+          {% elif not sensors_ok %}
+            P0_failsafe
+          {% elif policy_blocks_boost and boost_requested %}
+            P4_baseline
+          {% elif boost_requested and outside_wetter %}
+            P4_baseline
+          {% elif boost_requested %}
+            P1_boost_bagno
+          {% elif is_state('binary_sensor.vmc_anti_secco','on') %}
+            P1_anti_secco
+          {% elif ur_in_media >= 55 and (ur_in_media - ur_out) >= 15 %}
+            P1_delta_ur
+          {% elif is_state('binary_sensor.vmc_freecooling_candidate','on') and is_state('binary_sensor.windows_all_closed','on') %}
+            P2_freecooling
+          {% else %}
+            P4_baseline
+          {% endif %}
+
+      - name: "Ventilation reason"
+        unique_id: ventilation_reason
+        state: >-
+          {% set cutover_on = is_state('input_boolean.climateops_cutover_vmc','on') %}
+          {% set arbiter_mode = states('sensor.climateops_arbiter_suggested_mode') %}
+          {% set arbiter_available = arbiter_mode not in ['unknown','unavailable',''] %}
+          {% set policy_blocks_boost = is_state('binary_sensor.policy_allow_vmc_boost','off') %}
+          {% set ur_bath = states('sensor.ur_in_bagno')|float(default=none) %}
+          {% set ur_out = states('sensor.ur_out')|float(default=none) %}
+          {% set ur_on = states('input_number.vmc_bagno_on')|float(75) %}
+          {% set outside_wetter = ur_bath is not none and ur_out is not none and (ur_bath - ur_out) <= -2 %}
+          {% set boost_manual = is_state('input_boolean.vmc_boost_bagno','on') %}
+          {% set boost_auto_valid = is_state('binary_sensor.vmc_bagno_boost_auto','on')
+             and ur_bath is not none and ur_bath >= ur_on and not outside_wetter %}
+          {% set boost_requested = boost_manual or boost_auto_valid %}
+          {% if cutover_on and arbiter_available and arbiter_mode != 'IDLE' %}
+            ClimateOps: {{ arbiter_mode }} – {{ states('sensor.climateops_arbiter_suggested_reason') }}
+          {% else %}
+          {% set priority = states('sensor.ventilation_priority') %}
+          {% if priority == 'P_manual' %}
+            Manuale: velocità selezionata
+          {% elif priority == 'P0_off' %}
+            Modalità OFF
+          {% elif priority == 'P0_failsafe' %}
+            P0 – failsafe sensori
+          {% elif policy_blocks_boost and boost_requested %}
+            VMC BOOST BLOCKED BY POLICY
+          {% elif outside_wetter and boost_requested %}
+            VMC BOOST BLOCKED (OUTSIDE WETTER)
+          {% elif priority == 'P1_boost_bagno' %}
+            P1 – UR bagno alta / boost
+          {% elif priority == 'P1_anti_secco' %}
+            P1 – anti-secco notturno
+          {% elif priority == 'P1_delta_ur' %}
+            P1 – aria esterna più secca (ΔUR)
+          {% elif priority == 'P2_freecooling' %}
+            P2 – free-cooling ΔT/ΔAH favorevole
+          {% else %}
+            P4 – baseline vel_1
+          {% endif %}
+          {% endif %}
+
+      - name: "VMC Boost Bagno Debug"
+        unique_id: vmc_boost_bagno_debug
+        icon: mdi:bug
+        state: >-
+          ur={{ states('sensor.ur_in_bagno') }}
+          on={{ states('input_number.vmc_bagno_on') }}
+          off={{ states('input_number.vmc_bagno_off') }}
+          dUR={{ (states('sensor.ur_in_bagno')|float(0) - states('sensor.ur_out')|float(0))|round(2) }}
+          dAH={{ states('sensor.delta_ah_in_out') }}
+          manual={{ states('input_boolean.vmc_boost_bagno') }}
+          timer={{ states('sensor.vmc_boost_bagno_eta_spegnimento') }}
+
+      - name: "VMC boost bagno ETA spegnimento"
+        unique_id: vmc_boost_bagno_eta_spegnimento
+        icon: mdi:timer-sand
+        state: >-
+          {% if not is_state('binary_sensor.vmc_bagno_boost_auto','on') %}
+            off
+          {% else %}
+            {% set sensors_ok = is_state('binary_sensor.vmc_sensors_ok','on') %}
+            {% set ur_bath = states('sensor.ur_in_bagno')|float(default=none) %}
+            {% set ur_out = states('sensor.ur_out')|float(default=none) %}
+            {% set ur_off = states('input_number.vmc_bagno_off')|float(65) %}
+            {% set delay_off_secs = 3 * 60 %}
+            {% set max_run_secs = 45 * 60 %}
+            {% set started = as_timestamp(states.binary_sensor.vmc_bagno_boost_auto.last_changed, default=now().timestamp()) %}
+            {% set timeout_eta = started + max_run_secs %}
+            {% if not sensors_ok or ur_bath is none or ur_out is none %}
+              {{ timeout_eta | timestamp_custom('%H:%M:%S', true) }} (max_run)
+            {% else %}
+              {% set delta_ur = ur_bath - ur_out %}
+              {% set off_condition = (ur_bath <= ur_off) and (delta_ur <= 6) %}
+              {% if off_condition %}
+                {{ (now().timestamp() + delay_off_secs) | timestamp_custom('%H:%M:%S', true) }} (delay_off)
+              {% else %}
+                {{ timeout_eta | timestamp_custom('%H:%M:%S', true) }} (max_run)
+              {% endif %}
+            {% endif %}
+          {% endif %}
+
+  - trigger:
+      - platform: state
+        entity_id:
+          - sensor.t_in_med
+          - sensor.delta_t_in_out
+          - sensor.delta_ah_in_out
+        id: instant_update
+      - platform: template
+        id: low_margin_30m
+        value_template: >-
+          {{ states('sensor.delta_t_in_out')|float(0) < 1 and states('sensor.delta_ah_in_out')|float(0) < 1 }}
+        for: "00:30:00"
+      - platform: time_pattern
+        minutes: "/5"
+        id: periodic_update
+    sensor:
+      - name: "VMC freecooling status"
+        unique_id: vmc_freecooling_status
+        state: >-
+          {%- set tin = states('sensor.t_in_med')|float(default=0) -%}
+          {%- set dt = states('sensor.delta_t_in_out')|float(default=0) -%}
+          {%- set dah = states('sensor.delta_ah_in_out')|float(default=0) -%}
+          {%- set prev = (this.state | lower) if this.state is not none else 'off' -%}
+          {%- set strong = tin > 25 and dt >= 3 and dah >= 3 -%}
+          {%- set soft = tin > 24 and dt >= 2 and dah >= 2 -%}
+          {%- set off_now = tin <= 23 -%}
+          {%- if strong -%}
+            strong
+          {%- elif soft -%}
+            soft
+          {%- elif off_now -%}
+            off
+          {%- elif dt < 1 and dah < 1 -%}
+            {%- if trigger.id == 'low_margin_30m' -%}
+              off
+            {%- else -%}
+              {{ prev }}
+            {%- endif -%}
+          {%- else -%}
+            off
+          {%- endif -%}
+
+  - trigger:
+      - platform: state
+        entity_id:
+          - sensor.t_in_med
+          - sensor.delta_t_in_out
+          - sensor.delta_ah_in_out
+          - sensor.vmc_freecooling_status
+          - binary_sensor.vent_condizioni_meteo_ok
+        id: instant_update
+      - platform: time_pattern
+        minutes: "/5"
+        id: periodic_update
+    sensor:
+      - name: "clima_open_windows_recommended"
+        unique_id: clima_open_windows_recommended
+        state: >-
+          {%- set tin = states('sensor.t_in_med')|float(default=0) -%}
+          {%- set dt = states('sensor.delta_t_in_out')|float(default=0) -%}
+          {%- set dah = states('sensor.delta_ah_in_out')|float(default=0) -%}
+          {%- set meteo_ok = is_state('binary_sensor.vent_condizioni_meteo_ok','on') -%}
+          {%- set status = states('sensor.vmc_freecooling_status') -%}
+          {%- set fc_duration = now().timestamp() - as_timestamp(states.sensor.vmc_freecooling_status.last_changed, default=0) -%}
+          {%- set vmc_long = status in ['soft','strong'] and fc_duration >= 2700 -%}
+          {%- set extreme = dt >= 3 and dah >= 3 -%}
+          {%- set base_ok = tin > 25.5 and dt >= 3 and dah >= 3 and meteo_ok -%}
+          {%- set recommend_now = base_ok and (vmc_long or extreme) -%}
+          {%- set prev_on = this.state | lower == 'on' -%}
+          {%- set on_duration = now().timestamp() - as_timestamp(this.last_changed or 0) -%}
+          {%- if prev_on and on_duration < 600 -%}
+            on
+          {%- elif prev_on and not (dt < 1 and dah < 1) -%}
+            on
+          {%- elif recommend_now -%}
+            on
+          {%- else -%}
+            off
+          {%- endif -%}
