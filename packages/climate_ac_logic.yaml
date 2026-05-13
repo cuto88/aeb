@@ -31,185 +31,6 @@ input_boolean:
     name: "AC Send Command Busy"
 
 # ============================================================================
-# 2) TEMPLATE – failsafe, blocchi, telemetria e diagnostica
-# ============================================================================
-template:
-  - binary_sensor:
-      - name: "AC – Failsafe sensori"
-        unique_id: ac_failsafe_sensors_bad
-        device_class: problem
-        state: >
-          {% set sensors = {
-            'sensor.t_in_med': (-20, 50),
-            'sensor.t_out_effective': (-30, 60),
-            'sensor.ur_in_media': (0, 100),
-            'sensor.ur_out': (0, 100)
-          } %}
-          {% set bad = false %}
-          {% for sid, limits in sensors.items() %}
-            {% if bad %}{% break %}{% endif %}
-            {% if sid in states %}
-              {% set ent = states[sid] %}
-              {% if ent.state in ['unknown','unavailable',''] %}
-                {% set bad = true %}
-              {% else %}
-                {% set lo = limits[0] %}
-                {% set hi = limits[1] %}
-                {% set val = ent.state | float(0) %}
-                {% if val < lo or val > hi %}
-                  {% set bad = true %}
-                {% endif %}
-              {% endif %}
-            {% else %}
-              {% set bad = true %}
-            {% endif %}
-          {% endfor %}
-          {{ bad }}
-
-      - name: "Stagione calda attiva"
-        unique_id: stagione_calda
-        device_class: heat
-        state: >-
-          {% set stagione = states('sensor.vent_stagione') %}
-          {% if stagione in ['estate','inverno'] %}
-            {{ stagione == 'estate' }}
-          {% else %}
-            {% set m = now().month %}
-            {{ m in [5,6,7,8,9] }}
-          {% endif %}
-
-      - name: "AC – Block by VMC"
-        unique_id: ac_block_by_vmc
-        state: "{{ is_state('input_boolean.ac_block_vmc','on') }}"
-
-      - name: "AC – Lock min ON OK"
-        unique_id: ac_lock_min_on_ok
-        state: >
-          {% set mins = states('input_number.ac_min_on_minutes') | float(15) %}
-          {% set entities = ['binary_sensor.cm_driver_ac_giorno_is_on', 'binary_sensor.cm_driver_ac_notte_is_on'] %}
-          {% for ent_id in entities %}
-            {% if ent_id in states %}
-              {% set s = states[ent_id] %}
-              {% if s.state == 'on' and (now() - s.last_changed).total_seconds() / 60 < mins %}
-                {{ false }}
-              {% endif %}
-            {% endif %}
-          {% endfor %}
-          true
-
-      - name: "AC – Lock min OFF OK"
-        unique_id: ac_lock_min_off_ok
-        state: >
-          {% set mins = states('input_number.ac_min_off_minutes') | float(15) %}
-          {% set entities = ['binary_sensor.cm_driver_ac_giorno_is_on', 'binary_sensor.cm_driver_ac_notte_is_on'] %}
-          {% for ent_id in entities %}
-            {% if ent_id in states %}
-              {% set s = states[ent_id] %}
-              {% if s.state == 'off' and (now() - s.last_changed).total_seconds() / 60 < mins %}
-                {{ false }}
-              {% endif %}
-            {% endif %}
-          {% endfor %}
-          true
-
-  - sensor:
-      - name: "AC Priority"
-        unique_id: ac_priority
-        icon: mdi:arrow-top-right-bold-outline
-        state: "{{ (state_attr('sensor.ac_reason','priority')) if state_attr('sensor.ac_reason','priority') not in [none, ''] else 'idle' }}"
-        attributes:
-          reason: "{{ state_attr('sensor.ac_reason','reason') }}"
-          mode: "{{ state_attr('sensor.ac_reason','mode') }}"
-          target: "{{ state_attr('sensor.ac_reason','target') }}"
-
-  - trigger:
-      - platform: event
-        event_type: template_event
-    sensor:
-      - name: "AC Reason"
-        unique_id: ac_reason
-        icon: mdi:text
-        state: >-
-          {% if trigger.event.data.entity_id == 'sensor.ac_reason' %}
-            {{ trigger.event.data.attributes.priority | default('idle') }}
-          {% else %}
-            {{ this.state if this.state is not none else 'idle' }}
-          {% endif %}
-        attributes:
-          priority: >-
-            {% if trigger.event.data.entity_id == 'sensor.ac_reason' %}
-              {{ trigger.event.data.attributes.priority | default('idle') }}
-            {% else %}
-              {{ this.attributes.priority if this.attributes.priority is not none else 'idle' }}
-            {% endif %}
-          reason: >-
-            {% if trigger.event.data.entity_id == 'sensor.ac_reason' %}
-              {{ trigger.event.data.attributes.reason | default('–') }}
-            {% else %}
-              {{ this.attributes.reason if this.attributes.reason is not none else '–' }}
-            {% endif %}
-          mode: >-
-            {% if trigger.event.data.entity_id == 'sensor.ac_reason' %}
-              {{ trigger.event.data.attributes.mode | default('off') }}
-            {% else %}
-              {{ this.attributes.mode if this.attributes.mode is not none else 'off' }}
-            {% endif %}
-          target: >-
-            {% if trigger.event.data.entity_id == 'sensor.ac_reason' %}
-              {{ trigger.event.data.attributes.target | default('none') }}
-            {% else %}
-              {{ this.attributes.target if this.attributes.target is not none else 'none' }}
-            {% endif %}
-
-  # Ultimi ON/OFF (trigger-based) Giorno/Notte
-  - trigger:
-      - platform: state
-        entity_id: binary_sensor.cm_driver_ac_giorno_is_on
-        to: "on"
-    sensor:
-      - name: "AC Giorno – Ultimo ON"
-        unique_id: ac_giorno_ultimo_on
-        device_class: timestamp
-        state: "{{ now().isoformat() }}"
-
-  - trigger:
-      - platform: state
-        entity_id: binary_sensor.cm_driver_ac_giorno_is_on
-        to: "off"
-    sensor:
-      - name: "AC Giorno – Ultimo OFF"
-        unique_id: ac_giorno_ultimo_off
-        device_class: timestamp
-        state: "{{ now().isoformat() }}"
-
-  - trigger:
-      - platform: state
-        entity_id: binary_sensor.cm_driver_ac_notte_is_on
-        to: "on"
-    sensor:
-      - name: "AC Notte – Ultimo ON"
-        unique_id: ac_notte_ultimo_on
-        device_class: timestamp
-        state: "{{ now().isoformat() }}"
-
-  - trigger:
-      - platform: state
-        entity_id: binary_sensor.cm_driver_ac_notte_is_on
-        to: "off"
-    sensor:
-      - name: "AC Notte – Ultimo OFF"
-        unique_id: ac_notte_ultimo_off
-        device_class: timestamp
-        state: "{{ now().isoformat() }}"
-
-counter:
-  ac_churn_suppressed:
-    name: "AC churn suppressed"
-    icon: mdi:shield-sync
-    initial: 0
-    step: 1
-
-# ============================================================================
 # 3) AUTOMAZIONI – hook VMC + controller unico priorità
 # ============================================================================
 automation:
@@ -268,48 +89,6 @@ automation:
             (priority {{ states('sensor.ventilation_priority') }}).
 
 # ============================================================================
-# 4) CONTATORI RUN-TIME & CICLI (oggi) – separati per Giorno/Notte
-# ============================================================================
-sensor:
-  # === AC GIORNO ===
-  - platform: history_stats
-    name: "AC Giorno – Tempo ON oggi"
-    unique_id: ac_giorno_tempo_on_oggi
-    entity_id: binary_sensor.cm_driver_ac_giorno_is_on
-    state: "on"
-    type: time
-    start: "{{ today_at() }}"
-    end: "{{ now() }}"
-
-  - platform: history_stats
-    name: "AC Giorno – Cicli ON oggi"
-    unique_id: ac_giorno_cicli_on_oggi
-    entity_id: binary_sensor.cm_driver_ac_giorno_is_on
-    state: "on"
-    type: count
-    start: "{{ today_at() }}"
-    end: "{{ now() }}"
-
-  # === AC NOTTE ===
-  - platform: history_stats
-    name: "AC Notte – Tempo ON oggi"
-    unique_id: ac_notte_tempo_on_oggi
-    entity_id: binary_sensor.cm_driver_ac_notte_is_on
-    state: "on"
-    type: time
-    start: "{{ today_at() }}"
-    end: "{{ now() }}"
-
-  - platform: history_stats
-    name: "AC Notte – Cicli ON oggi"
-    unique_id: ac_notte_cicli_on_oggi
-    entity_id: binary_sensor.cm_driver_ac_notte_is_on
-    state: "on"
-    type: count
-    start: "{{ today_at() }}"
-    end: "{{ now() }}"
-
-# ============================================================================
 # LEGACY AUTOMATIONS – disattivate a favore del controller unico
 # ============================================================================
 #  - alias: "AC Giorno - controllo DRY/COOL"
@@ -363,12 +142,16 @@ sensor:
 #            - switch.ac_giorno
 
 script:
+  # Legacy/manual wrapper retained for compatibility and UI visibility.
+  # It is not part of the canonical automatic writer chain.
   ac_apply_targets:
     alias: "AC – Apply targets"
     mode: single
     sequence:
       - service: script.ac_giorno_apply
       - service: script.ac_notte_apply
+  # Legacy/manual wrapper retained for compatibility and UI visibility.
+  # Canonical automatic authority stays in ClimateOps system_actuate.
   ac_send_command:
     alias: "AC – Send command (driver wrapper)"
     mode: single
@@ -397,6 +180,8 @@ script:
       - service: input_boolean.turn_off
         target:
           entity_id: input_boolean.ac_send_command_busy
+  # Leaf driver placeholder. The repo-side authority audit treats the
+  # apply scripts as the relevant callable edge for AC actuation.
   ac_hw_press:
     alias: "AC – HW press (leaf driver)"
     mode: single
