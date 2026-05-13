@@ -34,6 +34,50 @@ Usa una sola decisione finale:
 - `ARCHIVIARE`
 - `IMPLEMENTARE`
 
+# RUNTIME EVIDENCE GATE
+
+Non classificare `IMPLEMENTARE` se il problema non e dimostrato da runtime evidence.
+
+Una modifica teoricamente migliore non basta.
+
+Serve evidenza reale di almeno uno tra:
+
+- falsi positivi;
+- falsi negativi;
+- oscillazioni;
+- conflitti runtime;
+- discomfort reale;
+- inefficienza energetica misurata;
+- authority conflict reale;
+- drift runtime.
+
+La runtime evidence deve includere almeno uno tra:
+
+- log runtime;
+- trend storico;
+- traces HA;
+- audit runtime;
+- KPI degradati;
+- consumo energetico anomalo;
+- comportamento utente ripetitivo;
+- tuning manuale continuo;
+- explainability insufficiente dimostrata.
+
+Se manca runtime evidence:
+
+- classificare `ARCHIVIARE`;
+- non classificare `IMPLEMENTARE`.
+
+Eccezioni:
+
+- bug evidente;
+- entity duplicate;
+- errore architetturale reale;
+- rottura governance;
+- rischio sicurezza;
+- rischio single-writer authority;
+- debito tecnico reale dimostrabile.
+
 ## Criteri
 
 ### ELIMINARE
@@ -54,6 +98,7 @@ Usa `ARCHIVIARE` se la chat:
 - contiene contesto storico utile;
 - documenta una decisione gia presa;
 - chiarisce perche una strada e stata scartata;
+- contiene idee teoricamente corrette ma non validate da runtime evidence;
 - non richiede lavoro tecnico;
 - non contiene un gap da implementare.
 
@@ -61,10 +106,10 @@ Usa `ARCHIVIARE` se la chat:
 
 Usa `IMPLEMENTARE` se la chat:
 
-- contiene una richiesta ancora valida;
-- contiene un requisito AEB non ancora tradotto in task;
-- contiene un bug, gap, rischio o comportamento da verificare;
-- richiede una modifica futura;
+- contiene una richiesta ancora valida supportata da runtime evidence;
+- contiene un requisito AEB non ancora tradotto in task e supportato da runtime evidence;
+- contiene un bug, gap, rischio o comportamento da verificare supportato da runtime evidence o da una delle eccezioni del gate;
+- richiede una modifica futura dimostrata da runtime evidence;
 - contiene una decisione che deve diventare lavoro tecnico separato.
 
 ## Output richiesto
@@ -104,7 +149,7 @@ Breve riassunto della chat in 3-6 righe.
 ## Vincoli di qualita
 
 - Sii conservativo: se non sei sicuro che una chat sia inutile, scegli `ARCHIVIARE`.
-- Scegli `IMPLEMENTARE` solo quando esiste un'azione tecnica concreta.
+- Scegli `IMPLEMENTARE` solo quando esiste un'azione tecnica concreta supportata da runtime evidence o da una delle eccezioni del gate.
 - Non trasformare idee vaghe in task tecnici.
 - Non inventare stato del sistema.
 - Non dare per fatto cio che la chat non dimostra.
