@@ -1,0 +1,20 @@
+---
+# Contratti cross-domain canonici.
+# Espongono segnali semantici stabili per evitare dipendenze laterali
+# dai dettagli interni dei moduli owner.
+
+template:
+  - binary_sensor:
+      - name: "ClimateOps shower proxy active"
+        unique_id: climateops_shower_proxy_active
+        icon: mdi:shower
+        state: >-
+          {{
+            is_state('input_boolean.vmc_boost_bagno', 'on')
+            or is_state('binary_sensor.vmc_bagno_boost_auto', 'on')
+          }}
+
+      - name: "ClimateOps hot season active"
+        unique_id: climateops_hot_season_active
+        device_class: heat
+        state: "{{ is_state('binary_sensor.stagione_calda', 'on') }}"
