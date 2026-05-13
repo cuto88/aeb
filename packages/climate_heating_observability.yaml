@@ -1,0 +1,21 @@
+# Heating observability extracted from legacy heating package.
+# Purpose: keep history/statistics sensors separate from heating control logic.
+---
+sensor:
+  - platform: history_stats
+    name: "Riscaldamento  Ore ON oggi"
+    unique_id: heating_hours_on_today
+    entity_id: switch.4_ch_interruttore_3
+    state: "off"
+    type: time
+    start: "{{ today_at('00:00') }}"
+    end: "{{ now() }}"
+
+  - platform: history_stats
+    name: "Riscaldamento  Ore ON ieri"
+    unique_id: heating_hours_on_yesterday
+    entity_id: switch.4_ch_interruttore_3
+    state: "off"
+    type: time
+    start: "{{ (today_at('00:00') - timedelta(days=1)) }}"
+    end: "{{ today_at('00:00') }}"
