@@ -1,27 +1,69 @@
 $ErrorActionPreference = 'Stop'
 
-$bridgePath = 'packages/cm_naming_bridge.yaml'
-if (-not (Test-Path -Path $bridgePath)) {
-  Write-Error "Naming bridge file not found: $bridgePath"
+function Get-CmNamingFiles {
+  $files = @()
+  if (-not (Test-Path -Path 'packages')) {
+    return $files
+  }
+
+  $files += Get-ChildItem -Path 'packages' -File -Filter 'cm_*.yaml' -ErrorAction SilentlyContinue |
+    ForEach-Object { $_.FullName }
+  $files += Get-ChildItem -Path 'packages' -Directory -Filter 'cm_*' -ErrorAction SilentlyContinue |
+    ForEach-Object {
+      Get-ChildItem -Path $_.FullName -Recurse -File -Include *.yaml, *.yml -ErrorAction SilentlyContinue |
+        ForEach-Object { $_.FullName }
+    }
+
+  return $files | Sort-Object -Unique
+}
+
+$cmFiles = Get-CmNamingFiles
+if ($cmFiles.Count -eq 0) {
+  Write-Error 'No cm_* package files found for naming gate.'
   exit 1
 }
 
-$bridgeContent = Get-Content -Path $bridgePath -Raw -Encoding UTF8
-
-# Gate 1: cm_ prefix required for Step 4 bridge names/unique_id
-$invalidNameMatches = [regex]::Matches($bridgeContent, '(?im)^\s*-\s+name:\s+"?([^"\r\n]+)"?') |
-  ForEach-Object { $_.Groups[1].Value.Trim() } |
-  Where-Object { $_ -notmatch '^CM\s' }
+# Gate 1: canonical cm_* package entity names must keep CM prefix
+$invalidNameMatches = foreach ($file in $cmFiles) {
+  $content = Get-Content -Path $file -Raw -Encoding UTF8
+  [regex]::Matches($content, '(?im)^\s*-\s+name:\s+"?([^"\r\n]+)"?') |
+    ForEach-Object {
+      $name = $_.Groups[1].Value.Trim()
+      if ($name -notmatch '^CM\s') {
+        [PSCustomObject]@{
+          File = $file
+          Name = $name
+        }
+      }
+    }
+}
 if ($invalidNameMatches.Count -gt 0) {
-  Write-Error ('Naming gate failed: bridge names without CM prefix: {0}' -f (($invalidNameMatches | Sort-Object -Unique) -join ', '))
+  Write-Error 'Naming gate failed: cm_* package names without CM prefix.'
+  $invalidNameMatches | Sort-Object File, Name | ForEach-Object {
+    Write-Host ("- {0}: {1}" -f $_.File, $_.Name)
+  }
   exit 2
 }
 
-$invalidUniqueIds = [regex]::Matches($bridgeContent, '(?im)^\s*unique_id:\s*([a-z0-9_]+)') |
-  ForEach-Object { $_.Groups[1].Value.Trim() } |
-  Where-Object { $_ -notmatch '^cm_' }
+# Gate 1b: canonical cm_* package unique_id values must keep cm_ prefix
+$invalidUniqueIds = foreach ($file in $cmFiles) {
+  $content = Get-Content -Path $file -Raw -Encoding UTF8
+  [regex]::Matches($content, '(?im)^\s*unique_id:\s*([a-z0-9_]+)') |
+    ForEach-Object {
+      $uniqueId = $_.Groups[1].Value.Trim()
+      if ($uniqueId -notmatch '^cm_') {
+        [PSCustomObject]@{
+          File = $file
+          UniqueId = $uniqueId
+        }
+      }
+    }
+}
 if ($invalidUniqueIds.Count -gt 0) {
-  Write-Error ('Naming gate failed: Step 4 unique_id without cm_ prefix: {0}' -f (($invalidUniqueIds | Sort-Object -Unique) -join ', '))
+  Write-Error 'Naming gate failed: cm_* package unique_id without cm_ prefix.'
+  $invalidUniqueIds | Sort-Object File, UniqueId | ForEach-Object {
+    Write-Host ("- {0}: {1}" -f $_.File, $_.UniqueId)
+  }
   exit 3
 }
 
