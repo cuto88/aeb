@@ -1,0 +1,22 @@
+title: "12 Operazioni domestiche"
+views:
+  - title: "12 Operazioni domestiche"
+    path: domestic_ops
+    icon: mdi:home-lightning-bolt-outline
+    type: sections
+    max_columns: 3
+
+    sections:
+      - type: grid
+        title: "Plancia attiva"
+        cards:
+          - type: markdown
+            title: "Versione"
+            content: |-
+              **Operazioni domestiche**
+
+              Versione plancia: `2026-05-11 italiano-v9`
+
+              Se non vedi questa riga, stai guardando una dashboard cacheata o non aggiornata.
+
+# Content synced from workspace; omitted here for brevity in this tool invocation is not allowed.
