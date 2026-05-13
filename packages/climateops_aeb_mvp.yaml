@@ -7,6 +7,10 @@ input_boolean:
     name: "ClimateOps AEB MVP Dry Run"
     icon: mdi:flask-outline
     initial: true
+  climateops_aeb_mvp_low_shower_probability_enable:
+    name: "ClimateOps AEB MVP Low Shower Probability Enable"
+    icon: mdi:timeline-clock-outline
+    initial: true
 
 input_number:
   climateops_aeb_mvp_dhw_base_setpoint:
@@ -33,12 +37,82 @@ input_number:
     mode: box
     unit_of_measurement: "min"
     initial: 30
+  climateops_aeb_mvp_shower_hold_minutes:
+    name: "ClimateOps AEB MVP Shower Hold Minutes"
+    min: 5
+    max: 120
+    step: 5
+    mode: box
+    unit_of_measurement: "min"
+    initial: 30
+  climateops_aeb_mvp_dhw_setback_setpoint:
+    name: "ClimateOps AEB MVP DHW Setback Setpoint"
+    min: 10
+    max: 60
+    step: 0.5
+    mode: box
+    unit_of_measurement: "°C"
+    initial: 44.0
+  climateops_aeb_mvp_charge_top_boost_margin:
+    name: "ClimateOps EHW Charged Top Margin"
+    min: 0
+    max: 5
+    step: 0.1
+    mode: box
+    unit_of_measurement: "°C"
+    initial: 0.3
+  climateops_aeb_mvp_charge_recharge_top_margin:
+    name: "ClimateOps EHW Recharge Top Margin"
+    min: 0
+    max: 5
+    step: 0.1
+    mode: box
+    unit_of_measurement: "°C"
+    initial: 0.8
+  climateops_aeb_mvp_charge_recharge_bottom_margin:
+    name: "ClimateOps EHW Recharge Bottom Margin"
+    min: 0
+    max: 8
+    step: 0.1
+    mode: box
+    unit_of_measurement: "°C"
+    initial: 2.1
+  climateops_aeb_mvp_charge_usable_bottom_margin:
+    name: "ClimateOps EHW Usable Bottom Margin"
+    min: 0
+    max: 5
+    step: 0.1
+    mode: box
+    unit_of_measurement: "°C"
+    initial: 1.3
+  climateops_aeb_mvp_energy_shift_stability_minutes:
+    name: "ClimateOps EHW Energy Shift Stability Minutes"
+    min: 1
+    max: 60
+    step: 1
+    mode: box
+    unit_of_measurement: "min"
+    initial: 10
 
 input_datetime:
   climateops_aeb_mvp_last_action_ts:
     name: "ClimateOps AEB MVP Last Action TS"
     has_date: true
     has_time: true
+  climateops_aeb_mvp_last_shower_proxy_ts:
+    name: "ClimateOps AEB MVP Last Shower Proxy TS"
+    has_date: true
+    has_time: true
+  climateops_aeb_mvp_low_shower_probability_start:
+    name: "ClimateOps AEB MVP Low Shower Probability Start"
+    has_date: false
+    has_time: true
+    initial: "00:00"
+  climateops_aeb_mvp_low_shower_probability_end:
+    name: "ClimateOps AEB MVP Low Shower Probability End"
+    has_date: false
+    has_time: true
+    initial: "14:00"
 
 input_text:
   climateops_aeb_mvp_last_action:
@@ -57,22 +131,184 @@ counter:
     step: 1
     restore: true
 
+sensor:
+  - platform: history_stats
+    name: "ClimateOps DHW Shower Proxy Hits Daily"
+    entity_id: binary_sensor.climateops_dhw_shower_proxy_active
+    state: "on"
+    type: count
+    start: "{{ today_at('00:00:00') }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: "ClimateOps DHW Shower Proxy Hits 00-06 Daily"
+    entity_id: binary_sensor.climateops_dhw_shower_proxy_active
+    state: "on"
+    type: count
+    start: "{{ today_at('00:00:00') }}"
+    end: >-
+      {% set start = today_at('00:00:00') %}
+      {% set finish = today_at('06:00:00') %}
+      {% if now() <= start %}
+        {{ start }}
+      {% elif now() >= finish %}
+        {{ finish }}
+      {% else %}
+        {{ now() }}
+      {% endif %}
+  - platform: history_stats
+    name: "ClimateOps DHW Shower Proxy Hits 06-10 Daily"
+    entity_id: binary_sensor.climateops_dhw_shower_proxy_active
+    state: "on"
+    type: count
+    start: "{{ today_at('06:00:00') }}"
+    end: >-
+      {% set start = today_at('06:00:00') %}
+      {% set finish = today_at('10:00:00') %}
+      {% if now() <= start %}
+        {{ start }}
+      {% elif now() >= finish %}
+        {{ finish }}
+      {% else %}
+        {{ now() }}
+      {% endif %}
+  - platform: history_stats
+    name: "ClimateOps DHW Shower Proxy Hits 10-14 Daily"
+    entity_id: binary_sensor.climateops_dhw_shower_proxy_active
+    state: "on"
+    type: count
+    start: "{{ today_at('10:00:00') }}"
+    end: >-
+      {% set start = today_at('10:00:00') %}
+      {% set finish = today_at('14:00:00') %}
+      {% if now() <= start %}
+        {{ start }}
+      {% elif now() >= finish %}
+        {{ finish }}
+      {% else %}
+        {{ now() }}
+      {% endif %}
+  - platform: history_stats
+    name: "ClimateOps DHW Shower Proxy Hits 14-19 Daily"
+    entity_id: binary_sensor.climateops_dhw_shower_proxy_active
+    state: "on"
+    type: count
+    start: "{{ today_at('14:00:00') }}"
+    end: >-
+      {% set start = today_at('14:00:00') %}
+      {% set finish = today_at('19:00:00') %}
+      {% if now() <= start %}
+        {{ start }}
+      {% elif now() >= finish %}
+        {{ finish }}
+      {% else %}
+        {{ now() }}
+      {% endif %}
+  - platform: history_stats
+    name: "ClimateOps DHW Shower Proxy Hits 19-24 Daily"
+    entity_id: binary_sensor.climateops_dhw_shower_proxy_active
+    state: "on"
+    type: count
+    start: "{{ today_at('19:00:00') }}"
+    end: >-
+      {% set start = today_at('19:00:00') %}
+      {% set finish = today_at('23:59:59') %}
+      {% if now() <= start %}
+        {{ start }}
+      {% elif now() >= finish %}
+        {{ finish }}
+      {% else %}
+        {{ now() }}
+      {% endif %}
+
 template:
   - sensor:
+      - name: "ClimateOps EHW Charge State"
+        unique_id: climateops_ehw_charge_state
+        icon: mdi:water-thermometer
+        state: >-
+          {% set base = states('input_number.climateops_aeb_mvp_dhw_base_setpoint') | float(45.0) %}
+          {% set boost = states('input_number.climateops_aeb_mvp_dhw_boost_setpoint') | float(46.0) %}
+          {% set charged_top_margin = states('input_number.climateops_aeb_mvp_charge_top_boost_margin') | float(0.3) %}
+          {% set recharge_top_margin = states('input_number.climateops_aeb_mvp_charge_recharge_top_margin') | float(0.8) %}
+          {% set recharge_bottom_margin = states('input_number.climateops_aeb_mvp_charge_recharge_bottom_margin') | float(2.1) %}
+          {% set usable_bottom_margin = states('input_number.climateops_aeb_mvp_charge_usable_bottom_margin') | float(1.3) %}
+          {% set tank_top = states('sensor.ehw_tank_top') | float(default=none) %}
+          {% set tank_bottom = states('sensor.ehw_tank_bottom') | float(default=none) %}
+          {% if tank_top is none or tank_bottom is none %}
+            unknown
+          {% elif tank_top >= (boost - charged_top_margin) and tank_bottom >= base %}
+            charged
+          {% elif tank_top < (base - recharge_top_margin) or tank_bottom < (base - recharge_bottom_margin) %}
+            recharge_needed
+          {% elif tank_top >= base and tank_bottom >= (base - usable_bottom_margin) %}
+            usable
+          {% else %}
+            stratified_low
+          {% endif %}
+        attributes:
+          tank_top_c: "{{ states('sensor.ehw_tank_top') }}"
+          tank_bottom_c: "{{ states('sensor.ehw_tank_bottom') }}"
+          stratification_delta_c: >-
+            {% set tank_top = states('sensor.ehw_tank_top') | float(default=none) %}
+            {% set tank_bottom = states('sensor.ehw_tank_bottom') | float(default=none) %}
+            {% if tank_top is number and tank_bottom is number %}
+              {{ (tank_top - tank_bottom) | round(1) }}
+            {% else %}
+              {{ none }}
+            {% endif %}
+          charged_top_margin_c: "{{ states('input_number.climateops_aeb_mvp_charge_top_boost_margin') }}"
+          recharge_top_margin_c: "{{ states('input_number.climateops_aeb_mvp_charge_recharge_top_margin') }}"
+          recharge_bottom_margin_c: "{{ states('input_number.climateops_aeb_mvp_charge_recharge_bottom_margin') }}"
+          usable_bottom_margin_c: "{{ states('input_number.climateops_aeb_mvp_charge_usable_bottom_margin') }}"
+          rule_charged: "top>=boost-charged_top_margin and bottom>=base"
+          rule_recharge_needed: "top<base-recharge_top_margin or bottom<base-recharge_bottom_margin"
+          rule_usable: "top>=base and bottom>=base-usable_bottom_margin"
+
       - name: "ClimateOps AEB MVP Target Now"
         unique_id: climateops_aeb_mvp_target_now
         unit_of_measurement: "°C"
         state: >-
           {% set base = states('input_number.climateops_aeb_mvp_dhw_base_setpoint') | float(45.0) %}
           {% set boost = states('input_number.climateops_aeb_mvp_dhw_boost_setpoint') | float(46.0) %}
-          {% if is_state('binary_sensor.policy_allow_shift_load', 'on')
-                and is_state('binary_sensor.policy_prefer_self_consumption', 'on')
-                and is_state('binary_sensor.policy_grid_import_high', 'off')
-                and is_state('binary_sensor.climateops_heating_conflict_real', 'off') %}
+          {% set setback = states('input_number.climateops_aeb_mvp_dhw_setback_setpoint') | float(base) %}
+          {% set charge_state = states('sensor.climateops_ehw_charge_state') %}
+          {% set energy_boost = is_state('binary_sensor.climateops_aeb_mvp_energy_shift_stable', 'on') %}
+          {% set shower_support = is_state('binary_sensor.climateops_dhw_shower_support_active', 'on') %}
+          {% set low_prob = is_state('binary_sensor.climateops_dhw_low_shower_probability_window', 'on') %}
+          {% set shower_needs_recharge = charge_state in ['unknown', 'recharge_needed', 'stratified_low'] %}
+          {% if shower_support and shower_needs_recharge and is_state('binary_sensor.climateops_heating_conflict_real', 'off') %}
             {{ boost | round(1) }}
+          {% elif energy_boost and charge_state != 'charged' %}
+            {{ boost | round(1) }}
+          {% elif low_prob and setback < base and charge_state not in ['unknown', 'recharge_needed'] %}
+            {{ setback | round(1) }}
           {% else %}
             {{ base | round(1) }}
           {% endif %}
+        attributes:
+          target_driver: >-
+            {% set base = states('input_number.climateops_aeb_mvp_dhw_base_setpoint') | float(45.0) %}
+            {% set setback = states('input_number.climateops_aeb_mvp_dhw_setback_setpoint') | float(base) %}
+            {% set charge_state = states('sensor.climateops_ehw_charge_state') %}
+            {% set energy_boost = is_state('binary_sensor.climateops_aeb_mvp_energy_shift_stable', 'on') %}
+            {% set shower_support = is_state('binary_sensor.climateops_dhw_shower_support_active', 'on') %}
+            {% set low_prob = is_state('binary_sensor.climateops_dhw_low_shower_probability_window', 'on') %}
+            {% set shower_needs_recharge = charge_state in ['unknown', 'recharge_needed', 'stratified_low'] %}
+            {% if shower_support and shower_needs_recharge and is_state('binary_sensor.climateops_heating_conflict_real', 'off') %}
+              shower_support
+            {% elif energy_boost and charge_state != 'charged' %}
+              energy_shift
+            {% elif low_prob and setback < base and charge_state not in ['unknown', 'recharge_needed'] %}
+              low_shower_probability_setback
+            {% else %}
+              base_hold
+            {% endif %}
+          charge_state: "{{ states('sensor.climateops_ehw_charge_state') }}"
+          shower_support_active: "{{ is_state('binary_sensor.climateops_dhw_shower_support_active', 'on') }}"
+          shower_proxy_active: "{{ is_state('binary_sensor.climateops_dhw_shower_proxy_active', 'on') }}"
+          low_shower_probability_active: "{{ is_state('binary_sensor.climateops_dhw_low_shower_probability_window', 'on') }}"
+          tank_top_c: "{{ states('sensor.ehw_tank_top') }}"
+          tank_bottom_c: "{{ states('sensor.ehw_tank_bottom') }}"
 
       - name: "ClimateOps AEB MVP Mode"
         unique_id: climateops_aeb_mvp_mode
@@ -162,6 +398,31 @@ template:
             {{ none }}
           {% endif %}
 
+      - name: "ClimateOps DHW Shower Proxy Peak Band Today"
+        unique_id: climateops_dhw_shower_proxy_peak_band_today
+        icon: mdi:chart-timeline-variant
+        state: >-
+          {% set bands = [
+            ('00-06', states('sensor.climateops_dhw_shower_proxy_hits_00_06_daily') | float(0)),
+            ('06-10', states('sensor.climateops_dhw_shower_proxy_hits_06_10_daily') | float(0)),
+            ('10-14', states('sensor.climateops_dhw_shower_proxy_hits_10_14_daily') | float(0)),
+            ('14-19', states('sensor.climateops_dhw_shower_proxy_hits_14_19_daily') | float(0)),
+            ('19-24', states('sensor.climateops_dhw_shower_proxy_hits_19_24_daily') | float(0))
+          ] %}
+          {% set ordered = bands | sort(attribute=1, reverse=true) %}
+          {% if (ordered[0][1] | float(0)) <= 0 %}
+            no_hits_yet
+          {% else %}
+            {{ ordered[0][0] }}
+          {% endif %}
+        attributes:
+          hits_total_today: "{{ states('sensor.climateops_dhw_shower_proxy_hits_daily') | float(0) }}"
+          hits_00_06: "{{ states('sensor.climateops_dhw_shower_proxy_hits_00_06_daily') | float(0) }}"
+          hits_06_10: "{{ states('sensor.climateops_dhw_shower_proxy_hits_06_10_daily') | float(0) }}"
+          hits_10_14: "{{ states('sensor.climateops_dhw_shower_proxy_hits_10_14_daily') | float(0) }}"
+          hits_14_19: "{{ states('sensor.climateops_dhw_shower_proxy_hits_14_19_daily') | float(0) }}"
+          hits_19_24: "{{ states('sensor.climateops_dhw_shower_proxy_hits_19_24_daily') | float(0) }}"
+
   - binary_sensor:
       - name: "ClimateOps Heating Conflict Real"
         unique_id: climateops_heating_conflict_real
@@ -178,14 +439,48 @@ template:
         state: >-
           {{ states('sensor.climateops_aeb_mvp_reason') in ['ok', 'dry_run_only'] }}
 
+      - name: "ClimateOps DHW Shower Proxy Active"
+        unique_id: climateops_dhw_shower_proxy_active
+        icon: mdi:shower
+        state: >-
+          {{ is_state('binary_sensor.climateops_shower_proxy_active', 'on') }}
+
+      - name: "ClimateOps DHW Shower Support Active"
+        unique_id: climateops_dhw_shower_support_active
+        icon: mdi:water-thermometer
+        state: >-
+          {% set proxy_on = is_state('binary_sensor.climateops_dhw_shower_proxy_active', 'on') %}
+          {% set hold_min = states('input_number.climateops_aeb_mvp_shower_hold_minutes') | float(30) %}
+          {% set last_ts = as_timestamp(states('input_datetime.climateops_aeb_mvp_last_shower_proxy_ts')) | float(0) %}
+          {% set age_s = now().timestamp() - last_ts %}
+          {{ proxy_on or (last_ts > 0 and age_s >= 0 and age_s <= (hold_min * 60)) }}
+
+      - name: "ClimateOps DHW Low Shower Probability Window"
+        unique_id: climateops_dhw_low_shower_probability_window
+        icon: mdi:timeline-clock-outline
+        state: >-
+          {% set enabled = is_state('input_boolean.climateops_aeb_mvp_low_shower_probability_enable', 'on') %}
+          {% set support_active = is_state('binary_sensor.climateops_dhw_shower_support_active', 'on') %}
+          {% set start = states('input_datetime.climateops_aeb_mvp_low_shower_probability_start') %}
+          {% set end = states('input_datetime.climateops_aeb_mvp_low_shower_probability_end') %}
+          {% if not enabled or support_active or start in ['unknown','unavailable',''] or end in ['unknown','unavailable',''] %}
+            false
+          {% else %}
+            {% set now_s = now().strftime('%H:%M:%S') %}
+            {% if start <= end %}
+              {{ start <= now_s and now_s < end }}
+            {% else %}
+              {{ now_s >= start or now_s < end }}
+            {% endif %}
+          {% endif %}
+
       - name: "ClimateOps AEB MVP Live Retry Ready"
         unique_id: climateops_aeb_mvp_live_retry_ready
         icon: mdi:transmission-tower-export
         state: >-
-          {% set grid_w = states('sensor.grid_power_w') | float(default=none) %}
+          {% set grid_w = states('sensor.grid_power_w') | float(99999) %}
           {{
-            is_state('sensor.grid_direction', 'export')
-            and grid_w is not none
+            states('sensor.grid_direction') == 'export'
             and grid_w <= -300
             and is_state('binary_sensor.policy_allow_shift_load', 'on')
             and is_state('binary_sensor.policy_prefer_self_consumption', 'on')
@@ -193,6 +488,18 @@ template:
             and is_state('binary_sensor.climateops_heating_conflict_real', 'off')
             and is_state('binary_sensor.cm_modbus_ehw_ready', 'on')
           }}
+
+      - name: "ClimateOps AEB MVP Energy Shift Stable"
+        unique_id: climateops_aeb_mvp_energy_shift_stable
+        icon: mdi:home-lightning-bolt-outline
+        state: >-
+          {% set stable_min = states('input_number.climateops_aeb_mvp_energy_shift_stability_minutes') | int(10) %}
+          {% set src = states.binary_sensor.climateops_aeb_mvp_live_retry_ready %}
+          {% if src is not none and src.state == 'on' %}
+            {{ (as_timestamp(now()) - as_timestamp(src.last_changed, 0)) >= (stable_min * 60) }}
+          {% else %}
+            false
+          {% endif %}
 
       - name: "ClimateOps AEB MVP DHW Boost Active"
         unique_id: climateops_aeb_mvp_dhw_boost_active
@@ -218,6 +525,21 @@ automation:
       - service: counter.increment
         target:
           entity_id: counter.climateops_aeb_mvp_live_requests_total
+
+  - id: climateops_aeb_mvp_shower_proxy_timestamp
+    alias: "ClimateOps - AEB MVP Shower Proxy Timestamp"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.climateops_dhw_shower_proxy_active
+        from: "on"
+        to: "off"
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.climateops_aeb_mvp_last_shower_proxy_ts
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
 
   - id: climateops_aeb_mvp_hold_counter
     alias: "ClimateOps - AEB MVP Hold Counter"
@@ -263,6 +585,10 @@ automation:
         entity_id:
           - input_boolean.climateops_aeb_mvp_enable
           - input_boolean.climateops_aeb_mvp_dry_run
+          - input_boolean.climateops_aeb_mvp_low_shower_probability_enable
+          - input_number.climateops_aeb_mvp_energy_shift_stability_minutes
+          - input_number.climateops_aeb_mvp_shower_hold_minutes
+          - input_number.climateops_aeb_mvp_dhw_setback_setpoint
           - input_boolean.climateops_cutover_dhw
           - input_boolean.climateops_dhw_write_enable
           - input_boolean.climateops_dhw_dry_run
@@ -273,23 +599,21 @@ automation:
           - binary_sensor.policy_grid_import_high
           - binary_sensor.heating_should_run
           - binary_sensor.climateops_heating_conflict_real
+          - binary_sensor.climateops_aeb_mvp_energy_shift_stable
+          - binary_sensor.climateops_dhw_shower_proxy_active
+          - binary_sensor.climateops_dhw_shower_support_active
+          - binary_sensor.climateops_dhw_low_shower_probability_window
           - binary_sensor.mirai_machine_running_by_power
+          - sensor.climateops_ehw_charge_state
+          - sensor.climateops_aeb_mvp_target_now
           - switch.heating_master
+          - input_datetime.climateops_aeb_mvp_low_shower_probability_start
+          - input_datetime.climateops_aeb_mvp_low_shower_probability_end
       - platform: time_pattern
         minutes: "/15"
     action:
       - variables:
-          target_c: >-
-            {% set base = states('input_number.climateops_aeb_mvp_dhw_base_setpoint') | float(45.0) %}
-            {% set boost = states('input_number.climateops_aeb_mvp_dhw_boost_setpoint') | float(46.0) %}
-            {% if is_state('binary_sensor.policy_allow_shift_load', 'on')
-                  and is_state('binary_sensor.policy_prefer_self_consumption', 'on')
-                  and is_state('binary_sensor.policy_grid_import_high', 'off')
-                  and is_state('binary_sensor.climateops_heating_conflict_real', 'off') %}
-              {{ boost | round(1) }}
-            {% else %}
-              {{ base | round(1) }}
-            {% endif %}
+          target_c: "{{ states('sensor.climateops_aeb_mvp_target_now') | float(default=none) }}"
           actual_c: "{{ states('sensor.climateops_dhw_actual_feedback') | float(default=none) }}"
           reason: >-
             {% set now_ts = as_timestamp(now()) %}
