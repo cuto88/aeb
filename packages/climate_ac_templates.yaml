@@ -1,0 +1,221 @@
+# AC templates extracted from legacy AC logic package.
+# Purpose: keep AC template sensors/flags separate from automations and scripts.
+---
+template:
+  - binary_sensor:
+      - name: "AC – Failsafe sensori"
+        unique_id: ac_failsafe_sensors_bad
+        device_class: problem
+        state: >
+          {% set sensors = {
+            'sensor.t_in_med': (-20, 50),
+            'sensor.t_out_effective': (-30, 60),
+            'sensor.ur_in_media': (0, 100),
+            'sensor.ur_out': (0, 100)
+          } %}
+          {% set bad = false %}
+          {% for sid, limits in sensors.items() %}
+            {% if bad %}{% break %}{% endif %}
+            {% if sid in states %}
+              {% set ent = states[sid] %}
+              {% if ent.state in ['unknown','unavailable',''] %}
+                {% set bad = true %}
+              {% else %}
+                {% set lo = limits[0] %}
+                {% set hi = limits[1] %}
+                {% set val = ent.state | float(0) %}
+                {% if val < lo or val > hi %}
+                  {% set bad = true %}
+                {% endif %}
+              {% endif %}
+            {% else %}
+              {% set bad = true %}
+            {% endif %}
+          {% endfor %}
+          {{ bad }}
+
+  - trigger:
+      - platform: homeassistant
+        event: start
+      - platform: time_pattern
+        minutes: "/10"
+      - platform: state
+        entity_id:
+          - input_boolean.vent_override_estate
+          - sensor.t_out_effective
+          - sensor.t_out_effective_mean_24h
+          - sensor.t_out_effective_mean_96h
+          - sensor.t_in_med
+          - binary_sensor.climateops_request_cool
+    binary_sensor:
+      - name: "Stagione calda attiva"
+        unique_id: stagione_calda
+        device_class: heat
+        state: >-
+          {% if is_state('input_boolean.vent_override_estate', 'on') %}
+            true
+          {% else %}
+            {% set was_on = this.state == 'on' %}
+            {% set mean24 = states('sensor.t_out_effective_mean_24h') | float(default=none) %}
+            {% set mean96 = states('sensor.t_out_effective_mean_96h') | float(default=none) %}
+            {% set t_in = states('sensor.t_in_med') | float(default=none) %}
+            {% set cool_req = is_state('binary_sensor.climateops_request_cool', 'on') %}
+            {% if mean24 is none or mean96 is none or t_in is none %}
+              {% set m = now().month %}
+              {{ m in [5,6,7,8,9] }}
+            {% elif was_on %}
+              {{
+                cool_req
+                or mean96 >= 17.5
+                or mean24 >= 19
+                or t_in >= 24.5
+              }}
+            {% else %}
+              {{
+                cool_req
+                or mean96 >= 19.5
+                or (mean24 >= 22 and t_in >= 25)
+                or t_in >= 25.5
+              }}
+            {% endif %}
+          {% endif %}
+        attributes:
+          source_mode: >-
+            {% if is_state('input_boolean.vent_override_estate', 'on') %}
+              manual_override_estate
+            {% elif states('sensor.t_out_effective_mean_24h') in ['unknown','unavailable','']
+                  or states('sensor.t_out_effective_mean_96h') in ['unknown','unavailable','']
+                  or states('sensor.t_in_med') in ['unknown','unavailable',''] %}
+              fallback_month
+            {% else %}
+              thermal_hysteresis
+            {% endif %}
+          t_out_effective_mean_24h: "{{ states('sensor.t_out_effective_mean_24h') }}"
+          t_out_effective_mean_96h: "{{ states('sensor.t_out_effective_mean_96h') }}"
+          t_in_med: "{{ states('sensor.t_in_med') }}"
+          climateops_request_cool: "{{ states('binary_sensor.climateops_request_cool') }}"
+          enter_rule: "mean96>=19.5 or (mean24>=22 and t_in>=25) or t_in>=25.5 or cool_request"
+          exit_rule: "keep_on while mean96>=17.5 or mean24>=19 or t_in>=24.5 or cool_request"
+
+      - name: "AC – Block by VMC"
+        unique_id: ac_block_by_vmc
+        state: "{{ is_state('input_boolean.ac_block_vmc','on') }}"
+
+      - name: "AC – Lock min ON OK"
+        unique_id: ac_lock_min_on_ok
+        state: >
+          {% set mins = states('input_number.ac_min_on_minutes') | float(15) %}
+          {% set entities = ['binary_sensor.cm_driver_ac_giorno_is_on', 'binary_sensor.cm_driver_ac_notte_is_on'] %}
+          {% for ent_id in entities %}
+            {% if ent_id in states %}
+              {% set s = states[ent_id] %}
+              {% if s.state == 'on' and (now() - s.last_changed).total_seconds() / 60 < mins %}
+                {{ false }}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          true
+
+      - name: "AC – Lock min OFF OK"
+        unique_id: ac_lock_min_off_ok
+        state: >
+          {% set mins = states('input_number.ac_min_off_minutes') | float(15) %}
+          {% set entities = ['binary_sensor.cm_driver_ac_giorno_is_on', 'binary_sensor.cm_driver_ac_notte_is_on'] %}
+          {% for ent_id in entities %}
+            {% if ent_id in states %}
+              {% set s = states[ent_id] %}
+              {% if s.state == 'off' and (now() - s.last_changed).total_seconds() / 60 < mins %}
+                {{ false }}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          true
+
+  - sensor:
+      - name: "AC Priority"
+        unique_id: ac_priority
+        icon: mdi:arrow-top-right-bold-outline
+        state: "{{ (state_attr('sensor.ac_reason','priority')) if state_attr('sensor.ac_reason','priority') not in [none, ''] else 'idle' }}"
+        attributes:
+          reason: "{{ state_attr('sensor.ac_reason','reason') }}"
+          mode: "{{ state_attr('sensor.ac_reason','mode') }}"
+          target: "{{ state_attr('sensor.ac_reason','target') }}"
+
+  - trigger:
+      - platform: event
+        event_type: template_event
+    sensor:
+      - name: "AC Reason"
+        unique_id: ac_reason
+        icon: mdi:text
+        state: >-
+          {% if trigger.event.data.entity_id == 'sensor.ac_reason' %}
+            {{ trigger.event.data.attributes.priority | default('idle') }}
+          {% else %}
+            {{ this.state if this.state is not none else 'idle' }}
+          {% endif %}
+        attributes:
+          priority: >-
+            {% if trigger.event.data.entity_id == 'sensor.ac_reason' %}
+              {{ trigger.event.data.attributes.priority | default('idle') }}
+            {% else %}
+              {{ this.attributes.priority if this.attributes.priority is not none else 'idle' }}
+            {% endif %}
+          reason: >-
+            {% if trigger.event.data.entity_id == 'sensor.ac_reason' %}
+              {{ trigger.event.data.attributes.reason | default('–') }}
+            {% else %}
+              {{ this.attributes.reason if this.attributes.reason is not none else '–' }}
+            {% endif %}
+          mode: >-
+            {% if trigger.event.data.entity_id == 'sensor.ac_reason' %}
+              {{ trigger.event.data.attributes.mode | default('off') }}
+            {% else %}
+              {{ this.attributes.mode if this.attributes.mode is not none else 'off' }}
+            {% endif %}
+          target: >-
+            {% if trigger.event.data.entity_id == 'sensor.ac_reason' %}
+              {{ trigger.event.data.attributes.target | default('none') }}
+            {% else %}
+              {{ this.attributes.target if this.attributes.target is not none else 'none' }}
+            {% endif %}
+
+  - trigger:
+      - platform: state
+        entity_id: binary_sensor.cm_driver_ac_giorno_is_on
+        to: "on"
+    sensor:
+      - name: "AC Giorno – Ultimo ON"
+        unique_id: ac_giorno_ultimo_on
+        device_class: timestamp
+        state: "{{ now().isoformat() }}"
+
+  - trigger:
+      - platform: state
+        entity_id: binary_sensor.cm_driver_ac_giorno_is_on
+        to: "off"
+    sensor:
+      - name: "AC Giorno – Ultimo OFF"
+        unique_id: ac_giorno_ultimo_off
+        device_class: timestamp
+        state: "{{ now().isoformat() }}"
+
+  - trigger:
+      - platform: state
+        entity_id: binary_sensor.cm_driver_ac_notte_is_on
+        to: "on"
+    sensor:
+      - name: "AC Notte – Ultimo ON"
+        unique_id: ac_notte_ultimo_on
+        device_class: timestamp
+        state: "{{ now().isoformat() }}"
+
+  - trigger:
+      - platform: state
+        entity_id: binary_sensor.cm_driver_ac_notte_is_on
+        to: "off"
+    sensor:
+      - name: "AC Notte – Ultimo OFF"
+        unique_id: ac_notte_ultimo_off
+        device_class: timestamp
+        state: "{{ now().isoformat() }}"
