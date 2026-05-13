@@ -1,0 +1,548 @@
+# Heating templates extracted from legacy heating package.
+# Purpose: keep floor-heating logical KPIs separate from helpers, observability, and automations.
+---
+template:
+  - sensor:
+      - name: "Heating  stanze attive"
+        unique_id: heating_rooms_active
+        state: >-
+          {% set rooms = [
+            ('Zona Giorno', 'sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+            ('Notte1', 'sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+            ('Notte2', 'sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+            ('Bagno', 'sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+          ] %}
+          {% set labels = [] %}
+          {% for label, sid, flag in rooms %}
+            {% if is_state(flag, 'on') %}
+              {% set labels = labels + [label] %}
+            {% endif %}
+          {% endfor %}
+          {{ labels | length }}
+        attributes:
+          rooms: >-
+            {% set rooms = [
+              ('Zona Giorno', 'sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+              ('Notte1', 'sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+              ('Notte2', 'sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+              ('Bagno', 'sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+            ] %}
+            {% set labels = [] %}
+            {% for label, sid, flag in rooms %}
+              {% if is_state(flag, 'on') %}
+                {% set labels = labels + [label] %}
+              {% endif %}
+            {% endfor %}
+            {{ labels | join(', ') if labels | length > 0 else 'Nessuna' }}
+
+      - name: "Heating  T interna minima"
+        unique_id: heating_t_in_min
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        icon: mdi:thermometer-low
+        state: >-
+          {% set invalid = ['unknown', 'unavailable', '', 'none', 'None'] %}
+          {% set zones = [
+              ('sensor.t_in_giorno',  'input_boolean.heating_use_giorno'),
+              ('sensor.t_in_notte1',  'input_boolean.heating_use_notte1'),
+              ('sensor.t_in_notte2',  'input_boolean.heating_use_notte2'),
+              ('sensor.t_in_bagno',   'input_boolean.heating_use_bagno')
+          ] %}
+          {% set temps = [] %}
+          {% for s, flag in zones %}
+            {% if is_state(flag, 'on') and states(s) not in invalid %}
+              {% set v = states(s)|float(default=none) %}
+              {% if v is not none %}
+                {% set temps = temps + [v] %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% if temps | length > 0 %}
+            {{ (temps|min) | round(1) }}
+          {% else %}
+            {% set t_med = states('sensor.t_in_med') %}
+            {% if t_med not in invalid %}
+              {{ t_med|float | round(1) }}
+            {% else %}
+              {{ none }}
+            {% endif %}
+          {% endif %}
+
+      - name: "Heating  stanze sotto target"
+        unique_id: heating_rooms_below_target
+        state: >-
+          {% set comfort = states('input_number.temp_target_risc') | float(21) %}
+          {% set hyst = states('input_number.heating_hysteresis') | float(0.3) %}
+          {% set rooms = [
+            ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+            ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+            ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+            ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+          ] %}
+          {% set count = 0 %}
+          {% for sid, flag in rooms %}
+            {% if is_state(flag, 'on') and states(sid) not in ['unknown','unavailable',''] %}
+              {% if states(sid) | float < comfort - hyst %}
+                {% set count = count + 1 %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ count }}
+
+      - name: "Heating  errore zona giorno"
+        unique_id: heating_error_zona_giorno
+        state: >-
+          {% set v = states('sensor.t_in_giorno') %}
+          {% if v in ['unknown','unavailable',''] %}
+            sensor_missing
+          {% elif (v | float) < 5 or (v | float) > 35 %}
+            out_of_range
+          {% else %}
+            ok
+          {% endif %}
+
+      - name: "Heating  errore zona notte"
+        unique_id: heating_error_zona_notte
+        state: >-
+          {% set vals = [states('sensor.t_in_notte1'), states('sensor.t_in_notte2')] %}
+          {% set valid = vals | reject('in', ['unknown','unavailable','']) | map('float') | list %}
+          {% if valid | length == 0 %}
+            sensor_missing
+          {% elif (valid | min) < 5 or (valid | max) > 35 %}
+            out_of_range
+          {% else %}
+            ok
+          {% endif %}
+
+      - name: "Heating  minuti da ultimo cambio"
+        unique_id: heating_minutes_since_change
+        unit_of_measurement: "min"
+        state: >-
+          {% set relay_state = states('switch.4_ch_interruttore_3') %}
+          {% set relay_obj = states.switch | selectattr('entity_id', 'eq', 'switch.4_ch_interruttore_3') | list | first %}
+          {% if relay_state in ['unknown', 'unavailable', 'none', 'None', ''] or relay_obj is none %}
+            {{ none }}
+          {% else %}
+            {{ ((as_timestamp(now()) - as_timestamp(relay_obj.last_changed)) / 60) | round(1) }}
+          {% endif %}
+
+      - name: "Heating  reason"
+        unique_id: heating_reason
+        state: >-
+          {% if is_state('binary_sensor.heating_failsafe_sensors_bad','on') %}
+            P0_hard_failsafe
+          {% elif is_state('input_boolean.heating_manual_active','on') %}
+            manual_{{ states('input_select.heating_manual_mode') }}
+          {% else %}
+            {% set comfort = states('input_number.temp_target_risc') | float(21) %}
+            {% set hyst = states('input_number.heating_hysteresis') | float(0.3) %}
+            {% set night_sp = states('input_number.heating_setpoint_night') | float(18.5) %}
+            {% set anti = states('input_number.heating_antifreeze_threshold') | float(8) %}
+            {% set boost = states('input_number.heating_boost_delta') | float(0.3) %}
+            {% set tmin = states('sensor.t_in_min') | float(default=none) %}
+            {% set tout = states('sensor.t_out_effective') | float(default=none) %}
+            {% set window_comfort = is_state('binary_sensor.heating_finestra_oraria','on') %}
+            {% set pv_hook = is_state('binary_sensor.policy_surplus_ok','on') %}
+            {% set enable = is_state('input_boolean.heating_enable','on') %}
+
+            {% if tmin is none %}
+              sensors_unavailable
+            {% elif tmin < anti or (tout is number and tout < states('input_number.heating_ext_cold_threshold')|float(2)) %}
+              P1_anti_frost
+            {% elif enable and tmin < comfort - hyst and (window_comfort or (comfort - tmin) >= 1.0) %}
+              P2_comfort
+            {% elif enable and window_comfort and pv_hook and tmin <= comfort - boost %}
+              P3_pv_boost
+            {% elif enable and not window_comfort and tmin < night_sp - hyst %}
+              P4_night_setback
+            {% else %}
+              idle
+            {% endif %}
+          {% endif %}
+        attributes:
+          priority: >-
+            {% set r = this.state %}
+            {% if r.startswith('P0') or r == 'sensors_unavailable' %}
+              P0_failsafe
+            {% elif r.startswith('P1') %}
+              P1_anti_frost
+            {% elif r.startswith('P2') %}
+              P2_comfort
+            {% elif r.startswith('P3') %}
+              P3_pv_boost
+            {% elif r.startswith('P4') %}
+              P4_night_setback
+            {% elif r.startswith('manual') %}
+              manual
+            {% elif r == 'idle' %}
+              idle
+            {% else %}
+              idle
+            {% endif %}
+          action: >-
+            {% set r = this.state %}
+            {% if r.startswith('P0') or r == 'sensors_unavailable' %}
+              off
+            {% elif r.startswith('manual_off') %}
+              off
+            {% elif r == 'idle' %}
+              off
+            {% else %}
+              on
+            {% endif %}
+          reason: >-
+            {% set base = this.state %}
+            {% set comfort = states('input_number.temp_target_risc') | float(21) %}
+            {% set boost = states('input_number.heating_boost_delta') | float(0.3) %}
+            {% set tmin = states('sensor.t_in_min') | float(default=none) %}
+            {% set failsafe_reason = state_attr('binary_sensor.heating_failsafe_sensors_bad', 'reason') %}
+            {% set pv_candidate = is_state('input_boolean.heating_enable','on')
+              and is_state('binary_sensor.heating_finestra_oraria','on')
+              and (tmin is number)
+              and tmin <= comfort - boost %}
+            {% if base.startswith('P0') and failsafe_reason not in [none, '', 'OK'] %}
+              {{ base }}__{{ failsafe_reason }}
+            {% elif pv_candidate and is_state('binary_sensor.policy_surplus_ok','off') %}
+              {{ base }}__PV_POLICY_BLOCKED
+            {% else %}
+              {{ base }}
+            {% endif %}
+
+      - name: "Heating  priority"
+        unique_id: heating_priority
+        state: >-
+          {% set pr = state_attr('sensor.heating_reason','priority') %}
+          {{ pr if pr is not none else 'idle' }}
+
+  - binary_sensor:
+      - name: "Heating  failsafe sensori"
+        unique_id: heating_failsafe_sensors_bad
+        device_class: problem
+        state: >-
+          {% set invalid = ['unknown', 'unavailable', '', 'none', 'None'] %}
+          {% set indoor_zones = [
+            ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+            ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+            ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+            ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+          ] %}
+          {% set ns = namespace(enabled=0, valid=0, indoor_bad_range=false) %}
+          {% for sid, flag in indoor_zones %}
+            {% if is_state(flag, 'on') %}
+              {% set ns.enabled = ns.enabled + 1 %}
+              {% set raw = states(sid) %}
+              {% if raw not in invalid %}
+                {% set val = raw | float(default=none) %}
+                {% if val is not none %}
+                  {% if val < -20 or val > 45 %}
+                    {% set ns.indoor_bad_range = true %}
+                  {% else %}
+                    {% set ns.valid = ns.valid + 1 %}
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% set tout_raw = states('sensor.t_out_effective') %}
+          {% set tout = tout_raw | float(default=none) %}
+          {% set outdoor_missing = tout_raw in invalid or tout is none %}
+          {% set outdoor_bad_range = (tout is number) and (tout < -30 or tout > 60) %}
+          {% set required_indoor = 1 if ns.enabled <= 1 else 2 %}
+          {{
+            ns.enabled == 0
+            or outdoor_missing
+            or outdoor_bad_range
+            or ns.indoor_bad_range
+            or ns.valid < required_indoor
+          }}
+        attributes:
+          enabled_indoor_sensors: >-
+            {% set indoor_zones = [
+              ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+              ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+              ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+              ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+            ] %}
+            {% set ns = namespace(enabled=0) %}
+            {% for _, flag in indoor_zones %}
+              {% if is_state(flag, 'on') %}
+                {% set ns.enabled = ns.enabled + 1 %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.enabled }}
+          valid_indoor_sensors: >-
+            {% set invalid = ['unknown', 'unavailable', '', 'none', 'None'] %}
+            {% set indoor_zones = [
+              ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+              ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+              ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+              ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+            ] %}
+            {% set ns = namespace(valid=0) %}
+            {% for sid, flag in indoor_zones %}
+              {% if is_state(flag, 'on') %}
+                {% set raw = states(sid) %}
+                {% if raw not in invalid %}
+                  {% set val = raw | float(default=none) %}
+                  {% if val is not none and val >= -20 and val <= 45 %}
+                    {% set ns.valid = ns.valid + 1 %}
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.valid }}
+          required_indoor_sensors: >-
+            {% set indoor_zones = [
+              ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+              ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+              ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+              ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+            ] %}
+            {% set ns = namespace(enabled=0) %}
+            {% for _, flag in indoor_zones %}
+              {% if is_state(flag, 'on') %}
+                {% set ns.enabled = ns.enabled + 1 %}
+              {% endif %}
+            {% endfor %}
+            {{ 1 if ns.enabled <= 1 else 2 }}
+          degraded_mode: >-
+            {% set invalid = ['unknown', 'unavailable', '', 'none', 'None'] %}
+            {% set indoor_zones = [
+              ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+              ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+              ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+              ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+            ] %}
+            {% set ns = namespace(enabled=0, valid=0) %}
+            {% for sid, flag in indoor_zones %}
+              {% if is_state(flag, 'on') %}
+                {% set ns.enabled = ns.enabled + 1 %}
+                {% set raw = states(sid) %}
+                {% if raw not in invalid %}
+                  {% set val = raw | float(default=none) %}
+                  {% if val is not none and val >= -20 and val <= 45 %}
+                    {% set ns.valid = ns.valid + 1 %}
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.valid >= 1 and ns.valid < ns.enabled }}
+          reason: >-
+            {% set invalid = ['unknown', 'unavailable', '', 'none', 'None'] %}
+            {% set indoor_zones = [
+              ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+              ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+              ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+              ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+            ] %}
+            {% set ns = namespace(enabled=0, valid=0, indoor_bad_range=false) %}
+            {% for sid, flag in indoor_zones %}
+              {% if is_state(flag, 'on') %}
+                {% set ns.enabled = ns.enabled + 1 %}
+                {% set raw = states(sid) %}
+                {% if raw not in invalid %}
+                  {% set val = raw | float(default=none) %}
+                  {% if val is not none %}
+                    {% if val < -20 or val > 45 %}
+                      {% set ns.indoor_bad_range = true %}
+                    {% else %}
+                      {% set ns.valid = ns.valid + 1 %}
+                    {% endif %}
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {% set tout_raw = states('sensor.t_out_effective') %}
+            {% set tout = tout_raw | float(default=none) %}
+            {% set required_indoor = 1 if ns.enabled <= 1 else 2 %}
+            {% if ns.enabled == 0 %}
+              NO_ENABLED_HEATING_ZONES
+            {% elif tout_raw in invalid or tout is none %}
+              OUTDOOR_UNAVAILABLE
+            {% elif tout < -30 or tout > 60 %}
+              OUTDOOR_SENSOR_RANGE
+            {% elif ns.indoor_bad_range %}
+              INDOOR_SENSOR_RANGE
+            {% elif ns.valid < required_indoor %}
+              INDOOR_SENSOR_COVERAGE_LOW
+            {% else %}
+              OK
+            {% endif %}
+
+      - name: "Heating  finestra oraria"
+        unique_id: heating_finestra_oraria
+        state: >-
+          {% set start = states('input_datetime.heating_window_start') %}
+          {% set end = states('input_datetime.heating_window_end') %}
+          {% if start in ['unknown','unavailable',''] %}
+            {% set start = '10:00:00' %}
+          {% endif %}
+          {% if end in ['unknown','unavailable',''] %}
+            {% set end = '18:00:00' %}
+          {% endif %}
+          {% set s_time = strptime(start, '%H:%M:%S') %}
+          {% set e_time = strptime(end, '%H:%M:%S') %}
+          {% set now_t = now().time() %}
+          {{ s_time.time() <= now_t <= e_time.time() }}
+
+      - name: "Heating  finestra PV"
+        unique_id: heating_window_pv
+        state: >-
+          {{ is_state('binary_sensor.heating_finestra_oraria','on') and is_state('binary_sensor.policy_surplus_ok','on') }}
+
+      - name: "Heating  finestra notte"
+        unique_id: heating_window_night
+        state: >-
+          {{ not is_state('binary_sensor.heating_finestra_oraria','on') }}
+
+      - name: "Heating  esterna fredda"
+        unique_id: heating_esterna_fredda
+        state: >-
+          {% set tout = states('sensor.t_out_effective') %}
+          {% if tout in ['unknown','unavailable',''] %}
+            false
+          {% else %}
+            {{ tout | float <= states('input_number.heating_ext_cold_threshold') | float(2) }}
+          {% endif %}
+
+      - name: "Heating  almeno una stanza sotto target"
+        unique_id: heating_almeno_una_stanza_sotto_target
+        state: >-
+          {{ states('sensor.heating_rooms_below_target') | int(0) > 0 }}
+
+      - name: "Heating  lock min OFF ok"
+        unique_id: heating_lock_min_off_ok
+        state: >-
+          {% set mins = states('input_number.heating_min_off_minutes') | float(30) %}
+          {% set runtime = states('sensor.heating_minutes_since_change') | float(default=0) %}
+          {% set relay_on = is_state('switch.heating_master','on') %}
+          {{ relay_on or runtime >= mins }}
+
+      - name: "Heating  lock min ON ok"
+        unique_id: heating_lock_min_on_ok
+        state: >-
+          {% set mins = states('input_number.heating_min_on_minutes') | float(15) %}
+          {% set runtime = states('sensor.heating_minutes_since_change') | float(default=0) %}
+          {% set relay_on = is_state('switch.heating_master','on') %}
+          {{ (not relay_on) or runtime >= mins }}
+
+      - name: "Heating  should run"
+        unique_id: heating_should_run
+        state: >-
+          {% if is_state('binary_sensor.heating_failsafe_sensors_bad','on') %}
+            false
+          {% else %}
+            {% set desired = state_attr('sensor.heating_reason','action') %}
+            {% set relay_on = is_state('switch.heating_master','on') %}
+            {% if desired == 'on' %}
+              {{ relay_on or is_state('binary_sensor.heating_lock_min_off_ok','on') }}
+            {% else %}
+              {% if relay_on and is_state('binary_sensor.heating_lock_min_on_ok','off') %}
+                true
+              {% else %}
+                false
+              {% endif %}
+            {% endif %}
+          {% endif %}
+
+      - name: "Heating demand active"
+        unique_id: heating_demand_active
+        state: >-
+          {% if is_state('binary_sensor.heating_failsafe_sensors_bad','on') %}
+            false
+          {% else %}
+            {{ state_attr('sensor.heating_reason','action') == 'on' }}
+          {% endif %}
+
+      - name: "Heating held by min on lock"
+        unique_id: heating_held_by_min_on_lock
+        state: >-
+          {{
+            is_state('switch.heating_master','on')
+            and is_state('binary_sensor.heating_demand_active','off')
+            and is_state('binary_sensor.heating_lock_min_on_ok','off')
+          }}
+
+  - sensor:
+      - name: "Heating should run source"
+        unique_id: heating_should_run_source
+        icon: mdi:source-branch
+        state: >-
+          {% if is_state('binary_sensor.heating_failsafe_sensors_bad','on') %}
+            failsafe
+          {% elif is_state('binary_sensor.heating_demand_active','on') %}
+            demand
+          {% elif is_state('binary_sensor.heating_held_by_min_on_lock','on') %}
+            hold_min_on_lock
+          {% else %}
+            idle
+          {% endif %}
+        attributes:
+          heating_reason: "{{ states('sensor.heating_reason') }}"
+          heating_priority: "{{ states('sensor.heating_priority') }}"
+          desired_action: "{{ state_attr('sensor.heating_reason','action') }}"
+          lock_min_on_ok: "{{ states('binary_sensor.heating_lock_min_on_ok') }}"
+          lock_min_off_ok: "{{ states('binary_sensor.heating_lock_min_off_ok') }}"
+          minutes_since_change: "{{ states('sensor.heating_minutes_since_change') }}"
+
+      - name: "Heating  lock min ON remaining"
+        unique_id: heating_lock_min_on_remaining
+        unit_of_measurement: "min"
+        icon: mdi:timer-play-outline
+        state: >-
+          {% set mins = states('input_number.heating_min_on_minutes') | float(15) %}
+          {% set runtime = states('sensor.heating_minutes_since_change') | float(default=0) %}
+          {% set relay_on = is_state('switch.heating_master','on') %}
+          {% if relay_on and runtime < mins %}
+            {{ (mins - runtime) | round(1) }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: "Heating  lock min OFF remaining"
+        unique_id: heating_lock_min_off_remaining
+        unit_of_measurement: "min"
+        icon: mdi:timer-off-outline
+        state: >-
+          {% set mins = states('input_number.heating_min_off_minutes') | float(15) %}
+          {% set runtime = states('sensor.heating_minutes_since_change') | float(default=0) %}
+          {% set relay_on = is_state('switch.heating_master','on') %}
+          {% if (not relay_on) and runtime < mins %}
+            {{ (mins - runtime) | round(1) }}
+          {% else %}
+            0
+          {% endif %}
+
+  - switch:
+      - name: "Riscaldamento  comando"
+        unique_id: heating_master
+        default_entity_id: switch.heating_master
+        icon: mdi:radiator
+        turn_on:
+          - service: switch.turn_off
+            target:
+              entity_id: switch.4_ch_interruttore_3
+        turn_off:
+          - service: switch.turn_on
+            target:
+              entity_id: switch.4_ch_interruttore_3
+        state: "{{ not is_state('switch.4_ch_interruttore_3','on') }}"
+
+      - name: "Riscaldamento  blocco notturno"
+        unique_id: heating_night_block
+        default_entity_id: switch.heating_night_block
+        icon: mdi:weather-night
+        turn_on:
+          - service: logbook.log
+            data:
+              name: "Heating night block"
+              entity_id: switch.heating_night_block
+              message: "Logical gate only: no direct relay write."
+        turn_off:
+          - service: logbook.log
+            data:
+              name: "Heating night block"
+              entity_id: switch.heating_night_block
+              message: "Logical gate only: no direct relay write."
+        state: "{{ is_state('binary_sensor.heating_window_night','on') }}"
