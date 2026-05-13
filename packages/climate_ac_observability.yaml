@@ -1,0 +1,71 @@
+# AC observability extracted from legacy AC logic package.
+# Purpose: keep counters and history/statistics sensors separate from control logic.
+---
+counter:
+  ac_churn_suppressed:
+    name: "AC churn suppressed"
+    icon: mdi:shield-sync
+    initial: 0
+    step: 1
+
+sensor:
+  - platform: statistics
+    name: t_out_effective_mean_24h
+    entity_id: sensor.t_out_effective
+    state_characteristic: mean
+    sampling_size: 2000
+    max_age:
+      hours: 24
+
+  - platform: statistics
+    name: t_out_effective_mean_96h
+    entity_id: sensor.t_out_effective
+    state_characteristic: mean
+    sampling_size: 8000
+    max_age:
+      hours: 96
+
+  - platform: history_stats
+    name: "AC Season Request Hours 24h"
+    unique_id: ac_season_request_hours_24h
+    entity_id: binary_sensor.climateops_request_cool
+    state: "on"
+    type: time
+    start: "{{ now() - timedelta(hours=24) }}"
+    end: "{{ now() }}"
+
+  - platform: history_stats
+    name: "AC Giorno – Tempo ON oggi"
+    unique_id: ac_giorno_tempo_on_oggi
+    entity_id: binary_sensor.cm_driver_ac_giorno_is_on
+    state: "on"
+    type: time
+    start: "{{ today_at() }}"
+    end: "{{ now() }}"
+
+  - platform: history_stats
+    name: "AC Giorno – Cicli ON oggi"
+    unique_id: ac_giorno_cicli_on_oggi
+    entity_id: binary_sensor.cm_driver_ac_giorno_is_on
+    state: "on"
+    type: count
+    start: "{{ today_at() }}"
+    end: "{{ now() }}"
+
+  - platform: history_stats
+    name: "AC Notte – Tempo ON oggi"
+    unique_id: ac_notte_tempo_on_oggi
+    entity_id: binary_sensor.cm_driver_ac_notte_is_on
+    state: "on"
+    type: time
+    start: "{{ today_at() }}"
+    end: "{{ now() }}"
+
+  - platform: history_stats
+    name: "AC Notte – Cicli ON oggi"
+    unique_id: ac_notte_cicli_on_oggi
+    entity_id: binary_sensor.cm_driver_ac_notte_is_on
+    state: "on"
+    type: count
+    start: "{{ today_at() }}"
+    end: "{{ now() }}"
