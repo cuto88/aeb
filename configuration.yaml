@@ -31,35 +31,35 @@ lovelace:
       title: "1 ECLSS Casa"
       icon: mdi:home-thermometer
       show_in_sidebar: true
-      filename: lovelace/climate_casa_unified_plancia.yaml
+      filename: lovelace/01_eclss_casa.yaml
 
     02-vmc:
       mode: yaml
       title: "2 Air Loop"
       icon: mdi:fan
       show_in_sidebar: true
-      filename: lovelace/climate_ventilation_plancia_v2.yaml
+      filename: lovelace/02_air_loop.yaml
 
     03-riscaldamento:
       mode: yaml
       title: "3 Heating Loop"
       icon: mdi:radiator
       show_in_sidebar: true
-      filename: lovelace/climate_heating_plancia.yaml
+      filename: lovelace/03_heating_loop.yaml
 
     04-ac:
       mode: yaml
       title: "4 Cooling Loop"
       icon: mdi:air-conditioner
       show_in_sidebar: true
-      filename: lovelace/climate_ac_plancia_v2.yaml
+      filename: lovelace/04_cooling_loop.yaml
 
     05-fv-solaredge:
       mode: yaml
       title: "5 PV Array"
       icon: mdi:solar-power
       show_in_sidebar: true
-      filename: lovelace/energy_pv_solaredge_plancia.yaml
+      filename: lovelace/05_pv_array.yaml
 
     # 6-energia:
     #   mode: yaml
@@ -73,14 +73,14 @@ lovelace:
       title: "6 Power Runtime"
       icon: mdi:flash
       show_in_sidebar: true
-      filename: lovelace/consumi_mirai_ehw_plancia.yaml
+      filename: lovelace/06_power_runtime.yaml
 
     07-ehw-acs:
       mode: yaml
       title: "7 DHW / ACS"
       icon: mdi:water-boiler
       show_in_sidebar: true
-      filename: lovelace/ehw_plancia.yaml
+      filename: lovelace/07_dhw_acs.yaml
 
     08-mirai:
       mode: yaml
@@ -88,46 +88,46 @@ lovelace:
       icon: mdi:heat-pump
       show_in_sidebar: true
       require_admin: false
-      filename: lovelace/8_mirai_plancia.yaml
+      filename: lovelace/08_mirai_plant.yaml
 
     09-modbus:
       mode: yaml
       title: "9 Fieldbus"
       icon: mdi:transit-connection-variant
       show_in_sidebar: true
-      filename: lovelace/modbus_plancia.yaml
+      filename: lovelace/09_fieldbus.yaml
 
     10-involucro:
       mode: yaml
       title: "10 Envelope"
       icon: mdi:home-thermometer-outline
       show_in_sidebar: true
-      filename: lovelace/envelope_involucro_plancia.yaml
+      filename: lovelace/10_envelope.yaml
 
     11-observability:
       mode: yaml
       title: "11 Observability"
       icon: mdi:clipboard-pulse-outline
       show_in_sidebar: true
-      filename: lovelace/observability_plancia.yaml
+      filename: lovelace/11_observability.yaml
 
     12-domestic-ops:
       mode: yaml
       title: "12 Domestic Ops"
       icon: mdi:home-lightning-bolt-outline
       show_in_sidebar: true
-      filename: lovelace/domestic_ops_plancia.yaml
+      filename: lovelace/12_domestic_ops.yaml
 
     92-vmc-legacy:
       mode: yaml
       title: "2 VMC (legacy)"
       icon: mdi:fan
       show_in_sidebar: false
-      filename: lovelace/climate_ventilation_plancia.yaml
+      filename: lovelace/02_air_loop_legacy.yaml
 
     94-ac-legacy:
       mode: yaml
       title: "4 AC (legacy)"
       icon: mdi:snowflake
       show_in_sidebar: false
-      filename: lovelace/climate_ac_plancia.yaml
+      filename: lovelace/04_cooling_loop_legacy.yaml

@@ -52,8 +52,8 @@ Ogni documento di logica corrisponde a un package YAML e alla relativa plancia L
 ## 🌡️ Clima 2026 — stack attivo
 - **Packages (principali):** `packages/climate_sensors.yaml`, `packages/climate_ventilation.yaml`, `packages/climate_heating.yaml`, `packages/climate_ac_logic.yaml`, `packages/climate_ac_mapping.yaml`.
 - **ClimateOps (orchestrazione):** `packages/climateops/` (drivers, strategies, actuators, overrides).
-- **Plance Lovelace (entrypoint utente):** `lovelace/climate_casa_unified_plancia.yaml`.
-- **Plance tecniche/legacy ancora registrate ma dismesse da sidebar:** `lovelace/climate_ventilation_plancia.yaml`, `lovelace/climate_ventilation_plancia_v2.yaml`, `lovelace/climate_heating_plancia.yaml`, `lovelace/climate_ac_plancia.yaml`, `lovelace/climate_ac_plancia_v2.yaml`, `lovelace/ehw_plancia.yaml`, `lovelace/8_mirai_plancia.yaml`.
+- **Plance Lovelace (entrypoint utente):** `lovelace/01_eclss_casa.yaml`.
+- **Plance tecniche/legacy ancora registrate ma dismesse da sidebar:** `lovelace/02_air_loop_legacy.yaml`, `lovelace/02_air_loop.yaml`, `lovelace/03_heating_loop.yaml`, `lovelace/04_cooling_loop_legacy.yaml`, `lovelace/04_cooling_loop.yaml`, `lovelace/07_dhw_acs.yaml`, `lovelace/08_mirai_plant.yaml`.
 - **Plance archiviate fuori dall'entrypoint utente:** `lovelace/_archive/climateops_step7_plancia.yaml` come copia storica; la voce dashboard e` gia' rimossa da `configuration.yaml` e l'originale `lovelace/climateops_step7_plancia.yaml` e` gia' stato rimosso dal repo attivo.
 
 > Revisione documentazione clima: riferimenti allineati ai file runtime attuali.

@@ -1,0 +1,164 @@
+title: "6 Power Runtime"
+views:
+  - title: "6 Power Runtime"
+    path: consumi
+    icon: mdi:flash
+    type: sections
+    max_columns: 3
+
+    sections:
+      - type: grid
+        title: "Runtime energia"
+        cards:
+          - type: markdown
+            title: "Ruolo plancia"
+            content: |-
+              Questa plancia mostra la **sintesi runtime energia locale**.
+
+              Per drill-down macchina usare:
+              - `7 DHW / ACS`
+              - `8 MIRAI Plant`
+              - `9 Fieldbus` solo per raw / forensic
+          - type: entities
+            title: "Quote oggi"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.local_meters_energy_daily_total
+                name: Totale misurato kWh/giorno
+              - entity: sensor.mirai_daily_share_pct
+                name: Mirai %
+              - entity: sensor.ehw_daily_share_pct
+                name: EHW %
+              - entity: sensor.ds01_daily_share_pct
+                name: ds-01 %
+              - entity: sensor.pm1_daily_share_pct
+                name: PM1 / VMC %
+              - entity: sensor.pm2_daily_share_pct
+                name: PM2 / Lavatrice %
+              - entity: sensor.pm3_daily_share_pct
+                name: PM3 / Asciugatrice %
+          - type: entities
+            title: "Potenze istantanee"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.grid_power_w
+                name: Rete / SDM120 W
+              - entity: sensor.grid_direction
+                name: Direzione flusso
+              - entity: sensor.mirai_power_w
+                name: Mirai Potenza W
+              - entity: sensor.ehw_power_w
+                name: EHW Potenza W
+              - entity: sensor.pm1_mss310_power_w_main_channel
+                name: PM1 / VMC W
+              - entity: sensor.pm2_mss310_power_w_main_channel
+                name: PM2 / Lavatrice W
+              - entity: sensor.pm3_mss310_power_w_main_channel
+                name: PM3 / Asciugatrice W
+              - entity: sensor.ds_01_power_w
+                name: ds-01 / HA host W
+          - type: entities
+            title: "Host locale ds-01"
+            show_header_toggle: false
+            entities:
+              - entity: switch.t34_smart_plug_interruttore_1
+                name: Smart plug outlet
+              - entity: sensor.ds_01_power_w
+                name: Potenza
+              - entity: sensor.ds_01_current_a
+                name: Corrente
+              - entity: sensor.ds_01_voltage_v
+                name: Tensione
+              - entity: sensor.ds01_energy_daily
+                name: kWh / giorno
+              - entity: sensor.ds01_energy_monthly
+                name: kWh / mese
+              - entity: sensor.ds_01_energy_total
+                name: kWh totale
+      - type: grid
+        title: "Consumi oggi"
+        cards:
+          - type: entities
+            title: "kWh / giorno"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.mirai_energy_daily
+                name: Mirai kWh/giorno
+              - entity: sensor.ehw_energy_daily
+                name: EHW kWh/giorno
+              - entity: sensor.ds01_energy_daily
+                name: ds-01 kWh/giorno
+              - entity: sensor.pm1_energy_daily
+                name: PM1 / VMC kWh/giorno
+              - entity: sensor.pm2_energy_daily
+                name: PM2 / Lavatrice kWh/giorno
+              - entity: sensor.pm3_energy_daily
+                name: PM3 / Asciugatrice kWh/giorno
+
+      - type: grid
+        title: "Contatori cumulati"
+        cards:
+          - type: entities
+            title: "Prelevata cumulata"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.mirai_energy_total
+                name: Mirai kWh totale
+              - entity: sensor.ehw_energy_total
+                name: EHW kWh totale
+              - entity: sensor.ds_01_energy_total
+                name: ds-01 kWh totale
+
+      - type: grid
+        title: "Trend e KPI"
+        cards:
+          - type: history-graph
+            title: "Potenze 24h - tutti i carichi locali"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.grid_power_w
+                name: SDM120 totale W
+              - entity: sensor.mirai_power_w
+                name: Mirai W
+              - entity: sensor.ehw_power_w
+                name: EHW W
+              - entity: sensor.pm1_mss310_power_w_main_channel
+                name: PM1 / VMC W
+              - entity: sensor.pm2_mss310_power_w_main_channel
+                name: PM2 / Lavatrice W
+              - entity: sensor.pm3_mss310_power_w_main_channel
+                name: PM3 / Asciugatrice W
+              - entity: sensor.ds_01_power_w
+                name: ds-01 W
+          - type: history-graph
+            title: "KPI AEB (24h)"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.aeb_self_consumption_ratio_pct
+                name: Self-consumption %
+              - entity: sensor.aeb_shift_effectiveness_pct
+                name: Shift effectiveness %
+              - entity: sensor.aeb_comfort_energy_score_pct
+                name: Comfort-energy %
+          - type: statistics-graph
+            title: "Consumi giornalieri (7 giorni)"
+            chart_type: bar
+            period: day
+            stat_types:
+              - change
+            days_to_show: 7
+            entities:
+              - entity: sensor.mirai_energy_daily
+                name: Mirai
+              - entity: sensor.ehw_energy_daily
+                name: EHW
+              - entity: sensor.ds01_energy_daily
+                name: ds-01
+              - entity: sensor.pm1_energy_daily
+                name: PM1 / VMC
+              - entity: sensor.pm2_energy_daily
+                name: PM2 / Lavatrice
+              - entity: sensor.pm3_energy_daily
+                name: PM3 / Asciugatrice

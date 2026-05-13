@@ -15,7 +15,7 @@ Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 - Heating / AC / VMC: runtime real and already integrated in ClimateOps.
 - DHW / EHW read-feedback chain: closed and runtime-validated.
 - DHW / EHW writer path: formalized, gated, safe-by-default, dry-run validated and live validated for one reversible setpoint write on register `1104`.
-- DHW UI / plancia: present in `lovelace/climate_casa_unified_plancia.yaml` as operator-facing observability/control block.
+- DHW UI / plancia: present in `lovelace/01_eclss_casa.yaml` as operator-facing observability/control block.
 - Broader orchestration still not enabled:
   - no planner-driven DHW actuation
   - no multi-load dispatch closure
@@ -47,7 +47,10 @@ Per evitare falsi positivi e cartelle di backup/quarantena, il lint YAML gira so
 
 ## Accesso SSH runtime HA
 - Endpoint: `root@192.168.178.84` porta `2222`
-- Chiave primaria: `C:\Users\randalab\.ssh\ha_ed25519` (fallback `ha_fallback_ed25519`)
+- Chiave primaria canonica: `C:\2_OPS\secrets\ha\ha_ed25519`
+- Fallback canonico: `C:\2_OPS\secrets\ha\ha_fallback_ed25519`
+- Host key canonica: `C:\2_OPS\secrets\ha\known_hosts`
+- Override runtime: `HA_SSH_KEY_PATH`
 - Path config runtime: `/homeassistant`
 
 ## Notifiche Telegram

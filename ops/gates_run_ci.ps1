@@ -47,6 +47,9 @@ function Get-TrackedYamlFiles {
       } |
       Where-Object {
         $_ -match '^(packages|lovelace|ops)([\/]|$)' -or $_ -match '^(configuration|automations|scripts|scenes|groups|customize)\.ya?ml$'
+      } |
+      Where-Object {
+        Test-Path -LiteralPath (Join-Path $Root $_)
       }
   )
 }

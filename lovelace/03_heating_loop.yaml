@@ -1,0 +1,210 @@
+views:
+  - title: "3 Heating Loop"
+    path: heating
+    icon: mdi:radiator
+    type: sections
+    max_columns: 3
+
+    sections:
+      - type: grid
+        title: "Heating – Runtime"
+        cards:
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: tile
+                entity: binary_sensor.heating_should_run
+                name: "Should run"
+              - type: tile
+                entity: sensor.heating_priority
+                name: "Priorità"
+              - type: tile
+                entity: sensor.heating_reason
+                name: "Reason"
+              - type: tile
+                entity: binary_sensor.heating_failsafe_sensors_bad
+                name: "Failsafe"
+
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.heating_lock_min_on_ok
+                name: Lock min ON ok
+              - entity: binary_sensor.heating_lock_min_off_ok
+                name: Lock min OFF ok
+              - entity: input_boolean.heating_manual_active
+                name: Manuale attivo
+              - entity: input_select.heating_manual_mode
+                name: Modalità manuale
+              - entity: switch.heating_master
+                name: Master heating
+              - entity: switch.4_ch_interruttore_3
+                name: Riduzione notturna termostati
+
+      - type: grid
+        title: "Heating – Termostati reali (TEMP)"
+        cards:
+          - type: markdown
+            content: |
+              ## Termostati reali (TEMP) — solo osservazione
+              Stato runtime 2026-03-29:
+              - ESP32 / LDR TEMP attualmente smontati
+              - binding default lasciati volutamente vuoti
+              - gli `input_text` restano disponibili per un futuro remap rapido
+
+      - type: grid
+        title: "Heating  Setpoint e comandi"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: input_number.temp_target_risc
+                name: Setpoint comfort
+              - entity: input_number.heating_setpoint_night
+                name: Setpoint notte
+              - entity: input_number.heating_antifreeze_threshold
+                name: Soglia antigelo
+              - entity: input_number.heating_boost_delta
+                name: Delta boost FV
+
+          - type: entities
+            title: "Zone incluse"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.heating_use_giorno
+                name: Usa zona giorno
+              - entity: input_boolean.heating_use_notte1
+                name: Usa zona notte 1
+              - entity: input_boolean.heating_use_notte2
+                name: Usa zona notte 2
+              - entity: input_boolean.heating_use_bagno
+                name: Usa bagno
+
+      - type: grid
+        title: "Heating – Diagnostica"
+        cards:
+          - type: entities
+            entities:
+              - entity: sensor.heating_error_zona_giorno
+                name: Errore zona giorno
+              - entity: sensor.heating_error_zona_notte
+                name: Errore zona notte
+              - entity: sensor.heating_rooms_below_target
+                name: Stanze sotto target
+              - entity: binary_sensor.heating_finestra_oraria
+                name: Finestra comfort
+              - entity: binary_sensor.heating_window_pv
+                name: Finestra FV
+              - entity: binary_sensor.heating_window_night
+                name: Finestra notte
+              - entity: binary_sensor.heating_esterna_fredda
+                name: Esterna fredda
+              - entity: binary_sensor.heating_almeno_una_stanza_sotto_target
+                name: Sotto target
+
+      - type: grid
+        title: "Heating Grafici 24h / 7gg"
+        cards:
+          - type: history-graph
+            title: "Temperature interne/esterna (12h)"
+            hours_to_show: 12
+            refresh_interval: 120
+            entities:
+              - entity: sensor.t_in_giorno
+                name: Zona giorno
+              - entity: sensor.t_in_notte1
+                name: Zona notte 1
+              - entity: sensor.t_in_notte2
+                name: Zona notte 2
+              - entity: sensor.t_in_bagno
+                name: Bagno
+              - entity: sensor.t_out
+                name: Esterna
+
+          - type: statistics-graph
+            title: "Errori setpoint (7 giorni)"
+            days_to_show: 7
+            period: day
+            stat_types:
+              - mean
+            entities:
+              - entity: sensor.heating_error_zona_giorno
+                name: Errore giorno
+              - entity: sensor.heating_error_zona_notte
+                name: Errore notte
+
+      - type: grid
+        title: "Heating – Runtime e cicli"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.heating_minutes_since_change
+                name: Minuti da ultimo cambio
+              - entity: sensor.heating_hours_on_today
+                name: Ore ON oggi (storico)
+              - entity: sensor.heating_hours_on_yesterday
+                name: Ore ON ieri (storico)
+
+      - type: grid
+        title: "Heating – Debug"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.t_in_min
+                name: T interna minima
+              - entity: binary_sensor.surplus_ok
+                name: Surplus FV OK
+              - entity: binary_sensor.heating_failsafe_sensors_bad
+                name: Failsafe sensori
+              - entity: switch.heating_master
+                name: Master heating
+              - entity: switch.4_ch_interruttore_3
+                name: Riduzione notturna termostati
+
+      - type: grid
+        cards:
+          - type: history-graph
+            title: "Timeline decisioni – Heating (12h)"
+            hours_to_show: 12
+            refresh_interval: 120
+            entities:
+              - entity: sensor.heating_priority
+                name: Priorità heating
+              - entity: sensor.heating_reason
+                name: Motivo/azione
+              - entity: switch.heating_master
+                name: Comando riscaldamento
+              - entity: binary_sensor.heating_finestra_oraria
+                name: Finestra comfort
+              - entity: binary_sensor.heating_window_pv
+                name: Finestra FV
+              - entity: binary_sensor.heating_window_night
+                name: Finestra notte
+              - entity: binary_sensor.surplus_ok
+                name: Surplus FV OK
+
+      - type: grid
+        title: "Heating – Legacy TEMP / remap"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: input_text.climateops_temp_thermostat_giorno_entity
+                name: "Camera1 source entity"
+              - entity: input_text.climateops_temp_thermostat_notte_entity
+                name: "Camera2 source entity"
+              - entity: input_text.climateops_temp_thermostat_giorno_raw_entity
+                name: "Camera1 raw entity"
+              - entity: input_text.climateops_temp_thermostat_notte_raw_entity
+                name: "Camera2 raw entity"
+              - entity: input_number.climateops_temp_thermostat_giorno_threshold_v
+                name: "Soglia Camera1 (V)"
+              - entity: input_number.climateops_temp_thermostat_notte_threshold_v
+                name: "Soglia Camera2 (V)"
+              - entity: input_number.climateops_temp_thermostat_hysteresis_v
+                name: "Isteresi (V)"
+
+# Heating dashboard normalized to ENTITY MAP (2025-02)

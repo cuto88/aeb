@@ -1,0 +1,212 @@
+views:
+  - title: "3 Clima"
+    path: ac
+    icon: mdi:air-conditioner
+    type: sections
+    max_columns: 3
+
+    sections:
+      - type: grid
+        title: "Stato generale"
+        cards:
+          - type: glance
+            columns: 4
+            entities:
+              - entity: sensor.ac_priority
+                name: Priorità
+              - entity: sensor.ac_reason
+                name: Reason
+              - entity: binary_sensor.stagione_calda
+                name: Stagione calda
+              - entity: binary_sensor.ac_failsafe_sensors_bad
+                name: Failsafe
+              - entity: binary_sensor.ac_block_by_vmc
+                name: Block VMC
+
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: switch.ac_giorno
+                name: AC Giorno
+              - entity: switch.ac_notte
+                name: AC Notte
+              - entity: binary_sensor.ac_lock_min_on_ok
+                name: Lock min ON OK
+              - entity: binary_sensor.ac_lock_min_off_ok
+                name: Lock min OFF OK
+
+      - type: grid
+        title: "Setpoint e comandi"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: input_number.ac_cool_setpoint
+                name: Setpoint COOL
+              - entity: input_number.ac_dry_ur_on
+                name: UR ON DRY
+              - entity: input_number.ac_dry_ur_off
+                name: UR OFF DRY
+              - entity: input_number.ac_min_on_minutes
+                name: Minimo ON (min)
+              - entity: input_number.ac_min_off_minutes
+                name: Minimo OFF (min)
+
+          - type: entities
+            title: "Manuale e blocchi"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.ac_manual
+                name: Manuale attivo
+              - entity: input_select.ac_manual_mode
+                name: Modalità manuale
+              - entity: timer.ac_manual_timeout
+                name: Timeout manuale
+              - entity: input_boolean.ac_block_vmc
+                name: Block da VMC
+              - entity: timer.ac_block_vmc_timeout
+                name: Timeout block VMC
+
+      - type: grid
+        title: "Ramo AC / Quadro"
+        cards:
+          - type: entities
+            title: "Power posture"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.cm_ac_branch_powered
+                name: AC branch manual power toggle
+              - entity: binary_sensor.cm_ac_branch_powered
+                name: AC branch observed powered
+              - entity: binary_sensor.cm_ac_branch_in_season
+                name: AC in season
+              - entity: binary_sensor.cm_ac_branch_should_run
+                name: AC should run
+              - entity: binary_sensor.cm_ac_branch_should_be_powered
+                name: AC should be powered
+              - entity: sensor.cm_ac_branch_advice
+                name: AC advice
+              - entity: sensor.cm_ac_branch_intervention_reason
+                name: AC intervention reason
+
+      - type: grid
+        title: "KPI principali"
+        cards:
+          - type: entities
+            entities:
+              - entity: sensor.t_in_med
+                name: T interna media
+              - entity: sensor.t_out
+                name: T esterna
+              - entity: sensor.ur_in_media
+                name: UR interna media
+              - entity: sensor.ur_out
+                name: UR esterna
+
+      - type: grid
+        title: "Grafici 24h / 7gg"
+        cards:
+          - type: history-graph
+            title: "Temperature (12h)"
+            hours_to_show: 12
+            refresh_interval: 120
+            entities:
+              - entity: sensor.t_in_med
+                name: T interna media
+              - entity: sensor.t_out
+                name: T esterna
+
+          - type: history-graph
+            title: "Umidità (12h)"
+            hours_to_show: 12
+            refresh_interval: 120
+            entities:
+              - entity: sensor.ur_in_media
+                name: UR interna media
+              - entity: sensor.ur_out
+                name: UR esterna
+
+          - type: statistics-graph
+            title: "Modalità e block (7 giorni)"
+            days_to_show: 7
+            stat_types:
+              - mean
+            entities:
+              - entity: sensor.ac_priority
+                name: Priorità
+              - entity: sensor.ac_reason
+                name: Reason
+
+      - type: grid
+        title: "Runtime e cicli"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.ac_giorno_tempo_on_oggi
+                name: AC Giorno – tempo ON oggi
+              - entity: sensor.ac_giorno_cicli_on_oggi
+                name: AC Giorno – cicli ON oggi
+              - entity: sensor.ac_notte_tempo_on_oggi
+                name: AC Notte – tempo ON oggi
+              - entity: sensor.ac_notte_cicli_on_oggi
+                name: AC Notte – cicli ON oggi
+              - entity: sensor.ac_giorno_ultimo_on
+                name: AC Giorno – ultimo ON
+              - entity: sensor.ac_giorno_ultimo_off
+                name: AC Giorno – ultimo OFF
+              - entity: sensor.ac_notte_ultimo_on
+                name: AC Notte – ultimo ON
+              - entity: sensor.ac_notte_ultimo_off
+                name: AC Notte – ultimo OFF
+
+          - type: history-graph
+            title: "Trend ON/OFF (12h)"
+            hours_to_show: 12
+            refresh_interval: 120
+            entities:
+              - entity: switch.ac_giorno
+                name: AC Giorno
+              - entity: switch.ac_notte
+                name: AC Notte
+
+      - type: grid
+        title: "Debug"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.ac_priority
+                name: Priorità
+              - entity: sensor.ac_reason
+                name: Reason
+              - entity: input_boolean.ac_manual
+                name: Manuale attivo
+              - entity: input_boolean.ac_block_vmc
+                name: Block da VMC
+              - entity: binary_sensor.ac_failsafe_sensors_bad
+                name: Failsafe sensori
+              - entity: binary_sensor.ac_block_by_vmc
+                name: Block by VMC
+              - entity: binary_sensor.stagione_calda
+                name: Stagione calda
+
+      - type: grid
+        cards:
+          - type: history-graph
+            title: "Timeline decisioni – AC (12h)"
+            hours_to_show: 12
+            refresh_interval: 120
+            entities:
+              - entity: sensor.ac_priority
+                name: Priorità AC
+              - entity: sensor.ac_reason
+                name: Motivo/azione
+              - entity: switch.ac_giorno
+                name: AC Giorno
+              - entity: switch.ac_notte
+                name: AC Notte
+              - entity: binary_sensor.ac_block_by_vmc
+                name: Block da VMC
+              - entity: binary_sensor.ac_failsafe_sensors_bad
+                name: Failsafe sensori AC
