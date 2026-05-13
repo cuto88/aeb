@@ -1,0 +1,118 @@
+# Heating helpers extracted from legacy heating package.
+# Purpose: keep floor-heating helper entities separate from control templates.
+---
+input_boolean:
+  heating_use_giorno:
+    name: "Heating - Usa zona giorno"
+    icon: mdi:home
+  heating_use_notte1:
+    name: "Heating - Usa zona notte 1"
+    icon: mdi:bed
+  heating_use_notte2:
+    name: "Heating - Usa zona notte 2"
+    icon: mdi:bed
+
+  heating_use_bagno:
+    name: "Heating  Usa bagno"
+    icon: mdi:shower
+
+  heating_enable:
+    name: "Heating  Abilita logica"
+    icon: mdi:radiator
+  heating_manual_active:
+    name: "Heating  Modalità manuale attiva"
+    icon: mdi:hand-back-right
+
+input_select:
+  heating_manual_mode:
+    name: "Heating – Modalità manuale"
+    options:
+      - "off"
+      - eco
+      - comfort
+      - boost
+    icon: mdi:tune-variant
+
+input_number:
+  temp_target_risc:
+    name: "Heating  Setpoint comfort"
+    min: 18
+    max: 23
+    step: 0.1
+    unit_of_measurement: "°C"
+    icon: mdi:home-thermometer
+  heating_setpoint_night:
+    name: "Heating  Setpoint night setback"
+    min: 15
+    max: 21
+    step: 0.1
+    unit_of_measurement: "°C"
+    icon: mdi:weather-night
+  heating_hysteresis:
+    name: "Heating  Isteresi"
+    min: 0.2
+    max: 1.5
+    step: 0.1
+    unit_of_measurement: "°C"
+    icon: mdi:axis-x-arrow
+  heating_antifreeze_threshold:
+    name: "Heating  Soglia antigelo"
+    min: 5
+    max: 15
+    step: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:snowflake-alert
+  heating_ext_cold_threshold:
+    name: "Heating  Esterna fredda"
+    min: -10
+    max: 10
+    step: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer-minus
+  heating_boost_delta:
+    name: "Heating  Delta boost FV"
+    min: 0
+    max: 1.0
+    step: 0.1
+    unit_of_measurement: "°C"
+    icon: mdi:flash
+  heating_min_on_minutes:
+    name: "Heating  Min ON"
+    min: 5
+    max: 180
+    step: 5
+    initial: 15
+    unit_of_measurement: "min"
+    icon: mdi:timer-play
+  heating_min_off_minutes:
+    name: "Heating  Min OFF"
+    min: 5
+    max: 180
+    step: 5
+    initial: 15
+    unit_of_measurement: "min"
+    icon: mdi:timer-off
+  heating_hours_on_daily:
+    name: "Heating  Ore ON (snapshot)"
+    unit_of_measurement: "h"
+    min: 0
+    max: 24
+    step: 0.1
+    icon: mdi:timeline-clock
+
+input_datetime:
+  heating_window_start:
+    name: "Heating – Fascia start"
+    has_time: true
+    has_date: false
+    initial: "10:00:00"
+  heating_window_end:
+    name: "Heating – Fascia end"
+    has_time: true
+    has_date: false
+    initial: "18:00:00"
+
+timer:
+  heating_manual_timeout:
+    name: "Heating  Timeout manuale"
+    duration: "01:00:00"
