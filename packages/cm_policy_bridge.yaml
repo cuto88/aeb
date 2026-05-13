@@ -1,0 +1,103 @@
+---
+template:
+  - binary_sensor:
+      - name: "CM Contract Actuators Defined"
+        unique_id: cm_contract_actuators_defined
+        state: "{{ is_state('binary_sensor.contract_actuators_defined','on') }}"
+      - name: "CM Contract Actuators Ready"
+        unique_id: cm_contract_actuators_ready
+        state: "{{ is_state('binary_sensor.contract_actuators_ready','on') }}"
+      - name: "CM Contract Surplus OK Defined"
+        unique_id: cm_contract_surplus_ok_defined
+        state: "{{ is_state('binary_sensor.contract_surplus_ok_defined','on') }}"
+      - name: "CM Contract Surplus OK Ready"
+        unique_id: cm_contract_surplus_ok_ready
+        state: "{{ is_state('binary_sensor.contract_surplus_ok_ready','on') }}"
+      - name: "CM Policy Allow VMC Boost"
+        unique_id: cm_policy_allow_vmc_boost
+        state: "{{ is_state('binary_sensor.policy_allow_vmc_boost','on') }}"
+      - name: "CM Policy Allow AC"
+        unique_id: cm_policy_allow_ac
+        state: "{{ is_state('binary_sensor.policy_allow_ac','on') }}"
+      - name: "CM Policy Surplus OK"
+        unique_id: cm_policy_surplus_ok
+        state: "{{ is_state('binary_sensor.policy_surplus_ok','on') }}"
+      - name: "CM Policy Vacation Mode"
+        unique_id: cm_policy_vacation_mode
+        state: "{{ is_state('input_boolean.policy_vacation_mode','on') }}"
+      - name: "CM Policy Forecast Inputs Ready"
+        unique_id: cm_policy_forecast_inputs_ready
+        state: "{{ is_state('binary_sensor.policy_forecast_inputs_ready','on') }}"
+      - name: "CM Contract Forecast Inputs Defined"
+        unique_id: cm_contract_forecast_inputs_defined
+        state: "{{ is_state('binary_sensor.contract_forecast_inputs_defined','on') }}"
+      - name: "CM Contract Forecast Inputs Ready"
+        unique_id: cm_contract_forecast_inputs_ready
+        state: "{{ is_state('binary_sensor.contract_forecast_inputs_ready','on') }}"
+      - name: "CM Policy Allow Shift Load"
+        unique_id: cm_policy_allow_shift_load
+        state: "{{ is_state('binary_sensor.policy_allow_shift_load','on') }}"
+      - name: "CM Policy Prefer Self Consumption"
+        unique_id: cm_policy_prefer_self_consumption
+        state: "{{ is_state('binary_sensor.policy_prefer_self_consumption','on') }}"
+      - name: "CM Policy Grid Expensive Now"
+        unique_id: cm_policy_grid_expensive_now
+        state: "{{ is_state('binary_sensor.policy_grid_expensive_now','on') }}"
+      - name: "CM Contract Tariff Grid Policy Ready"
+        unique_id: cm_contract_tariff_grid_policy_ready
+        state: "{{ is_state('binary_sensor.contract_tariff_grid_policy_ready','on') }}"
+      - name: "CM Contract Hierarchy Mode Ready"
+        unique_id: cm_contract_hierarchy_mode_ready
+        state: "{{ is_state('binary_sensor.contract_hierarchy_mode_ready','on') }}"
+      - name: "CM Noncritical Loads Allowed"
+        unique_id: cm_noncritical_loads_allowed
+        state: "{{ is_state('binary_sensor.climateops_noncritical_loads_allowed','on') }}"
+
+  - sensor:
+      - name: "CM Contract Missing Entities"
+        unique_id: cm_contract_missing_entities
+        state: "{{ states('sensor.contract_missing_entities') }}"
+      - name: "CM Policy Reason"
+        unique_id: cm_policy_reason
+        state: "{{ states('sensor.policy_arbiter_reason') }}"
+      - name: "CM Contract Actuators Reason"
+        unique_id: cm_contract_actuators_reason
+        state: "{{ states('sensor.contract_actuators_reason') }}"
+      - name: "CM Policy Forecast Reason"
+        unique_id: cm_policy_forecast_reason
+        state: "{{ states('sensor.policy_forecast_reason') }}"
+      - name: "CM Contract Forecast Reason"
+        unique_id: cm_contract_forecast_reason
+        state: "{{ states('sensor.contract_forecast_reason') }}"
+      - name: "CM Policy Forecast PV Next Hour W"
+        unique_id: cm_policy_forecast_pv_next_hour_w
+        unit_of_measurement: "W"
+        state_class: measurement
+        device_class: power
+        state: "{{ states('sensor.policy_forecast_pv_next_hour_w') }}"
+      - name: "CM Policy Forecast Temp Next Hour C"
+        unique_id: cm_policy_forecast_temp_next_hour_c
+        unit_of_measurement: "°C"
+        state_class: measurement
+        device_class: temperature
+        state: "{{ states('sensor.policy_forecast_temp_next_hour_c') }}"
+      - name: "CM Policy Tariff Grid Reason"
+        unique_id: cm_policy_tariff_grid_reason
+        state: "{{ states('sensor.policy_tariff_grid_reason') }}"
+      - name: "CM Contract Tariff Grid Reason"
+        unique_id: cm_contract_tariff_grid_reason
+        state: "{{ states('sensor.contract_tariff_grid_reason') }}"
+      - name: "CM Contract Hierarchy Reason"
+        unique_id: cm_contract_hierarchy_reason
+        state: "{{ states('sensor.contract_hierarchy_reason') }}"
+      - name: "CM Policy Grid Price Now"
+        unique_id: cm_policy_grid_price_now
+        unit_of_measurement: "EUR/kWh"
+        state_class: measurement
+        state: "{{ states('sensor.policy_grid_price_now') }}"
+      - name: "CM Policy Grid Import W"
+        unique_id: cm_policy_grid_import_w
+        unit_of_measurement: "W"
+        state_class: measurement
+        device_class: power
+        state: "{{ states('sensor.policy_grid_import_w') }}"
