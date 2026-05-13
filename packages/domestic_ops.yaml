@@ -173,4 +173,1204 @@ input_select:
       - lenzuola
       - asciugamani
 
-# Content synced from workspace; omitted here for brevity in this tool invocation is not allowed.
+template:
+  - sensor:
+      - name: "DomesticOps PV Power W"
+        unique_id: domesticops_pv_power_w
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        availability: >-
+          {% set invalid = ['unknown','unavailable','','none','None'] %}
+          {% set candidates = [
+            'sensor.pv_potenza_attuale',
+            'sensor.solaredge_potenza_attuale',
+            'sensor.sensor_pv_power_w'
+          ] %}
+          {% set ns = namespace(found=false) %}
+          {% for entity_id in candidates %}
+            {% if states(entity_id) not in invalid %}
+              {% set ns.found = true %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.found }}
+        state: >-
+          {% set invalid = ['unknown','unavailable','','none','None'] %}
+          {% set candidates = [
+            'sensor.pv_potenza_attuale',
+            'sensor.solaredge_potenza_attuale',
+            'sensor.sensor_pv_power_w'
+          ] %}
+          {% set ns = namespace(value=none) %}
+          {% for entity_id in candidates %}
+            {% set raw = states(entity_id) %}
+            {% if ns.value is none and raw not in invalid %}
+              {% set ns.value = raw | float(0) %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.value if ns.value is not none else none }}
+        attributes:
+          source: >-
+            {% set invalid = ['unknown','unavailable','','none','None'] %}
+            {% set candidates = [
+              'sensor.pv_potenza_attuale',
+              'sensor.solaredge_potenza_attuale',
+              'sensor.sensor_pv_power_w'
+            ] %}
+            {% set ns = namespace(value='unavailable') %}
+            {% for entity_id in candidates %}
+              {% if ns.value == 'unavailable' and states(entity_id) not in invalid %}
+                {% set ns.value = entity_id %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.value }}
+
+      - name: "DomesticOps Outdoor Temperature C"
+        unique_id: domesticops_outdoor_temperature_c
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        availability: >-
+          {% set invalid = ['unknown','unavailable','','none','None'] %}
+          {% set direct_candidates = [
+            'sensor.temperatura_esterna',
+            'sensor.temperatura_esterna_c',
+            'sensor.outdoor_temperature'
+          ] %}
+          {% set weather_temp = state_attr('weather.forecast_casa', 'temperature') %}
+          {% set ns = namespace(found=false) %}
+          {% for entity_id in direct_candidates %}
+            {% if states(entity_id) not in invalid %}
+              {% set ns.found = true %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.found or weather_temp is number }}
+        state: >-
+          {% set invalid = ['unknown','unavailable','','none','None'] %}
+          {% set direct_candidates = [
+            'sensor.temperatura_esterna',
+            'sensor.temperatura_esterna_c',
+            'sensor.outdoor_temperature'
+          ] %}
+          {% set weather_temp = state_attr('weather.forecast_casa', 'temperature') %}
+          {% set ns = namespace(value=none) %}
+          {% for entity_id in direct_candidates %}
+            {% set raw = states(entity_id) %}
+            {% if ns.value is none and raw not in invalid %}
+              {% set ns.value = raw | float(0) %}
+            {% endif %}
+          {% endfor %}
+          {% if ns.value is not none %}
+            {{ ns.value }}
+          {% elif weather_temp is number %}
+            {{ weather_temp }}
+          {% else %}
+            {{ none }}
+          {% endif %}
+        attributes:
+          source: >-
+            {% set invalid = ['unknown','unavailable','','none','None'] %}
+            {% set direct_candidates = [
+              'sensor.temperatura_esterna',
+              'sensor.temperatura_esterna_c',
+              'sensor.outdoor_temperature'
+            ] %}
+            {% set weather_temp = state_attr('weather.forecast_casa', 'temperature') %}
+            {% set ns = namespace(value='unavailable') %}
+            {% for entity_id in direct_candidates %}
+              {% if ns.value == 'unavailable' and states(entity_id) not in invalid %}
+                {% set ns.value = entity_id %}
+              {% endif %}
+            {% endfor %}
+            {% if ns.value != 'unavailable' %}
+              {{ ns.value }}
+            {% elif weather_temp is number %}
+              weather.forecast_casa.temperature
+            {% else %}
+              unavailable
+            {% endif %}
+
+      - name: "DomesticOps Outdoor Humidity"
+        unique_id: domesticops_outdoor_humidity
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        availability: >-
+          {% set invalid = ['unknown','unavailable','','none','None'] %}
+          {% set direct_candidates = [
+            'sensor.umidita_esterna',
+            'sensor.outdoor_humidity'
+          ] %}
+          {% set weather_h = state_attr('weather.forecast_casa', 'humidity') %}
+          {% set ns = namespace(found=false) %}
+          {% for entity_id in direct_candidates %}
+            {% if states(entity_id) not in invalid %}
+              {% set ns.found = true %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.found or weather_h is number }}
+        state: >-
+          {% set invalid = ['unknown','unavailable','','none','None'] %}
+          {% set direct_candidates = [
+            'sensor.umidita_esterna',
+            'sensor.outdoor_humidity'
+          ] %}
+          {% set weather_h = state_attr('weather.forecast_casa', 'humidity') %}
+          {% set ns = namespace(value=none) %}
+          {% for entity_id in direct_candidates %}
+            {% set raw = states(entity_id) %}
+            {% if ns.value is none and raw not in invalid %}
+              {% set ns.value = raw | float(0) %}
+            {% endif %}
+          {% endfor %}
+          {% if ns.value is not none %}
+            {{ ns.value }}
+          {% elif weather_h is number %}
+            {{ weather_h }}
+          {% else %}
+            {{ none }}
+          {% endif %}
+        attributes:
+          source: >-
+            {% set invalid = ['unknown','unavailable','','none','None'] %}
+            {% set direct_candidates = [
+              'sensor.umidita_esterna',
+              'sensor.outdoor_humidity'
+            ] %}
+            {% set weather_h = state_attr('weather.forecast_casa', 'humidity') %}
+            {% set ns = namespace(value='unavailable') %}
+            {% for entity_id in direct_candidates %}
+              {% if ns.value == 'unavailable' and states(entity_id) not in invalid %}
+                {% set ns.value = entity_id %}
+              {% endif %}
+            {% endfor %}
+            {% if ns.value != 'unavailable' %}
+              {{ ns.value }}
+            {% elif weather_h is number %}
+              weather.forecast_casa.humidity
+            {% else %}
+              unavailable
+            {% endif %}
+
+      - name: "DomesticOps Wind Speed"
+        unique_id: domesticops_wind_speed
+        unit_of_measurement: "m/s"
+        state_class: measurement
+        availability: >-
+          {% set invalid = ['unknown','unavailable','','none','None'] %}
+          {% set candidates = [
+            'sensor.meteo_vento_velocita',
+            'sensor.wind_speed',
+            'sensor.openweathermap_wind_speed'
+          ] %}
+          {% set ns = namespace(found=false) %}
+          {% for entity_id in candidates %}
+            {% if states(entity_id) not in invalid %}
+              {% set ns.found = true %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.found }}
+        state: >-
+          {% set invalid = ['unknown','unavailable','','none','None'] %}
+          {% set candidates = [
+            'sensor.meteo_vento_velocita',
+            'sensor.wind_speed',
+            'sensor.openweathermap_wind_speed'
+          ] %}
+          {% set ns = namespace(value=none) %}
+          {% for entity_id in candidates %}
+            {% set raw = states(entity_id) %}
+            {% if ns.value is none and raw not in invalid %}
+              {% set ns.value = raw | float(0) %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.value if ns.value is not none else none }}
+
+      - name: "DomesticOps Sunset In Minutes"
+        unique_id: domesticops_sunset_in_minutes
+        unit_of_measurement: "min"
+        icon: mdi:weather-sunset-down
+        availability: "{{ state_attr('sun.sun', 'next_setting') is not none }}"
+        state: >-
+          {% set next_setting = state_attr('sun.sun', 'next_setting') %}
+          {% if next_setting is not none %}
+            {{ ((as_timestamp(next_setting) - as_timestamp(now())) / 60) | round(0) }}
+          {% else %}
+            {{ none }}
+          {% endif %}
+
+      - name: "DomesticOps Rain Lookahead Source"
+        unique_id: domesticops_rain_lookahead_source
+        icon: mdi:source-branch
+        state: >-
+          {% set rain_binary = states('binary_sensor.meteo_pioggia') %}
+          {% set rain_num = states('sensor.meteo_pioggia_mm_h') %}
+          {% set forecast = state_attr('weather.forecast_casa', 'forecast') %}
+          {% if forecast is sequence and forecast | count > 0 %}
+            weather.forecast_casa.forecast
+          {% elif rain_binary not in ['unknown','unavailable','','none','None'] %}
+            binary_sensor.meteo_pioggia
+          {% elif rain_num not in ['unknown','unavailable','','none','None'] %}
+            sensor.meteo_pioggia_mm_h
+          {% elif states('weather.forecast_casa') not in ['unknown','unavailable','','none','None'] %}
+            weather.forecast_casa.state
+          {% else %}
+            unavailable
+          {% endif %}
+
+  - binary_sensor:
+      - name: "DomesticOps Rain Risk Lookahead"
+        unique_id: domesticops_rain_risk_lookahead
+        device_class: moisture
+        state: >-
+          {% set invalid = ['unknown','unavailable','','none','None'] %}
+          {% set lookahead = states('input_number.domesticops_rain_lookahead_h') | int(4) %}
+          {% set forecast = state_attr('weather.forecast_casa', 'forecast') %}
+          {% set ns = namespace(risk=false) %}
+          {% if forecast is sequence and forecast | count > 0 %}
+            {% for entry in forecast[:lookahead] %}
+              {% set condition = entry.condition if entry is mapping and entry.condition is defined else '' %}
+              {% set precipitation = entry.precipitation if entry is mapping and entry.precipitation is defined else 0 %}
+              {% if condition in ['rainy', 'pouring', 'lightning-rainy', 'hail']
+                    or (precipitation | float(0)) > 0 %}
+                {% set ns.risk = true %}
+              {% endif %}
+            {% endfor %}
+          {% elif states('binary_sensor.meteo_pioggia') not in invalid %}
+            {% set ns.risk = is_state('binary_sensor.meteo_pioggia', 'on') %}
+          {% elif states('sensor.meteo_pioggia_mm_h') not in invalid %}
+            {% set ns.risk = (states('sensor.meteo_pioggia_mm_h') | float(0)) > 0 %}
+          {% elif states('weather.forecast_casa') not in invalid %}
+            {% set ns.risk = states('weather.forecast_casa') in ['rainy', 'pouring', 'lightning-rainy', 'hail'] %}
+          {% endif %}
+          {{ ns.risk }}
+        availability: "{{ true }}"
+
+      - name: "DomesticOps Solar Window Active"
+        unique_id: domesticops_solar_window_active
+        icon: mdi:weather-sunny-clock
+        state: >-
+          {{ now().strftime('%H:%M') >= '10:30' and now().strftime('%H:%M') <= '16:00' }}
+
+      - name: "DomesticOps Lunch Window Active"
+        unique_id: domesticops_lunch_window_active
+        icon: mdi:clock-time-twelve
+        state: >-
+          {{ now().strftime('%H:%M') >= '11:30' and now().strftime('%H:%M') <= '14:30' }}
+
+      - name: "DomesticOps Lavastoviglie Window OK"
+        unique_id: domesticops_lavastoviglie_window_ok
+        icon: mdi:dishwasher
+        state: >-
+          {% set pv = states('sensor.domesticops_pv_power_w') | float(default=none) %}
+          {% set min_w = states('input_number.domesticops_pv_surplus_min_w') | float(1200) %}
+          {{
+            is_state('input_boolean.domesticops_domestic_mode_enabled', 'on')
+            and is_state('binary_sensor.domesticops_solar_window_active', 'on')
+            and pv is number
+            and pv >= min_w
+          }}
+        availability: "{{ has_value('sensor.domesticops_pv_power_w') }}"
+
+      - name: "DomesticOps Lavatrice Window OK"
+        unique_id: domesticops_lavatrice_window_ok
+        icon: mdi:washing-machine
+        state: >-
+          {% set pv = states('sensor.domesticops_pv_power_w') | float(default=none) %}
+          {% set min_w = states('input_number.domesticops_pv_surplus_min_w') | float(1200) %}
+          {{
+            is_state('input_boolean.domesticops_domestic_mode_enabled', 'on')
+            and is_state('binary_sensor.domesticops_solar_window_active', 'on')
+            and pv is number
+            and pv >= min_w
+          }}
+        availability: "{{ has_value('sensor.domesticops_pv_power_w') }}"
+
+      - name: "DomesticOps Lavatrice Running"
+        unique_id: domesticops_lavatrice_running
+        device_class: running
+        icon: mdi:washing-machine
+        state: >-
+          {% set power = states('sensor.pm2_mss310_power_w_main_channel') | float(default=none) %}
+          {% set on_w = states('input_number.pm2_on_w') | float(8) %}
+          {{ power is number and power >= on_w }}
+        availability: "{{ has_value('sensor.pm2_mss310_power_w_main_channel') }}"
+
+      - name: "DomesticOps Asciugatrice Running"
+        unique_id: domesticops_asciugatrice_running
+        device_class: running
+        icon: mdi:tumble-dryer
+        state: >-
+          {% set power = states('sensor.pm3_mss310_power_w_main_channel') | float(default=none) %}
+          {% set on_w = states('input_number.pm3_on_w') | float(8) %}
+          {{ power is number and power >= on_w }}
+        availability: "{{ has_value('sensor.pm3_mss310_power_w_main_channel') }}"
+
+      - name: "DomesticOps Lavastoviglie Likely Running"
+        unique_id: domesticops_lavastoviglie_likely_running
+        device_class: running
+        icon: mdi:dishwasher-alert
+        state: >-
+          {% set residual = states('sensor.domesticops_untracked_power_w') | float(default=none) %}
+          {% set threshold = states('input_number.domesticops_dishwasher_infer_min_w') | float(700) %}
+          {{
+            residual is number
+            and residual >= threshold
+            and is_state('binary_sensor.domesticops_lavatrice_running', 'off')
+            and is_state('binary_sensor.domesticops_asciugatrice_running', 'off')
+          }}
+        availability: "{{ has_value('sensor.domesticops_untracked_power_w') }}"
+
+      - name: "DomesticOps Drying Outdoor Good"
+        unique_id: domesticops_drying_outdoor_good
+        icon: mdi:clothesline
+        state: >-
+          {% set temp = states('sensor.domesticops_outdoor_temperature_c') | float(default=none) %}
+          {% set humidity = states('sensor.domesticops_outdoor_humidity') | float(default=none) %}
+          {% set temp_min = states('input_number.domesticops_temp_ext_min_drying') | float(18) %}
+          {% set humidity_max = states('input_number.domesticops_humidity_ext_max_drying') | float(68) %}
+          {% set rain_risk = is_state('binary_sensor.domesticops_rain_risk_lookahead', 'on') %}
+          {% set sunset_m = states('sensor.domesticops_sunset_in_minutes') | float(default=none) %}
+          {{
+            temp is number
+            and humidity is number
+            and temp >= temp_min
+            and humidity <= humidity_max
+            and not rain_risk
+            and (sunset_m is not number or sunset_m > 0)
+          }}
+
+      - name: "DomesticOps Drying Retrieval Needed"
+        unique_id: domesticops_drying_retrieval_needed
+        icon: mdi:weather-sunset
+        state: >-
+          {% set temp = states('sensor.domesticops_outdoor_temperature_c') | float(default=none) %}
+          {% set humidity = states('sensor.domesticops_outdoor_humidity') | float(default=none) %}
+          {% set humidity_risk = states('input_number.domesticops_humidity_ext_risk') | float(75) %}
+          {% set temp_min = states('input_number.domesticops_temp_ext_min_drying') | float(18) %}
+          {% set rain_risk = is_state('binary_sensor.domesticops_rain_risk_lookahead', 'on') %}
+          {% set sunset_warn = states('input_number.domesticops_retrieve_anticipation_min') | float(30) %}
+          {% set sunset_m = states('sensor.domesticops_sunset_in_minutes') | float(default=none) %}
+          {{
+            is_state('input_boolean.domesticops_laundry_outside', 'on')
+            and (
+              rain_risk
+              or (humidity is number and humidity > humidity_risk)
+              or (temp is number and temp < temp_min)
+              or (sunset_m is number and sunset_m <= sunset_warn)
+            )
+          }}
+
+  - sensor:
+      - name: "DomesticOps Laundry Drying Advice"
+        unique_id: domesticops_laundry_drying_advice
+        icon: >-
+          {% set advice = this.state %}
+          {% if advice == 'stendi_fuori' %}
+            mdi:clothesline
+          {% elif advice == 'asciugatrice_subito' %}
+            mdi:tumble-dryer-alert
+          {% elif advice == 'asciugatrice_fv' %}
+            mdi:tumble-dryer
+          {% elif advice == 'rientra_e_completa_asciugatrice' %}
+            mdi:home-import-outline
+          {% elif advice == 'rischio_pioggia' %}
+            mdi:weather-rainy
+          {% elif advice == 'rischio_umidita' %}
+            mdi:water-alert
+          {% else %}
+            mdi:timer-sand
+          {% endif %}
+        state: >-
+          {% set temp = states('sensor.domesticops_outdoor_temperature_c') | float(default=none) %}
+          {% set humidity = states('sensor.domesticops_outdoor_humidity') | float(default=none) %}
+          {% set pv = states('sensor.domesticops_pv_power_w') | float(default=none) %}
+          {% set temp_min = states('input_number.domesticops_temp_ext_min_drying') | float(18) %}
+          {% set humidity_max = states('input_number.domesticops_humidity_ext_max_drying') | float(68) %}
+          {% set humidity_risk = states('input_number.domesticops_humidity_ext_risk') | float(75) %}
+          {% set retrieve_anticipation = states('input_number.domesticops_retrieve_anticipation_min') | float(30) %}
+          {% set sunset_m = states('sensor.domesticops_sunset_in_minutes') | float(default=none) %}
+          {% set rain_risk = is_state('binary_sensor.domesticops_rain_risk_lookahead', 'on') %}
+          {% set outdoor_good = is_state('binary_sensor.domesticops_drying_outdoor_good', 'on') %}
+          {% set outside = is_state('input_boolean.domesticops_laundry_outside', 'on') %}
+          {% set pending = is_state('input_boolean.domesticops_laundry_pending', 'on') %}
+          {% set solar_window = is_state('binary_sensor.domesticops_solar_window_active', 'on') %}
+          {% set pv_min = states('input_number.domesticops_pv_surplus_min_w') | float(1200) %}
+          {% if outside and rain_risk %}
+            rischio_pioggia
+          {% elif outside and humidity is number and humidity > humidity_risk %}
+            rischio_umidita
+          {% elif outside and (
+            (sunset_m is number and sunset_m <= retrieve_anticipation)
+            or (temp is number and temp < temp_min)
+            or rain_risk
+          ) %}
+            rientra_e_completa_asciugatrice
+          {% elif pending and outdoor_good and temp is number and humidity is number
+                and temp >= temp_min and humidity <= humidity_max
+                and (sunset_m is not number or sunset_m > retrieve_anticipation) %}
+            stendi_fuori
+          {% elif pending and solar_window and pv is number and pv >= pv_min %}
+            asciugatrice_fv
+          {% elif pending %}
+            asciugatrice_subito
+          {% else %}
+            attendi
+          {% endif %}
+        attributes:
+          pv_power_w: "{{ states('sensor.domesticops_pv_power_w') }}"
+          pv_source: "{{ state_attr('sensor.domesticops_pv_power_w', 'source') }}"
+          outdoor_temp_c: "{{ states('sensor.domesticops_outdoor_temperature_c') }}"
+          temp_source: "{{ state_attr('sensor.domesticops_outdoor_temperature_c', 'source') }}"
+          outdoor_humidity_pct: "{{ states('sensor.domesticops_outdoor_humidity') }}"
+          humidity_source: "{{ state_attr('sensor.domesticops_outdoor_humidity', 'source') }}"
+          wind_speed_m_s: "{{ states('sensor.domesticops_wind_speed') }}"
+          rain_risk: "{{ states('binary_sensor.domesticops_rain_risk_lookahead') }}"
+          rain_source: "{{ states('sensor.domesticops_rain_lookahead_source') }}"
+          sunset_in_minutes: "{{ states('sensor.domesticops_sunset_in_minutes') }}"
+          laundry_outside: "{{ states('input_boolean.domesticops_laundry_outside') }}"
+          laundry_pending: "{{ states('input_boolean.domesticops_laundry_pending') }}"
+          laundry_type: "{{ states('input_select.domesticops_laundry_type') }}"
+
+      - name: "DomesticOps Drying Advice Human"
+        unique_id: domesticops_drying_advice_human
+        icon: mdi:text-box-check-outline
+        state: >-
+          {% set advice = states('sensor.domesticops_laundry_drying_advice') %}
+          {% if advice == 'stendi_fuori' %}
+            Stendi fuori adesso.
+          {% elif advice == 'asciugatrice_subito' %}
+            Usa asciugatrice adesso.
+          {% elif advice == 'asciugatrice_fv' %}
+            Usa asciugatrice adesso: sei anche in fascia FV.
+          {% elif advice == 'rientra_e_completa_asciugatrice' %}
+            Rientra il bucato e completa in asciugatrice.
+          {% elif advice == 'rischio_pioggia' %}
+            Rientra il bucato: rischio pioggia.
+          {% elif advice == 'rischio_umidita' %}
+            Rientra il bucato: umidita troppo alta.
+          {% else %}
+            Attendi condizioni migliori.
+          {% endif %}
+        attributes:
+          next_action: >-
+            {% set advice = states('sensor.domesticops_laundry_drying_advice') %}
+            {% if advice == 'stendi_fuori' %}
+              Stendi fuori e porta input_boolean.domesticops_laundry_outside su on.
+            {% elif advice == 'asciugatrice_subito' %}
+              Avvia asciugatrice adesso; non aspettare altre condizioni.
+            {% elif advice == 'asciugatrice_fv' %}
+              Avvia asciugatrice ora se il carico e pronto.
+            {% elif advice in ['rientra_e_completa_asciugatrice', 'rischio_pioggia', 'rischio_umidita'] %}
+              Raccogli il bucato e completa con asciugatrice se serve.
+            {% else %}
+              Lascia input_boolean.domesticops_laundry_pending su on e ricontrolla piu tardi.
+            {% endif %}
+          bring_in_by: >-
+            {% set advice = states('sensor.domesticops_laundry_drying_advice') %}
+            {% set sunset_m = states('sensor.domesticops_sunset_in_minutes') | float(default=none) %}
+            {% set anticipation = states('input_number.domesticops_retrieve_anticipation_min') | float(30) %}
+            {% if advice == 'stendi_fuori' and sunset_m is number and sunset_m > anticipation %}
+              {{ (now() + timedelta(minutes=(sunset_m - anticipation))).strftime('%H:%M') }}
+            {% elif advice in ['rientra_e_completa_asciugatrice', 'rischio_pioggia', 'rischio_umidita'] %}
+              subito
+            {% else %}
+              n/a
+            {% endif %}
+          bring_in_note: >-
+            {% set advice = states('sensor.domesticops_laundry_drying_advice') %}
+            {% set anticipation = states('input_number.domesticops_retrieve_anticipation_min') | int(30) %}
+            {% if advice == 'stendi_fuori' %}
+              Se stendi fuori, rientra circa {{ anticipation }} min prima del tramonto o prima se cambia il meteo.
+            {% elif advice in ['rientra_e_completa_asciugatrice', 'rischio_pioggia', 'rischio_umidita'] %}
+              Rientro immediato consigliato.
+            {% else %}
+              Nessun orario di rientro applicabile.
+            {% endif %}
+          context_note: >-
+            Tipo bucato: {{ states('input_select.domesticops_laundry_type') }} | Carico: {{ states('input_number.domesticops_laundry_load_kg') }} kg | FV: {{ states('sensor.domesticops_pv_power_w') }} W
+
+      - name: "DomesticOps Untracked Power W"
+        unique_id: domesticops_untracked_power_w
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        icon: mdi:help-network-outline
+        availability: >-
+          {{
+            states('sensor.global_consumption_estimated_w') | float(default=none) is number
+            and states('sensor.local_meters_power_w') | float(default=none) is number
+          }}
+        state: >-
+          {% set total = states('sensor.global_consumption_estimated_w') | float(default=none) %}
+          {% set local = states('sensor.local_meters_power_w') | float(default=none) %}
+          {% if total is number and local is number %}
+            {{ ([total - local, 0] | max) | round(0) }}
+          {% else %}
+            {{ none }}
+          {% endif %}
+        attributes:
+          source: "global_consumption_estimated_w - local_meters_power_w"
+          note: "Residuo non tracciato: puo includere lavastoviglie e altri carichi non metered."
+
+      - name: "DomesticOps Laundry Program Advice"
+        unique_id: domesticops_laundry_program_advice
+        icon: mdi:washing-machine
+        state: >-
+          {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+          {% if laundry_type == 'sportivo' %}
+            speciale_sport_40c
+          {% elif laundry_type == 'asciugamani' %}
+            cotone_60c
+          {% elif laundry_type == 'lenzuola' %}
+            eco_40_60_o_allergy_60c
+          {% elif laundry_type == 'bambino' %}
+            delicati_20_30c_o_mix_delicato
+          {% else %}
+            eco_40_60_o_misti_30_40c
+          {% endif %}
+        attributes:
+          recommended_temperature_c: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'sportivo' %}
+              40
+            {% elif laundry_type in ['asciugamani', 'lenzuola'] %}
+              60
+            {% elif laundry_type == 'bambino' %}
+              30
+            {% else %}
+              40
+            {% endif %}
+          washer_program: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'sportivo' %}
+              Speciale Sport
+            {% elif laundry_type == 'asciugamani' %}
+              Cotone 60 C
+            {% elif laundry_type == 'lenzuola' %}
+              Eco 40-60 oppure Allergy Care 60 C
+            {% elif laundry_type == 'bambino' %}
+              Delicati 20-30 C oppure Misti delicato
+            {% else %}
+              Eco 40-60 oppure Misti 30-40 C
+            {% endif %}
+          washer_load_note: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'sportivo' %}
+              Carico tipico manuale LG: fino a 3 kg. Evita micro-carichi.
+            {% elif laundry_type == 'asciugamani' %}
+              Asciugamani e accappatoi: carico dedicato, senza lenzuola.
+            {% elif laundry_type == 'lenzuola' %}
+              Matrimoniale + letto singolo: meglio carico dedicato, senza mix con asciugamani.
+            {% elif laundry_type == 'bambino' %}
+              Se il volume e basso, aspetta accumulo minimo oppure unisci solo capi davvero compatibili.
+            {% else %}
+              Bucato adulti: usa accumulo utile, non micro-lavaggi.
+            {% endif %}
+          dryer_program: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'sportivo' %}
+              Speciale Sport
+            {% elif laundry_type == 'asciugamani' %}
+              Asciugamani
+            {% elif laundry_type == 'lenzuola' %}
+              Cotone oppure Piumini se voluminoso
+            {% elif laundry_type == 'bambino' %}
+              Delicati oppure stesura fuori
+            {% else %}
+              Misti oppure Cotone
+            {% endif %}
+          dryer_load_note: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'sportivo' %}
+              Manuale LG asciugatrice: Speciale Sport fino a 2 kg.
+            {% elif laundry_type == 'asciugamani' %}
+              Manuale LG asciugatrice: Asciugamani fino a 4.5 kg.
+            {% elif laundry_type == 'lenzuola' %}
+              Per capi voluminosi non comprimere troppo il cestello.
+            {% elif laundry_type == 'bambino' %}
+              Evita calore aggressivo se non necessario.
+            {% else %}
+              Misti fino a 4 kg; Cotone fino a 9 kg.
+            {% endif %}
+          operational_note: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'sportivo' %}
+              Evita 60 C; usa finestra FV e preferisci asciugatura fuori se possibile.
+            {% elif laundry_type == 'asciugamani' %}
+              Il 60 C ha senso; se asciugatrice necessaria, meglio in surplus FV.
+            {% elif laundry_type == 'lenzuola' %}
+              Carico dedicato, alta inerzia termica; pianifica nella finestra FV piena.
+            {% elif laundry_type == 'bambino' %}
+              Punta a detergenza semplice, poco profumo e temperatura moderata.
+            {% else %}
+              Default consigliato: 30-40 C e pieno carico utile, non micro-lavaggi.
+            {% endif %}
+
+      - name: "DomesticOps Lavastoviglie Advice"
+        unique_id: domesticops_lavastoviglie_advice
+        icon: mdi:dishwasher
+        state: >-
+          {% if is_state('binary_sensor.domesticops_lavastoviglie_window_ok', 'on')
+                and is_state('binary_sensor.domesticops_lunch_window_active', 'on') %}
+            pausa_pranzo_preferita
+          {% elif is_state('binary_sensor.domesticops_lavastoviglie_window_ok', 'on') %}
+            fascia_fv_ok
+          {% else %}
+            attendi
+          {% endif %}
+        attributes:
+          preferred_window: "11:30-14:30"
+          fallback_window: "10:30-16:00"
+          inference_note: "Se non hai una presa dedicata, il pattern running e solo inferito dal residuo non tracciato."
+          operational_note: "Lavastoviglie: idealmente pausa pranzo; se non possibile, resta valida la fascia FV fino alle 16:00."
+
+      - name: "DomesticOps Household Load Advice"
+        unique_id: domesticops_household_load_advice
+        icon: mdi:laundry
+        state: >-
+          {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+          {% if laundry_type == 'asciugamani' %}
+            separa_asciugamani_e_accappatoi_da_lenzuola
+          {% elif laundry_type == 'lenzuola' %}
+            lenzuola_famiglia_in_carico_dedicato
+          {% elif laundry_type == 'sportivo' %}
+            carico_leggero_ma_non_micro
+          {% elif laundry_type == 'bambino' %}
+            carico_bimbo_separato_finche_serve
+          {% else %}
+            carico_normale_adulti_accumulo_utile
+          {% endif %}
+        attributes:
+          household_note: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'asciugamani' %}
+              Per Casa Mercurio: asciugamani e accappatoi meglio separati dalle lenzuola.
+            {% elif laundry_type == 'lenzuola' %}
+              Matrimoniale + letto singolo stanno meglio in un carico dedicato, senza asciugamani.
+            {% elif laundry_type == 'sportivo' %}
+              Accumula almeno un carico sensato; evita il rapido per pochi pezzi salvo urgenza.
+            {% elif laundry_type == 'bambino' %}
+              Il bidone separato bimbo ha senso come flusso dedicato, specie se vuoi profilo piu delicato.
+            {% else %}
+              Per gli adulti il FILUR 42 L e un buon trigger di accumulo: punta a carico pieno utile, non massimo assoluto.
+            {% endif %}
+          washer_capacity_note: >-
+            La LG F4WV310 arriva a 10.5 kg nominali, ma per capi voluminosi conviene stare piu bassi per lavaggio e risciacquo efficaci.
+          separation_rule: >-
+            Lenzuola e asciugamani/accappatoi: meglio separati. Il mix e troppo pesante e sbilanciato per un carico pulito e ben centrifugato.
+          child_laundry_note: >-
+            Il bidone separato bimbo ha senso come buffer dedicato; se i capi sono pochi, puoi unirli solo se compatibili per tessuto/temperatura.
+
+      - name: "DomesticOps Detergent Advice"
+        unique_id: domesticops_detergent_advice
+        icon: mdi:beaker-outline
+        state: >-
+          {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+          {% if laundry_type == 'sportivo' %}
+            dash_polvere_con_igienizzante
+          {% elif laundry_type == 'asciugamani' %}
+            omino_con_percarbonato
+          {% elif laundry_type == 'lenzuola' %}
+            omino_con_percarbonato_opzionale
+          {% elif laundry_type == 'bambino' %}
+            omino_leggero_o_dedicato_delicati
+          {% else %}
+            omino_liquido_standard
+          {% endif %}
+        attributes:
+          load_kg: >-
+            {{ states('input_number.domesticops_laundry_load_kg') }}
+          use_now: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'sportivo' %}
+              Usa Dash Power polvere come detersivo principale.
+            {% elif laundry_type == 'bambino' %}
+              Usa Omino Bianco liquido, dose leggera.
+            {% elif laundry_type == 'lenzuola' %}
+              Usa Omino Bianco liquido; aggiungi Percarbonato.
+            {% elif laundry_type == 'asciugamani' %}
+              Usa Omino Bianco liquido; aggiungi Percarbonato.
+            {% else %}
+              Usa Omino Bianco liquido.
+            {% endif %}
+          add_now: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'sportivo' %}
+              Aggiungi additivo igienizzante.
+            {% elif laundry_type in ['lenzuola', 'asciugamani'] %}
+              Aggiungi Percarbonato.
+            {% else %}
+              Nessun additivo necessario.
+            {% endif %}
+          avoid_now: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'sportivo' %}
+              Evita Vernel e non sommare Omino a Dash.
+            {% elif laundry_type == 'asciugamani' %}
+              Evita Vernel.
+            {% elif laundry_type == 'bambino' %}
+              Evita profumazioni forti.
+            {% else %}
+              Evita eccesso di detersivo.
+            {% endif %}
+          quick_recipe: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% set load = states('input_number.domesticops_laundry_load_kg') | float(4) %}
+            {% if laundry_type == 'sportivo' %}
+              Dash {{ 25 if load <= 2 else 35 if load <= 3 else 45 }} g + Igienizzante {{ 15 if load <= 2 else 20 if load <= 3 else 25 }} g
+            {% elif laundry_type == 'lenzuola' %}
+              Omino {{ 55 if load <= 4 else 65 if load <= 6 else 75 }} ml + Percarbonato {{ 15 if load <= 4 else 20 if load <= 6 else 25 }} g
+            {% elif laundry_type == 'asciugamani' %}
+              Omino {{ 60 if load <= 4 else 70 if load <= 6 else 80 }} ml + Percarbonato {{ 20 if load <= 4 else 25 if load <= 6 else 30 }} g
+            {% elif laundry_type == 'bambino' %}
+              Omino {{ 30 if load <= 3 else 40 if load <= 5 else 50 }} ml
+            {% else %}
+              Omino {{ 40 if load <= 3 else 50 if load <= 5 else 60 }} ml
+            {% endif %}
+          weighing_note: >-
+            Misura il carico con due pesate semplici: cesto pieno meno cesto vuoto, oppure persona + bucato meno persona. Usa il valore in kg qui sopra.
+          main_detergent: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'sportivo' %}
+              Dash Power polvere
+            {% else %}
+              Omino Bianco Detersivo Igienizzante
+            {% endif %}
+          inventory_confirmed: >-
+            Omino Bianco liquido; Dash Power; ACE Gentile; Percarbonato; Acido Citrico; Vernel Carezza Delicata.
+          dose_basis_note: >-
+            Dosi misurabili mostrate qui: Omino, Dash polvere, Percarbonato e Vernel. ACE Gentile resta prodotto di supporto; l'additivo igienizzante e segnato come acquisto consigliato.
+          detergent_product_note: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'sportivo' %}
+              Base sport: Dash Power polvere.
+            {% elif laundry_type == 'bambino' %}
+              Base bimbo: Omino leggero, poco profumo.
+            {% else %}
+              Base standard: Omino Bianco liquido.
+            {% endif %}
+          detergent_ml: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% set load = states('input_number.domesticops_laundry_load_kg') | float(4) %}
+            {% if laundry_type == 'sportivo' %}
+              0
+            {% elif laundry_type == 'bambino' %}
+              {% if load <= 3 %}
+                30
+              {% elif load <= 5 %}
+                40
+              {% else %}
+                50
+              {% endif %}
+            {% elif laundry_type == 'lenzuola' %}
+              {% if load <= 4 %}
+                55
+              {% elif load <= 6 %}
+                65
+              {% else %}
+                75
+              {% endif %}
+            {% elif laundry_type == 'asciugamani' %}
+              {% if load <= 4 %}
+                60
+              {% elif load <= 6 %}
+                70
+              {% else %}
+                80
+              {% endif %}
+            {% else %}
+              {% if load <= 3 %}
+                40
+              {% elif load <= 5 %}
+                50
+              {% else %}
+                60
+              {% endif %}
+            {% endif %}
+          detergent_g: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% set load = states('input_number.domesticops_laundry_load_kg') | float(4) %}
+            {% if laundry_type == 'sportivo' %}
+              {% if load <= 2 %}
+                25
+              {% elif load <= 3 %}
+                35
+              {% else %}
+                45
+              {% endif %}
+            {% else %}
+              0
+            {% endif %}
+          detergent_ml_note: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% set load = states('input_number.domesticops_laundry_load_kg') | float(4) %}
+            {% if laundry_type == 'sportivo' %}
+              Dash Power polvere: usa il campo grammi, non ml.
+            {% elif laundry_type == 'bambino' %}
+              Omino Bianco: dose precisa su {{ load }} kg.
+            {% elif laundry_type == 'lenzuola' %}
+              Omino Bianco: dose precisa su {{ load }} kg.
+            {% elif laundry_type == 'asciugamani' %}
+              Omino Bianco: dose precisa su {{ load }} kg.
+            {% else %}
+              Omino Bianco: dose precisa su {{ load }} kg.
+            {% endif %}
+          percarbonate_g: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% set load = states('input_number.domesticops_laundry_load_kg') | float(4) %}
+            {% if laundry_type == 'lenzuola' %}
+              {% if load <= 4 %}
+                15
+              {% elif load <= 6 %}
+                20
+              {% else %}
+                25
+              {% endif %}
+            {% elif laundry_type == 'asciugamani' %}
+              {% if load <= 4 %}
+                20
+              {% elif load <= 6 %}
+                25
+              {% else %}
+                30
+              {% endif %}
+            {% else %}
+              0
+            {% endif %}
+          percarbonate_note: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'lenzuola' %}
+              Percarbonato attivo da 40 C in su, misurato in grammi.
+            {% elif laundry_type == 'asciugamani' %}
+              Percarbonato utile per odori e bianco ottico leggero, misurato in grammi.
+            {% else %}
+              Percarbonato: 0 g.
+            {% endif %}
+          hygienizer_product: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'sportivo' %}
+              Additivo igienizzante da acquistare
+            {% else %}
+              Nessuno di default
+            {% endif %}
+          hygienizer_qty_g: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% set load = states('input_number.domesticops_laundry_load_kg') | float(4) %}
+            {% if laundry_type == 'sportivo' %}
+              {% if load <= 2 %}
+                15
+              {% elif load <= 3 %}
+                20
+              {% else %}
+                25
+              {% endif %}
+            {% else %}
+              0
+            {% endif %}
+          hygienizer_note: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'sportivo' %}
+              Riferimento operativo concordato: circa 1/4 dose su carichi sport piccoli. Qui e tradotto in grammi misurabili.
+            {% else %}
+              Nessun additivo igienizzante richiesto nel flusso standard.
+            {% endif %}
+          softener_ml: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'asciugamani' or laundry_type == 'sportivo' %}
+              0
+            {% elif laundry_type == 'bambino' %}
+              0-10
+            {% else %}
+              0-15
+            {% endif %}
+          citric_acid_note: "Acido citrico: solo in vaschetta ammorbidente, non insieme al detersivo."
+          softener_note: >-
+            {% set laundry_type = states('input_select.domesticops_laundry_type') %}
+            {% if laundry_type == 'asciugamani' or laundry_type == 'sportivo' %}
+              Vernel: 0 ml, meglio evitarlo.
+            {% elif laundry_type == 'bambino' %}
+              Vernel: 0-10 ml, opzionale.
+            {% else %}
+              Vernel: 0-15 ml, opzionale.
+            {% endif %}
+          dash_note: >-
+            Dash Power: usalo come base misurata in grammi per sportivo. Non sommarlo a Omino nello stesso lavaggio.
+          ace_gentile_note: >-
+            ACE Gentile: usalo come supporto mirato, non come base di default. Ha senso soprattutto per capi che vuoi ravvivare o igienizzare con piu delicatezza; non serve nel flusso standard di ogni lavaggio.
+          purchase_hygienizer_type: >-
+            Tipologia da comprare: additivo igienizzante per bucato colorato e sportivo, senza cloro, dosabile in grammi o ml.
+          purchase_vendor_note: >-
+            Vendor consigliato: Tigota, Acqua e Sapone, supermercato grande o Amazon. La priorita e la tipologia corretta, non il brand.
+          available_products_note: >-
+            Disponibili visti in casa: Omino Bianco liquido, Dash Power, ACE Gentile, Percarbonato, Acido Citrico, Vernel Carezza Delicata.
+          buy_next_note: >-
+            Priorita acquisti: additivo igienizzante per bucato sport/colorati; poi acchiappa-colore di ricambio. Facoltativo un detergente lana/delicati o baby-sensitive se lavi spesso capi sensibili.
+
+script:
+  domesticops_notify:
+    alias: "DomesticOps - Notifica operativa"
+    mode: queued
+    fields:
+      title:
+        description: "Titolo notifica"
+        example: "DomesticOps"
+      message:
+        description: "Messaggio notifica"
+        example: "Condizioni buone: avvia lavastoviglie ora."
+    sequence:
+      - condition: state
+        entity_id: input_boolean.domesticops_notify_enabled
+        state: "on"
+      - service: logbook.log
+        data:
+          name: "{{ title | default('DomesticOps') }}"
+          message: "{{ message }}"
+          entity_id: input_boolean.domesticops_notify_enabled
+      - service: persistent_notification.create
+        data:
+          title: "{{ title | default('DomesticOps') }}"
+          message: "{{ message }}"
+      - action: notify.send_message
+        target:
+          entity_id: notify.telegram_davide
+        data:
+          message: |
+            {{ title | default('DomesticOps') }}
+
+            {{ message }}
+
+            Ora: `{{ now() | string | replace('`', '') }}`
+
+automation:
+  - id: domesticops_notify_lavastoviglie_window
+    alias: "DomesticOps - Notifica slot lavastoviglie"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.domesticops_lavastoviglie_window_ok
+        to: "on"
+        for: "00:15:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.domesticops_domestic_mode_enabled
+        state: "on"
+    action:
+      - action: script.domesticops_notify
+        data:
+          title: "DomesticOps - Lavastoviglie"
+          message: "Condizioni buone: avvia lavastoviglie ora."
+
+  - id: domesticops_notify_lavatrice_window
+    alias: "DomesticOps - Notifica slot lavatrice"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.domesticops_lavatrice_window_ok
+        to: "on"
+        for: "00:15:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.domesticops_domestic_mode_enabled
+        state: "on"
+    action:
+      - action: script.domesticops_notify
+        data:
+          title: "DomesticOps - Lavatrice"
+          message: "Slot energetico buono: puoi avviare lavatrice."
+
+  - id: domesticops_notify_drying_advice_outside
+    alias: "DomesticOps - Notifica stendi fuori"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: sensor.domesticops_laundry_drying_advice
+        to: "stendi_fuori"
+        for: "00:10:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.domesticops_domestic_mode_enabled
+        state: "on"
+    action:
+      - action: script.domesticops_notify
+        data:
+          title: "DomesticOps - Bucato"
+          message: "Condizioni ottime per stendere fuori."
+
+  - id: domesticops_notify_drying_advice_retrieve
+    alias: "DomesticOps - Notifica rientra bucato"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: sensor.domesticops_laundry_drying_advice
+        to: "rientra_e_completa_asciugatrice"
+        for: "00:10:00"
+      - platform: state
+        entity_id: sensor.domesticops_laundry_drying_advice
+        to: "rischio_pioggia"
+        for: "00:10:00"
+      - platform: state
+        entity_id: sensor.domesticops_laundry_drying_advice
+        to: "rischio_umidita"
+        for: "00:10:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.domesticops_domestic_mode_enabled
+        state: "on"
+    variables:
+      message: >-
+        {% if trigger.to_state.state == 'rischio_pioggia' %}
+          Rientra bucato: c'e rischio pioggia.
+        {% elif trigger.to_state.state == 'rischio_umidita' %}
+          Rientra bucato: umidita esterna troppo alta.
+        {% else %}
+          Rientra il bucato e completa in asciugatrice.
+        {% endif %}
+    action:
+      - action: script.domesticops_notify
+        data:
+          title: "DomesticOps - Bucato"
+          message: "{{ message }}"
+
+  - id: domesticops_notify_drying_advice_dryer
+    alias: "DomesticOps - Notifica asciugatrice FV"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: sensor.domesticops_laundry_drying_advice
+        to: "asciugatrice_fv"
+        for: "00:10:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.domesticops_domestic_mode_enabled
+        state: "on"
+    action:
+      - action: script.domesticops_notify
+        data:
+          title: "DomesticOps - Bucato"
+          message: "Condizioni esterne sfavorevoli: conviene asciugatrice con FV."
+
+  - id: domesticops_lavatrice_cycle_complete
+    alias: "DomesticOps - Ciclo lavatrice completato"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.domesticops_lavatrice_running
+        from: "on"
+        to: "off"
+        for: "00:02:00"
+    condition:
+      - condition: template
+        value_template: >-
+          {{ trigger.from_state is not none and (as_timestamp(now()) - as_timestamp(trigger.from_state.last_changed)) > 900 }}
+    action:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.domesticops_lavatrice_cycles_total
+        data:
+          value: "{{ states('input_number.domesticops_lavatrice_cycles_total') | float(0) + 1 }}"
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.domesticops_laundry_pending
+      - action: script.domesticops_notify
+        data:
+          title: "DomesticOps - Lavatrice finita"
+          message: >-
+            {{ states('sensor.domesticops_drying_advice_human') }}
+            {{ state_attr('sensor.domesticops_drying_advice_human', 'next_action') }}
+
+  - id: domesticops_asciugatrice_cycle_complete
+    alias: "DomesticOps - Ciclo asciugatrice completato"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.domesticops_asciugatrice_running
+        from: "on"
+        to: "off"
+        for: "00:02:00"
+    condition:
+      - condition: template
+        value_template: >-
+          {{ trigger.from_state is not none and (as_timestamp(now()) - as_timestamp(trigger.from_state.last_changed)) > 600 }}
+    action:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.domesticops_asciugatrice_cycles_total
+        data:
+          value: "{{ states('input_number.domesticops_asciugatrice_cycles_total') | float(0) + 1 }}"
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.domesticops_laundry_pending
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.domesticops_laundry_outside
+
+  - id: domesticops_reminder_bagno_weekly
+    alias: "DomesticOps - Reminder pulizia bagno"
+    mode: single
+    trigger:
+      - platform: time
+        at: "18:30:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.domesticops_domestic_mode_enabled
+        state: "on"
+      - condition: template
+        value_template: "{{ now().weekday() == 4 }}"
+    action:
+      - action: script.domesticops_notify
+        data:
+          title: "DomesticOps - Routine casa"
+          message: "Reminder pulizia bagno settimanale."
+
+  - id: domesticops_reminder_rifiuti_frigo_sunday
+    alias: "DomesticOps - Reminder rifiuti e check frigo"
+    mode: single
+    trigger:
+      - platform: time
+        at: "20:30:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.domesticops_domestic_mode_enabled
+        state: "on"
+      - condition: template
+        value_template: "{{ now().weekday() == 6 }}"
+    action:
+      - action: script.domesticops_notify
+        data:
+          title: "DomesticOps - Routine casa"
+          message: "Reminder rifiuti e check domenicale del frigo."
+
+  - id: domesticops_reminder_svuota_lavastoviglie_morning
+    alias: "DomesticOps - Reminder svuota lavastoviglie"
+    mode: single
+    trigger:
+      - platform: time
+        at: "07:30:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.domesticops_domestic_mode_enabled
+        state: "on"
+      - condition: template
+        value_template: "{{ now().weekday() in [0, 1, 2, 3, 4] }}"
+    action:
+      - action: script.domesticops_notify
+        data:
+          title: "DomesticOps - Lavastoviglie"
+          message: "Reminder: svuota lavastoviglie."
+
+  - id: domesticops_reminder_carica_lavastoviglie_evening
+    alias: "DomesticOps - Reminder carica lavastoviglie"
+    mode: single
+    trigger:
+      - platform: time
+        at: "21:30:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.domesticops_domestic_mode_enabled
+        state: "on"
+    action:
+      - action: script.domesticops_notify
+        data:
+          title: "DomesticOps - Lavastoviglie"
+          message: "Reminder: carica lavastoviglie dopo cena."
