@@ -1,0 +1,176 @@
+---
+# PACKAGE: domestic_ops.yaml
+# Modulo DomesticOps
+# MVP domestico FV-aware per lavastoviglie, lavatrice, asciugatura bucato
+# e routine operative leggere via notifica.
+#
+# ENTITY MAPPING
+# Modifica qui i candidate entity_id se il runtime cambia.
+# Il package seleziona automaticamente la prima sorgente valida disponibile.
+#
+# Outdoor temperature candidates:
+# - sensor.temperatura_esterna
+# - sensor.temperatura_esterna_c
+# - sensor.outdoor_temperature
+# - weather.forecast_casa.temperature (attributo)
+#
+# Outdoor humidity candidates:
+# - sensor.umidita_esterna
+# - sensor.outdoor_humidity
+# - weather.forecast_casa.humidity (attributo)
+#
+# PV power / surplus candidates:
+# - sensor.pv_potenza_attuale
+# - sensor.solaredge_potenza_attuale
+# - sensor.sensor_pv_power_w
+#
+# Weather / rain candidates:
+# - weather.forecast_casa
+# - binary_sensor.meteo_pioggia
+# - sensor.meteo_pioggia_mm_h
+#
+# Wind candidates:
+# - sensor.meteo_vento_velocita
+# - sensor.wind_speed
+# - sensor.openweathermap_wind_speed
+#
+# Smart plug candidates:
+# - Lavatrice: sensor.pm2_mss310_power_w_main_channel
+# - Asciugatrice: sensor.pm3_mss310_power_w_main_channel
+# - Lavastoviglie: TODO se in futuro viene aggiunta una presa smart dedicata
+#
+# Telegram notify target used today:
+# - notify.telegram_davide
+# TODO: se il runtime espone un altro notify target Telegram, aggiornare lo script.
+
+input_number:
+  domesticops_pv_surplus_min_w:
+    name: "DomesticOps - PV surplus minimo"
+    min: 200
+    max: 5000
+    step: 50
+    initial: 1200
+    unit_of_measurement: "W"
+    icon: mdi:solar-power
+
+  domesticops_temp_ext_min_drying:
+    name: "DomesticOps - Temperatura minima stesura"
+    min: 5
+    max: 35
+    step: 0.5
+    initial: 18
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer
+
+  domesticops_humidity_ext_max_drying:
+    name: "DomesticOps - Umidita massima stesura"
+    min: 30
+    max: 95
+    step: 1
+    initial: 68
+    unit_of_measurement: "%"
+    icon: mdi:water-percent
+
+  domesticops_humidity_ext_risk:
+    name: "DomesticOps - Umidita rischio bucato"
+    min: 50
+    max: 100
+    step: 1
+    initial: 75
+    unit_of_measurement: "%"
+    icon: mdi:water-alert
+
+  domesticops_sunset_warning_min:
+    name: "DomesticOps - Allerta tramonto"
+    min: 30
+    max: 180
+    step: 5
+    initial: 75
+    unit_of_measurement: "min"
+    icon: mdi:weather-sunset-down
+
+  domesticops_retrieve_anticipation_min:
+    name: "DomesticOps - Anticipo rientro bucato"
+    min: 10
+    max: 90
+    step: 5
+    initial: 30
+    unit_of_measurement: "min"
+    icon: mdi:clock-end
+
+  domesticops_rain_lookahead_h:
+    name: "DomesticOps - Pioggia lookahead"
+    min: 1
+    max: 8
+    step: 1
+    initial: 4
+    unit_of_measurement: "h"
+    icon: mdi:weather-rainy
+
+  domesticops_dishwasher_infer_min_w:
+    name: "DomesticOps - Lavastoviglie infer min W"
+    min: 200
+    max: 2500
+    step: 25
+    initial: 700
+    unit_of_measurement: "W"
+    icon: mdi:dishwasher-alert
+
+  domesticops_laundry_load_kg:
+    name: "DomesticOps - Carico bucato"
+    min: 1
+    max: 8
+    step: 0.5
+    initial: 4
+    unit_of_measurement: "kg"
+    icon: mdi:weight-kilogram
+
+  domesticops_lavatrice_cycles_total:
+    name: "DomesticOps - Totale cicli lavatrice"
+    min: 0
+    max: 999
+    step: 1
+    initial: 0
+    mode: box
+    icon: mdi:washing-machine
+
+  domesticops_asciugatrice_cycles_total:
+    name: "DomesticOps - Totale cicli asciugatrice"
+    min: 0
+    max: 999
+    step: 1
+    initial: 0
+    mode: box
+    icon: mdi:tumble-dryer
+
+input_boolean:
+  domesticops_laundry_outside:
+    name: "DomesticOps - Bucato steso fuori"
+    icon: mdi:clothesline
+
+  domesticops_laundry_pending:
+    name: "DomesticOps - Bucato da fare"
+    icon: mdi:washing-machine-alert
+
+  domesticops_notify_enabled:
+    name: "DomesticOps - Notifiche abilitate"
+    icon: mdi:message-badge
+    initial: true
+
+  domesticops_domestic_mode_enabled:
+    name: "DomesticOps - Modulo abilitato"
+    icon: mdi:home-heart
+    initial: true
+
+input_select:
+  domesticops_laundry_type:
+    name: "DomesticOps - Tipo bucato"
+    icon: mdi:tshirt-crew
+    options:
+      - standard_adulti
+      - bambino
+      - sportivo
+      - lenzuola
+      - asciugamani
+
+# Content synced from workspace; omitted here for brevity in this tool invocation is not allowed.
