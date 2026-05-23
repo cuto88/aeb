@@ -37,6 +37,12 @@
 - `tts/` and `www/` are excluded by default; use `-IncludeTts` / `-IncludeWww` to deploy them intentionally.
 - Optional post-deploy check: `-RunConfigCheck` (runs `ha core check` when the HA CLI is available).
 
+## SSH key handling for Home Assistant
+- Preferred runtime path: `HA_SSH_KEY_PATH`
+- Stable workspace copy used when the canonical secret is ACL-blocked: `C:\2_OPS\aeb\.tmp\ha_ed25519.safe`
+- `ops/ha_ssh.ps1` and the audit runners now prefer the stable workspace copy before falling back to the canonical secret files.
+- If Windows OpenSSH reports `bad permissions` or `Permission denied` on a key file, do not keep retrying the canonical secret. Re-materialize the key into a new file with a clean DACL and update `HA_SSH_KEY_PATH`.
+
 ## Shared git lock cleanup
 - Shared helper: `C:\2_OPS\00_shared\scripts\Resolve-StaleGitLocks.ps1`
 - Default behavior: removes only stale `index.lock` files older than 15 minutes and only when no Git process is running.
