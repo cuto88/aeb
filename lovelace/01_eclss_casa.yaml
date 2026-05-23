@@ -671,85 +671,66 @@ views:
     sections:
       - type: grid
         cards:
-          - type: heading
-            heading: "Stato rapido"
-            icon: mdi:home-analytics
           - type: tile
             entity: sensor.envelope_recommended_action
-            name: "Azione casa"
+            name: "Azione"
             color: teal
           - type: tile
-            entity: sensor.envelope_efficiency_level
-            name: "Envelope level"
-            color: green
-          - type: tile
             entity: sensor.envelope_house_passive_gain_state
-            name: "Passive gain"
-            color: amber
+            name: "Passivo"
+            color: green
           - type: tile
             entity: sensor.envelope_house_night_flush_potential
             name: "Night flush"
+            color: amber
+          - type: tile
+            entity: binary_sensor.close_shutters_recommended
+            name: "Scuri"
             color: blue
           - type: tile
             entity: binary_sensor.envelope_house_ac_justified
-            name: "AC giustificata"
+            name: "AC"
             color: red
           - type: tile
-            entity: binary_sensor.envelope_free_decay_candidate
-            name: "Free decay candidate"
-          - type: tile
-            entity: binary_sensor.close_shutters_recommended
-            name: "Chiudere scuri"
-            color: amber
-          - type: tile
             entity: sensor.envelope_shade_applied_rooms_count
-            name: "Scuri applicati"
+            name: "Scuri attivi"
             color: teal
           - type: tile
             entity: binary_sensor.envelope_efficiency_inputs_ready
-            name: "Inputs ready"
+            name: "Inputs"
+          - type: markdown
+            content: |
+              Sintesi rapida dell'involucro: prima leggi l'azione, poi controlla se la casa sta guadagnando o perdendo comfort.
 
       - type: grid
         cards:
-          - type: heading
-            heading: "Sintesi involucro"
-            icon: mdi:gauge
-          - type: entities
-            title: "Casa"
-            show_header_toggle: false
-            entities:
-              - entity: sensor.envelope_recommended_action
-                name: "Azione raccomandata"
-              - entity: sensor.envelope_efficiency_reason
-                name: "Envelope reason"
-              - entity: sensor.envelope_retention_score
-                name: "Retention score"
-              - entity: sensor.envelope_solar_utilization_score
-                name: "Solar utilization"
-              - entity: sensor.envelope_free_decay_hours_today
-                name: "Free decay oggi"
-          - type: entities
-            title: "Zone e schermature"
-            show_header_toggle: false
-            entities:
-              - entity: sensor.envelope_worst_room_name
-                name: "Worst room"
-              - entity: sensor.envelope_worst_room_overheating_risk
-                name: "Worst room risk"
-              - entity: sensor.envelope_rooms_shade_recommended_count
-                name: "Zone con scuri consigliati"
-              - entity: sensor.envelope_shade_applied_rooms
-                name: "Scuri applicati"
-              - entity: sensor.envelope_rooms_night_flush_candidate_count
-                name: "Zone night flush"
+          - type: tile
+            entity: sensor.envelope_worst_room_name
+            name: "Stanza peggiore"
+          - type: tile
+            entity: sensor.envelope_worst_room_overheating_risk
+            name: "Rischio"
+            color: red
+          - type: tile
+            entity: sensor.envelope_rooms_shade_recommended_count
+            name: "Scuri consigliati"
+          - type: tile
+            entity: sensor.envelope_rooms_night_flush_candidate_count
+            name: "Night flush candidabili"
+          - type: tile
+            entity: sensor.envelope_shade_applied_rooms
+            name: "Stanze schermate"
+          - type: button
+            name: "Apri 10 Involucro"
+            icon: mdi:arrow-top-right-bold-box-outline
+            tap_action:
+              action: navigate
+              navigation_path: /10-involucro/involucro
 
       - type: grid
         cards:
-          - type: heading
-            heading: "Trend e accesso"
-            icon: mdi:chart-line
           - type: history-graph
-            title: "Envelope 24h"
+            title: "Involucro 24h"
             hours_to_show: 24
             refresh_interval: 120
             entities:
@@ -757,24 +738,22 @@ views:
                 name: "T interna"
               - entity: sensor.t_out
                 name: "T esterna"
-              - entity: sensor.envelope_indoor_drift_rate_cph
-                name: "Drift °C/h"
-              - entity: sensor.envelope_retention_score
-                name: "Retention"
+              - entity: sensor.envelope_giorno_rise_rate_cph
+                name: "Giorno rise"
+              - entity: sensor.envelope_notte1_rise_rate_cph
+                name: "Notte1 rise"
+              - entity: sensor.envelope_notte2_rise_rate_cph
+                name: "Notte2 rise"
           - type: history-graph
-            title: "Solar gain 24h"
+            title: "Solare e scuri 24h"
             hours_to_show: 24
             refresh_interval: 120
             entities:
               - entity: sensor.pv_power_now
                 name: "PV proxy sole"
-              - entity: sensor.solar_gain_passive_index
-                name: "Solar gain index"
+              - entity: sensor.envelope_house_night_flush_potential
+                name: "Night flush"
               - entity: binary_sensor.close_shutters_recommended
-                name: "Chiudere scuri"
-          - type: button
-            name: "Apri 10 Involucro"
-            icon: mdi:arrow-top-right-bold-box-outline
-            tap_action:
-              action: navigate
-              navigation_path: /10-involucro/involucro
+                name: "Scuri"
+              - entity: sensor.envelope_recommended_action
+                name: "Azione"

@@ -11,11 +11,14 @@ Fonti di verità rapide: `docs/logic/core/README_sensori_clima.md` (mappa entit�
 
 Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 
-## Current AEB checkpoint (2026-03-23)
+## Current AEB checkpoint (2026-05-22)
+- Daily burn-in: closed and stable on the latest runtime evidence.
 - Heating / AC / VMC: runtime real and already integrated in ClimateOps.
 - DHW / EHW read-feedback chain: closed and runtime-validated.
 - DHW / EHW writer path: formalized, gated, safe-by-default, dry-run validated and live validated for one reversible setpoint write on register `1104`.
 - DHW UI / plancia: present in `lovelace/01_eclss_casa.yaml` as operator-facing observability/control block.
+- Source/runtime naming drift: closed on source and runtime sides.
+- VMC delta UR tuning: hysteresis helper plus thermal veto applied in source to reduce unnecessary `vel_2` persistence; runtime verify remains pending until reload.
 - Broader orchestration still not enabled:
   - no planner-driven DHW actuation
   - no multi-load dispatch closure
@@ -27,7 +30,7 @@ Indice completo e organizzato:
 
 Entry point consigliati:
 - baseline storica: `docs/audits/STEP0_AEB_PASSIVHAUS_MATURITY_2026-02-21.md`
-- stato runtime sintetico corrente: `docs/audits/CURRENT_RUNTIME_STATUS_2026-04-08.md`
+- stato runtime sintetico corrente: `docs/audits/CURRENT_RUNTIME_STATUS_2026-05-23.md`
 - quadro operativo recente: `docs/audits/STEP49_OPEN_ITEMS_AND_CLOSURE_SEQUENCE_2026-04-07.md`
 - ultimo audit runtime esteso: `docs/audits/STEP47_POST_DEPLOY_RUNTIME_AUDIT_2026-04-06.md`
 
@@ -78,3 +81,7 @@ Il package opzionale `notify_google_speaker.yaml` è stato archiviato in
 I backup storici pesanti e le aree di quarantena non operative sono stati spostati fuori repo in
 `C:\2_OPS\_repo_archives\aeb\` per ridurre rumore nel worktree e mantenere il repository focalizzato
 sul runtime attivo e sulla documentazione tecnica.
+
+## Runtime checkpoint
+- Current runtime checkpoint: docs/audits/CURRENT_RUNTIME_STATUS_2026-05-23.md
+- VMC delta UR live verification: source contains hysteresis + thermal veto, and the runtime verify is closed after the live reload on 2026-05-23.

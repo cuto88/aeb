@@ -82,6 +82,31 @@ views:
                 name: "Hierarchy reason"
 
       - type: grid
+        title: "Notifications"
+        cards:
+          - type: entities
+            title: "Canali attivi"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.domesticops_notify_enabled
+                name: "DomesticOps"
+              - entity: input_boolean.climate_debug_telegram
+                name: "Climate debug Telegram"
+              - entity: input_boolean.vent_notifiche_attive
+                name: "Ventilazione"
+              - entity: input_boolean.envelope_notify_enabled
+                name: "Envelope"
+          - type: markdown
+            content: |
+              ### Cosa controllano
+              - `DomesticOps`: notifiche operative domestiche
+              - `Climate debug Telegram`: cambi di priorita` clima
+              - `Ventilazione`: consigli apertura finestre / ventilazione
+              - `Envelope`: azioni umane per involucro, scuri e night flush
+
+              Il canale Telegram resta quello tecnico comune; qui si gestisce solo il consenso per ogni classe di notifica.
+
+      - type: grid
         title: "Sensor hygiene"
         cards:
           - type: entities
