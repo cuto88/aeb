@@ -52,11 +52,20 @@ Per evitare falsi positivi e cartelle di backup/quarantena, il lint YAML gira so
 - Host key canonica: `C:\2_OPS\secrets\ha\known_hosts`
 - Override runtime: `HA_SSH_KEY_PATH`
 - Path config runtime: `/homeassistant`
+- Path operativo stabile corrente: `C:\2_OPS\aeb\.tmp\ha_ed25519.safe`
+- Regola: i wrapper devono preferire `HA_SSH_KEY_PATH` o la copia stabile sopra; non tentare di usare direttamente il secret canonico se l'ACL locale lo blocca, perché Windows OpenSSH rifiuta chiavi con permessi non conformi.
+- Se ricapita un errore tipo `bad permissions` o `Permission denied (publickey)` sulla chiave locale, ricrea una copia nuova con ACL pulite e aggiorna `HA_SSH_KEY_PATH` invece di insistere sul file in `C:\2_OPS\secrets\ha\`.
+
+## Secrets contract
+- Runtime env example: [docs/security/secrets.example](C:/2_OPS/aeb/docs/security/secrets.example)
+- Live `.env` resta locale e ignorato da Git; contiene solo valori runtime effettivi.
+- I `!secret` richiesti dai package sono: `ehw_modbus_host`, `ehw_modbus_port`, `ehw_modbus_slave`, `mirai_modbus_host`.
 
 ## Notifiche Telegram
 Canale tecnico HA Mercurio:
 - naming target: `telegram_ha_mercurio`
 - service runtime attuale: `notify.telegram_davide` (entity_id storico mantenuto dal registry HA)
+- wrapper operativo: `script.telegram_ha_mercurio_send`
 
 Canale personale:
 - naming target: `personale_davide`
