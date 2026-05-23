@@ -64,7 +64,7 @@ Risultato verificato su recorder snapshot post-fix:
 - `sensor.ehw_t06_outlet_solar = 33.3`
 
 UI:
-- `lovelace/ehw_plancia.yaml` allineata ai sensori utili (temperature/mapping), riducendo dipendenza da reg56/reg57 non informativi su questo profilo.
+- `lovelace/07_dhw_acs.yaml` allineata ai sensori utili (temperature/mapping), riducendo dipendenza da reg56/reg57 non informativi su questo profilo.
 
 ## Decisione
 - Chiusura tecnica lato configurazione + deploy: **OK**.

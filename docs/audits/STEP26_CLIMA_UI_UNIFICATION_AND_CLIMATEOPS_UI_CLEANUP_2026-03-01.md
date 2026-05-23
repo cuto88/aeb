@@ -6,14 +6,14 @@ Allineare la UI clima a una plancia moderna unica e rimuovere elementi ClimateOp
 ## Changes
 1. Aggiunta nuova dashboard in `configuration.yaml`:
    - key: `1-clima-casa`
-   - file: `lovelace/climate_casa_unified_plancia.yaml`
+   - file: `lovelace/01_eclss_casa.yaml`
    - `show_in_sidebar: true`
 2. Rimossa voce dashboard `9-climateops-step7` da `configuration.yaml`.
 3. Creata copia archivio della plancia Step7 in `lovelace/_archive/climateops_step7_plancia.yaml`; il duplicato runtime `lovelace/climateops_step7_plancia.yaml` e` stato poi rimosso dal repo attivo.
 3. Rimossa sezione `ClimateOps Cutover` da:
-   - `lovelace/climate_ventilation_plancia_v2.yaml`
+   - `lovelace/02_air_loop.yaml`
 4. Aggiunta nuova plancia unificata:
-   - `lovelace/climate_casa_unified_plancia.yaml`
+   - `lovelace/01_eclss_casa.yaml`
    - include sezioni condivise: stato generale, KPI, zone, VMC, AC, Heating, timeline decisioni.
 
 ## Runtime evidence

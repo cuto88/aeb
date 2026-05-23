@@ -9,7 +9,7 @@ Energy PV - osservabilita` produzione FV SolarEdge.
 
 ## Entrypoints
 - YAML: `packages/energy_pv_solaredge.yaml`.
-- Lovelace: `lovelace/energy_pv_solaredge_plancia.yaml`.
+- Lovelace: `lovelace/05_pv_array.yaml`.
 
 ## KPI / Entita` principali
 - Potenza FV canonica: `sensor.pv_power_now`.

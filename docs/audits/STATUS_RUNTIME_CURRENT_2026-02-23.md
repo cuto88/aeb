@@ -38,7 +38,7 @@ Scope: Operational snapshot after heating/AC runtime hardening
 - SSH runtime access baseline is documented in `AGENTS.md` (host, port, key, path).
 - `policy_surplus_ok` now has runtime fallback on `sensor.pv_power_now` (threshold helper `input_number.policy_surplus_pv_min_w`) when legacy `binary_sensor.surplus_ok` is not available.
 - LocalTuya Dual Meter runtime mapping was renamed for clamp semantics (`Mirai` on A, `EHW` on B) and a dedicated dashboard was added:
-  - `lovelace/consumi_mirai_ehw_plancia.yaml`
+  - `lovelace/06_power_runtime.yaml`
   - `docs/logic/energy_pm/plancia_mirai_ehw.md`
 - Power naming hardening added through template aliases:
   - `sensor.mirai_power_w` -> source `sensor.sensor_grid_power_w`

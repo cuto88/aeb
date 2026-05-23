@@ -5,8 +5,8 @@ Chiudere l'ambiguità tra plance legacy e plance `v2` per i domini VMC e AC.
 
 ## FACT
 Esistevano coppie concorrenti:
-- `climate_ventilation_plancia.yaml` vs `climate_ventilation_plancia_v2.yaml`
-- `climate_ac_plancia.yaml` vs `climate_ac_plancia_v2.yaml`
+- `02_air_loop_legacy.yaml` vs `02_air_loop.yaml`
+- `04_cooling_loop_legacy.yaml` vs `04_cooling_loop.yaml`
 
 ## FACT
 Entrambe le coppie erano in precedenza nascoste o comunque non governate come entrypoint ufficiali.
@@ -16,12 +16,12 @@ Se una plancia non è esposta e non è l'entrypoint effettivo del dominio, nel t
 
 ## DECISIONE
 Promozione ufficiale:
-- `climate_ventilation_plancia_v2.yaml` -> dashboard sidebar ufficiale `VMC`
-- `climate_ac_plancia_v2.yaml` -> dashboard sidebar ufficiale `AC`
+- `02_air_loop.yaml` -> dashboard sidebar ufficiale `VMC`
+- `04_cooling_loop.yaml` -> dashboard sidebar ufficiale `AC`
 
 Declassamento:
-- `climate_ventilation_plancia.yaml` -> nascosta, marcata legacy
-- `climate_ac_plancia.yaml` -> nascosta, marcata legacy
+- `02_air_loop_legacy.yaml` -> nascosta, marcata legacy
+- `04_cooling_loop_legacy.yaml` -> nascosta, marcata legacy
 
 ## Effetto su configuration.yaml
 

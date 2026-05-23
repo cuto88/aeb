@@ -7,18 +7,18 @@ Definire una struttura target chiara per tutte le plance Lovelace, riducendo rid
 Le plance attuali coprono bene il sistema ma non hanno ancora una gerarchia di ruolo sufficientemente netta.
 
 Plance censite:
-- `climate_casa_unified_plancia.yaml`
-- `climate_ventilation_plancia.yaml`
-- `climate_ventilation_plancia_v2.yaml`
-- `climate_ac_plancia.yaml`
-- `climate_ac_plancia_v2.yaml`
-- `climate_heating_plancia.yaml`
-- `8_mirai_plancia.yaml`
-- `ehw_plancia.yaml`
-- `modbus_plancia.yaml`
-- `consumi_mirai_ehw_plancia.yaml`
-- `energy_pv_solaredge_plancia.yaml`
-- `envelope_involucro_plancia.yaml`
+- `01_eclss_casa.yaml`
+- `02_air_loop_legacy.yaml`
+- `02_air_loop.yaml`
+- `04_cooling_loop_legacy.yaml`
+- `04_cooling_loop.yaml`
+- `03_heating_loop.yaml`
+- `08_mirai_plant.yaml`
+- `07_dhw_acs.yaml`
+- `09_fieldbus.yaml`
+- `06_power_runtime.yaml`
+- `05_pv_array.yaml`
+- `10_envelope.yaml`
 
 ## Problema
 
@@ -61,18 +61,18 @@ Le plance vengono governate secondo 5 classi:
 
 | Plancia | Ruolo attuale | Valutazione | Decisione |
 |---|---|---|---|
-| `climate_casa_unified_plancia.yaml` | overview + tuning + debug + cross-domain | troppo densa ma corretta come entrypoint | **keep, simplify** |
-| `climate_ventilation_plancia.yaml` | VMC domain drill-down | leggibile e compatta | **keep** |
-| `climate_ventilation_plancia_v2.yaml` | VMC alt UI | concorrente alla legacy | **decide / likely promote-or-archive** |
-| `climate_ac_plancia.yaml` | AC domain drill-down | utile ma parzialmente ridondante | **keep, simplify** |
-| `climate_ac_plancia_v2.yaml` | AC alt UI | concorrente alla legacy | **decide / likely promote-or-archive** |
-| `climate_heating_plancia.yaml` | Heating drill-down + legacy TEMP | utile ma troppo carica di storico/legacy | **keep, simplify** |
-| `8_mirai_plancia.yaml` | machine diagnostics | appropriata come plancia tecnica | **keep** |
-| `ehw_plancia.yaml` | machine/writer diagnostics | appropriata come plancia tecnica | **keep** |
-| `modbus_plancia.yaml` | fieldbus / forensic | appropriata come plancia tecnica | **keep** |
-| `consumi_mirai_ehw_plancia.yaml` | energy KPI + technical overlap | utile ma candidata a overlap | **keep, review later** |
-| `energy_pv_solaredge_plancia.yaml` | PV / energy source | ruolo chiaro | **keep** |
-| `envelope_involucro_plancia.yaml` | building physics | sovrapposta in parte a Passive House | **consolidate with Passive House** |
+| `01_eclss_casa.yaml` | overview + tuning + debug + cross-domain | troppo densa ma corretta come entrypoint | **keep, simplify** |
+| `02_air_loop_legacy.yaml` | VMC domain drill-down | leggibile e compatta | **keep** |
+| `02_air_loop.yaml` | VMC alt UI | concorrente alla legacy | **decide / likely promote-or-archive** |
+| `04_cooling_loop_legacy.yaml` | AC domain drill-down | utile ma parzialmente ridondante | **keep, simplify** |
+| `04_cooling_loop.yaml` | AC alt UI | concorrente alla legacy | **decide / likely promote-or-archive** |
+| `03_heating_loop.yaml` | Heating drill-down + legacy TEMP | utile ma troppo carica di storico/legacy | **keep, simplify** |
+| `08_mirai_plant.yaml` | machine diagnostics | appropriata come plancia tecnica | **keep** |
+| `07_dhw_acs.yaml` | machine/writer diagnostics | appropriata come plancia tecnica | **keep** |
+| `09_fieldbus.yaml` | fieldbus / forensic | appropriata come plancia tecnica | **keep** |
+| `06_power_runtime.yaml` | energy KPI + technical overlap | utile ma candidata a overlap | **keep, review later** |
+| `05_pv_array.yaml` | PV / energy source | ruolo chiaro | **keep** |
+| `10_envelope.yaml` | building physics | sovrapposta in parte a Passive House | **consolidate with Passive House** |
 
 ---
 

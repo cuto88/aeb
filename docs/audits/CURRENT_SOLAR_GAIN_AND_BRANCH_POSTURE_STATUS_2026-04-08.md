@@ -6,7 +6,7 @@
 
 ## Executive summary
 - Solar Gain module scaffold: `CLOSED`
-- Solar Gain active operator view: `Passive House` inside `lovelace/climate_casa_unified_plancia.yaml`
+- Solar Gain active operator view: `Passive House` inside `lovelace/01_eclss_casa.yaml`
 - Solar Gain runtime inputs on 2026-04-07 before fixes: `NOT READY`
 - Solar Gain blocker from seasonal posture/current branch semantics: `CLOSED`
 - Solar Gain calibration for decision-grade use: `OPEN`

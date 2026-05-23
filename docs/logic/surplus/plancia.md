@@ -1,6 +1,6 @@
 # Surplus - Plancia
 
-Riferimento operativo corrente: `lovelace/energy_pv_solaredge_plancia.yaml`.
+Riferimento operativo corrente: `lovelace/05_pv_array.yaml`.
 
 Nota storica:
 - la naming `6_surplus_plancia` resta solo come riferimento concettuale;

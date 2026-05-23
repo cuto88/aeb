@@ -16,8 +16,8 @@ Scope: consolidare modifiche locali EHW/MIRAI, documentare baseline e preparare 
     - `binary_sensor.ehw_mapping_suspect`
 
 - Dashboard/documentazione EHW:
-  - `lovelace/ehw_plancia.yaml` aggiornata con diagnostica mapping + sonde semantiche.
-  - `lovelace/consumi_mirai_ehw_plancia.yaml` aggiornata con card "EHW diagnostica mapping".
+  - `lovelace/07_dhw_acs.yaml` aggiornata con diagnostica mapping + sonde semantiche.
+  - `lovelace/06_power_runtime.yaml` aggiornata con card "EHW diagnostica mapping".
   - `docs/logic/core/README_sensori_ehw.md` e `docs/logic/energy_pm/plancia_mirai_ehw.md` allineati.
 
 - MIRAI prep (`packages/mirai_modbus.yaml`, `packages/mirai_templates.yaml`):

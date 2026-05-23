@@ -10,7 +10,7 @@ Heating — pavimento radiante (zone giorno/notte/bagno).
 
 ## Entrypoints
 - YAML: `packages/climate_heating.yaml`.
-- Lovelace: `lovelace/climate_heating_plancia.yaml`.
+- Lovelace: `lovelace/03_heating_loop.yaml`.
 - Thermostat TEMP override: `packages/climateops/overrides/thermostat_indicators_temp.yaml`.
 
 ## KPI / Entità principali
@@ -38,7 +38,7 @@ Heating — pavimento radiante (zone giorno/notte/bagno).
 - Manual override usa gli stessi lock hardware e restituisce il controllo al termine del timer o su toggle utente.
 
 ### Note operative
-- Plancia `lovelace/climate_heating_plancia.yaml` mostra KPI comfort, lock e selezione zone; non duplicare logica nelle card.
+- Plancia `lovelace/03_heating_loop.yaml` mostra KPI comfort, lock e selezione zone; non duplicare logica nelle card.
 - Mapping TEMP termostati ESP32:
   - stato corrente runtime 2026-03-29: sensori ESP32/LDR smontati, quindi i binding default sono lasciati vuoti;
   - inoltre le vecchie entry `ESPHome` `LDR Camera1` e `LDR Camera2` sono disabilitate nel runtime, cosi` il boot non tenta connessioni verso nodi assenti;

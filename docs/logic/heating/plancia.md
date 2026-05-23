@@ -1,6 +1,6 @@
 # Heating — Plancia
 
-Riferimento: `lovelace/climate_heating_plancia.yaml`.
+Riferimento: `lovelace/03_heating_loop.yaml`.
 
 Stato sidebar:
 - `2-heating` resta registrata ma non visibile (`show_in_sidebar: false`).

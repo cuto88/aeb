@@ -22,7 +22,7 @@
 - Writer authority and core ClimateOps command chain are no longer the main open risk.
 - Local quality gates are part of the normal operating posture and currently pass.
 - DHW/EHW read-feedback, writer semantics, post-live reconciliation, and first conservative live write path are all closed.
-- The unified operator-facing Lovelace posture is now centered on `lovelace/climate_casa_unified_plancia.yaml`.
+- The unified operator-facing Lovelace posture is now centered on `lovelace/01_eclss_casa.yaml`.
 
 ### Open but bounded
 - MIRAI is observable and partially validated, but not yet forensically closed on a real `OFF -> RUN` operating window in the current profile.

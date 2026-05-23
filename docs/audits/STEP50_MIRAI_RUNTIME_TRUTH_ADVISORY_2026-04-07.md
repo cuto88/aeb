@@ -26,7 +26,7 @@ New entities:
   - `input_number.mirai_runtime_truth_min_run_w`
 
 UI:
-- `lovelace/8_mirai_plancia.yaml` extended with a dedicated `Runtime truth closure` block.
+- `lovelace/08_mirai_plant.yaml` extended with a dedicated `Runtime truth closure` block.
 
 ## Logic intent
 - `run_window_candidate`:
@@ -48,7 +48,7 @@ UI:
 - `ha core check = Command completed successfully.`
 - deployed to runtime:
   - `/homeassistant/packages/mirai_runtime_truth_advisory.yaml`
-  - updated `/homeassistant/lovelace/8_mirai_plancia.yaml`
+  - updated `/homeassistant/lovelace/08_mirai_plant.yaml`
 
 ## Closure criterion for next runtime window
 - `binary_sensor.mirai_runtime_truth_coherent_run = on`

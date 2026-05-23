@@ -9,7 +9,7 @@ Introdurre KPI AEB minimi misurabili e compatibili HA 2026.2.x, senza dipendenza
 
 ## File modificati
 - `packages/climateops/core/kpi.yaml`
-- `lovelace/consumi_mirai_ehw_plancia.yaml`
+- `lovelace/06_power_runtime.yaml`
 - `docs/logic/energy_pm/plancia_mirai_ehw.md`
 
 ## Modifiche applicate
@@ -30,7 +30,7 @@ Note:
 - KPI progettati come snapshot runtime (non time-aggregated).
 
 ### 2) Dashboard
-In `lovelace/consumi_mirai_ehw_plancia.yaml` aggiunta sezione:
+In `lovelace/06_power_runtime.yaml` aggiunta sezione:
 - `KPI AEB (runtime)` con stato input + reason + indicatori principali.
 
 ### 3) Documentazione plancia

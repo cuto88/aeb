@@ -56,16 +56,16 @@
 ## File toccati
 
 - `configuration.yaml`
-- `lovelace/climate_casa_unified_plancia.yaml`
-- `lovelace/climate_ventilation_plancia_v2.yaml`
-- `lovelace/climate_heating_plancia.yaml`
-- `lovelace/climate_ac_plancia_v2.yaml`
-- `lovelace/energy_pv_solaredge_plancia.yaml`
-- `lovelace/consumi_mirai_ehw_plancia.yaml`
-- `lovelace/ehw_plancia.yaml`
-- `lovelace/8_mirai_plancia.yaml`
-- `lovelace/modbus_plancia.yaml`
-- `lovelace/envelope_involucro_plancia.yaml`
+- `lovelace/01_eclss_casa.yaml`
+- `lovelace/02_air_loop.yaml`
+- `lovelace/03_heating_loop.yaml`
+- `lovelace/04_cooling_loop.yaml`
+- `lovelace/05_pv_array.yaml`
+- `lovelace/06_power_runtime.yaml`
+- `lovelace/07_dhw_acs.yaml`
+- `lovelace/08_mirai_plant.yaml`
+- `lovelace/09_fieldbus.yaml`
+- `lovelace/10_envelope.yaml`
 - `docs/audits/README.md`
 
 ## Esito atteso

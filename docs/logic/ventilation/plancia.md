@@ -1,11 +1,11 @@
 # Ventilation — Plancia
 
-Obiettivo: descrivere la plancia legacy `lovelace/climate_ventilation_plancia.yaml`.
+Obiettivo: descrivere la plancia legacy `lovelace/02_air_loop_legacy.yaml`.
 
 Stato sidebar:
 - `configuration.yaml` mantiene la plancia legacy registrata come `1-ventilazione`, ma con `show_in_sidebar: false`.
-- `lovelace/climate_ventilation_plancia_v2.yaml` resta registrata come fallback tecnico, ma con `show_in_sidebar: false`.
-- `lovelace/climate_casa_unified_plancia.yaml` (`1-clima-casa`) e` l'entrypoint operativo moderno cross-modulo.
+- `lovelace/02_air_loop.yaml` resta registrata come fallback tecnico, ma con `show_in_sidebar: false`.
+- `lovelace/01_eclss_casa.yaml` (`1-clima-casa`) e` l'entrypoint operativo moderno cross-modulo.
 
 Struttura (legacy):
 - "Stato generale": `sensor.ventilation_priority`, `sensor.ventilation_reason`, `binary_sensor.vmc_sensors_ok`.

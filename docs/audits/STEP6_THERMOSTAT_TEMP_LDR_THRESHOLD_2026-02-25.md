@@ -24,7 +24,7 @@ Modifiche:
 
 ## Aggiornamenti plancia
 File:
-- `lovelace/climate_heating_plancia.yaml`
+- `lovelace/03_heating_loop.yaml`
 
 Aggiunti controlli in sezione "Termostati (stato reale)":
 - entity raw camera1/camera2 (`input_text.*_raw_entity`)

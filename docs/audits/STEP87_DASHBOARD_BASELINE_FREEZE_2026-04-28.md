@@ -9,18 +9,18 @@ Congelare lo stato corrente delle plance Lovelace prima della razionalizzazione 
 `lovelace/_baseline/2026-04-28_dashboard_freeze/`
 
 Contenuto congelato:
-- `climate_casa_unified_plancia.yaml`
-- `climate_ventilation_plancia.yaml`
-- `climate_ventilation_plancia_v2.yaml`
-- `climate_ac_plancia.yaml`
-- `climate_ac_plancia_v2.yaml`
-- `climate_heating_plancia.yaml`
-- `8_mirai_plancia.yaml`
-- `ehw_plancia.yaml`
-- `modbus_plancia.yaml`
-- `consumi_mirai_ehw_plancia.yaml`
-- `energy_pv_solaredge_plancia.yaml`
-- `envelope_involucro_plancia.yaml`
+- `01_eclss_casa.yaml`
+- `02_air_loop_legacy.yaml`
+- `02_air_loop.yaml`
+- `04_cooling_loop_legacy.yaml`
+- `04_cooling_loop.yaml`
+- `03_heating_loop.yaml`
+- `08_mirai_plant.yaml`
+- `07_dhw_acs.yaml`
+- `09_fieldbus.yaml`
+- `06_power_runtime.yaml`
+- `05_pv_array.yaml`
+- `10_envelope.yaml`
 
 ## DECISIONE
 Questa baseline diventa il punto di rollback UI per il refactor plance.
@@ -33,7 +33,7 @@ Se una modifica UI peggiora la leggibilità o rompe il modello target, il ripris
 Esempio:
 
 ```powershell
-Copy-Item lovelace\_baseline\2026-04-28_dashboard_freeze\climate_casa_unified_plancia.yaml lovelace\climate_casa_unified_plancia.yaml -Force
+Copy-Item lovelace\_baseline\2026-04-28_dashboard_freeze\01_eclss_casa.yaml lovelace\01_eclss_casa.yaml -Force
 ```
 
 Poi redeploy del file su HA.

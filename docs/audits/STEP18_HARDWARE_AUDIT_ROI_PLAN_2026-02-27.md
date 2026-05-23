@@ -38,7 +38,7 @@ Scope: audit hardware orientato ROI per ottimizzazione AEB (senza modifiche auth
 - `sensor.mirai_power_w` (canale consumi heating, come usato in plancia consumi)
 - `sensor.ehw_power_w` (canale consumi ACS)
 - bridge: `sensor.cm_mirai_power_w`, `sensor.cm_ehw_power_w`
-- file: `lovelace/consumi_mirai_ehw_plancia.yaml`, `packages/cm_naming_bridge.yaml`
+- file: `lovelace/06_power_runtime.yaml`, `packages/cm_naming_bridge.yaml`
 
 8. Physical actuators:
 - Heating relay: `switch.4_ch_interruttore_3` (single-writer enforced)

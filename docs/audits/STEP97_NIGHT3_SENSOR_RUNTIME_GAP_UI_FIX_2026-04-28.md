@@ -33,8 +33,8 @@
 
 ## File toccati
 
-- `lovelace/climate_ventilation_plancia_v2.yaml`
-- `lovelace/climate_ac_plancia_v2.yaml`
+- `lovelace/02_air_loop.yaml`
+- `lovelace/04_cooling_loop.yaml`
 - `docs/audits/README.md`
 
 ## Esito atteso

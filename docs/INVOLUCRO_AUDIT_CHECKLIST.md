@@ -14,7 +14,7 @@
 - il modello involucro esiste gia' in:
   - [manuale_involucro_casa.md](logic/core/manuale_involucro_casa.md)
   - [spec_involucro_room_model.md](logic/core/spec_involucro_room_model.md)
-  - [envelope_involucro_plancia.yaml](../lovelace/envelope_involucro_plancia.yaml)
+  - [10_envelope.yaml](../lovelace/10_envelope.yaml)
 
 ## Scope
 

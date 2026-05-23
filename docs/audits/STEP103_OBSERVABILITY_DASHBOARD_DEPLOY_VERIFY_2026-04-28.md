@@ -4,10 +4,10 @@
 
 - `11 Observability` e` stata aggiunta in:
   - `configuration.yaml`
-  - `lovelace/observability_plancia.yaml`
+  - `lovelace/11_observability.yaml`
 - I file sono stati copiati su Home Assistant in:
   - `/homeassistant/configuration.yaml`
-  - `/homeassistant/lovelace/observability_plancia.yaml`
+  - `/homeassistant/lovelace/11_observability.yaml`
 - `ha core restart` e` stato eseguito con successo.
 - `ha core info` post-restart conferma core attivo:
   - `boot: true`

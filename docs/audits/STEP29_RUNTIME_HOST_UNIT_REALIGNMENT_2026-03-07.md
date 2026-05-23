@@ -29,7 +29,7 @@ Scope: chiudere il disallineamento MIRAI/EHW su host/unit Modbus e aggiornare `s
    - mantenuto profilo utile su `190/unit3`,
    - ridotto polling dei registri legacy `56/57/60` (non affidabili su questo profilo) per ridurre rumore.
 4. UI:
-   - `lovelace/8_mirai_plancia.yaml` allineata al profilo MIRAI runtime, con rimozione duplicati diagnostici non piu` utili.
+   - `lovelace/08_mirai_plant.yaml` allineata al profilo MIRAI runtime, con rimozione duplicati diagnostici non piu` utili.
 
 ## Verifica post-restart
 - `ha core check`: OK

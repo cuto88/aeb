@@ -1,6 +1,6 @@
 # AC — Plancia
 
-Riferimento: `lovelace/climate_ac_plancia.yaml`.
+Riferimento: `lovelace/04_cooling_loop_legacy.yaml`.
 
 Stato sidebar:
 - `3-ac` resta registrata ma non visibile (`show_in_sidebar: false`).

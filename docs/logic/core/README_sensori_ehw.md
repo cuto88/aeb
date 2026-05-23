@@ -82,8 +82,8 @@ Boundary corrente:
 - writer-path readiness: `CLOSED`
 - planner-driven DHW actuation: `NOT ENABLED`
 - multi-load orchestration / load shifting: `NOT ENABLED`
-- UI/plancia operativa aggiornata in `lovelace/climate_casa_unified_plancia.yaml`
-- plancia tecnica `lovelace/ehw_plancia.yaml` espone anche `sensor.ehw_power_w` come consumo istantaneo e nel grafico storico 24h
+- UI/plancia operativa aggiornata in `lovelace/01_eclss_casa.yaml`
+- plancia tecnica `lovelace/07_dhw_acs.yaml` espone anche `sensor.ehw_power_w` come consumo istantaneo e nel grafico storico 24h
 - riconciliazione domanda/potenza in `packages/ehw_reconciliation.yaml`
 
 ---

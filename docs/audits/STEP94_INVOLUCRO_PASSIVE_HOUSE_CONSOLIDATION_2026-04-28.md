@@ -58,7 +58,7 @@
 
 ## File toccati
 
-- `lovelace/climate_casa_unified_plancia.yaml`
+- `lovelace/01_eclss_casa.yaml`
 - `docs/audits/README.md`
 
 ## Verifica attesa

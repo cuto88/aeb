@@ -20,14 +20,14 @@ input non pronti in postura stagionale corrente.
      - `link_ready` quando il payload Modbus e' valido
      - `no_status_word_available` / `invalid_status_word_payload` per fault reali
 
-2. `lovelace/climate_casa_unified_plancia.yaml`
+2. `lovelace/01_eclss_casa.yaml`
    - vista interna `ClimateOps` arricchita con diagnostica Modbus MIRAI coerente
      con la postura hardware.
 
-3. `lovelace/8_mirai_plancia.yaml`
+3. `lovelace/08_mirai_plant.yaml`
    - aggiunti `expected`, `posture ok` e `reason` per il link Modbus MIRAI.
 
-4. `lovelace/modbus_plancia.yaml`
+4. `lovelace/09_fieldbus.yaml`
    - stessa semantica esposta anche nella plancia tecnica Modbus.
 
 ## Esito operativo

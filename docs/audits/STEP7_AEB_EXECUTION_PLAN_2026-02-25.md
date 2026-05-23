@@ -108,7 +108,7 @@ Chiudere KPI AEB con metriche misurabili e audit trail ripetibile.
 
 ### File target
 - `packages/climateops/core/kpi.yaml`
-- `lovelace/consumi_mirai_ehw_plancia.yaml` (sezione KPI AEB)
+- `lovelace/06_power_runtime.yaml` (sezione KPI AEB)
 - `docs/audits/` (report closure)
 - `docs/logic/energy_pm/plancia_mirai_ehw.md`
 

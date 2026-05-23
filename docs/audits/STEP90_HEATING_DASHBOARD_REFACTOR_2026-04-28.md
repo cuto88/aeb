@@ -78,5 +78,5 @@ Il legacy TEMP non viene rimosso dal sistema:
 
 ## DECISIONE
 Il prossimo nodo di razionalizzazione è decidere il destino delle plance:
-- `climate_ventilation_plancia_v2.yaml`
-- `climate_ac_plancia_v2.yaml`
+- `02_air_loop.yaml`
+- `04_cooling_loop.yaml`

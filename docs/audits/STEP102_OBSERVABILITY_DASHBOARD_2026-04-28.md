@@ -19,7 +19,7 @@
 - Aggiunta nuova dashboard:
   - `11 Observability`
 - File:
-  - `lovelace/observability_plancia.yaml`
+  - `lovelace/11_observability.yaml`
 
 ## Struttura
 
@@ -91,5 +91,5 @@
 ## File toccati
 
 - `configuration.yaml`
-- `lovelace/observability_plancia.yaml`
+- `lovelace/11_observability.yaml`
 - `docs/audits/README.md`

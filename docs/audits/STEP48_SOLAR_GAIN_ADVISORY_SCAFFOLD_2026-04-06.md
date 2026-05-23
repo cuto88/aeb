@@ -56,7 +56,7 @@ First-pass Lovelace dashboard:
 
 Historical note:
 - the standalone dashboard was later absorbed into the `Passive House` view inside
-  `lovelace/climate_casa_unified_plancia.yaml`
+  `lovelace/01_eclss_casa.yaml`
 - no separate active sidebar entry is retained in the current configuration
 
 Dashboard content:
@@ -79,7 +79,7 @@ Dashboard content:
 
 Follow-up:
 - the dedicated Solar Gain dashboard was later consolidated into the unified climate dashboard,
-  so the active operator entrypoint is now `lovelace/climate_casa_unified_plancia.yaml`
+  so the active operator entrypoint is now `lovelace/01_eclss_casa.yaml`
 
 ## Current limitation
 - The new module is not yet calibrated on a full sunny-day observation window.
@@ -96,4 +96,4 @@ Follow-up:
 - Advisory quality for real shutter decisions: OPEN
 
 ## Recommended next step
-- Observe the `Passive House` view in `lovelace/climate_casa_unified_plancia.yaml` through the next sunny day and tune thresholds from real behavior before introducing any shutter automation.
+- Observe the `Passive House` view in `lovelace/01_eclss_casa.yaml` through the next sunny day and tune thresholds from real behavior before introducing any shutter automation.

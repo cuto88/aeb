@@ -10,7 +10,7 @@ Surplus — logica surplus FV (decisionale).
 ## Entrypoints
 - Policy/runtime layer attuale: `packages/climate_policy_energy.yaml`.
 - Osservabilita` PV correlata: `packages/energy_pv_solaredge.yaml`.
-- Dashboard energia attiva: `lovelace/energy_pv_solaredge_plancia.yaml`.
+- Dashboard energia attiva: `lovelace/05_pv_array.yaml`.
 - Nota storica: i riferimenti `6_surplus_*` restano come naming legacy nel ragionamento, non come file runtime attivi dedicati.
 
 ## KPI / Entità principali

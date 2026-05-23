@@ -12,7 +12,7 @@
 
 ## Workspace Tooling (`C:\2_OPS`)
 
-- Riferimento workspace globale: `C:\2_OPS\AGENT.md`
+- Riferimento workspace globale: `C:\2_OPS\AGENTS.md`
 - Shell preferita: `pwsh`
 - Workspace root condiviso: `C:\2_OPS`
 - Helper di navigazione disponibili nel profilo PowerShell:
@@ -26,9 +26,9 @@
 ## Uso operativo del tooling
 
 - Per ricerca file, preferire `fd` o `rg --files`.
-- Per lettura file, preferire `bat` o `Get-Content` a seconda del contesto.
-- Per JSON/YAML, preferire `jq` e `yq` invece di parsing manuale fragile.
-- Prima di assumere convenzioni globali di shell o PATH, verificare `C:\2_OPS\AGENT.md`.
+- Per lettura file, scegliere `bat` o `Get-Content` in base a quello che e` piu` rapido nel caso specifico.
+- Per JSON/YAML, preferire `jq` e `yq` invece di parsing manuale fragile quando la trasformazione non e` banale.
+- Prima di assumere convenzioni globali di shell o PATH, verificare `C:\2_OPS\AGENTS.md` solo se serve davvero al task.
 
 ## Git operativo in questo repo
 
@@ -66,15 +66,14 @@
   - se un gate fallisce, diagnosticare prima se il problema e` nel contenuto, nella policy o nel gate;
   - correggere i contenuti quando la documentazione punta a file del repo con link non portabili o rotti;
   - usare riferimenti testuali, non link Markdown, per file locali/non versionati o per path esterni al repo;
-  - modificare un gate solo per rendere la policy piu` precisa e difendibile, non piu` permissiva;
-  - dopo ogni modifica a gate o documentazione, rieseguire `ops/gates_run_ci.ps1` prima di dichiarare chiuso.
+  - modificare un gate solo per rendere la policy piu` precisa e difendibile, non per aggirare un problema;
+  - dopo modifiche a gate o documentazione che impattano il controllo, rieseguire `ops/gates_run_ci.ps1` se il contesto lo consente.
 
-## Progress visibility (sempre attiva)
+## Progress visibility (quando serve)
 
-- Durante attivita` operative, inviare aggiornamenti brevi e frequenti sullo stato lavori.
-- Frequenza minima: un aggiornamento ogni 60 secondi quando un task e` in corso inserendo l'ora locale.
-- Se un comando/tool dura oltre 60 secondi, inviare almeno un messaggio intermedio "in corso".
-- Ogni update deve includere:
+- Durante attivita` operative lunghe, inviare aggiornamenti brevi e utili sullo stato lavori.
+- Se un comando/tool dura a lungo, inviare almeno un messaggio intermedio "in corso" quando serve a mantenere il contesto.
+- Ogni update, quando emesso, deve includere:
   - stato: `in corso` / `completato` / `bloccato`
   - azione corrente
   - prossimo passo immediato

@@ -1,6 +1,6 @@
 # Energy PM - Plancia
 
-Riferimento: `lovelace/consumi_mirai_ehw_plancia.yaml`.
+Riferimento: `lovelace/06_power_runtime.yaml`.
 
 Nota:
 - le sezioni legacy sotto restano valide come descrizione del layout corrente, ma il riferimento dashboard e` stato riallineato al file runtime attivo.

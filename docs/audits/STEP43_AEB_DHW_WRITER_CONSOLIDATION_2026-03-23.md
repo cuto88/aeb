@@ -52,7 +52,7 @@ What is not ready:
 
 ## UI / Plancia
 
-`lovelace/climate_casa_unified_plancia.yaml` now includes a `DHW / EHW` block aligned to the existing `1 Clima Casa` style.
+`lovelace/01_eclss_casa.yaml` now includes a `DHW / EHW` block aligned to the existing `1 Clima Casa` style.
 
 The UI block is operator-facing and observability-focused. It does not change authority or writer behavior.
 

@@ -28,7 +28,7 @@ Entity id legacy/non affidabili nel runtime corrente:
 
 ## Fix applicati
 
-- Aggiunta vista `AEB` nella dashboard attiva `lovelace/climate_casa_unified_plancia.yaml`
+- Aggiunta vista `AEB` nella dashboard attiva `lovelace/01_eclss_casa.yaml`
 - Aggiunto `packages/climate_forecast_bridge.yaml`
 - Corretto `packages/stub_ventilation_meteo.yaml` da `weather.forecast_home` a `weather.forecast_casa`
 - Rafforzato `packages/climate_policy_energy.yaml` con candidatura esplicita di `sensor.power_production_next_hour`

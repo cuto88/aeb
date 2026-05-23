@@ -1,6 +1,6 @@
 # PV SolarEdge — Plancia
 
-Riferimento: `lovelace/energy_pv_solaredge_plancia.yaml`.
+Riferimento: `lovelace/05_pv_array.yaml`.
 
 Sezioni principali:
 - "Stato attuale": gauge `sensor.pv_power_now` + card stato con sorgente selezionata.

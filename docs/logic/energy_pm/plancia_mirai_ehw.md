@@ -1,6 +1,6 @@
 # Plancia Consumi Mirai+EHW+PM+ds-01
 
-File dashboard: `lovelace/consumi_mirai_ehw_plancia.yaml`
+File dashboard: `lovelace/06_power_runtime.yaml`
 
 ## Entita usate (runtime LocalTuya `01K0AE579DTMM0ZED250CYNCT8`)
 
@@ -64,7 +64,7 @@ File dashboard: `lovelace/consumi_mirai_ehw_plancia.yaml`
   utile come baseline domestica minima, verifica uptime/stato server e controllo ROI
   dei consumi permanenti.
 - Per diagnosi completa EHW usare anche la plancia dedicata:
-  - `lovelace/ehw_plancia.yaml`
+  - `lovelace/07_dhw_acs.yaml`
 - `binary_sensor.ehw_running` indica domanda termica legacy, non assorbimento elettrico.
   Per conferma attivita` usare `binary_sensor.ehw_power_confirmed`.
 
