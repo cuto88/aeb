@@ -9,8 +9,8 @@ Ventilation — ventilazione naturale + VMC.
 
 ## Entrypoints
 - YAML: `packages/climate_ventilation.yaml`, `packages/climate_ventilation_windows.yaml`.
-- Lovelace tecnica: `lovelace/climate_ventilation_plancia.yaml` (con fallback `lovelace/climate_ventilation_plancia_v2.yaml`).
-- Entrypoint utente corrente: `lovelace/climate_casa_unified_plancia.yaml`.
+- Lovelace tecnica: `lovelace/02_air_loop_legacy.yaml` (con fallback `lovelace/02_air_loop.yaml`).
+- Entrypoint utente corrente: `lovelace/01_eclss_casa.yaml`.
 
 ## KPI / Entità principali
 ### Input (sensori, KPI, stati)
@@ -43,6 +43,7 @@ Ventilation — ventilazione naturale + VMC.
 ### Modalità manuali / override
 - Modalità VMC: `input_select.vmc_mode` (auto/manual/off) con `input_select.vmc_manual_speed`; timer `vmc_manual_timeout` per rientro automatico.
 - Ventilazione: `input_boolean.vent_override_estate` forza stagione estiva; `input_boolean.vent_notifiche_attive` abilita/disabilita i messaggi.
+- Se `sensor.clima_open_windows_recommended` resta `on` abbastanza a lungo, il runtime può emettere una notifica Telegram umana per aprire le finestre.
 
 ### Edge cases / protezioni
 - Anti-smog/vento/pioggia: sospende consigli e night-flush se PM2.5 o vento superano soglia o se piove.

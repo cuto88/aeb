@@ -41,6 +41,10 @@ input_boolean:
     name: "Envelope bagno - shade applied"
     icon: mdi:window-shutter
     initial: false
+  envelope_notify_enabled:
+    name: "Envelope - Notifiche attive"
+    icon: mdi:bell
+    initial: false
 
 template:
   - binary_sensor:
@@ -97,25 +101,25 @@ template:
         unique_id: envelope_giorno_rise_rate_cph
         unit_of_measurement: "°C/h"
         icon: mdi:thermometer-chevron-up
-        state: "{{ states('sensor.envelope_giorno_rise_rate_cph_raw') }}"
+        state: "{{ states('sensor.envelope_giorno_rise_rate_cph_raw') | float(0) }}"
 
       - name: "Envelope notte1 rise rate cph"
         unique_id: envelope_notte1_rise_rate_cph
         unit_of_measurement: "°C/h"
         icon: mdi:thermometer-chevron-up
-        state: "{{ states('sensor.envelope_notte1_rise_rate_cph_raw') }}"
+        state: "{{ states('sensor.envelope_notte1_rise_rate_cph_raw') | float(0) }}"
 
       - name: "Envelope notte2 rise rate cph"
         unique_id: envelope_notte2_rise_rate_cph
         unit_of_measurement: "°C/h"
         icon: mdi:thermometer-chevron-up
-        state: "{{ states('sensor.envelope_notte2_rise_rate_cph_raw') }}"
+        state: "{{ states('sensor.envelope_notte2_rise_rate_cph_raw') | float(0) }}"
 
       - name: "Envelope bagno rise rate cph"
         unique_id: envelope_bagno_rise_rate_cph
         unit_of_measurement: "°C/h"
         icon: mdi:thermometer-chevron-up
-        state: "{{ states('sensor.envelope_bagno_rise_rate_cph_raw') }}"
+        state: "{{ states('sensor.envelope_bagno_rise_rate_cph_raw') | float(0) }}"
 
       - name: "Envelope giorno delta vs outdoor c"
         unique_id: envelope_giorno_delta_vs_outdoor_c
@@ -125,7 +129,7 @@ template:
         state: >-
           {% set room = states('sensor.t_in_giorno') | float(default=none) %}
           {% set out = states('sensor.t_out_effective') | float(default=none) %}
-          {% if room is number and out is number %}{{ (room - out) | round(2) }}{% else %}unknown{% endif %}
+          {{ (room - out) | round(2) if room is number and out is number else 0 }}
 
       - name: "Envelope notte1 delta vs outdoor c"
         unique_id: envelope_notte1_delta_vs_outdoor_c
@@ -135,7 +139,7 @@ template:
         state: >-
           {% set room = states('sensor.t_in_notte1') | float(default=none) %}
           {% set out = states('sensor.t_out_effective') | float(default=none) %}
-          {% if room is number and out is number %}{{ (room - out) | round(2) }}{% else %}unknown{% endif %}
+          {{ (room - out) | round(2) if room is number and out is number else 0 }}
 
       - name: "Envelope notte2 delta vs outdoor c"
         unique_id: envelope_notte2_delta_vs_outdoor_c
@@ -145,7 +149,7 @@ template:
         state: >-
           {% set room = states('sensor.t_in_notte2') | float(default=none) %}
           {% set out = states('sensor.t_out_effective') | float(default=none) %}
-          {% if room is number and out is number %}{{ (room - out) | round(2) }}{% else %}unknown{% endif %}
+          {{ (room - out) | round(2) if room is number and out is number else 0 }}
 
       - name: "Envelope bagno delta vs outdoor c"
         unique_id: envelope_bagno_delta_vs_outdoor_c
@@ -155,7 +159,7 @@ template:
         state: >-
           {% set room = states('sensor.t_in_bagno') | float(default=none) %}
           {% set out = states('sensor.t_out_effective') | float(default=none) %}
-          {% if room is number and out is number %}{{ (room - out) | round(2) }}{% else %}unknown{% endif %}
+          {{ (room - out) | round(2) if room is number and out is number else 0 }}
 
       - name: "Envelope giorno delta vs house avg c"
         unique_id: envelope_giorno_delta_vs_house_avg_c
@@ -165,7 +169,7 @@ template:
         state: >-
           {% set room = states('sensor.t_in_giorno') | float(default=none) %}
           {% set avg = states('sensor.t_in_med') | float(default=none) %}
-          {% if room is number and avg is number %}{{ (room - avg) | round(2) }}{% else %}unknown{% endif %}
+          {{ (room - avg) | round(2) if room is number and avg is number else 0 }}
 
       - name: "Envelope notte1 delta vs house avg c"
         unique_id: envelope_notte1_delta_vs_house_avg_c
@@ -175,7 +179,7 @@ template:
         state: >-
           {% set room = states('sensor.t_in_notte1') | float(default=none) %}
           {% set avg = states('sensor.t_in_med') | float(default=none) %}
-          {% if room is number and avg is number %}{{ (room - avg) | round(2) }}{% else %}unknown{% endif %}
+          {{ (room - avg) | round(2) if room is number and avg is number else 0 }}
 
       - name: "Envelope notte2 delta vs house avg c"
         unique_id: envelope_notte2_delta_vs_house_avg_c
@@ -185,7 +189,7 @@ template:
         state: >-
           {% set room = states('sensor.t_in_notte2') | float(default=none) %}
           {% set avg = states('sensor.t_in_med') | float(default=none) %}
-          {% if room is number and avg is number %}{{ (room - avg) | round(2) }}{% else %}unknown{% endif %}
+          {{ (room - avg) | round(2) if room is number and avg is number else 0 }}
 
       - name: "Envelope bagno delta vs house avg c"
         unique_id: envelope_bagno_delta_vs_house_avg_c
@@ -195,7 +199,7 @@ template:
         state: >-
           {% set room = states('sensor.t_in_bagno') | float(default=none) %}
           {% set avg = states('sensor.t_in_med') | float(default=none) %}
-          {% if room is number and avg is number %}{{ (room - avg) | round(2) }}{% else %}unknown{% endif %}
+          {{ (room - avg) | round(2) if room is number and avg is number else 0 }}
 
       - name: "Envelope giorno solar gain score"
         unique_id: envelope_giorno_solar_gain_score
@@ -440,7 +444,7 @@ template:
         unique_id: envelope_delta_t_in_out_trend
         unit_of_measurement: "°C/h"
         icon: mdi:chart-bell-curve-cumulative
-        state: "{{ states('sensor.envelope_delta_t_in_out_trend_raw') }}"
+        state: "{{ states('sensor.envelope_delta_t_in_out_trend_raw') | float(0) }}"
 
       - name: "Envelope outdoor cooling window state"
         unique_id: envelope_outdoor_cooling_window_state
@@ -673,3 +677,78 @@ sensor:
     unit_time: h
     time_window: "00:30:00"
     round: 3
+
+automation:
+  - id: envelope_human_action_telegram_alert
+    alias: "Envelope - richiesta azione umana Telegram"
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id: sensor.envelope_recommended_action
+        to: open_for_night_flush
+        for: "00:05:00"
+      - platform: state
+        entity_id: sensor.envelope_recommended_action
+        to: prepare_night_flush
+        for: "00:05:00"
+      - platform: state
+        entity_id: sensor.envelope_recommended_action
+        to: shade_now
+        for: "00:05:00"
+      - platform: state
+        entity_id: sensor.envelope_recommended_action
+        to: let_sun_in
+        for: "00:05:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.envelope_notify_enabled
+        state: "on"
+      - condition: template
+        value_template: >-
+          {{
+            trigger.to_state is not none
+            and trigger.to_state.state in [
+              'open_for_night_flush',
+              'prepare_night_flush',
+              'shade_now',
+              'let_sun_in'
+            ]
+          }}
+    variables:
+      action: "{{ trigger.to_state.state if trigger.to_state is not none else 'unknown' }}"
+      action_label: >-
+        {% set labels = {
+          'open_for_night_flush': 'apri finestre per night flush',
+          'prepare_night_flush': 'prepara le finestre per night flush',
+          'shade_now': 'chiudi scuri / applica ombreggiatura',
+          'let_sun_in': 'lascia entrare il sole'
+        } %}
+        {{ labels.get(action, action | replace('_', ' ')) }}
+      action_reason: >-
+        {% if action == 'open_for_night_flush' %}
+          Night flush favorevole: aprire ora le finestre aiuta a scaricare il calore accumulato.
+        {% elif action == 'prepare_night_flush' %}
+          La finestra esterna si sta aprendo: prepara l'apertura per il night flush.
+        {% elif action == 'shade_now' %}
+          Il guadagno solare o il rischio di surriscaldamento è alto: conviene schermare adesso.
+        {% elif action == 'let_sun_in' %}
+          Il guadagno passivo è utile: lascia entrare il sole.
+        {% else %}
+          {{ states('sensor.envelope_recommended_action') }}
+        {% endif %}
+    action:
+      - action: script.telegram_ha_mercurio_send
+        data:
+          title: "Azione richiesta: {{ action_label }}"
+          message: |
+            Il sistema sta richiedendo un'azione umana per l'involucro.
+
+            Azione consigliata: `{{ action | replace('`', '') }}`
+            Cosa fare: `{{ action_label | replace('`', '') }}`
+            Motivo: `{{ action_reason | replace('`', '') }}`
+            Stanza peggiore: `{{ states('sensor.envelope_worst_room_name') | replace('`', '') }}`
+            Rischio stanza peggiore: `{{ states('sensor.envelope_worst_room_overheating_risk') | replace('`', '') }}`
+            Potenziale night flush: `{{ states('sensor.envelope_house_night_flush_potential') | replace('`', '') }}`
+            Stato esterno: `{{ states('sensor.envelope_outdoor_cooling_window_state') | replace('`', '') }}`
+            Consiglio generale: `{{ states('sensor.envelope_recommended_action') | replace('`', '') }}`
+            Ora: `{{ now() | string | replace('`', '') }}`

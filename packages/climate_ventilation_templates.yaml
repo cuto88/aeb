@@ -80,6 +80,21 @@ template:
           {% else %}
             false
           {% endif %}
+      - name: "VMC delta UR active"
+        unique_id: vmc_delta_ur_active
+        delay_off: "00:05:00"
+        state: >-
+          {% set ur_in_media = states('sensor.ur_in_media')|float(default=0) %}
+          {% set ur_out = states('sensor.ur_out')|float(default=0) %}
+          {% set delta_ur = ur_in_media - ur_out %}
+          {% set on_condition = ur_in_media >= 55 and delta_ur >= 15 %}
+          {% set off_condition = ur_in_media <= 52 or delta_ur <= 10 %}
+          {% set was_on = this.state == 'on' %}
+          {% if was_on %}
+            {{ not off_condition }}
+          {% else %}
+            {{ on_condition }}
+          {% endif %}
       - name: vmc_freecooling_active
         unique_id: vmc_freecooling_active
         state: >-
@@ -135,7 +150,7 @@ template:
             {% endif %}
           {% endif %}
           {% set cutover_on = is_state('input_boolean.climateops_cutover_vmc','on') %}
-          {% set arbiter_mode = states('sensor.climateops_arbiter_suggested_mode') %}
+          {% set arbiter_mode = states('sensor.arbiter_suggested_mode') %}
           {% set arbiter_available = arbiter_mode not in ['unknown','unavailable',''] %}
           {% if not cutover_on %}
             {{ legacy_target }}
@@ -181,6 +196,8 @@ template:
              and ur_bath is not none and ur_bath >= ur_on and not outside_wetter %}
           {% set boost_requested = boost_manual or boost_auto_valid %}
           {% set ur_in_media = states('sensor.ur_in_media')|float(default=0) %}
+          {% set delta_t_in_out = states('sensor.delta_t_in_out')|float(default=none) %}
+          {% set thermal_ok = delta_t_in_out is not none and delta_t_in_out >= 0.5 %}
           {% if mode_off %}
             P0_off
           {% elif manual %}
@@ -195,7 +212,7 @@ template:
             P1_boost_bagno
           {% elif is_state('binary_sensor.vmc_anti_secco','on') %}
             P1_anti_secco
-          {% elif ur_in_media >= 55 and (ur_in_media - ur_out) >= 15 %}
+          {% elif is_state('binary_sensor.vmc_delta_ur_active','on') and thermal_ok %}
             P1_delta_ur
           {% elif is_state('binary_sensor.vmc_freecooling_candidate','on') and is_state('binary_sensor.windows_all_closed','on') %}
             P2_freecooling
@@ -207,7 +224,7 @@ template:
         unique_id: ventilation_reason
         state: >-
           {% set cutover_on = is_state('input_boolean.climateops_cutover_vmc','on') %}
-          {% set arbiter_mode = states('sensor.climateops_arbiter_suggested_mode') %}
+          {% set arbiter_mode = states('sensor.arbiter_suggested_mode') %}
           {% set arbiter_available = arbiter_mode not in ['unknown','unavailable',''] %}
           {% set policy_blocks_boost = is_state('binary_sensor.policy_allow_vmc_boost','off') %}
           {% set ur_bath = states('sensor.ur_in_bagno')|float(default=none) %}
@@ -219,7 +236,7 @@ template:
              and ur_bath is not none and ur_bath >= ur_on and not outside_wetter %}
           {% set boost_requested = boost_manual or boost_auto_valid %}
           {% if cutover_on and arbiter_available and arbiter_mode != 'IDLE' %}
-            ClimateOps: {{ arbiter_mode }} – {{ states('sensor.climateops_arbiter_suggested_reason') }}
+            ClimateOps: {{ arbiter_mode }} – {{ states('sensor.arbiter_suggested_reason') }}
           {% else %}
           {% set priority = states('sensor.ventilation_priority') %}
           {% if priority == 'P_manual' %}

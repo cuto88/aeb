@@ -95,6 +95,7 @@ Questa parte serve a validare se il consiglio attuale e` coerente con la dinamic
   - rosso per eccesso / surriscaldamento
   - azzurro per finestra night flush favorevole
 - Evitare una plancia troppo tecnica per l'uso quotidiano: servono messaggi chiari e motivati.
+- Le raccomandazioni realmente azionabili possono anche generare una notifica Telegram per l'intervento umano, senza attuazione automatica.
 
 ## Relazione con le altre plance
 - Non deve duplicare la plancia clima unificata.

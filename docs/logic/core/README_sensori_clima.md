@@ -64,6 +64,8 @@ Tutti i package clima **devono** usare **esattamente** questi `entity_id`.
 | Backup RH indoor                          | `input_number.vent_backup_ur_in`     |
 | Summer override flag                      | `input_boolean.vent_override_estate` |
 | Debug climate notifications flag          | `input_boolean.climate_debug_telegram` |
+| Ventilation notifications flag           | `input_boolean.vent_notifiche_attive`   |
+| Envelope notifications flag              | `input_boolean.envelope_notify_enabled`  |
 | Night-flush start time                    | `input_datetime.vent_night_flush_start` |
 | Night-flush end time                      | `input_datetime.vent_night_flush_end`   |
 | VMC message text (dashboard)              | `input_text.vent_messaggio_consiglio`   |

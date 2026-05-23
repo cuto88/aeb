@@ -30,6 +30,10 @@ input_boolean:
     name: "VMC – Boost bagno via ΔUR"
     icon: mdi:water-sync
     initial: false
+  vent_notifiche_attive:
+    name: "Ventilazione – Notifiche attive"
+    icon: mdi:bell-badge
+    initial: false
   vent_override_estate:
     name: "Ventilazione – Forza stagione estiva"
     icon: mdi:weather-sunny
