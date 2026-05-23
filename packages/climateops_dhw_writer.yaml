@@ -65,10 +65,12 @@ template:
       - name: "ClimateOps DHW Actual Feedback"
         unique_id: climateops_dhw_actual_feedback
         unit_of_measurement: "°C"
+        state_class: measurement
+        device_class: temperature
         state: >-
-          {{ states('sensor.ehw_setpoint') }}
-        availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
+          {{ states('sensor.ehw_setpoint') | float(0) }}
+        attributes:
+          raw_state: "{{ states('sensor.ehw_setpoint') }}"
 
       - name: "ClimateOps DHW Expected Feedback"
         unique_id: climateops_dhw_expected_feedback

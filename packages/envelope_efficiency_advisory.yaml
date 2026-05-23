@@ -69,7 +69,7 @@ template:
         unique_id: envelope_indoor_drift_rate_cph
         unit_of_measurement: "°C/h"
         icon: mdi:thermometer-chevron-down
-        state: "{{ states('sensor.envelope_indoor_drift_rate_cph_raw') }}"
+        state: "{{ states('sensor.envelope_indoor_drift_rate_cph_raw') | float(0) }}"
 
       - name: "Envelope cooldown rate cph"
         unique_id: envelope_cooldown_rate_cph

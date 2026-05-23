@@ -117,6 +117,11 @@ Esempi:
 - `.\ops\phase5_schedule_daily_report.ps1 -Action Install -StartTime 07:30`
 - `.\ops\phase5_schedule_daily_report.ps1 -Action Status`
 - `.\ops\phase5_schedule_daily_report.ps1 -Action RunNow`
+- Portable fallback if Windows Scheduled Tasks is blocked:
+  - `.\ops\phase5_burn_in.ps1 -Action Start -StartTime 07:30`
+  - `.\ops\phase5_burn_in.ps1 -Action Status`
+  - `.\ops\phase5_burn_in.ps1 -Action RunNow`
+  - `.\ops\phase5_burn_in.ps1 -Action Stop`
 - Scheduler runner log: `docs/runtime_evidence/<date>/phase5_scheduler_run_<timestamp>.log`
 - `.\ops\phase6_no_go_guard.ps1` validates latest Phase4 decision (`GO` => exit 0, `NO-GO` => exit 2 + alert file).
 - `.\ops\phase7_executive_status.ps1` writes a compact one-file executive snapshot.

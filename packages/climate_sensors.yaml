@@ -70,8 +70,19 @@ template:
         unique_id: heating_state_reason
         state: >-
           {% set priority = states('sensor.heating_priority') %}
-          {% if priority == 'P0_failsafe' %}
-            Failsafe sensori riscaldamento
+          {% set hard_reason = state_attr('binary_sensor.heating_failsafe_sensors_bad', 'reason') %}
+          {% if priority.startswith('P0') %}
+            {% if hard_reason == 'INDOOR_SENSOR_COVERAGE_LOW' %}
+              Failsafe riscaldamento: copertura sensori indoor insufficiente
+            {% elif hard_reason == 'OUTDOOR_UNAVAILABLE' %}
+              Failsafe riscaldamento: fallback outdoor non disponibile
+            {% elif hard_reason == 'OUTDOOR_SENSOR_RANGE' %}
+              Failsafe riscaldamento: temperatura outdoor fuori range
+            {% elif hard_reason == 'INDOOR_SENSOR_RANGE' %}
+              Failsafe riscaldamento: sensore indoor fuori range
+            {% else %}
+              Failsafe sensori riscaldamento
+            {% endif %}
           {% elif priority == 'P1_anti_frost' %}
             Protezione antigelo
           {% elif priority == 'P2_comfort' %}
@@ -136,6 +147,14 @@ template:
         state_class: measurement
         attributes:
           friendly_name: "T zona notte media"
+        availability: >-
+          {{
+            states('sensor.t_in_bagno') not in ['unknown','unavailable','']
+            or states('sensor.t_in_notte1') not in ['unknown','unavailable','']
+            or states('sensor.t_in_notte2') not in ['unknown','unavailable','']
+            or states('sensor.t_in_notte3') not in ['unknown','unavailable','']
+            or states('sensor.t_in_lavanderia') not in ['unknown','unavailable','']
+          }}
         state: >-
           {% set values = [
             states('sensor.t_in_bagno')|float(default=none),
@@ -147,7 +166,7 @@ template:
           {% if values %}
             {{ (values | sum / (values | length)) | round(2) }}
           {% else %}
-            unknown
+            0
           {% endif %}
 
       - name: ur_in_media
@@ -180,6 +199,14 @@ template:
         state_class: measurement
         attributes:
           friendly_name: "UR zona notte media"
+        availability: >-
+          {{
+            states('sensor.ur_in_bagno') not in ['unknown','unavailable','']
+            or states('sensor.ur_in_notte1') not in ['unknown','unavailable','']
+            or states('sensor.ur_in_notte2') not in ['unknown','unavailable','']
+            or states('sensor.ur_in_notte3') not in ['unknown','unavailable','']
+            or states('sensor.ur_in_lavanderia') not in ['unknown','unavailable','']
+          }}
         state: >-
           {% set values = [
             states('sensor.ur_in_bagno')|float(default=none),
@@ -191,7 +218,7 @@ template:
           {% if values %}
             {{ (values | sum / (values | length)) | round(1) }}
           {% else %}
-            unknown
+            0
           {% endif %}
 
       - name: ur_in_min
@@ -202,6 +229,13 @@ template:
         state_class: measurement
         attributes:
           friendly_name: "UR interna minima"
+        availability: >-
+          {{
+            states('sensor.ur_in_giorno') not in ['unknown','unavailable','']
+            or states('sensor.ur_in_notte1') not in ['unknown','unavailable','']
+            or states('sensor.ur_in_notte2') not in ['unknown','unavailable','']
+            or states('sensor.ur_in_bagno') not in ['unknown','unavailable','']
+          }}
         state: >-
           {% set values = [
             states('sensor.ur_in_giorno')|float(default=none),
@@ -212,7 +246,7 @@ template:
           {% if values %}
             {{ (values | min) | round(1) }}
           {% else %}
-            unknown
+            0
           {% endif %}
 
       - name: ah_in
@@ -222,6 +256,11 @@ template:
         state_class: measurement
         attributes:
           friendly_name: "AH interna"
+        availability: >-
+          {{
+            states('sensor.t_in_med') not in ['unknown','unavailable','']
+            and states('sensor.ur_in_media') not in ['unknown','unavailable','']
+          }}
         state: >-
           {% set T = states('sensor.t_in_med')|float(default=none) %}
           {% set RH = states('sensor.ur_in_media')|float(default=none) %}
@@ -231,7 +270,7 @@ template:
             {% set pv = (RHc/100) * es %}
             {{ (216.7 * pv / (T + 273.15)) | round(2) }}
           {% else %}
-            unknown
+            0
           {% endif %}
 
       - name: t_out_effective
@@ -268,6 +307,12 @@ template:
               unknown
             {% endif %}
           stale_flag: "{{ states('binary_sensor.t_out_stale') }}"
+        availability: >-
+          {{
+            states('sensor.t_out') not in ['unknown','unavailable','']
+            or state_attr('weather.forecast_casa', 'temperature') is number
+            or states('sensor.weather_forecast_temperature_1h') not in ['unknown','unavailable','']
+          }}
         state: >-
           {% set raw = states('sensor.t_out') | float(default=none) %}
           {% set weather_current = state_attr('weather.forecast_casa', 'temperature') %}
@@ -281,7 +326,7 @@ template:
           {% elif raw is number %}
             {{ raw | round(1) }}
           {% else %}
-            unknown
+            0
           {% endif %}
 
       - name: ah_out
@@ -304,7 +349,7 @@ template:
             {% set pv = RHc/100 * es %}
             {{ (216.7 * pv / (T + 273.15)) | round(2) }}
           {% else %}
-            unknown
+            0
           {% endif %}
 
       - name: delta_t_in_out
@@ -315,13 +360,18 @@ template:
         state_class: measurement
         attributes:
           friendly_name: "Delta T in-out"
+        availability: >-
+          {{
+            states('sensor.t_in_med') not in ['unknown','unavailable','']
+            and states('sensor.t_out_effective') not in ['unknown','unavailable','']
+          }}
         state: >-
           {% set tin = states('sensor.t_in_med')|float(default=none) %}
           {% set tout = states('sensor.t_out_effective')|float(default=none) %}
           {% if tin is number and tout is number %}
             {{ (tin - tout) | round(2) }}
           {% else %}
-            unknown
+            0
           {% endif %}
 
       - name: delta_ah_in_out
@@ -337,5 +387,5 @@ template:
           {% if ah_i is number and ah_o is number %}
             {{ (ah_i - ah_o) | round(2) }}
           {% else %}
-            unknown
+            0
           {% endif %}

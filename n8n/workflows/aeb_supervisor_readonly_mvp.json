@@ -1,7 +1,7 @@
 {
   "id": "jBKupupJhgR94T36",
   "name": "aeb_supervisor_readonly_mvp",
-  "active": false,
+  "active": true,
   "isArchived": false,
   "nodes": [
     {
@@ -21,13 +21,13 @@
           "interval": [
             {
               "field": "cronExpression",
-              "expression": "0 4 * * *"
+              "expression": "30 7 * * *"
             }
           ]
         }
       },
       "id": "aeb-sup-0003",
-      "name": "Schedule Trigger 04:00",
+      "name": "Schedule Trigger 07:30",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.1,
       "position": [
@@ -64,14 +64,14 @@
           "string": [
             {
               "name": "trigger_source",
-              "value": "schedule_0400"
+              "value": "schedule_0730"
             }
           ]
         },
         "options": {}
       },
       "id": "aeb-sup-0006",
-      "name": "Scheduled Run Context 04:00",
+      "name": "Scheduled Run Context 07:30",
       "type": "n8n-nodes-base.set",
       "typeVersion": 2,
       "position": [

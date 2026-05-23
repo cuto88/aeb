@@ -4,10 +4,12 @@ param(
   [string]$EnvPath = ".env",
   [string]$HaHost = "root@192.168.178.84",
   [int]$Port = 2222,
-  [string]$KeyPath = "C:\Users\randalab\.ssh\ha_ed25519"
+  [string]$KeyPath = $(if ($env:HA_SSH_KEY_PATH) { $env:HA_SSH_KEY_PATH } elseif (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\ha_ed25519.safe") { "C:\2_OPS\aeb\.tmp\ha_ed25519.safe" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_ed25519") { "C:\2_OPS\secrets\ha\ha_ed25519" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_fallback_ed25519") { "C:\2_OPS\secrets\ha\ha_fallback_ed25519" } else { "C:\Users\randalab\.ssh\ha_ed25519" })
 )
 
 $ErrorActionPreference = "Stop"
+. "$PSScriptRoot\ha_secure_key.ps1"
+$KeyPath = Resolve-HaSecureKeyPath -Path $KeyPath
 
 function Read-DotEnv {
   param([string]$Path)
@@ -44,7 +46,7 @@ function Get-HaState {
 
   try {
     $remoteCmd = "curl -s -H 'Authorization: Bearer $Token' http://172.30.32.1:8123/api/states/$EntityId"
-    $raw = & $SshExe -T -p $Port -i $KeyPath $HaHost $remoteCmd
+    $raw = & $SshExe -T -o UserKnownHostsFile=C:\2_OPS\secrets\ha\known_hosts -o StrictHostKeyChecking=yes -p $Port -i $KeyPath $HaHost $remoteCmd
     if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($raw)) {
       throw "SSH/Core API call failed for $EntityId"
     }

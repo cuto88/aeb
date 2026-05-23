@@ -1,11 +1,13 @@
 param(
   [string]$HaHost = "root@192.168.178.84",
   [int]$Port = 2222,
-  [string]$KeyPath = "C:\Users\randalab\.ssh\ha_ed25519",
+  [string]$KeyPath = $(if ($env:HA_SSH_KEY_PATH) { $env:HA_SSH_KEY_PATH } elseif (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\ha_ed25519.safe") { "C:\2_OPS\aeb\.tmp\ha_ed25519.safe" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_ed25519") { "C:\2_OPS\secrets\ha\ha_ed25519" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_fallback_ed25519") { "C:\2_OPS\secrets\ha\ha_fallback_ed25519" } else { "C:\Users\randalab\.ssh\ha_ed25519" }),
   [int]$LogLines = 500
 )
 
 $ErrorActionPreference = "Stop"
+. "$PSScriptRoot\ha_secure_key.ps1"
+$KeyPath = Resolve-HaSecureKeyPath -Path $KeyPath
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $dateDir = Join-Path $repoRoot ("docs\runtime_evidence\" + (Get-Date -Format "yyyy-MM-dd"))
@@ -18,10 +20,11 @@ $scanCurrentBootFile = Join-Path $dateDir ("phase1_runtime_truth_scan_current_bo
 $writerFile = Join-Path $dateDir ("phase1_runtime_truth_writer_scan_" + $stamp + ".txt")
 
 $sshExe = "C:\Windows\System32\OpenSSH\ssh.exe"
+$knownHosts = "C:\2_OPS\secrets\ha\known_hosts"
 $pwshExe = "C:\Program Files\PowerShell\7\pwsh.exe"
 
 $remoteCmd = "ha core logs -n $LogLines -v"
-$fullCmd = "& '$sshExe' -p $Port -i '$KeyPath' $HaHost '$remoteCmd'"
+$fullCmd = "& '$sshExe' -o UserKnownHostsFile=$knownHosts -o StrictHostKeyChecking=yes -p $Port -i '$KeyPath' $HaHost '$remoteCmd'"
 & $pwshExe -Command $fullCmd | Out-File -FilePath $logFile -Encoding utf8
 
 $patterns = @(

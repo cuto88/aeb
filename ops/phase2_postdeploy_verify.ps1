@@ -3,10 +3,12 @@ param(
   [switch]$RunRestart,
   [string]$HaHost = "root@192.168.178.84",
   [int]$Port = 2222,
-  [string]$KeyPath = "C:\Users\randalab\.ssh\ha_ed25519"
+  [string]$KeyPath = $(if ($env:HA_SSH_KEY_PATH) { $env:HA_SSH_KEY_PATH } elseif (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\ha_ed25519.safe") { "C:\2_OPS\aeb\.tmp\ha_ed25519.safe" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_ed25519") { "C:\2_OPS\secrets\ha\ha_ed25519" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_fallback_ed25519") { "C:\2_OPS\secrets\ha\ha_fallback_ed25519" } else { "C:\Users\randalab\.ssh\ha_ed25519" })
 )
 
 $ErrorActionPreference = "Stop"
+. "$PSScriptRoot\ha_secure_key.ps1"
+$KeyPath = Resolve-HaSecureKeyPath -Path $KeyPath
 $repoRoot = Split-Path -Parent $PSScriptRoot
 
 function Say([string]$msg) {
@@ -15,6 +17,7 @@ function Say([string]$msg) {
 
 $pwshExe = "C:\Program Files\PowerShell\7\pwsh.exe"
 $sshExe = "C:\Windows\System32\OpenSSH\ssh.exe"
+$knownHosts = "C:\2_OPS\secrets\ha\known_hosts"
 
 if ($RunDeploy) {
   Say "==> Deploy SAFE"
@@ -25,7 +28,7 @@ if ($RunDeploy) {
 }
 
 Say "==> HA core check"
-$checkCmd = "& '$sshExe' -p $Port -i '$KeyPath' $HaHost 'ha core check'"
+$checkCmd = "& '$sshExe' -o UserKnownHostsFile=$knownHosts -o StrictHostKeyChecking=yes -p $Port -i '$KeyPath' $HaHost 'ha core check'"
 & $pwshExe -Command $checkCmd
 if ($LASTEXITCODE -ne 0) {
   throw "ha core check failed (RC=$LASTEXITCODE)"
@@ -33,7 +36,7 @@ if ($LASTEXITCODE -ne 0) {
 
 if ($RunRestart) {
   Say "==> HA core restart + check"
-  $restartCmd = "& '$sshExe' -p $Port -i '$KeyPath' $HaHost 'ha core restart && ha core check'"
+  $restartCmd = "& '$sshExe' -o UserKnownHostsFile=$knownHosts -o StrictHostKeyChecking=yes -p $Port -i '$KeyPath' $HaHost 'ha core restart && ha core check'"
   & $pwshExe -Command $restartCmd
   if ($LASTEXITCODE -ne 0) {
     throw "ha core restart/check failed (RC=$LASTEXITCODE)"

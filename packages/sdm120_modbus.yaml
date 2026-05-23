@@ -11,7 +11,7 @@ sensor:
     name: sdm120_ch2_active_power_mean_15m
     entity_id: sensor.sdm120_ch2_active_power_w_raw
     state_characteristic: mean
-    sampling_size: 200
+    sampling_size: 25
     max_age:
       minutes: 15
 
@@ -19,7 +19,7 @@ sensor:
     name: sdm120_ch2_active_power_max_24h
     entity_id: sensor.sdm120_ch2_active_power_w_raw
     state_characteristic: value_max
-    sampling_size: 5000
+    sampling_size: 250
     max_age:
       hours: 24
 

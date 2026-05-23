@@ -10,7 +10,7 @@ input_boolean:
   "ehw_swap_top_bottom":
     name: EHW swap top/bottom
     icon: mdi:swap-vertical
-    initial: false
+    initial: true
 
 input_number:
   "ehw_temp_scale":
@@ -66,21 +66,21 @@ template:
         state: >-
           {{ '0x%04X' | format(states('sensor.ehw_reg56_status') | int(0)) }}
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
+          {{ has_value('sensor.ehw_reg56_status') }}
 
       - name: "EHW runtime word hex"
         unique_id: ehw_runtime_word_hex
         state: >-
           {{ '0x%04X' | format(states('sensor.ehw_reg57_runtime') | int(0)) }}
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
+          {{ has_value('sensor.ehw_reg57_runtime') }}
 
   - binary_sensor:
       - name: "CM Modbus ready"
         unique_id: cm_modbus_ready
         icon: mdi:check-network
         state: >-
-          {% if has_value('sensor.ehw_reg56_status') or has_value('sensor.ehw_setpoint_raw_calc') %}
+          {% if has_value('sensor.ehw_setpoint_raw_calc') or has_value('sensor.ehw_t02_raw_a') %}
             on
           {% else %}
             off
@@ -89,7 +89,7 @@ template:
         unique_id: cm_modbus_ehw_ready
         icon: mdi:check-network
         state: >-
-          {% if has_value('sensor.ehw_reg56_status') or has_value('sensor.ehw_t02_raw_a') %}
+          {% if has_value('sensor.ehw_t02_raw_a') or has_value('sensor.ehw_setpoint_raw_calc') %}
             on
           {% else %}
             off
@@ -100,14 +100,14 @@ template:
         state: >-
           {{ (states('sensor.ehw_reg56_status') | int(0)) | bitwise_and(256) > 0 }}
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
+          {{ has_value('sensor.ehw_reg56_status') }}
 
       - name: "EHW status bit 0x0200"
         unique_id: ehw_status_bit_0200
         state: >-
           {{ (states('sensor.ehw_reg56_status') | int(0)) | bitwise_and(512) > 0 }}
         availability: >-
-          {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
+          {{ has_value('sensor.ehw_reg56_status') }}
 
   - sensor:
       - name: "EHW T01 raw"
@@ -508,17 +508,19 @@ template:
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         icon: mdi:stethoscope
         state: >-
-          {% set regs_ok = is_number(states('sensor.ehw_reg56_status'))
-            or is_number(states('sensor.ehw_reg57_runtime'))
-            or is_number(states('sensor.ehw_reg60_value'))
-            or is_number(states('sensor.ehw_setpoint_raw_calc')) %}
-          {% set t_ok = is_number(states('sensor.ehw_tank_top'))
-            and is_number(states('sensor.ehw_tank_bottom'))
-            and (states('sensor.ehw_tank_top') | float(0)) >= 0
-            and (states('sensor.ehw_tank_top') | float(0)) <= 90
-            and (states('sensor.ehw_tank_bottom') | float(0)) >= 0
-            and (states('sensor.ehw_tank_bottom') | float(0)) <= 90 %}
-          {% if regs_ok or t_ok %}
+          {% set regs_ok = is_number(states('sensor.ehw_setpoint_raw_calc'))
+            or is_number(states('sensor.ehw_tank_top_raw_calc'))
+            or is_number(states('sensor.ehw_tank_bottom_raw_calc')) %}
+          {% set top = states('sensor.ehw_tank_top') | float(default=none) %}
+          {% set bottom = states('sensor.ehw_tank_bottom') | float(default=none) %}
+          {% set t_ok = top is number
+            and bottom is number
+            and top >= 0 and top <= 90
+            and bottom >= 0 and bottom <= 90 %}
+          {% set inverted = t_ok and top < (bottom - 1.0) %}
+          {% if inverted %}
+            suspect_inverted_top_bottom
+          {% elif regs_ok or t_ok %}
             ok
           {% else %}
             suspect_all_zero
@@ -542,4 +544,4 @@ template:
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         icon: mdi:alert
         state: >-
-          {{ is_state('sensor.ehw_mapping_health', 'suspect_all_zero') }}
+          {{ states('sensor.ehw_mapping_health') != 'ok' }}

@@ -1131,13 +1131,10 @@ script:
         data:
           title: "{{ title | default('DomesticOps') }}"
           message: "{{ message }}"
-      - action: notify.send_message
-        target:
-          entity_id: notify.telegram_davide
+      - action: script.telegram_ha_mercurio_send
         data:
+          title: "{{ title | default('DomesticOps') }}"
           message: |
-            {{ title | default('DomesticOps') }}
-
             {{ message }}
 
             Ora: `{{ now() | string | replace('`', '') }}`

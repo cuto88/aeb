@@ -5,6 +5,7 @@ Workflow canonici `n8n` per il supervisore `aeb`.
 ## Files
 
 - `workflows/aeb_supervisor_readonly_mvp.json`
+- `CUTOVER_RUNBOOK.md`
 
 ## Runtime assumptions
 
@@ -32,10 +33,17 @@ Workflow canonici `n8n` per il supervisore `aeb`.
 
 ## Current scope
 
-MVP read-only:
+MVP read-only, daily automatic burn-in:
 - fetch payload
 - call supervisor model
 - write `docs/audits/CURRENT_SUPERVISOR_STATUS.md`
 - send nightly email summary
+
+Schedule:
+- `Schedule Trigger 07:30`
+- workflow export marked `active: true`
+
+Cutover:
+- see `CUTOVER_RUNBOOK.md`
 
 No deploy, no runtime mutation, no Git promotion.

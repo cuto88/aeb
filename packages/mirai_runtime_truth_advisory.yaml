@@ -8,7 +8,7 @@ input_number:
     min: 50
     max: 5000
     step: 10
-    initial: 150
+    initial: 100
     unit_of_measurement: "W"
     icon: mdi:flash
 
@@ -30,9 +30,9 @@ template:
       - name: "MIRAI runtime truth run window candidate"
         unique_id: mirai_runtime_truth_run_window_candidate
         delay_on:
-          minutes: 5
+          minutes: 1
         delay_off:
-          minutes: 5
+          minutes: 1
         state: >-
           {% set p = states('sensor.mirai_power_w_effective') | float(default=none) %}
           {% set pmin = states('input_number.mirai_runtime_truth_min_run_w') | float(150) %}
@@ -88,9 +88,9 @@ template:
       - name: "MIRAI runtime truth pump corroborated"
         unique_id: mirai_runtime_truth_pump_corroborated
         delay_on:
-          minutes: 2
+          minutes: 1
         delay_off:
-          minutes: 2
+          minutes: 1
         state: >-
           {{
             is_state('binary_sensor.mirai_pump_do4_running', 'on')
@@ -100,9 +100,9 @@ template:
       - name: "MIRAI runtime truth coherent run"
         unique_id: mirai_runtime_truth_coherent_run
         delay_on:
-          minutes: 3
+          minutes: 1
         delay_off:
-          minutes: 3
+          minutes: 1
         state: >-
           {{
             is_state('binary_sensor.mirai_runtime_truth_run_window_candidate', 'on')

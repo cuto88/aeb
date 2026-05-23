@@ -114,6 +114,28 @@ template:
           should_run: "{{ states('binary_sensor.cm_ac_branch_should_run') }}"
           climateops_request_cool: "{{ states('binary_sensor.climateops_request_cool') }}"
 
+      - name: "CM AC branch intervention reason"
+        unique_id: cm_ac_branch_intervention_reason
+        icon: mdi:account-alert-outline
+        state: >-
+          {% if is_state('binary_sensor.cm_ac_branch_should_be_powered', 'on')
+                and is_state('binary_sensor.cm_ac_branch_powered', 'off') %}
+            branch_should_be_powered_but_main_breaker_is_off
+          {% elif is_state('binary_sensor.cm_ac_branch_should_run', 'on') %}
+            no_intervention_runtime_ready
+          {% elif is_state('binary_sensor.cm_ac_branch_in_season', 'on') %}
+            seasonal_ready_manual_breaker_check
+          {% else %}
+            no_intervention_out_of_season
+          {% endif %}
+        attributes:
+          should_be_powered: "{{ states('binary_sensor.cm_ac_branch_should_be_powered') }}"
+          branch_powered: "{{ states('binary_sensor.cm_ac_branch_powered') }}"
+          should_run: "{{ states('binary_sensor.cm_ac_branch_should_run') }}"
+          in_season: "{{ states('binary_sensor.cm_ac_branch_in_season') }}"
+          system_mode: "{{ states('sensor.cm_system_mode_suggested') }}"
+          system_reason: "{{ states('sensor.cm_system_reason') }}"
+
       - name: "CM MIRAI branch advice"
         unique_id: cm_mirai_branch_advice
         icon: mdi:heat-pump
@@ -144,3 +166,186 @@ template:
           heating_demand_active: "{{ states('binary_sensor.heating_demand_active') }}"
           heating_held_by_min_on_lock: "{{ states('binary_sensor.heating_held_by_min_on_lock') }}"
           heating_should_run_source: "{{ states('sensor.heating_should_run_source') }}"
+
+automation:
+  - id: cm_ac_branch_manual_power_alert_on
+    alias: "CM AC branch - alert intervento umano quadro"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.cm_ac_branch_should_be_powered
+        to: "on"
+        for: "00:15:00"
+      - platform: state
+        entity_id: binary_sensor.cm_ac_branch_powered
+        to: "off"
+        for: "00:15:00"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.cm_ac_branch_should_be_powered
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.cm_ac_branch_powered
+        state: "off"
+    variables:
+      ac_mode_label: >-
+        {% set mode = states('sensor.cm_system_mode_suggested') %}
+        {% if mode == 'COOL_DAY' %}
+          raffrescamento giorno
+        {% elif mode == 'COOL_NIGHT' %}
+          raffrescamento notte
+        {% elif mode == 'HEAT' %}
+          riscaldamento
+        {% elif mode == 'VENT_BASE' %}
+          ventilazione base
+        {% elif mode == 'IDLE' %}
+          attesa
+        {% elif mode in ['unknown', 'unavailable', ''] %}
+          non disponibile
+        {% else %}
+          {{ mode | replace('_', ' ') }}
+        {% endif %}
+      ac_advice_label: >-
+        {% set advice = states('sensor.cm_ac_branch_advice') %}
+        {% if advice == 'ready_now' %}
+          pronto ora
+        {% elif advice == 'should_power_on_now' %}
+          da alimentare subito
+        {% elif advice == 'season_ready' %}
+          pronto per la stagione
+        {% elif advice == 'consider_power_on_for_season' %}
+          utile alimentarlo per la stagione corrente
+        {% elif advice == 'can_power_off' %}
+          puo essere spento
+        {% elif advice == 'off_in_seasonal_rest' %}
+          correttamente spento fuori stagione
+        {% elif advice in ['unknown', 'unavailable', ''] %}
+          non disponibile
+        {% else %}
+          {{ advice | replace('_', ' ') }}
+        {% endif %}
+      ac_season_label: >-
+        {% if is_state('binary_sensor.cm_ac_branch_in_season', 'on') %}
+          in stagione
+        {% elif is_state('binary_sensor.cm_ac_branch_in_season', 'off') %}
+          fuori stagione
+        {% else %}
+          non disponibile
+        {% endif %}
+      ac_cool_request_label: >-
+        {% if is_state('binary_sensor.climateops_request_cool', 'on') %}
+          si
+        {% elif is_state('binary_sensor.climateops_request_cool', 'off') %}
+          no
+        {% else %}
+          non disponibile
+        {% endif %}
+    action:
+      - service: logbook.log
+        data:
+          name: "CM AC branch"
+          message: >
+            Ramo AC richiesto ma quadro principale ancora OFF.
+            Intervento umano richiesto.
+            Mode: {{ states('sensor.cm_system_mode_suggested') }},
+            reason: {{ states('sensor.cm_system_reason') }},
+            advice: {{ states('sensor.cm_ac_branch_advice') }}.
+          entity_id: binary_sensor.cm_ac_branch_should_be_powered
+      - service: persistent_notification.create
+        data:
+          notification_id: cm_ac_branch_manual_power_required
+          title: "AC quadro manuale da abilitare"
+          message: >
+            Il ramo AC dovrebbe essere alimentato ma il quadro manuale risulta OFF
+            da almeno 15 minuti.
+
+            Azione richiesta: verificare e, se coerente con le condizioni reali,
+            abilitare l'interruttore principale AC dal quadro.
+
+            Mode: {{ states('sensor.cm_system_mode_suggested') }}
+            Reason: {{ states('sensor.cm_system_reason') }}
+            Advice: {{ states('sensor.cm_ac_branch_advice') }}
+            Season: {{ states('binary_sensor.cm_ac_branch_in_season') }}
+            Cool request: {{ states('binary_sensor.climateops_request_cool') }}
+      - action: script.telegram_ha_mercurio_send
+        data:
+          title: "Attenzione: quadro AC da verificare"
+          message: |
+            Il ramo AC dovrebbe essere alimentato, ma il quadro manuale risulta OFF da almeno 15 minuti.
+
+            Azione richiesta: verificare il quadro e abilitare l'interruttore principale AC, se coerente con le condizioni reali.
+
+            Modalita suggerita: `{{ ac_mode_label | replace('`', '') }}`
+            Motivo: `{{ states('sensor.cm_system_reason') | replace('`', '') }}`
+            Indicazione sistema: `{{ ac_advice_label | replace('`', '') }}`
+            Stagione AC: `{{ ac_season_label | replace('`', '') }}`
+            Richiesta raffrescamento: `{{ ac_cool_request_label | replace('`', '') }}`
+            Ora: `{{ now() | string | replace('`', '') }}`
+
+  - id: cm_ac_branch_manual_power_alert_off
+    alias: "CM AC branch - clear alert intervento umano quadro"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.cm_ac_branch_powered
+          - binary_sensor.cm_ac_branch_should_be_powered
+    variables:
+      ac_powered_label: >-
+        {% if is_state('binary_sensor.cm_ac_branch_powered', 'on') %}
+          si
+        {% elif is_state('binary_sensor.cm_ac_branch_powered', 'off') %}
+          no
+        {% else %}
+          non disponibile
+        {% endif %}
+      ac_should_be_powered_label: >-
+        {% if is_state('binary_sensor.cm_ac_branch_should_be_powered', 'on') %}
+          si
+        {% elif is_state('binary_sensor.cm_ac_branch_should_be_powered', 'off') %}
+          no
+        {% else %}
+          non disponibile
+        {% endif %}
+      ac_advice_label: >-
+        {% set advice = states('sensor.cm_ac_branch_advice') %}
+        {% if advice == 'ready_now' %}
+          pronto ora
+        {% elif advice == 'should_power_on_now' %}
+          da alimentare subito
+        {% elif advice == 'season_ready' %}
+          pronto per la stagione
+        {% elif advice == 'consider_power_on_for_season' %}
+          utile alimentarlo per la stagione corrente
+        {% elif advice == 'can_power_off' %}
+          puo essere spento
+        {% elif advice == 'off_in_seasonal_rest' %}
+          correttamente spento fuori stagione
+        {% elif advice in ['unknown', 'unavailable', ''] %}
+          non disponibile
+        {% else %}
+          {{ advice | replace('_', ' ') }}
+        {% endif %}
+      trg: "{{ trigger.entity_id }}"
+    action:
+      - choose:
+          - conditions: "{{ trg == 'binary_sensor.cm_ac_branch_powered' and is_state('binary_sensor.cm_ac_branch_powered', 'on') }}"
+            sequence:
+              - service: persistent_notification.dismiss
+                data:
+                  notification_id: cm_ac_branch_manual_power_required
+              - action: script.telegram_ha_mercurio_send
+                data:
+                  title: "Aggiornamento quadro AC"
+                  message: |
+                    L'avviso sul quadro AC manuale è rientrato.
+
+                    Ramo alimentato: `{{ ac_powered_label | replace('`', '') }}`
+                    Doveva essere alimentato: `{{ ac_should_be_powered_label | replace('`', '') }}`
+                    Indicazione sistema: `{{ ac_advice_label | replace('`', '') }}`
+                    Ora: `{{ now() | string | replace('`', '') }}`
+          - conditions: "{{ trg == 'binary_sensor.cm_ac_branch_should_be_powered' and is_state('binary_sensor.cm_ac_branch_should_be_powered', 'off') }}"
+            sequence:
+              - service: persistent_notification.dismiss
+                data:
+                  notification_id: cm_ac_branch_manual_power_required

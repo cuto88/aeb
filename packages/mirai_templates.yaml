@@ -6,7 +6,7 @@ input_number:
     step: 10
     unit_of_measurement: W
     mode: box
-    initial: 150
+    initial: 100
 
 template:
   - binary_sensor:

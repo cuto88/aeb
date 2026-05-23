@@ -93,6 +93,34 @@ automation:
           value: >-
             {{ states('sensor.ventilation_reason') }} – Freecooling: {{ states('sensor.vmc_freecooling_status') }}
 
+  - id: vmc_open_windows_telegram_alert
+    alias: "VMC – Notifica apertura finestre Telegram"
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id: sensor.clima_open_windows_recommended
+        to: "on"
+        for: "00:05:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.vent_notifiche_attive
+        state: "on"
+      - condition: state
+        entity_id: sensor.clima_open_windows_recommended
+        state: "on"
+    action:
+      - action: script.telegram_ha_mercurio_send
+        data:
+          title: "Ventilazione: apri finestre consigliato"
+          message: |
+            Il sistema indica che aprire le finestre è consigliato adesso.
+
+            Consiglio tecnico: `{{ states('sensor.clima_open_windows_recommended') }}`
+            Motivo ventilazione: `{{ states('sensor.ventilation_reason') | replace('`', '') }}`
+            Stato freecooling: `{{ states('sensor.vmc_freecooling_status') | replace('`', '') }}`
+            Consiglio involucro: `{{ states('sensor.envelope_recommended_action') | replace('`', '') }}`
+            Ora: `{{ now() | string | replace('`', '') }}`
+
   - id: vmc_sync_core_backup_inputs
     alias: "VMC – Sync core/legacy backup input"
     mode: queued

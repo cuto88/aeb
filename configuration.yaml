@@ -2,8 +2,24 @@
 default_config:
 
 recorder:
-  purge_keep_days: 90
+  purge_keep_days: 30
   auto_purge: true
+  exclude:
+    entity_globs:
+      - sensor.*_mean_15m
+      - sensor.*_max_24h
+      - sensor.*_hours_24h
+      - sensor.*_hours_today
+      - sensor.*_hours_yesterday
+
+logbook:
+  exclude:
+    entity_globs:
+      - sensor.*_mean_15m
+      - sensor.*_max_24h
+      - sensor.*_hours_24h
+      - sensor.*_hours_today
+      - sensor.*_hours_yesterday
 
 frontend:
   themes: !include_dir_merge_named themes

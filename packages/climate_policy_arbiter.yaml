@@ -23,13 +23,7 @@ template:
       - name: "Policy stagione calda"
         unique_id: policy_stagione_calda
         device_class: heat
-        state: >-
-          {% if 'sensor.vent_stagione' in states %}
-            {{ states('sensor.vent_stagione') == 'estate' }}
-          {% else %}
-            {% set m = now().month %}
-            {{ m in [4,5,6,7,8,9,10] }}
-          {% endif %}
+        state: "{{ is_state('binary_sensor.stagione_calda', 'on') }}"
 
       - name: "Policy allow AC"
         unique_id: policy_allow_ac
@@ -40,7 +34,7 @@ template:
             true
           {% elif is_state('input_boolean.policy_force_block_ac', 'on') %}
             false
-          {% elif states('sensor.ventilation_priority') == 'P1_boost_bagno' %}
+          {% elif is_state('binary_sensor.climateops_shower_proxy_active', 'on') %}
             false
           {% else %}
             true
@@ -71,8 +65,8 @@ template:
           {% elif is_state('input_boolean.policy_force_block_ac', 'on')
                 or is_state('input_boolean.policy_force_block_vmc_boost', 'on') %}
             FORCE_BLOCK
-          {% elif states('sensor.ventilation_priority') == 'P1_boost_bagno' %}
-            BLOCK_AC_BOOST_BAGNO
+          {% elif is_state('binary_sensor.climateops_shower_proxy_active', 'on') %}
+            BLOCK_AC_SHOWER_PROXY
           {% else %}
             OK
           {% endif %}
@@ -85,7 +79,7 @@ template:
           - input_boolean.policy_force_block_ac
           - input_boolean.policy_force_allow_vmc_boost
           - input_boolean.policy_force_block_vmc_boost
-          - sensor.ventilation_priority
+          - binary_sensor.climateops_shower_proxy_active
           - binary_sensor.policy_allow_ac
           - binary_sensor.policy_allow_vmc_boost
           - sensor.policy_arbiter_reason

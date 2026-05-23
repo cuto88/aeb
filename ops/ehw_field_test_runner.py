@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import argparse
 import csv
+import os
+import shutil
 import sqlite3
 import subprocess
 import sys
@@ -31,12 +33,45 @@ def run(cmd: list[str]) -> tuple[int, str]:
     return proc.returncode, out.strip()
 
 
+def materialize_ssh_key(source: str) -> str:
+    src = Path(source)
+    if not src.exists():
+        raise FileNotFoundError(f"Missing SSH key: {src}")
+    target_dir = Path(os.environ.get("USERPROFILE", str(Path.home()))) / ".codex" / "memories" / "ha_keys"
+    target_dir.mkdir(parents=True, exist_ok=True)
+    target = target_dir / f"{src.name}.{int(time.time() * 1000)}.temp"
+    shutil.copy2(src, target)
+    principal = f"{os.environ.get('USERDOMAIN', '')}\\{os.environ.get('USERNAME', '')}"
+    rc, out = run([
+        "icacls",
+        str(target),
+        "/inheritance:r",
+        "/grant:r",
+        f"{principal}:F",
+        "/grant:r",
+        "SYSTEM:F",
+        "/grant:r",
+        "Administrators:F",
+        "/remove:g",
+        "BUILTIN\\Users",
+        "NT AUTHORITY\\Authenticated Users",
+        "DS-01\\CodexSandboxUsers",
+    ])
+    if rc != 0:
+        raise RuntimeError(f"failed to secure SSH key permissions: {out}")
+    return str(target)
+
+
 def refresh_db_snapshot(ssh_port: int, ssh_key: str, ssh_user: str, ssh_host: str, local_dir: Path) -> Path:
     remote_db = "/homeassistant/home-assistant_v2.db"
     local_dir.mkdir(parents=True, exist_ok=True)
     snap = local_dir / f"home-assistant_v2.db.{int(time.time() * 1000)}.snap"
     cmd = [
         r"C:\Windows\System32\OpenSSH\scp.exe",
+        "-o",
+        r"UserKnownHostsFile=C:\2_OPS\secrets\ha\known_hosts",
+        "-o",
+        "StrictHostKeyChecking=yes",
         "-P",
         str(ssh_port),
         "-i",
@@ -307,7 +342,7 @@ def main() -> int:
     parser.add_argument("--ssh-host", default="192.168.178.84")
     parser.add_argument("--ssh-port", type=int, default=2222)
     parser.add_argument("--ssh-user", default="root")
-    parser.add_argument("--ssh-key", default=r"C:\Users\randalab\.ssh\ha_ed25519")
+    parser.add_argument("--ssh-key", default=os.environ.get("HA_SSH_KEY_PATH", r"C:\2_OPS\aeb\.tmp\ha_ed25519.safe"))
     parser.add_argument("--workspace", default=".")
     parser.add_argument("--date", default=datetime.now().strftime("%Y-%m-%d"))
     parser.add_argument("--mode", choices=["baseline", "post"], default="baseline")
@@ -316,6 +351,7 @@ def main() -> int:
     parser.add_argument("--interval-seconds", type=int, default=30)
     parser.add_argument("--event-ts", default="")
     args = parser.parse_args()
+    args.ssh_key = materialize_ssh_key(args.ssh_key)
 
     root = Path(args.workspace).resolve()
     out_dir = root / "docs" / "runtime_evidence" / args.date

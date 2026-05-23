@@ -13,7 +13,7 @@ sensor:
     name: t_out_effective_mean_24h
     entity_id: sensor.t_out_effective
     state_characteristic: mean
-    sampling_size: 2000
+    sampling_size: 500
     max_age:
       hours: 24
 
@@ -21,7 +21,7 @@ sensor:
     name: t_out_effective_mean_96h
     entity_id: sensor.t_out_effective
     state_characteristic: mean
-    sampling_size: 8000
+    sampling_size: 1000
     max_age:
       hours: 96
 
