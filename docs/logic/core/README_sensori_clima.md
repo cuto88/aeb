@@ -113,6 +113,7 @@ Note operative VMC:
   `input_number.vmc_boost_manual_timeout_min`.
 - Priorità `P1_boost_bagno` imposta `sensor.vmc_vel_target`=3 e blocca le richieste automatiche AC
   dal controller clima durante il boost bagno.
+- Il planner AC usa `sensor.ur_in_media` oltre alla temperatura per non restare fermo quando il caldo è moderato ma l'umidità è già fuori comfort.
 
 ---
 

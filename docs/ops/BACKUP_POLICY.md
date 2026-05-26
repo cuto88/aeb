@@ -7,6 +7,12 @@
 - `.storage/`: snapshot separato o incluso nello snapshot DR.
 - Secrets fuori Git: `secrets.yaml` e chiavi operative, ma sempre fuori dal repository.
 - Offsite: copia cifrata o su storage separato per il restore worst-case.
+- Recorder history: il DB `home-assistant_v2.db*` resta fuori dal snapshot DR quotidiano per tenere il job sostenibile; conserva export separati solo se servono davvero.
+
+Default operativo consigliato per il job DR:
+
+- root backup esterno al repo: `C:\2_OPS\_repo_archives\aeb\_dr_backups`
+- task schedulato: `ops/dr_backup_task.ps1`
 
 ## Frequenze consigliate
 
@@ -15,6 +21,7 @@
 - `.storage/`: prima di re-auth integration, update cloud o modifiche auth, e almeno giornalmente se il runtime cambia spesso.
 - Secrets: ogni volta che cambia una chiave o una credenziale, con copia fuori Git.
 - Offsite: almeno una volta al giorno o dopo un deploy ad alto rischio.
+- Recorder DB: solo backup dedicato separato, non nel giro quotidiano DR.
 
 ## Retention minima
 
@@ -38,4 +45,3 @@
 - backup `.storage`
 - backup credenziali fuori Git
 - restore drill reale
-

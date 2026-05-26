@@ -42,6 +42,7 @@ AC — split (dry/cool) con lock anti-ciclo e coordinamento VMC.
 ## Hook / Dipendenze
 - `hook_vmc_request_ac_block`: ricevuto dalla VMC durante freecooling/ΔAH favorevole; imposta `binary_sensor.ac_block_by_vmc`.
 - `hook_ac_request_vmc_low`: inviato quando DRY è attivo per chiedere VMC a vel_1 e ridurre condensa.
+- Il planner upstream ora considera anche l'umidità interna per alzare la richiesta AC quando la temperatura da sola non basta.
 
 ## Riferimenti
 - [docs/logic/core/regole_core_logiche.md](../core/regole_core_logiche.md)

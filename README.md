@@ -54,6 +54,7 @@ Per evitare falsi positivi e cartelle di backup/quarantena, il lint YAML gira so
 - Backup policy: `docs/ops/BACKUP_POLICY.md`
 - Snapshot runtime: `ops/backup_runtime_snapshot.ps1`
 - Check freshness backup: `ops/verify_backup_freshness.ps1`
+- Daily task: `ops/dr_backup_task.ps1`
 - Nota: il backup pre-deploy di `ops/deploy_safe.ps1` e` solo un rollback parziale, non sostituisce il DR completo.
 
 ## Accesso runtime HA

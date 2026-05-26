@@ -2,6 +2,10 @@ param(
   [string]$Branch = "main",
   [string]$Target = "Z:\",
   [string]$BackupRoot = ".\_ha_runtime_backups",
+  [string]$RemoteHost = "dscomparin@192.168.178.110",
+  [int]$RemotePort = 22,
+  [string]$RemoteContainer = "homeassistant",
+  [string]$RemotePath = "/config",
   [switch]$IncludeTts,
   [switch]$IncludeWww,
   [switch]$IncludeBlueprints,
@@ -11,6 +15,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+
+. $PSScriptRoot\ha_secure_key.ps1
 
 function Say($m){ Write-Host $m }
 function Fail($m){ throw $m }
@@ -156,6 +162,171 @@ function Copy-Allowed {
   }
 }
 
+function Get-SshExe {
+  $ssh = Get-Command ssh.exe -ErrorAction SilentlyContinue
+  if (-not $ssh) {
+    Fail "ssh.exe not available."
+  }
+  return $ssh.Source
+}
+
+function Get-TarExe {
+  $tar = Get-Command tar.exe -ErrorAction SilentlyContinue
+  if (-not $tar) {
+    Fail "tar.exe not available."
+  }
+  return $tar.Source
+}
+
+function New-SafeSshKeyCopy {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$SourcePath
+  )
+
+  if (-not (Test-Path -LiteralPath $SourcePath)) {
+    throw "SSH key source not found: $SourcePath"
+  }
+
+  $tmpRoot = Join-Path -Path $PSScriptRoot -ChildPath ".tmp"
+  New-Item -ItemType Directory -Force -Path $tmpRoot | Out-Null
+
+  $safePath = Join-Path -Path $tmpRoot -ChildPath ("deploy_ssh_key.{0}.safe" -f ([guid]::NewGuid().ToString('N')))
+  Copy-Item -LiteralPath $SourcePath -Destination $safePath -Force
+
+  $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+  $acl = New-Object System.Security.AccessControl.FileSecurity
+  $acl.SetAccessRuleProtection($true, $false)
+  $ruleUser = [System.Security.AccessControl.FileSystemAccessRule]::new($currentUser, [System.Security.AccessControl.FileSystemRights]::Modify, [System.Security.AccessControl.AccessControlType]::Allow)
+  $ruleSystem = [System.Security.AccessControl.FileSystemAccessRule]::new('NT AUTHORITY\SYSTEM', [System.Security.AccessControl.FileSystemRights]::FullControl, [System.Security.AccessControl.AccessControlType]::Allow)
+  $ruleAdmins = [System.Security.AccessControl.FileSystemAccessRule]::new('BUILTIN\Administrators', [System.Security.AccessControl.FileSystemRights]::FullControl, [System.Security.AccessControl.AccessControlType]::Allow)
+  foreach ($rule in @($ruleUser, $ruleSystem, $ruleAdmins)) {
+    [void]$acl.AddAccessRule($rule)
+  }
+  Set-Acl -LiteralPath $safePath -AclObject $acl
+
+  return $safePath
+}
+
+function Get-DeployKeyPath {
+  if (Test-Path -LiteralPath "C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp") {
+    return New-SafeSshKeyCopy -SourcePath "C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp"
+  }
+
+  if (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\ha_ed25519.safe") {
+    return "C:\2_OPS\aeb\.tmp\ha_ed25519.safe"
+  }
+
+  if ($env:HA_SSH_KEY_PATH -and (Test-Path -LiteralPath $env:HA_SSH_KEY_PATH)) {
+    return New-SafeSshKeyCopy -SourcePath $env:HA_SSH_KEY_PATH
+  }
+
+  if (Test-Path -LiteralPath "C:\Users\randalab\.ssh\ha_ed25519") {
+    return New-SafeSshKeyCopy -SourcePath "C:\Users\randalab\.ssh\ha_ed25519"
+  }
+
+  if (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_ed25519") {
+    return New-SafeSshKeyCopy -SourcePath "C:\2_OPS\secrets\ha\ha_ed25519"
+  }
+
+  if (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_fallback_ed25519") {
+    return New-SafeSshKeyCopy -SourcePath "C:\2_OPS\secrets\ha\ha_fallback_ed25519"
+  }
+
+  throw "No usable SSH key source found."
+}
+
+function Get-KnownHostsPath {
+  if ($env:HA_SSH_KNOWN_HOSTS -and (Test-Path -LiteralPath $env:HA_SSH_KNOWN_HOSTS)) {
+    return $env:HA_SSH_KNOWN_HOSTS
+  }
+  if (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\known_hosts_ha_110") {
+    return "C:\2_OPS\aeb\.tmp\known_hosts_ha_110"
+  }
+  return "C:\2_OPS\secrets\ha\known_hosts"
+}
+
+function Test-RemoteConfigTarget {
+  param(
+    [string]$HaSshScript,
+    [string]$KeyPath,
+    [string]$KnownHostsPath,
+    [string]$RemoteHostName,
+    [int]$Port,
+    [string]$RemoteContainer,
+    [string]$Path
+  )
+
+  & $HaSshScript -Port $Port -HaHost $RemoteHostName -KeyPath $KeyPath -KnownHostsPath $KnownHostsPath -RemoteCommand "docker exec $RemoteContainer test -f $Path/configuration.yaml" | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    throw "Remote target '${RemoteHostName}:${RemoteContainer}:${Path}' does not look like a Home Assistant config."
+  }
+
+  & $HaSshScript -Port $Port -HaHost $RemoteHostName -KeyPath $KeyPath -KnownHostsPath $KnownHostsPath -RemoteCommand "docker exec $RemoteContainer test -f $Path/secrets.yaml" | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    throw "Remote target '${RemoteHostName}:${RemoteContainer}:${Path}' does not look like a Home Assistant config."
+  }
+}
+
+function Invoke-RemoteMirror {
+  param(
+    [string]$HaSshScript,
+    [string]$TarExe,
+    [string]$KeyPath,
+    [string]$KnownHostsPath,
+    [string]$RemoteHostName,
+    [int]$Port,
+    [string]$RemoteContainer,
+    [string]$RemotePath,
+    [string]$LocalPath,
+    [string[]]$Entries
+  )
+
+  $existingEntries = @()
+  foreach ($entry in $Entries) {
+    $probe = "docker exec $RemoteContainer test -e $RemotePath/$entry"
+    & $HaSshScript -Port $Port -HaHost $RemoteHostName -KeyPath $KeyPath -KnownHostsPath $KnownHostsPath -RemoteCommand $probe | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+      $existingEntries += $entry
+    }
+  }
+
+  $remoteCommand = "docker exec $RemoteContainer tar -czf - -C $RemotePath " + (($existingEntries | ForEach-Object { $_ }) -join ' ') + " 2>/dev/null"
+  & $HaSshScript -Port $Port -HaHost $RemoteHostName -KeyPath $KeyPath -KnownHostsPath $KnownHostsPath -RemoteCommand $remoteCommand |
+    & $TarExe -xzf - -C $LocalPath
+  if ($LASTEXITCODE -ne 0) {
+    Say "[WARN] Remote mirror failed (RC=$LASTEXITCODE) - continuing with deploy"
+  }
+}
+
+function Invoke-RemoteDeploy {
+  param(
+    [string]$HaSshScript,
+    [string]$TarExe,
+    [string]$KeyPath,
+    [string]$KnownHostsPath,
+    [string]$RemoteHostName,
+    [int]$Port,
+    [string]$RemoteContainer,
+    [string]$RemotePath,
+    [string]$SourceRoot,
+    [string[]]$Entries
+  )
+
+  $existingEntries = @()
+  foreach ($entry in $Entries) {
+    if (Test-Path -LiteralPath (Join-Path $SourceRoot $entry)) {
+      $existingEntries += $entry
+    }
+  }
+
+  & $TarExe -czf - -C $SourceRoot @existingEntries |
+    & $HaSshScript -Port $Port -HaHost $RemoteHostName -KeyPath $KeyPath -KnownHostsPath $KnownHostsPath -RemoteCommand "docker exec -i $RemoteContainer tar -xzf - -C $RemotePath"
+  if ($LASTEXITCODE -ne 0) {
+    throw "Remote deploy failed (RC=$LASTEXITCODE)"
+  }
+}
+
 Say "== Deploy SAFE =="
 
 # --------------------------------------------------
@@ -167,6 +338,9 @@ Set-Location $repoRoot
 
 Say "Repo   : $repoRoot"
 Say "Target : $Target"
+Say "RemoteHost : $RemoteHost"
+Say "RemoteContainer : $RemoteContainer"
+Say "RemotePath : $RemotePath"
 Say "Branch : $Branch"
 Say "IncludeTts : $IncludeTts"
 Say "IncludeWww : $IncludeWww"
@@ -234,65 +408,24 @@ $opsStateDir = Join-Path $repoRoot ".ops_state"
 $gatesFile = Join-Path $opsStateDir "gates.ok"
 $gatesStatePath = Join-Path $PSScriptRoot ".gates_state.json"
 
+$tarExe = Get-TarExe
+$keyPath = Get-DeployKeyPath
+$knownHostsPath = Get-KnownHostsPath
+$haSshScript = Join-Path $PSScriptRoot "ha_ssh.ps1"
+$useRemoteDeploy = $false
+$cleanupKeyPath = $keyPath
+
 # --------------------------------------------------
-# 0b) Preflight target path (map Z: if needed)
+# 0b) Preflight target path
 # --------------------------------------------------
-if (!(Test-Path $Target)) {
-  if ($Target -match '^[Zz]:\\?$') {
-    $share = if ($env:HA_SMB_SHARE) { $env:HA_SMB_SHARE } else { "\\192.168.178.84\config" }
-    $user = $env:HA_SMB_USER
-    $pass = $env:HA_SMB_PASS
-    $drive = "Z:"
-
-    $netUseCommand = "net use $drive $share"
-    $netUseArgs = @($drive, $share)
-    if ($user) {
-      $netUseCommand += " /USER:$user"
-      $netUseArgs += "/USER:$user"
-      if ($pass) {
-        $netUseCommand += " $pass"
-        $netUseArgs += $pass
-      }
-    }
-
-    Say "`n==> map $drive to $share"
-    & net use @netUseArgs | Out-Null
-
-    if ($LASTEXITCODE -ne 0 -or !(Test-Path $Target)) {
-      throw "Target path '$Target' not available. Failed to map drive. Run: $netUseCommand"
-    }
-  } elseif ($Target -like "Z:\\*") {
-    $share = if ($env:HA_SMB_SHARE) { $env:HA_SMB_SHARE } else { "\\192.168.178.84\config" }
-    $user = $env:HA_SMB_USER
-    $pass = $env:HA_SMB_PASS
-    $drive = "Z:"
-
-    $netUseCommand = "net use $drive $share"
-    $netUseArgs = @($drive, $share)
-    if ($user) {
-      $netUseCommand += " /USER:$user"
-      $netUseArgs += "/USER:$user"
-      if ($pass) {
-        $netUseCommand += " $pass"
-        $netUseArgs += $pass
-      }
-    }
-
-    Say "`n==> map $drive to $share"
-    & net use @netUseArgs | Out-Null
-
-    if ($LASTEXITCODE -ne 0 -or !(Test-Path $Target)) {
-      throw "Target path '$Target' not available. Failed to map drive. Run: $netUseCommand"
-    }
-  } else {
-    throw "Target path '$Target' not available."
-  }
+if (Test-Path $Target) {
+  # Local/share deploy path.
+  Assert-HaConfigTarget -Path $Target
+} else {
+  $useRemoteDeploy = $true
+  Say "Local target '$Target' not available; falling back to remote deploy on $RemoteHost"
+  Test-RemoteConfigTarget -HaSshScript $haSshScript -KeyPath $keyPath -KnownHostsPath $knownHostsPath -RemoteHostName $RemoteHost -Port $RemotePort -RemoteContainer $RemoteContainer -Path $RemotePath
 }
-
-# --------------------------------------------------
-# 0c) Preflight target sanity (secrets/config present)
-# --------------------------------------------------
-Assert-HaConfigTarget -Path $Target
 
 # --------------------------------------------------
 # 1) Update local branch (ff-only)
@@ -374,8 +507,14 @@ $backupAllowedFiles = @(
   "groups.yaml",
   "customize.yaml"
 )
-
-Mirror-Allowed -SourceRoot $Target -TargetRoot $backupDir -AllowedDirs $backupAllowedDirs -AllowedFiles $backupAllowedFiles
+if ($useRemoteDeploy) {
+  $backupEntries = @()
+  $backupEntries += $backupAllowedDirs
+  $backupEntries += $backupAllowedFiles
+  Invoke-RemoteMirror -HaSshScript $haSshScript -TarExe $tarExe -KeyPath $keyPath -KnownHostsPath $knownHostsPath -RemoteHostName $RemoteHost -Port $RemotePort -RemoteContainer $RemoteContainer -RemotePath $RemotePath -LocalPath $backupDir -Entries $backupEntries
+} else {
+  Mirror-Allowed -SourceRoot $Target -TargetRoot $backupDir -AllowedDirs $backupAllowedDirs -AllowedFiles $backupAllowedFiles
+}
 
 # --------------------------------------------------
 # 4) DEPLOY repo -> TARGET (NO .storage)
@@ -402,7 +541,14 @@ $allowedFiles = @(
   "customize.yaml"
 )
 
-Copy-Allowed -SourceRoot $repoRoot -TargetRoot $Target -AllowedDirs $allowedDirs -AllowedFiles $allowedFiles
+if ($useRemoteDeploy) {
+  $deployEntries = @()
+  $deployEntries += $allowedDirs
+  $deployEntries += $allowedFiles
+  Invoke-RemoteDeploy -HaSshScript $haSshScript -TarExe $tarExe -KeyPath $keyPath -KnownHostsPath $knownHostsPath -RemoteHostName $RemoteHost -Port $RemotePort -RemoteContainer $RemoteContainer -RemotePath $RemotePath -SourceRoot $repoRoot -Entries $deployEntries
+} else {
+  Copy-Allowed -SourceRoot $repoRoot -TargetRoot $Target -AllowedDirs $allowedDirs -AllowedFiles $allowedFiles
+}
 
 # --------------------------------------------------
 # 5) Optional post-deploy config check (best effort)
@@ -428,3 +574,7 @@ Write-OpsStateFile -Path (Join-Path $opsStateDir "last_deploy.ok") -Head $curren
 Remove-Item -Force -ErrorAction SilentlyContinue $gatesFile
 
 Say "`n[OK] Deploy SAFE completed."
+
+if ($cleanupKeyPath -and (Test-Path -LiteralPath $cleanupKeyPath)) {
+  Remove-Item -LiteralPath $cleanupKeyPath -Force -ErrorAction SilentlyContinue
+}

@@ -83,8 +83,7 @@ $rootFiles = @(
   'scenes.yaml',
   'groups.yaml',
   'customize.yaml',
-  '.HA_VERSION',
-  'home-assistant_v2.db'
+  '.HA_VERSION'
 )
 
 $rootDirs = @(
@@ -216,4 +215,3 @@ Do not treat this snapshot as a Git substitute.
 Set-Content -LiteralPath (Join-Path $snapshotRoot 'README_RESTORE.txt') -Value $restoreText -Encoding utf8
 
 Say "OK source=$sourceRoot snapshot=$snapshotRoot items=$($plannedItems.Count)"
-

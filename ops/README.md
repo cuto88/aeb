@@ -62,6 +62,18 @@
   - `EvidenceRetentionDays=14`, `KeepLatestEvidence=3`
   - `BackupRetentionDays=21`, `KeepLatestBackups=5`
 
+## DR backup task
+- `ops/dr_backup_task.ps1` installs a daily runtime snapshot job and runs freshness verification in the same pass.
+- Default backup root is external to the repo: `C:\2_OPS\_repo_archives\aeb\_dr_backups`.
+- Use `-Action Install` to register the task, `-Action RunNow` to trigger it, and `-Action Status` to inspect the last run.
+- The task job calls:
+  - `ops/backup_runtime_snapshot.ps1`
+  - `ops/verify_backup_freshness.ps1`
+- Recommended runtime flags:
+  - `-IncludeStorage`
+  - `-IncludeSecrets`
+- If task registration is denied, rerun the install from an elevated PowerShell session; the manual fallback is still `-Action RunJob`.
+
 ## involucro_audit_snapshot.ps1
 - Captures a read-only runtime snapshot for the envelope/involucro audit.
 - Reads Home Assistant Core states through SSH to the HA host and writes:

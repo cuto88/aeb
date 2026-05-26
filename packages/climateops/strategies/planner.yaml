@@ -22,9 +22,18 @@ template:
       - name: "ClimateOps Planner Recommended Mode"
         unique_id: climateops_planner_recommended_mode
         state: >
-          {% if states('sensor.t_in_med')|float(0) < states('input_number.temp_target_risc')|float(20) %}
+          {% set t_in = states('sensor.t_in_med') | float(0) %}
+          {% set t_heat = states('input_number.temp_target_risc') | float(20) %}
+          {% set t_cool = states('input_number.ac_cool_setpoint') | float(25) %}
+          {% set rh_in = states('sensor.ur_in_media') | float(0) %}
+          {% set rh_on = states('input_number.ac_dry_ur_on') | float(50) %}
+          {% set rh_off = states('input_number.ac_dry_ur_off') | float(40) %}
+          {% set temp_cool_trigger = t_in > (t_cool + 0.5) %}
+          {% set humidity_cool_trigger = rh_in >= rh_on %}
+          {% set humidity_cool_hold = this.state == 'COOL' and rh_in >= rh_off %}
+          {% if t_in < t_heat %}
             HEAT
-          {% elif states('sensor.t_in_med')|float(0) > (states('input_number.ac_cool_setpoint')|float(25) + 0.5) %}
+          {% elif temp_cool_trigger or humidity_cool_trigger or humidity_cool_hold %}
             COOL
           {% else %}
             IDLE
@@ -32,12 +41,15 @@ template:
         availability: >
           {{ states('sensor.t_in_med') not in ['unknown','unavailable']
              and states('input_number.temp_target_risc') not in ['unknown','unavailable']
-             and states('input_number.ac_cool_setpoint') not in ['unknown','unavailable'] }}
+             and states('input_number.ac_cool_setpoint') not in ['unknown','unavailable']
+             and states('sensor.ur_in_media') not in ['unknown','unavailable']
+             and states('input_number.ac_dry_ur_on') not in ['unknown','unavailable']
+             and states('input_number.ac_dry_ur_off') not in ['unknown','unavailable'] }}
 
       - name: "ClimateOps Planner Reason"
         unique_id: climateops_planner_reason
         state: >
-          Planner heuristic based on indoor temperature vs setpoints
+          Planner heuristic based on indoor temperature and humidity vs setpoints
 
       - name: "Planner Suggested Heat SP"
         unique_id: climateops_planner_suggested_heat_sp
