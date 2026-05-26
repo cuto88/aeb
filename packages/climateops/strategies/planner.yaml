@@ -25,15 +25,10 @@ template:
           {% set t_in = states('sensor.t_in_med') | float(0) %}
           {% set t_heat = states('input_number.temp_target_risc') | float(20) %}
           {% set t_cool = states('input_number.ac_cool_setpoint') | float(25) %}
-          {% set rh_in = states('sensor.ur_in_media') | float(0) %}
-          {% set rh_on = states('input_number.ac_dry_ur_on') | float(50) %}
-          {% set rh_off = states('input_number.ac_dry_ur_off') | float(40) %}
           {% set temp_cool_trigger = t_in > (t_cool + 0.5) %}
-          {% set humidity_cool_trigger = rh_in >= rh_on %}
-          {% set humidity_cool_hold = this.state == 'COOL' and rh_in >= rh_off %}
           {% if t_in < t_heat %}
             HEAT
-          {% elif temp_cool_trigger or humidity_cool_trigger or humidity_cool_hold %}
+          {% elif temp_cool_trigger %}
             COOL
           {% else %}
             IDLE
@@ -41,10 +36,7 @@ template:
         availability: >
           {{ states('sensor.t_in_med') not in ['unknown','unavailable']
              and states('input_number.temp_target_risc') not in ['unknown','unavailable']
-             and states('input_number.ac_cool_setpoint') not in ['unknown','unavailable']
-             and states('sensor.ur_in_media') not in ['unknown','unavailable']
-             and states('input_number.ac_dry_ur_on') not in ['unknown','unavailable']
-             and states('input_number.ac_dry_ur_off') not in ['unknown','unavailable'] }}
+             and states('input_number.ac_cool_setpoint') not in ['unknown','unavailable'] }}
 
       - name: "ClimateOps Planner Reason"
         unique_id: climateops_planner_reason
@@ -69,10 +61,22 @@ template:
           {% set vmc_target = states('sensor.vmc_vel_target') | int(-1) %}
           {% set vmc_boost_ok = is_state('binary_sensor.policy_allow_vmc_boost','on') %}
           {% set noncritical = is_state('binary_sensor.climateops_noncritical_loads_allowed','on') %}
+          {% set worst_room = states('sensor.envelope_worst_room_name') %}
+          {% set cool_sp = states('input_number.ac_cool_setpoint') | float(25) %}
+          {% set night_rooms = ['notte1', 'notte2', 'bagno'] %}
           {% if heat_req %}
             HEAT
           {% elif cool_req and noncritical %}
-            {% if now().hour >= 8 and now().hour < 23 %}COOL_DAY{% else %}COOL_NIGHT{% endif %}
+            {# Temperature-first: choose the physical split from the hottest room, not the clock. #}
+            {% if worst_room in night_rooms %}
+              COOL_NIGHT
+            {% elif worst_room == 'giorno' %}
+              COOL_DAY
+            {% elif states('sensor.t_in_med') | float(0) > (cool_sp + 0.5) %}
+              COOL_NIGHT
+            {% else %}
+              COOL_DAY
+            {% endif %}
           {% elif vmc_target == 3 and vmc_boost_ok and noncritical %}
             VENT_BOOST
           {% elif vmc_target in [1, 2] %}
