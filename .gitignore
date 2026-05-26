@@ -43,6 +43,7 @@ Thumbs.db
 # ==================================================
 _backup_pre_git/
 _ha_runtime_backups/
+_dr_backups/
 _backup/
 /.ops_state/
 ops/_logs/
@@ -65,6 +66,8 @@ _runtime/
 .git.acl.bak
 tmp/
 .tmp/
+.tmp_ssh/
+.tmp_ssh_*/
 index.*.tmp.lock
 *.tmp.lock
 tmp_configuration.yaml
@@ -72,3 +75,11 @@ tmp_core.device_registry
 tmp_core.entity_registry
 tmp_energy_pm.yaml
 tools/
+*.secret.*
+secrets_bundle*/
+*.dr.log
+*.restore.log
+*_dr_*.zip
+*_dr_*.7z
+*_dr_*.tar
+*_dr_*.tar.gz

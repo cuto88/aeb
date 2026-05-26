@@ -48,6 +48,14 @@ Compatibilità comandi/alias esistenti:
 
 Per evitare falsi positivi e cartelle di backup/quarantena, il lint YAML gira solo sui file tracciati da Git.
 
+## Disaster Recovery
+- Entry point: `docs/ops/DISASTER_RECOVERY.md`
+- Restore runbook: `docs/ops/RESTORE_RUNBOOK.md`
+- Backup policy: `docs/ops/BACKUP_POLICY.md`
+- Snapshot runtime: `ops/backup_runtime_snapshot.ps1`
+- Check freshness backup: `ops/verify_backup_freshness.ps1`
+- Nota: il backup pre-deploy di `ops/deploy_safe.ps1` e` solo un rollback parziale, non sostituisce il DR completo.
+
 ## Accesso runtime HA
 - Runtime corrente verificato il 2026-05-26: Home Assistant Core `2026.4.4` su `http://192.168.178.110:8123`, `config_dir=/config`.
 - Il runtime attuale e` Docker/Core, non Home Assistant OS/Supervised: `/api/hassio/*` restituisce `404`.
