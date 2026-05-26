@@ -183,4 +183,3 @@ views:
                 name: "Night flush"
               - entity: binary_sensor.finestre_bagno_aperte
                 name: "Finestre aperte"
-
