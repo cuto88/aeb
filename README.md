@@ -7,9 +7,10 @@ lovelace/ conserva le dashboard YAML; docs/ e tools/ restano solo locali.
 ops/ include gli script di manutenzione: usa ops/repo_sync_and_gates.ps1 per sincronizzare verso Z:\config (con validation), ops/deploy_safe.ps1 per il deploy sicuro e ops/validate.ps1 come entrypoint unico dei controlli; gli script di hygiene/check sono di supporto.
 Lo script di deploy corrente copia solo runtime HA: packages, lovelace, custom_components, themes e i YAML root ammessi. docs/ e tools/ restano locali; eventuali docs presenti su runtime sono residui storici da pulire con azione esplicita.
 
-Fonti di verità rapide: `docs/logic/core/README_sensori_clima.md` (mappa entità), `docs/logic/core/regole_core_logiche.md` (regole core), `docs/logic/core/prompt_codex_master.md` (governance prompt).
+Fonti di verità rapide: `docs/logic/core/README_sensori_clima.md` (mappa entità), `docs/logic/core/regole_core_logiche.md` (regole core), `docs/logic/core/prompt_codex_master.md` (governance prompt), `docs/strategy/AEB_100_AUTONOMY_OBJECTIVE.md` (obiettivo strategico autonomia 100%).
 
 Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
+Per la roadmap strategica di autonomia progressiva leggi `docs/strategy/AEB_100_AUTONOMY_OBJECTIVE.md`.
 
 ## Current AEB checkpoint (2026-05-22)
 - Daily burn-in: closed and stable on the latest runtime evidence.
