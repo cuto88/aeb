@@ -2,13 +2,21 @@
 
 ## Session Bootstrap (Casa Mercurio)
 
-- Ambiente Home Assistant runtime: `root@192.168.178.84`
-- Porta SSH: `2222`
-- Accesso primario canonico: `C:\2_OPS\secrets\ha\ha_ed25519`
-- Fallback canonico: `C:\2_OPS\secrets\ha\ha_fallback_ed25519`
+- Runtime HA corrente verificato 2026-05-26: `http://192.168.178.110:8123`
+- Tipo runtime corrente: Home Assistant Core in Docker/Core, non HA OS/Supervised.
+- Percorso config HA corrente da usare come default: `/config`
+- Endpoint storico pre-cutoff: `root@192.168.178.84:2222`, path `/homeassistant`.
+- Nota operativa: non usare piu` `.84:2222` come default dopo cutoff; trattarlo solo come riferimento storico.
+- SSH nuovo operativo: `dscomparin@192.168.178.110:22`, host `mercurio-edge`.
+- Chiave attiva verificata: `C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp`
+- Container HA: `homeassistant`.
+- Bind mount config: `/opt/data/homeassistant` -> `/config`.
+- Le chiavi HA storiche non risultano autorizzate per `root` sul nuovo host Docker.
+- Accesso primario storico: `C:\2_OPS\secrets\ha\ha_ed25519`
+- Fallback storico: `C:\2_OPS\secrets\ha\ha_fallback_ed25519`
 - Override runtime: `HA_SSH_KEY_PATH`
-- Percorso config HA da usare come default: `/homeassistant`
-- Nota: se `/homeassistant` non contiene `configuration.yaml`, provare `/config`
+- Per deploy file sul runtime Docker, preferire SSH al Linux host o accesso diretto al bind mount Docker che contiene `/config`.
+- Nota drift runtime 2026-05-26: patch chirurgiche applicate su runtime monolitico `climate_heating.yaml` / `climate_ventilation.yaml`; non fare deploy ampio dei package split senza riconciliazione.
 
 ## Workspace Tooling (`C:\2_OPS`)
 
@@ -43,14 +51,14 @@
 - `.git-local` puo` restare come stato storico recuperabile, ma non e` piu` il backend operativo del workspace.
 - Per ripristinare Git locale in futuro, creare una nuova clone pulita o riattivare esplicitamente il puntatore `.git` solo fuori dal sandbox.
 
-## Comandi SSH rapidi (read-only)
+## Comandi SSH rapidi storici (read-only)
 
-- Test connessione:
+- Test connessione vecchio runtime HA OS/Supervised:
   - `ssh -p 2222 -i C:\2_OPS\secrets\ha\ha_ed25519 root@192.168.178.84 "hostname && whoami"`
   - `ssh -p 2222 -i C:\2_OPS\secrets\ha\ha_fallback_ed25519 root@192.168.178.84 "hostname && whoami"`
-- Verifica file deployato:
+- Verifica file deployato vecchio runtime:
   - `ssh -p 2222 -i C:\2_OPS\secrets\ha\ha_ed25519 root@192.168.178.84 "sed -n '1,220p' /homeassistant/packages/climateops/actuators/system_actuator.yaml"`
-- Verifica tracce recenti (automation ClimateOps):
+- Verifica tracce recenti vecchio runtime (automation ClimateOps):
   - `ssh -p 2222 -i C:\2_OPS\secrets\ha\ha_ed25519 root@192.168.178.84 "grep -n \"climateops_system_actuate\" /homeassistant/.storage/trace.saved_traces | tail -n 20"`
 - Verifica eventi AC recenti (logbook/trace export locale se disponibile):
   - esportare da UI trace/logbook e salvare in `docs/runtime_evidence/<date>/`

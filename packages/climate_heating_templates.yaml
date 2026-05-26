@@ -145,11 +145,14 @@ template:
             {% set window_comfort = is_state('binary_sensor.heating_finestra_oraria','on') %}
             {% set pv_hook = is_state('binary_sensor.policy_surplus_ok','on') %}
             {% set enable = is_state('input_boolean.heating_enable','on') %}
+            {% set hot_season = is_state('binary_sensor.stagione_calda','on') %}
 
             {% if tmin is none %}
               sensors_unavailable
             {% elif tmin < anti or (tout is number and tout < states('input_number.heating_ext_cold_threshold')|float(2)) %}
               P1_anti_frost
+            {% elif enable and hot_season %}
+              seasonal_rest
             {% elif enable and tmin < comfort - hyst and (window_comfort or (comfort - tmin) >= 1.0) %}
               P2_comfort
             {% elif enable and window_comfort and pv_hook and tmin <= comfort - boost %}
@@ -527,7 +530,8 @@ template:
           - service: switch.turn_on
             target:
               entity_id: switch.4_ch_interruttore_3
-        state: "{{ not is_state('switch.4_ch_interruttore_3','on') }}"
+        availability: "{{ states('switch.4_ch_interruttore_3') not in ['unknown','unavailable'] }}"
+        state: "{{ is_state('switch.4_ch_interruttore_3','off') }}"
 
       - name: "Riscaldamento  blocco notturno"
         unique_id: heating_night_block

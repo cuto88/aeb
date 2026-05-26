@@ -48,16 +48,26 @@ Compatibilità comandi/alias esistenti:
 
 Per evitare falsi positivi e cartelle di backup/quarantena, il lint YAML gira solo sui file tracciati da Git.
 
-## Accesso SSH runtime HA
-- Endpoint: `root@192.168.178.84` porta `2222`
-- Chiave primaria canonica: `C:\2_OPS\secrets\ha\ha_ed25519`
-- Fallback canonico: `C:\2_OPS\secrets\ha\ha_fallback_ed25519`
-- Host key canonica: `C:\2_OPS\secrets\ha\known_hosts`
-- Override runtime: `HA_SSH_KEY_PATH`
-- Path config runtime: `/homeassistant`
-- Path operativo stabile corrente: `C:\2_OPS\aeb\.tmp\ha_ed25519.safe`
-- Regola: i wrapper devono preferire `HA_SSH_KEY_PATH` o la copia stabile sopra; non tentare di usare direttamente il secret canonico se l'ACL locale lo blocca, perché Windows OpenSSH rifiuta chiavi con permessi non conformi.
-- Se ricapita un errore tipo `bad permissions` o `Permission denied (publickey)` sulla chiave locale, ricrea una copia nuova con ACL pulite e aggiorna `HA_SSH_KEY_PATH` invece di insistere sul file in `C:\2_OPS\secrets\ha\`.
+## Accesso runtime HA
+- Runtime corrente verificato il 2026-05-26: Home Assistant Core `2026.4.4` su `http://192.168.178.110:8123`, `config_dir=/config`.
+- Il runtime attuale e` Docker/Core, non Home Assistant OS/Supervised: `/api/hassio/*` restituisce `404`.
+- La Core API usa `HA_URL` e `HA_TOKEN` da `.env`; SSH non e` necessario per leggere stati, ma serve per deploy file se non esiste un bind mount accessibile.
+- SSH vecchio storico: `root@192.168.178.84:2222`, config path `/homeassistant`. Questo endpoint non e` piu` quello operativo dopo cutoff.
+- SSH nuovo operativo: `dscomparin@192.168.178.110:22`.
+- Chiavi HA storiche locali:
+  - primaria: `C:\2_OPS\secrets\ha\ha_ed25519`
+  - fallback: `C:\2_OPS\secrets\ha\ha_fallback_ed25519`
+  - copie temporanee: `C:\Users\randalab\.codex\memories\ha_keys\*`
+- Chiave attiva verificata 2026-05-26:
+  `C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp`
+- Host remoto verificato: `mercurio-edge`.
+- Container HA: `homeassistant`.
+- Bind mount HA: `/opt/data/homeassistant` -> `/config`.
+- Stato verificato 2026-05-26: le chiavi storiche/copie temporanee non sono accettate da `192.168.178.110:22` per `root`, `randalab`, `docker`, `homeassistant`, `ha`, `ubuntu`, `debian`; `dscomparin` e` l'utente operativo.
+- Chiave deploy generata ma non usata/autorizzata:
+  `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO7acbQK0Rfx79nqb2j5dGCzQ1b+UCBlEDTxBBZY0yWR codex-ha-110-deploy-2026-05-26`
+- Regola: per il runtime Docker, identificare il bind mount del container HA sul Linux host (`docker inspect <container>`) e deployare in `/config`, non `/homeassistant`.
+- Nota drift runtime 2026-05-26: il runtime contiene ancora package monolitici `climate_heating.yaml` e `climate_ventilation.yaml`; il repo locale contiene anche file split `climate_*_templates.yaml`. Evitare deploy ampio finche` questo drift non e` riconciliato.
 
 ## Secrets contract
 - Runtime env example: [docs/security/secrets.example](C:/2_OPS/aeb/docs/security/secrets.example)

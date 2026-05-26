@@ -8,28 +8,103 @@ template:
         unique_id: vmc_sensors_ok
         device_class: connectivity
         state: >-
-          {% set required = [
+          {% set invalid = ['unknown','unavailable','','none','None'] %}
+          {% set indoor_t = [
             'sensor.t_in_giorno',
             'sensor.t_in_notte1',
             'sensor.t_in_notte2',
-            'sensor.t_in_bagno',
+            'sensor.t_in_bagno'
+          ] %}
+          {% set indoor_ur = [
             'sensor.ur_in_giorno',
             'sensor.ur_in_notte1',
             'sensor.ur_in_notte2',
-            'sensor.ur_in_bagno',
-            'sensor.t_out_effective',
-            'sensor.ur_out',
-            'sensor.ah_in',
-            'sensor.ah_out'
+            'sensor.ur_in_bagno'
           ] %}
-          {% set invalid = ['unknown','unavailable','','none','None'] %}
-          {% set ns = namespace(ok=true) %}
-          {% for ent in required %}
-            {% if states(ent) in invalid %}
-              {% set ns.ok = false %}
+          {% set ns = namespace(t_valid=0, ur_valid=0) %}
+          {% for ent in indoor_t %}
+            {% if states(ent) not in invalid %}
+              {% set ns.t_valid = ns.t_valid + 1 %}
             {% endif %}
           {% endfor %}
-          {{ ns.ok }}
+          {% for ent in indoor_ur %}
+            {% if states(ent) not in invalid %}
+              {% set ns.ur_valid = ns.ur_valid + 1 %}
+            {% endif %}
+          {% endfor %}
+          {{
+            ns.t_valid >= 2
+            and ns.ur_valid >= 2
+            and states('sensor.t_out_effective') not in invalid
+            and states('sensor.ur_out') not in invalid
+          }}
+        attributes:
+          valid_indoor_t_sensors: >-
+            {% set invalid = ['unknown','unavailable','','none','None'] %}
+            {% set sensors = [
+              'sensor.t_in_giorno',
+              'sensor.t_in_notte1',
+              'sensor.t_in_notte2',
+              'sensor.t_in_bagno'
+            ] %}
+            {% set ns = namespace(valid=0) %}
+            {% for ent in sensors %}
+              {% if states(ent) not in invalid %}
+                {% set ns.valid = ns.valid + 1 %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.valid }}
+          valid_indoor_ur_sensors: >-
+            {% set invalid = ['unknown','unavailable','','none','None'] %}
+            {% set sensors = [
+              'sensor.ur_in_giorno',
+              'sensor.ur_in_notte1',
+              'sensor.ur_in_notte2',
+              'sensor.ur_in_bagno'
+            ] %}
+            {% set ns = namespace(valid=0) %}
+            {% for ent in sensors %}
+              {% if states(ent) not in invalid %}
+                {% set ns.valid = ns.valid + 1 %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.valid }}
+          reason: >-
+            {% set invalid = ['unknown','unavailable','','none','None'] %}
+            {% set indoor_t = [
+              'sensor.t_in_giorno',
+              'sensor.t_in_notte1',
+              'sensor.t_in_notte2',
+              'sensor.t_in_bagno'
+            ] %}
+            {% set indoor_ur = [
+              'sensor.ur_in_giorno',
+              'sensor.ur_in_notte1',
+              'sensor.ur_in_notte2',
+              'sensor.ur_in_bagno'
+            ] %}
+            {% set ns = namespace(t_valid=0, ur_valid=0) %}
+            {% for ent in indoor_t %}
+              {% if states(ent) not in invalid %}
+                {% set ns.t_valid = ns.t_valid + 1 %}
+              {% endif %}
+            {% endfor %}
+            {% for ent in indoor_ur %}
+              {% if states(ent) not in invalid %}
+                {% set ns.ur_valid = ns.ur_valid + 1 %}
+              {% endif %}
+            {% endfor %}
+            {% if ns.t_valid < 2 %}
+              INDOOR_T_COVERAGE_LOW
+            {% elif ns.ur_valid < 2 %}
+              INDOOR_UR_COVERAGE_LOW
+            {% elif states('sensor.t_out_effective') in invalid %}
+              OUTDOOR_T_UNAVAILABLE
+            {% elif states('sensor.ur_out') in invalid %}
+              OUTDOOR_UR_UNAVAILABLE
+            {% else %}
+              OK
+            {% endif %}
       - name: "VMC anti-secco"
         unique_id: vmc_anti_secco
         state: >-
@@ -129,13 +204,19 @@ template:
             } %}
             {% set legacy_target = map.get(sel,1) %}
           {% else %}
-            {% set priority = states('sensor.ventilation_priority') %}
-            {% if priority in ['P0_failsafe','P0_off'] %}
-              {% set legacy_target = 0 %}
-            {% elif priority == 'P1_boost_bagno' %}
-              {% set legacy_target = 3 %}
-            {% elif priority == 'P1_delta_ur' %}
-              {% set legacy_target = 2 %}
+          {% set priority = states('sensor.ventilation_priority') %}
+          {% set delta_t_in_out = states('sensor.delta_t_in_out')|float(default=none) %}
+          {% set delta_ah_in_out = states('sensor.delta_ah_in_out')|float(default=none) %}
+          {% set ah_min = states('input_number.vent_deltaah_min')|float(1) %}
+          {% set summer_heat_penalty = is_state('binary_sensor.stagione_calda','on')
+             and delta_t_in_out is not none and delta_t_in_out <= -2
+             and delta_ah_in_out is not none and delta_ah_in_out < ah_min %}
+          {% if priority in ['P0_failsafe','P0_off'] %}
+            {% set legacy_target = 0 %}
+          {% elif priority == 'P1_boost_bagno' %}
+            {% set legacy_target = 3 %}
+          {% elif priority == 'P1_delta_ur' %}
+              {% set legacy_target = 1 if summer_heat_penalty else 2 %}
             {% elif priority == 'P1_anti_secco' %}
               {% set legacy_target = 1 %}
             {% elif priority == 'P2_freecooling' %}
@@ -197,7 +278,11 @@ template:
           {% set boost_requested = boost_manual or boost_auto_valid %}
           {% set ur_in_media = states('sensor.ur_in_media')|float(default=0) %}
           {% set delta_t_in_out = states('sensor.delta_t_in_out')|float(default=none) %}
-          {% set thermal_ok = delta_t_in_out is not none and delta_t_in_out >= 0.5 %}
+          {% set delta_ah_in_out = states('sensor.delta_ah_in_out')|float(default=none) %}
+          {% set ah_min = states('input_number.vent_deltaah_min')|float(1) %}
+          {% set summer_heat_penalty = is_state('binary_sensor.stagione_calda','on')
+             and delta_t_in_out is not none and delta_t_in_out <= -2
+             and delta_ah_in_out is not none and delta_ah_in_out < ah_min %}
           {% if mode_off %}
             P0_off
           {% elif manual %}
@@ -212,7 +297,7 @@ template:
             P1_boost_bagno
           {% elif is_state('binary_sensor.vmc_anti_secco','on') %}
             P1_anti_secco
-          {% elif is_state('binary_sensor.vmc_delta_ur_active','on') and thermal_ok %}
+          {% elif is_state('binary_sensor.vmc_delta_ur_active','on') and not summer_heat_penalty %}
             P1_delta_ur
           {% elif is_state('binary_sensor.vmc_freecooling_candidate','on') and is_state('binary_sensor.windows_all_closed','on') %}
             P2_freecooling
