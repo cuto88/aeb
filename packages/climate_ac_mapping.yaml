@@ -120,7 +120,7 @@ script:
     mode: restart
     sequence:
       - choose:
-          - conditions: "{{ is_state('switch.ac_giorno', 'off') }}"
+          - conditions: "{{ states('switch.ac_giorno') != 'on' }}"
             sequence:
               - service: switch.turn_on
                 continue_on_error: true
@@ -135,7 +135,7 @@ script:
     mode: restart
     sequence:
       - choose:
-          - conditions: "{{ is_state('switch.ac_notte', 'off') }}"
+          - conditions: "{{ states('switch.ac_notte') != 'on' }}"
             sequence:
               - service: switch.turn_on
                 continue_on_error: true

@@ -44,9 +44,7 @@ automation:
             {% endif %}
           ac_available: >-
             {{
-              (ac_branch_powered | bool)
-              and states('switch.ac_giorno') not in ['unknown','unavailable']
-              and states('switch.ac_notte') not in ['unknown','unavailable']
+              ac_branch_powered | bool
             }}
           ac_policy_ok: "{{ is_state('binary_sensor.policy_allow_ac','on') }}"
           ac_day_should_run: "{{ mode == 'COOL_DAY' and ac_available and ac_policy_ok }}"
@@ -182,7 +180,7 @@ automation:
           - conditions: >-
               {{
                 (ac_day_should_run | bool)
-                and is_state('switch.ac_giorno','off')
+                and states('switch.ac_giorno') != 'on'
               }}
             sequence:
               - service: script.ac_giorno_apply
@@ -191,7 +189,7 @@ automation:
           - conditions: >-
               {{
                 (ac_night_should_run | bool)
-                and is_state('switch.ac_notte','off')
+                and states('switch.ac_notte') != 'on'
               }}
             sequence:
               - service: script.ac_notte_apply

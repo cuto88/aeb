@@ -34,8 +34,6 @@ template:
             true
           {% elif is_state('input_boolean.policy_force_block_ac', 'on') %}
             false
-          {% elif is_state('binary_sensor.climateops_shower_proxy_active', 'on') %}
-            false
           {% else %}
             true
           {% endif %}
@@ -66,7 +64,7 @@ template:
                 or is_state('input_boolean.policy_force_block_vmc_boost', 'on') %}
             FORCE_BLOCK
           {% elif is_state('binary_sensor.climateops_shower_proxy_active', 'on') %}
-            BLOCK_AC_SHOWER_PROXY
+            SHOWER_PROXY_ACTIVE
           {% else %}
             OK
           {% endif %}
