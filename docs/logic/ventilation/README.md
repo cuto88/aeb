@@ -9,6 +9,7 @@ Ventilation — ventilazione naturale + VMC.
 
 ## Entrypoints
 - YAML: `packages/climate_ventilation.yaml`, `packages/climate_ventilation_windows.yaml`.
+- Helper entities VMC: `packages/climate_ventilation_helpers.yaml`.
 - Lovelace tecnica: `lovelace/02_air_loop_legacy.yaml` (con fallback `lovelace/02_air_loop.yaml`).
 - Entrypoint utente corrente: `lovelace/01_eclss_casa.yaml`.
 
@@ -28,12 +29,12 @@ Ventilation — ventilazione naturale + VMC.
 ### KPI usati e soglie
 - ΔT/ΔAH minimi regolabili: `input_number.vent_deltat_min`, `input_number.vent_deltaah_min` per consigli apertura; `input_number.vmc_freecooling_delta` e `input_number.vmc_freecooling_delta_ah` per free-cooling VMC.
 - Anti-secco: soglia `input_number.vmc_anti_secco_ur_min` con isteresi; duty vel_0 con impulsi vel_1 notturni/invernali.
-- Boost bagno: UR on/off e ΔUR interno/esterno; max_run/cooldown tramite timer dedicati.
+- Boost bagno: UR on/off e ΔUR interno/esterno; max_run 45m con cooldown post-timeout di 5m per evitare riarm immediato.
 - Night-flush: finestra `vent_night_flush_start/end`, meteo ok e ΔT/ΔAH favorevoli; max_run 120m, rispetto lock min_on/min_off.
 
 ### Regole core (sintesi)
 - **P0_failsafe**: sensori `unknown/unavailable` → disattiva consigli, forza profilo sicuro (vel_0/vel_1) finché `binary_sensor.vmc_sensors_ok` è false.
-- **P1_boost_bagno**: UR bagno sopra soglia o ΔUR alto → VMC vel_3 con downgrade a vel_2 se aria esterna troppo secca; applica max_run/cooldown.
+- **P1_boost_bagno**: UR bagno sopra soglia o ΔUR alto → VMC vel_3 con downgrade a vel_2 se aria esterna troppo secca; applica max_run e cooldown post-timeout.
 - **P2_anti_secco**: UR interna bassa + stagione fredda + fascia 23–07 → duty vel_0/vel_1, blocca DRY e limita free-cooling.
 - **P3_freecooling**: ΔT/ΔAH favorevole + stagione calda + AC OFF + meteo ok → VMC vel_2, attiva `hook_vmc_request_ac_block`, abilita night-flush serramenti.
 - **P1_night_flush (Vent)**: finestra 21:00–08:00 e ΔT/ΔAH favorevoli → suggerisce apertura serramenti e mantiene VMC vel_2 tramite hook.
@@ -44,6 +45,7 @@ Ventilation — ventilazione naturale + VMC.
 - Modalità VMC: `input_select.vmc_mode` (auto/manual/off) con `input_select.vmc_manual_speed`; timer `vmc_manual_timeout` per rientro automatico.
 - Ventilazione: `input_boolean.vent_override_estate` forza stagione estiva; `input_boolean.vent_notifiche_attive` abilita/disabilita i messaggi.
 - Se `sensor.clima_open_windows_recommended` resta `on` abbastanza a lungo, il runtime può emettere una notifica Telegram umana per aprire le finestre.
+- Gli helper VMC restano definiti solo in `packages/climate_ventilation_helpers.yaml`; `packages/climate_ventilation.yaml` non deve ridefinire gli stessi domini top-level.
 
 ### Edge cases / protezioni
 - Anti-smog/vento/pioggia: sospende consigli e night-flush se PM2.5 o vento superano soglia o se piove.
