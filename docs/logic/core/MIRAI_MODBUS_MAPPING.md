@@ -10,7 +10,7 @@ Scopo:
 
 ## Sorgenti autoritative
 
-- Transport Modbus: [mirai_modbus.yaml](../../../packages/mirai_modbus.yaml)
+- Transport Modbus storico: [mirai_modbus.transport.yaml](../../../ops/disabled_runtime/mirai_modbus.transport.yaml)
 - Template runtime: [mirai_templates.yaml](../../../packages/mirai_templates.yaml)
 - Advisory runtime truth: [mirai_runtime_truth_advisory.yaml](../../../packages/mirai_runtime_truth_advisory.yaml)
 - Overview sensori: [README_sensori_mirai.md](README_sensori_mirai.md)
