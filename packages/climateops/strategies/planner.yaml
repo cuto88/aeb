@@ -22,11 +22,19 @@ template:
       - name: "ClimateOps Planner Recommended Mode"
         unique_id: climateops_planner_recommended_mode
         state: >
-          {% set t_in = states('sensor.t_in_med') | float(0) %}
+          {% set zone_vals = [
+            states('sensor.t_in_giorno') | float(default=none),
+            states('sensor.t_in_notte1') | float(default=none),
+            states('sensor.t_in_notte2') | float(default=none),
+            states('sensor.t_in_bagno') | float(default=none)
+          ] %}
+          {% set zone_temps = zone_vals | select('number') | list %}
           {% set t_heat = states('input_number.temp_target_risc') | float(20) %}
           {% set t_cool = states('input_number.ac_cool_setpoint') | float(25) %}
-          {% set temp_cool_trigger = t_in > (t_cool + 0.5) %}
-          {% if t_in < t_heat %}
+          {% set t_zone_min = (zone_temps | min) if (zone_temps | length > 0) else none %}
+          {% set t_zone_max = (zone_temps | max) if (zone_temps | length > 0) else none %}
+          {% set temp_cool_trigger = t_zone_max is number and t_zone_max > (t_cool + 0.5) %}
+          {% if t_zone_min is number and t_zone_min < t_heat %}
             HEAT
           {% elif temp_cool_trigger %}
             COOL
@@ -34,9 +42,16 @@ template:
             IDLE
           {% endif %}
         availability: >
-          {{ states('sensor.t_in_med') not in ['unknown','unavailable']
-             and states('input_number.temp_target_risc') not in ['unknown','unavailable']
-             and states('input_number.ac_cool_setpoint') not in ['unknown','unavailable'] }}
+          {{
+            (
+              states('sensor.t_in_giorno') not in ['unknown','unavailable','']
+              or states('sensor.t_in_notte1') not in ['unknown','unavailable','']
+              or states('sensor.t_in_notte2') not in ['unknown','unavailable','']
+              or states('sensor.t_in_bagno') not in ['unknown','unavailable','']
+            )
+            and states('input_number.temp_target_risc') not in ['unknown','unavailable']
+            and states('input_number.ac_cool_setpoint') not in ['unknown','unavailable']
+          }}
 
       - name: "ClimateOps Planner Reason"
         unique_id: climateops_planner_reason
@@ -62,7 +77,14 @@ template:
           {% set vmc_boost_ok = is_state('binary_sensor.policy_allow_vmc_boost','on') %}
           {% set noncritical = is_state('binary_sensor.climateops_noncritical_loads_allowed','on') %}
           {% set worst_room = states('sensor.envelope_worst_room_name') %}
-          {% set cool_sp = states('input_number.ac_cool_setpoint') | float(25) %}
+          {% set t_day = states('sensor.t_in_giorno') | float(default=none) %}
+          {% set t_night_vals = [
+            states('sensor.t_in_notte1') | float(default=none),
+            states('sensor.t_in_notte2') | float(default=none),
+            states('sensor.t_in_bagno') | float(default=none)
+          ] %}
+          {% set t_night_valid = t_night_vals | select('number') | list %}
+          {% set t_night_max = (t_night_valid | max) if (t_night_valid | length > 0) else none %}
           {% set night_rooms = ['notte1', 'notte2', 'bagno'] %}
           {% if heat_req %}
             HEAT
@@ -72,7 +94,7 @@ template:
               COOL_NIGHT
             {% elif worst_room == 'giorno' %}
               COOL_DAY
-            {% elif states('sensor.t_in_med') | float(0) > (cool_sp + 0.5) %}
+            {% elif t_night_max is number and t_day is number and t_night_max > t_day %}
               COOL_NIGHT
             {% else %}
               COOL_DAY

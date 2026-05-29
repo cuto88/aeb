@@ -27,12 +27,19 @@ template:
               {% set planner = states('sensor.planner_recommended_mode') %}
             {% endif %}
             {% set worst_room = states('sensor.envelope_worst_room_name') %}
-            {% set cool_sp = states('input_number.ac_cool_setpoint') | float(25) %}
+            {% set t_day = states('sensor.t_in_giorno') | float(default=none) %}
+            {% set t_night_vals = [
+              states('sensor.t_in_notte1') | float(default=none),
+              states('sensor.t_in_notte2') | float(default=none),
+              states('sensor.t_in_bagno') | float(default=none)
+            ] %}
+            {% set t_night_valid = t_night_vals | select('number') | list %}
+            {% set t_night_max = (t_night_valid | max) if (t_night_valid | length > 0) else none %}
             {% set night_rooms = ['notte1', 'notte2', 'bagno'] %}
             {% if planner == 'HEAT' %}HEAT
             {% elif planner == 'COOL' and worst_room in night_rooms %}COOL_NIGHT
             {% elif planner == 'COOL' and worst_room == 'giorno' %}COOL_DAY
-            {% elif planner == 'COOL' and states('sensor.t_in_med') | float(0) > (cool_sp + 0.5) %}COOL_NIGHT
+            {% elif planner == 'COOL' and t_night_max is number and t_day is number and t_night_max > t_day %}COOL_NIGHT
             {% elif planner == 'COOL' %}COOL_DAY
             {% else %}IDLE
             {% endif %}
