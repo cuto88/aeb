@@ -18,7 +18,14 @@ template:
           {% if is_state('binary_sensor.contract_hierarchy_mode_ready', 'on') %}
             {{ states('sensor.climateops_hierarchy_mode') }}
           {% else %}
-            {% set planner = states('sensor.planner_recommended_mode') %}
+            {% set planner_cutover_on =
+              is_state('input_boolean.climateops_cutover_heating','on')
+              and is_state('input_boolean.climateops_cutover_ac','on')
+            %}
+            {% set planner = states('sensor.climateops_planner_recommended_mode') %}
+            {% if (not planner_cutover_on) and planner in ['unknown','unavailable',''] %}
+              {% set planner = states('sensor.planner_recommended_mode') %}
+            {% endif %}
             {% set worst_room = states('sensor.envelope_worst_room_name') %}
             {% set cool_sp = states('input_number.ac_cool_setpoint') | float(25) %}
             {% set night_rooms = ['notte1', 'notte2', 'bagno'] %}
