@@ -15,7 +15,7 @@ views:
             name: "Azione ora"
           - type: tile
             entity: sensor.envelope_house_night_flush_potential
-            name: "Night flush"
+            name: "Raffrescamento notturno"
           - type: tile
             entity: sensor.envelope_house_passive_gain_state
             name: "Guadagno passivo"
@@ -33,7 +33,7 @@ views:
             name: "Scuri consigliati"
           - type: tile
             entity: sensor.envelope_rooms_night_flush_candidate_count
-            name: "Night flush candidabili"
+            name: "Candidabili raffrescamento notturno"
 
       - type: grid
         title: "Contesto"
@@ -75,6 +75,36 @@ views:
           - type: markdown
             content: |
               Il canale Telegram e` comune. Qui abiliti o disabiliti solo le famiglie di messaggi.
+
+      - type: grid
+        title: "Finestre (manuale)"
+        cards:
+          - type: entities
+            title: "Stato e comandi"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.vent_finestre_state
+                name: "Finestre aperte"
+              - entity: sensor.conteggio_finestre_aperte
+                name: "Conteggio aperture"
+              - entity: binary_sensor.casa_chiusa
+                name: "Casa chiusa"
+              - entity: input_boolean.vent_finestra_giorno1_aperta
+                name: "Giorno - Finestra 1"
+              - entity: input_boolean.vent_finestra_giorno2_aperta
+                name: "Giorno - Finestra 2"
+              - entity: input_boolean.vent_portoncino_ingresso_aperto
+                name: "Portoncino ingresso"
+              - entity: input_boolean.vent_foro_cappa_aperto
+                name: "Foro cappa"
+              - entity: input_boolean.vent_finestra_notte1_aperta
+                name: "Notte 1"
+              - entity: input_boolean.vent_finestra_notte2_aperta
+                name: "Notte 2"
+              - entity: input_boolean.vent_finestra_notte3_aperta
+                name: "Notte 3"
+              - entity: input_boolean.vent_finestra_bagno_aperta
+                name: "Bagno"
 
       - type: grid
         title: "Trend"
@@ -130,7 +160,7 @@ views:
               - entity: input_boolean.envelope_giorno_shade_applied
                 name: "Scuro applicato"
               - entity: binary_sensor.envelope_giorno_night_flush_candidate
-                name: "Night flush"
+                name: "Raffrescamento notturno"
               - entity: binary_sensor.finestre_zona_giorno_aperte
                 name: "Finestre aperte"
           - type: entities
@@ -148,7 +178,7 @@ views:
               - entity: input_boolean.envelope_notte1_shade_applied
                 name: "Scuro applicato"
               - entity: binary_sensor.envelope_notte1_night_flush_candidate
-                name: "Night flush"
+                name: "Raffrescamento notturno"
           - type: entities
             title: "Notte 2"
             show_header_toggle: false
@@ -164,7 +194,7 @@ views:
               - entity: input_boolean.envelope_notte2_shade_applied
                 name: "Scuro applicato"
               - entity: binary_sensor.envelope_notte2_night_flush_candidate
-                name: "Night flush"
+                name: "Raffrescamento notturno"
           - type: entities
             title: "Bagno"
             show_header_toggle: false
@@ -180,6 +210,6 @@ views:
               - entity: input_boolean.envelope_bagno_shade_applied
                 name: "Scuro applicato"
               - entity: binary_sensor.envelope_bagno_night_flush_candidate
-                name: "Night flush"
+                name: "Raffrescamento notturno"
               - entity: binary_sensor.finestre_bagno_aperte
                 name: "Finestre aperte"

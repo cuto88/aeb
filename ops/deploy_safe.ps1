@@ -209,28 +209,31 @@ function New-SafeSshKeyCopy {
 }
 
 function Get-DeployKeyPath {
-  if (Test-Path -LiteralPath "C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp") {
-    return New-SafeSshKeyCopy -SourcePath "C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp"
+  $copyCandidates = @(
+    "C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp",
+    $env:HA_SSH_KEY_PATH,
+    "C:\Users\randalab\.ssh\ha_ed25519",
+    "C:\2_OPS\secrets\ha\ha_ed25519",
+    "C:\2_OPS\secrets\ha\ha_fallback_ed25519"
+  )
+
+  foreach ($candidate in $copyCandidates) {
+    if ([string]::IsNullOrWhiteSpace($candidate)) { continue }
+    try {
+      if (-not (Test-Path -LiteralPath $candidate -ErrorAction Stop)) { continue }
+    } catch {
+      Say "WARN: key candidate path not readable ($candidate): $($_.Exception.Message)"
+      continue
+    }
+    try {
+      return New-SafeSshKeyCopy -SourcePath $candidate
+    } catch {
+      Say "WARN: key candidate not usable ($candidate): $($_.Exception.Message)"
+    }
   }
 
   if (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\ha_ed25519.safe") {
     return "C:\2_OPS\aeb\.tmp\ha_ed25519.safe"
-  }
-
-  if ($env:HA_SSH_KEY_PATH -and (Test-Path -LiteralPath $env:HA_SSH_KEY_PATH)) {
-    return New-SafeSshKeyCopy -SourcePath $env:HA_SSH_KEY_PATH
-  }
-
-  if (Test-Path -LiteralPath "C:\Users\randalab\.ssh\ha_ed25519") {
-    return New-SafeSshKeyCopy -SourcePath "C:\Users\randalab\.ssh\ha_ed25519"
-  }
-
-  if (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_ed25519") {
-    return New-SafeSshKeyCopy -SourcePath "C:\2_OPS\secrets\ha\ha_ed25519"
-  }
-
-  if (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_fallback_ed25519") {
-    return New-SafeSshKeyCopy -SourcePath "C:\2_OPS\secrets\ha\ha_fallback_ed25519"
   }
 
   throw "No usable SSH key source found."

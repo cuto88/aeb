@@ -101,6 +101,15 @@ views:
                 name: "T interna"
               - entity: sensor.t_out
                 name: "T esterna"
+          - type: history-graph
+            title: "Confronto UR interna-esterna 24h"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.ur_in_media
+                name: "UR interna media"
+              - entity: sensor.ur_out
+                name: "UR esterna"
 
       - type: grid
         cards:
@@ -174,6 +183,9 @@ views:
             entity: sensor.ur_in_bagno
             name: "UR bagno"
           - type: tile
+            entity: input_boolean.vent_finestra_bagno_aperta
+            name: "Finestra bagno"
+          - type: tile
             entity: input_boolean.vmc_boost_bagno
             name: "Boost manuale"
           - type: tile
@@ -182,6 +194,15 @@ views:
           - type: tile
             entity: sensor.vmc_boost_bagno_eta_spegnimento
             name: "ETA boost"
+          - type: history-graph
+            title: "Confronto UR bagno-esterno 24h"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.ur_in_bagno
+                name: "UR bagno"
+              - entity: sensor.ur_out
+                name: "UR esterna"
 
       - type: grid
         cards:
@@ -681,7 +702,7 @@ views:
             color: green
           - type: tile
             entity: sensor.envelope_house_night_flush_potential
-            name: "Night flush"
+            name: "Raffrescamento notturno"
             color: amber
           - type: tile
             entity: binary_sensor.close_shutters_recommended
@@ -695,6 +716,24 @@ views:
             entity: sensor.envelope_shade_applied_rooms_count
             name: "Scuri attivi"
             color: teal
+          - type: gauge
+            entity: sensor.delta_ah_in_out
+            name: "Vantaggio umidita esterna (Delta AH)"
+            min: -4
+            max: 8
+            needle: true
+            severity:
+              red: -4
+              yellow: 0
+              green: 2
+          - type: tile
+            entity: sensor.envelope_night_flush_open_eta
+            name: "ETA apertura night flush"
+            color: green
+          - type: tile
+            entity: sensor.envelope_night_flush_close_eta
+            name: "ETA chiusura night flush"
+            color: amber
           - type: tile
             entity: binary_sensor.envelope_efficiency_inputs_ready
             name: "Inputs"
@@ -716,7 +755,7 @@ views:
             name: "Scuri consigliati"
           - type: tile
             entity: sensor.envelope_rooms_night_flush_candidate_count
-            name: "Night flush candidabili"
+            name: "Candidabili raffrescamento notturno"
           - type: tile
             entity: sensor.envelope_shade_applied_rooms
             name: "Stanze schermate"
@@ -752,8 +791,10 @@ views:
               - entity: sensor.pv_power_now
                 name: "PV proxy sole"
               - entity: sensor.envelope_house_night_flush_potential
-                name: "Night flush"
+                name: "Raffrescamento notturno"
               - entity: binary_sensor.close_shutters_recommended
                 name: "Scuri"
               - entity: sensor.envelope_recommended_action
+                name: "Azione tecnica"
+              - entity: sensor.envelope_azione_consigliata
                 name: "Azione"

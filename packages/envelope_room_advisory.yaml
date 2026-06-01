@@ -451,11 +451,13 @@ template:
         icon: mdi:weather-sunset-down
         state: >-
           {% set dt = states('sensor.delta_t_in_out') | float(default=none) %}
+          {% set dah = states('sensor.delta_ah_in_out') | float(default=none) %}
           {% set drop = states('sensor.envelope_t_out_drop_rate_cph') | float(default=0) %}
           {% set rise = states('sensor.envelope_t_out_rise_rate_cph') | float(default=0) %}
           {% set trend = states('input_number.envelope_outdoor_trend_active_cph') | float(0.15) %}
           {% set nf = states('input_number.envelope_night_flush_delta_c') | float(1.0) %}
-          {% if dt is not number %}unknown
+          {% if dt is not number or dah is not number %}unknown
+          {% elif dah <= 0 %}penalizing
           {% elif dt >= nf and drop >= trend %}favorable
           {% elif dt >= 0.5 and drop > 0 %}opening
           {% elif dt > 0 and rise < trend %}watch
@@ -472,6 +474,42 @@ template:
           {% elif state == 'opening' %}soon
           {% elif drop > 0 %}monitor
           {% else %}not_expected
+          {% endif %}
+
+      - name: "Envelope night flush open eta"
+        unique_id: envelope_night_flush_open_eta
+        icon: mdi:clock-start
+        state: >-
+          {% set dt = states('sensor.delta_t_in_out') | float(default=none) %}
+          {% set dah = states('sensor.delta_ah_in_out') | float(default=none) %}
+          {% set drop = states('sensor.envelope_t_out_drop_rate_cph') | float(default=0) %}
+          {% set nf = states('input_number.envelope_night_flush_delta_c') | float(1.0) %}
+          {% if dt is not number or dah is not number %}unknown
+          {% elif dah <= 0 %}n/a
+          {% elif dt >= nf and drop > 0 %}now
+          {% elif drop > 0 and dt < nf %}
+            {% set h = (nf - dt) / drop %}
+            {% if h >= 0 and h <= 12 %}
+              {{ (as_timestamp(now()) + (h * 3600)) | timestamp_custom('%H:%M', true) }}
+            {% else %}n/a{% endif %}
+          {% else %}n/a
+          {% endif %}
+
+      - name: "Envelope night flush close eta"
+        unique_id: envelope_night_flush_close_eta
+        icon: mdi:clock-end
+        state: >-
+          {% set dt = states('sensor.delta_t_in_out') | float(default=none) %}
+          {% set dah = states('sensor.delta_ah_in_out') | float(default=none) %}
+          {% set rise = states('sensor.envelope_t_out_rise_rate_cph') | float(default=0) %}
+          {% if dt is not number or dah is not number %}unknown
+          {% elif dah <= 0 %}now
+          {% elif rise > 0 and dt > 0 %}
+            {% set h = dt / rise %}
+            {% if h >= 0 and h <= 12 %}
+              {{ (as_timestamp(now()) + (h * 3600)) | timestamp_custom('%H:%M', true) }}
+            {% else %}n/a{% endif %}
+          {% else %}n/a
           {% endif %}
 
       - name: "Envelope thermal rebound risk"
@@ -533,6 +571,21 @@ template:
           {% elif passive == 'useful' %}let_sun_in
           {% else %}keep_closed
           {% endif %}
+
+      - name: "Envelope azione consigliata"
+        unique_id: envelope_azione_consigliata
+        icon: mdi:tooltip-check-outline
+        state: >-
+          {% set action = states('sensor.envelope_recommended_action') %}
+          {% set labels = {
+            'open_for_night_flush': 'apri finestre per raffrescamento notturno',
+            'prepare_night_flush': 'prepara apertura per raffrescamento notturno',
+            'shade_now': 'chiudi scuri / applica ombreggiatura',
+            'let_sun_in': 'lascia entrare il sole',
+            'keep_closed': 'tieni chiuso',
+            'ac_justified': 'chiudi finestre, raffrescamento meccanico giustificato'
+          } %}
+          {{ labels.get(action, action | replace('_', ' ')) }}
 
   - binary_sensor:
       - name: "Envelope giorno shade recommended"
@@ -718,17 +771,17 @@ automation:
       action: "{{ trigger.to_state.state if trigger.to_state is not none else 'unknown' }}"
       action_label: >-
         {% set labels = {
-          'open_for_night_flush': 'apri finestre per night flush',
-          'prepare_night_flush': 'prepara le finestre per night flush',
+          'open_for_night_flush': 'apri finestre per raffrescamento notturno',
+          'prepare_night_flush': 'prepara le finestre per raffrescamento notturno',
           'shade_now': 'chiudi scuri / applica ombreggiatura',
           'let_sun_in': 'lascia entrare il sole'
         } %}
         {{ labels.get(action, action | replace('_', ' ')) }}
       action_reason: >-
         {% if action == 'open_for_night_flush' %}
-          Night flush favorevole: aprire ora le finestre aiuta a scaricare il calore accumulato.
+          Raffrescamento notturno favorevole: aprire ora le finestre aiuta a scaricare il calore accumulato.
         {% elif action == 'prepare_night_flush' %}
-          La finestra esterna si sta aprendo: prepara l'apertura per il night flush.
+          La finestra esterna si sta aprendo: prepara l'apertura per il raffrescamento notturno.
         {% elif action == 'shade_now' %}
           Il guadagno solare o il rischio di surriscaldamento è alto: conviene schermare adesso.
         {% elif action == 'let_sun_in' %}
@@ -748,7 +801,55 @@ automation:
             Motivo: `{{ action_reason | replace('`', '') }}`
             Stanza peggiore: `{{ states('sensor.envelope_worst_room_name') | replace('`', '') }}`
             Rischio stanza peggiore: `{{ states('sensor.envelope_worst_room_overheating_risk') | replace('`', '') }}`
-            Potenziale night flush: `{{ states('sensor.envelope_house_night_flush_potential') | replace('`', '') }}`
+            Potenziale raffrescamento notturno: `{{ states('sensor.envelope_house_night_flush_potential') | replace('`', '') }}`
             Stato esterno: `{{ states('sensor.envelope_outdoor_cooling_window_state') | replace('`', '') }}`
             Consiglio generale: `{{ states('sensor.envelope_recommended_action') | replace('`', '') }}`
+            Ora: `{{ now() | string | replace('`', '') }}`
+
+  - id: envelope_close_windows_telegram_alert
+    alias: "Envelope - richiesta chiusura finestre Telegram"
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id: sensor.envelope_recommended_action
+        to: keep_closed
+        for: "00:05:00"
+      - platform: state
+        entity_id: sensor.envelope_recommended_action
+        to: ac_justified
+        for: "00:05:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.envelope_notify_enabled
+        state: "on"
+      - condition: template
+        value_template: >-
+          {{
+            trigger.to_state is not none
+            and trigger.to_state.state in ['keep_closed', 'ac_justified']
+          }}
+      - condition: state
+        entity_id: binary_sensor.casa_chiusa
+        state: "off"
+    variables:
+      action: "{{ trigger.to_state.state if trigger.to_state is not none else 'unknown' }}"
+      action_reason: >-
+        {% if action == 'ac_justified' %}
+          Involucro sfavorevole al raffrescamento naturale: meglio chiudere le finestre e lavorare in meccanico.
+        {% else %}
+          La finestra utile è terminata o non favorevole: conviene richiudere le finestre.
+        {% endif %}
+    action:
+      - action: script.telegram_ha_mercurio_send
+        data:
+          title: "Azione richiesta: chiudi finestre"
+          message: |
+            Il sistema sta richiedendo un'azione umana di chiusura serramenti.
+
+            Cosa fare: `chiudi finestre`
+            Motivo: `{{ action_reason | replace('`', '') }}`
+            Finestre aperte: `{{ states('sensor.vent_finestre_state') | replace('`', '') }}`
+            Azione involucro (tecnica): `{{ action | replace('`', '') }}`
+            Azione involucro (leggibile): `{{ states('sensor.envelope_azione_consigliata') | replace('`', '') }}`
+            Stato esterno: `{{ states('sensor.envelope_outdoor_cooling_window_state') | replace('`', '') }}`
             Ora: `{{ now() | string | replace('`', '') }}`
