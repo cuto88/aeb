@@ -131,6 +131,46 @@ template:
           {% endfor %}
           true
 
+      - name: "AC – UR fuori banda comfort"
+        unique_id: ac_ur_out_of_comfort_band
+        state: >-
+          {% set ur = states('sensor.ur_in_media') | float(default=none) %}
+          {{ ur is number and (ur > 60 or ur < 45) }}
+        attributes:
+          ur_in_media: "{{ states('sensor.ur_in_media') }}"
+          comfort_band: "45-60 %"
+
+      - name: "AC – Dew point alto"
+        unique_id: ac_dew_point_high
+        state: >-
+          {% set t = states('sensor.t_in_med') | float(default=none) %}
+          {% set rh = states('sensor.ur_in_media') | float(default=none) %}
+          {% if t is number and rh is number %}
+            {% set rhc = [[rh, 100] | min, 1] | max %}
+            {% set a = 17.27 %}
+            {% set b = 237.7 %}
+            {% set gamma = ((a * t) / (b + t)) + ((rhc / 100) | log) %}
+            {% set dp = (b * gamma) / (a - gamma) %}
+            {{ dp > 16 }}
+          {% else %}
+            false
+          {% endif %}
+        attributes:
+          threshold_c: 16
+          t_in_med: "{{ states('sensor.t_in_med') }}"
+          ur_in_media: "{{ states('sensor.ur_in_media') }}"
+
+      - name: "AC – Day Night Target Mismatch"
+        unique_id: ac_day_night_target_mismatch
+        state: >-
+          {% set d = state_attr('climate.ac_giorno', 'temperature') | float(default=none) %}
+          {% set n = state_attr('climate.ac_notte', 'temperature') | float(default=none) %}
+          {{ d is number and n is number and ((d - n) | abs) >= 1.0 }}
+        attributes:
+          mismatch_threshold_c: 1.0
+          climate_ac_giorno_target_c: "{{ state_attr('climate.ac_giorno', 'temperature') }}"
+          climate_ac_notte_target_c: "{{ state_attr('climate.ac_notte', 'temperature') }}"
+
   - sensor:
       - name: "AC Priority"
         unique_id: ac_priority

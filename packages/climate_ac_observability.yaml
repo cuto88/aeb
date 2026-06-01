@@ -69,3 +69,30 @@ sensor:
     type: count
     start: "{{ today_at() }}"
     end: "{{ now() }}"
+
+  - platform: history_stats
+    name: "AC – UR fuori banda ore 24h"
+    unique_id: ac_ur_out_of_band_hours_24h
+    entity_id: binary_sensor.ac_ur_out_of_comfort_band
+    state: "on"
+    type: time
+    start: "{{ now() - timedelta(hours=24) }}"
+    end: "{{ now() }}"
+
+  - platform: history_stats
+    name: "AC – Dew point alto ore 24h"
+    unique_id: ac_dew_point_high_hours_24h
+    entity_id: binary_sensor.ac_dew_point_high
+    state: "on"
+    type: time
+    start: "{{ now() - timedelta(hours=24) }}"
+    end: "{{ now() }}"
+
+  - platform: history_stats
+    name: "AC – Mismatch giorno/notte ore 24h"
+    unique_id: ac_day_night_target_mismatch_hours_24h
+    entity_id: binary_sensor.ac_day_night_target_mismatch
+    state: "on"
+    type: time
+    start: "{{ now() - timedelta(hours=24) }}"
+    end: "{{ now() }}"
