@@ -122,6 +122,12 @@ script:
     alias: AC Giorno Apply
     mode: restart
     sequence:
+      - service: climate.set_temperature
+        continue_on_error: true
+        target:
+          entity_id: climate.ac_giorno
+        data:
+          temperature: "{{ states('input_number.ac_giorno_setpoint') | float(24) }}"
       - choose:
           - conditions: "{{ states('switch.ac_giorno') != 'on' }}"
             sequence:
@@ -137,6 +143,12 @@ script:
     alias: AC Notte Apply
     mode: restart
     sequence:
+      - service: climate.set_temperature
+        continue_on_error: true
+        target:
+          entity_id: climate.ac_notte
+        data:
+          temperature: "{{ states('input_number.ac_notte_setpoint') | float(24) }}"
       - choose:
           - conditions: "{{ states('switch.ac_notte') != 'on' }}"
             sequence:
