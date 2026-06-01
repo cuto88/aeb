@@ -47,6 +47,8 @@ automation:
               ac_branch_powered | bool
             }}
           ac_policy_ok: "{{ is_state('binary_sensor.policy_allow_ac','on') }}"
+          ac_min_on_ok: "{{ is_state('binary_sensor.ac_lock_min_on_ok','on') }}"
+          ac_min_off_ok: "{{ is_state('binary_sensor.ac_lock_min_off_ok','on') }}"
           ac_day_should_run: "{{ mode == 'COOL_DAY' and ac_available and ac_policy_ok }}"
           ac_night_should_run: "{{ mode == 'COOL_NIGHT' and ac_available and ac_policy_ok }}"
       - choose:
@@ -57,14 +59,24 @@ automation:
                 target:
                   entity_id: switch.heating_master
       - choose:
-          - conditions: "{{ (not (ac_day_should_run | bool)) and is_state('switch.ac_giorno','on') }}"
+          - conditions: >-
+              {{
+                (not (ac_day_should_run | bool))
+                and is_state('switch.ac_giorno','on')
+                and (ac_min_on_ok | bool)
+              }}
             sequence:
               - service: switch.turn_off
                 continue_on_error: true
                 target:
                   entity_id: switch.ac_giorno
       - choose:
-          - conditions: "{{ (not (ac_night_should_run | bool)) and is_state('switch.ac_notte','on') }}"
+          - conditions: >-
+              {{
+                (not (ac_night_should_run | bool))
+                and is_state('switch.ac_notte','on')
+                and (ac_min_on_ok | bool)
+              }}
             sequence:
               - service: switch.turn_off
                 continue_on_error: true
@@ -181,6 +193,7 @@ automation:
               {{
                 (ac_day_should_run | bool)
                 and states('switch.ac_giorno') != 'on'
+                and (ac_min_off_ok | bool)
               }}
             sequence:
               - service: script.ac_giorno_apply
@@ -190,6 +203,7 @@ automation:
               {{
                 (ac_night_should_run | bool)
                 and states('switch.ac_notte') != 'on'
+                and (ac_min_off_ok | bool)
               }}
             sequence:
               - service: script.ac_notte_apply
