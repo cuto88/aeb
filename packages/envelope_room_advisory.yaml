@@ -382,14 +382,20 @@ template:
         unique_id: envelope_rooms_night_flush_candidate_count
         icon: mdi:window-open-variant
         state: >-
-          {{
-            [
-              is_state('binary_sensor.envelope_giorno_night_flush_candidate', 'on'),
-              is_state('binary_sensor.envelope_notte1_night_flush_candidate', 'on'),
-              is_state('binary_sensor.envelope_notte2_night_flush_candidate', 'on'),
-              is_state('binary_sensor.envelope_bagno_night_flush_candidate', 'on')
-            ] | select('equalto', true) | list | count
-          }}
+          {% set nf = states('input_number.envelope_night_flush_delta_c') | float(1.0) %}
+          {% set outdoor = states('sensor.envelope_outdoor_cooling_window_state') %}
+          {% if outdoor not in ['favorable', 'opening'] %}
+            0
+          {% else %}
+            {{
+              [
+                states('sensor.envelope_giorno_delta_vs_outdoor_c') | float(default=0) >= nf,
+                states('sensor.envelope_notte1_delta_vs_outdoor_c') | float(default=0) >= nf,
+                states('sensor.envelope_notte2_delta_vs_outdoor_c') | float(default=0) >= nf,
+                states('sensor.envelope_bagno_delta_vs_outdoor_c') | float(default=0) >= nf
+              ] | select('equalto', true) | list | count
+            }}
+          {% endif %}
 
       - name: "Envelope worst room name"
         unique_id: envelope_worst_room_name
@@ -458,8 +464,8 @@ template:
           {% set nf = states('input_number.envelope_night_flush_delta_c') | float(1.0) %}
           {% if dt is not number or dah is not number %}unknown
           {% elif dah <= 0 %}penalizing
-          {% elif dt >= nf and drop >= trend %}favorable
-          {% elif dt >= 0.5 and drop > 0 %}opening
+          {% elif dt >= nf %}favorable
+          {% elif dt >= 0.5 and (drop > 0 or rise < trend) %}opening
           {% elif dt > 0 and rise < trend %}watch
           {% else %}penalizing
           {% endif %}
@@ -486,7 +492,7 @@ template:
           {% set nf = states('input_number.envelope_night_flush_delta_c') | float(1.0) %}
           {% if dt is not number or dah is not number %}unknown
           {% elif dah <= 0 %}n/a
-          {% elif dt >= nf and drop > 0 %}now
+          {% elif dt >= nf %}now
           {% elif drop > 0 and dt < nf %}
             {% set h = (nf - dt) / drop %}
             {% if h >= 0 and h <= 12 %}
