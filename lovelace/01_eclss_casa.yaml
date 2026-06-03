@@ -194,15 +194,6 @@ views:
           - type: tile
             entity: sensor.vmc_boost_bagno_eta_spegnimento
             name: "ETA boost"
-          - type: history-graph
-            title: "Confronto UR bagno-esterno 24h"
-            hours_to_show: 24
-            refresh_interval: 120
-            entities:
-              - entity: sensor.ur_in_bagno
-                name: "UR bagno"
-              - entity: sensor.ur_out
-                name: "UR esterna"
 
       - type: grid
         cards:

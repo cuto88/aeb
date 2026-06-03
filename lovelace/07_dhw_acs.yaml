@@ -105,6 +105,17 @@ views:
                 name: Mode
               - entity: binary_sensor.climateops_aeb_mvp_permitted
                 name: Permitted
+          - type: history-graph
+            title: "Docce proxy (7 giorni)"
+            hours_to_show: 168
+            refresh_interval: 300
+            entities:
+              - entity: binary_sensor.climateops_dhw_shower_proxy_active
+                name: Shower proxy
+              - entity: binary_sensor.climateops_dhw_shower_support_active
+                name: Shower support
+              - entity: binary_sensor.climateops_dhw_low_shower_probability_window
+                name: Low probability
 
       - type: grid
         title: "Diagnostica"

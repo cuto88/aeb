@@ -106,30 +106,32 @@ template:
         state: >
           {% set mins = states('input_number.ac_min_on_minutes') | float(15) %}
           {% set entities = ['binary_sensor.cm_driver_ac_giorno_is_on', 'binary_sensor.cm_driver_ac_notte_is_on'] %}
+          {% set ns = namespace(ok=true) %}
           {% for ent_id in entities %}
             {% if ent_id in states %}
               {% set s = states[ent_id] %}
               {% if s.state == 'on' and (now() - s.last_changed).total_seconds() / 60 < mins %}
-                {{ false }}
+                {% set ns.ok = false %}
               {% endif %}
             {% endif %}
           {% endfor %}
-          true
+          {{ ns.ok }}
 
       - name: "AC – Lock min OFF OK"
         unique_id: ac_lock_min_off_ok
         state: >
           {% set mins = states('input_number.ac_min_off_minutes') | float(15) %}
           {% set entities = ['binary_sensor.cm_driver_ac_giorno_is_on', 'binary_sensor.cm_driver_ac_notte_is_on'] %}
+          {% set ns = namespace(ok=true) %}
           {% for ent_id in entities %}
             {% if ent_id in states %}
               {% set s = states[ent_id] %}
               {% if s.state == 'off' and (now() - s.last_changed).total_seconds() / 60 < mins %}
-                {{ false }}
+                {% set ns.ok = false %}
               {% endif %}
             {% endif %}
           {% endfor %}
-          true
+          {{ ns.ok }}
 
       - name: "AC – UR fuori banda comfort"
         unique_id: ac_ur_out_of_comfort_band

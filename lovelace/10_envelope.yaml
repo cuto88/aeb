@@ -109,12 +109,10 @@ views:
       - type: grid
         title: "Trend"
         cards:
-          - type: custom:mini-graph-card
-            name: "Temperature"
+          - type: history-graph
+            title: "Temperature"
             hours_to_show: 12
-            points_per_hour: 2
-            show:
-              fill: false
+            refresh_interval: 120
             entities:
               - entity: sensor.t_in_med
                 name: "Casa"
@@ -126,12 +124,10 @@ views:
                 name: "Notte1"
               - entity: sensor.t_in_notte2
                 name: "Notte2"
-          - type: custom:mini-graph-card
-            name: "Dinamica"
+          - type: history-graph
+            title: "Dinamica"
             hours_to_show: 12
-            points_per_hour: 2
-            show:
-              fill: false
+            refresh_interval: 120
             entities:
               - entity: sensor.envelope_giorno_rise_rate_cph
                 name: "Giorno rise"
