@@ -11,8 +11,20 @@ views:
         title: "Sintesi"
         cards:
           - type: tile
+            entity: sensor.envelope_guida_operativa
+            name: "Cosa fare ora"
+            color: teal
+          - type: tile
+            entity: sensor.envelope_guida_motivo
+            name: "Perche"
+            color: amber
+          - type: tile
+            entity: sensor.envelope_signal_color
+            name: "Segnale luce"
+            color: green
+          - type: tile
             entity: sensor.envelope_recommended_action
-            name: "Azione ora"
+            name: "Codice azione"
           - type: tile
             entity: sensor.envelope_house_night_flush_potential
             name: "Raffrescamento notturno"

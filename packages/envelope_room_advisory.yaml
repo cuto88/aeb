@@ -587,6 +587,83 @@ template:
           } %}
           {{ labels.get(action, action | replace('_', ' ')) }}
 
+      - name: "Envelope guida operativa"
+        unique_id: envelope_guida_operativa
+        icon: mdi:home-assistant
+        state: >-
+          {% set action = states('sensor.envelope_recommended_action') %}
+          {% set labels = {
+            'open_for_night_flush': 'Apri ora per raffrescare',
+            'prepare_night_flush': 'Preparati ad aprire',
+            'shade_now': 'Chiudi gli scuri ora',
+            'let_sun_in': 'Lascia entrare il sole',
+            'keep_closed': 'Tieni chiuso',
+            'ac_justified': 'Tieni chiuso e usa AC'
+          } %}
+          {{ labels.get(action, 'Osserva') }}
+        attributes:
+          action_code: "{{ states('sensor.envelope_recommended_action') }}"
+          signal_color: "{{ states('sensor.envelope_signal_color') }}"
+          reason: "{{ states('sensor.envelope_guida_motivo') }}"
+          outdoor_window: "{{ states('sensor.envelope_outdoor_cooling_window_state') }}"
+          night_flush_potential: "{{ states('sensor.envelope_house_night_flush_potential') }}"
+          candidate_rooms: "{{ states('sensor.envelope_rooms_night_flush_candidate_count') }}"
+          shade_rooms: "{{ states('sensor.envelope_rooms_shade_recommended_count') }}"
+          delta_t_c: "{{ states('sensor.delta_t_in_out') }}"
+          delta_ah_g_m3: "{{ states('sensor.delta_ah_in_out') }}"
+          t_out_drop_cph: "{{ states('sensor.envelope_t_out_drop_rate_cph') }}"
+          t_out_rise_cph: "{{ states('sensor.envelope_t_out_rise_rate_cph') }}"
+
+      - name: "Envelope guida motivo"
+        unique_id: envelope_guida_motivo
+        icon: mdi:comment-question-outline
+        state: >-
+          {% set action = states('sensor.envelope_recommended_action') %}
+          {% set outdoor = states('sensor.envelope_outdoor_cooling_window_state') %}
+          {% set flush = states('sensor.envelope_house_night_flush_potential') %}
+          {% set dah = states('sensor.delta_ah_in_out') | float(default=none) %}
+          {% set dt = states('sensor.delta_t_in_out') | float(default=none) %}
+          {% set drop = states('sensor.envelope_t_out_drop_rate_cph') | float(default=0) %}
+          {% set shade = states('sensor.envelope_rooms_shade_recommended_count') | int(0) %}
+          {% if action == 'open_for_night_flush' %}
+            Esterno fresco/secco e stanze candidate.
+          {% elif action == 'prepare_night_flush' and outdoor == 'watch' %}
+            Aria buona, ma il fresco non sta ancora entrando.
+          {% elif action == 'prepare_night_flush' %}
+            Finestra favorevole in formazione.
+          {% elif action == 'shade_now' %}
+            {{ shade }} zona/e chiedono ombreggiatura.
+          {% elif action == 'let_sun_in' %}
+            Guadagno solare utile, non eccessivo.
+          {% elif action == 'ac_justified' %}
+            Caldo interno alto e night flush non basta.
+          {% elif dah is number and dah <= 0 %}
+            Fuori e piu umido: non conviene aprire.
+          {% elif dt is number and dt <= 0 %}
+            Fuori non e piu fresco: tieni chiuso.
+          {% elif flush == 'none' %}
+            Nessuna stanza e candidata al raffrescamento.
+          {% elif drop <= 0 %}
+            Fuori e favorevole ma non sta scendendo.
+          {% else %}
+            Nessuna azione utile ora.
+          {% endif %}
+
+      - name: "Envelope signal color"
+        unique_id: envelope_signal_color
+        icon: mdi:traffic-light
+        state: >-
+          {% set action = states('sensor.envelope_recommended_action') %}
+          {% if action == 'open_for_night_flush' %}green
+          {% elif action in ['prepare_night_flush', 'shade_now'] %}amber
+          {% elif action == 'ac_justified' %}red
+          {% elif action == 'let_sun_in' %}blue
+          {% elif action == 'keep_closed' %}off
+          {% else %}unknown
+          {% endif %}
+        attributes:
+          intended_light_use: "green=open, amber=prepare/intervene, red=mechanical cooling, blue=solar gain, off=no action"
+
   - binary_sensor:
       - name: "Envelope giorno shade recommended"
         unique_id: envelope_giorno_shade_recommended

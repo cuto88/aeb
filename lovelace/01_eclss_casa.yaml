@@ -684,8 +684,20 @@ views:
       - type: grid
         cards:
           - type: tile
+            entity: sensor.envelope_guida_operativa
+            name: "Cosa fare ora"
+            color: teal
+          - type: tile
+            entity: sensor.envelope_guida_motivo
+            name: "Perche"
+            color: amber
+          - type: tile
+            entity: sensor.envelope_signal_color
+            name: "Segnale luce"
+            color: green
+          - type: tile
             entity: sensor.envelope_recommended_action
-            name: "Azione"
+            name: "Codice azione"
             color: teal
           - type: tile
             entity: sensor.envelope_house_passive_gain_state
@@ -709,7 +721,7 @@ views:
             color: teal
           - type: gauge
             entity: sensor.delta_ah_in_out
-            name: "Vantaggio umidita esterna (Delta AH)"
+            name: "Solo vantaggio umidita esterna"
             min: -4
             max: 8
             needle: true
