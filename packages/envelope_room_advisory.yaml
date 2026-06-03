@@ -579,7 +579,7 @@ template:
           {% set action = states('sensor.envelope_recommended_action') %}
           {% set labels = {
             'open_for_night_flush': 'apri finestre per raffrescamento notturno',
-            'prepare_night_flush': 'prepara apertura per raffrescamento notturno',
+            'prepare_night_flush': 'tieni chiuso, apertura non ancora consigliata',
             'shade_now': 'chiudi scuri / applica ombreggiatura',
             'let_sun_in': 'lascia entrare il sole',
             'keep_closed': 'tieni chiuso',
@@ -594,7 +594,7 @@ template:
           {% set action = states('sensor.envelope_recommended_action') %}
           {% set labels = {
             'open_for_night_flush': 'Apri ora per raffrescare',
-            'prepare_night_flush': 'Preparati ad aprire',
+            'prepare_night_flush': 'Tieni chiuso',
             'shade_now': 'Chiudi gli scuri ora',
             'let_sun_in': 'Lascia entrare il sole',
             'keep_closed': 'Tieni chiuso',
@@ -628,9 +628,9 @@ template:
           {% if action == 'open_for_night_flush' %}
             Esterno fresco/secco e stanze candidate.
           {% elif action == 'prepare_night_flush' and outdoor == 'watch' %}
-            Aria buona, ma il fresco non sta ancora entrando.
+            Aria buona, ma non conviene ancora aprire.
           {% elif action == 'prepare_night_flush' %}
-            Finestra favorevole in formazione.
+            Finestra favorevole non ancora abbastanza stabile.
           {% elif action == 'shade_now' %}
             {{ shade }} zona/e chiedono ombreggiatura.
           {% elif action == 'let_sun_in' %}
@@ -655,24 +655,24 @@ template:
         state: >-
           {% set action = states('sensor.envelope_recommended_action') %}
           {% if action == 'open_for_night_flush' %}verde - apri ora
-          {% elif action == 'prepare_night_flush' %}giallo - preparati
+          {% elif action == 'prepare_night_flush' %}spento - tieni chiuso
           {% elif action == 'shade_now' %}giallo - intervieni sugli scuri
           {% elif action == 'ac_justified' %}rosso - tieni chiuso
           {% elif action == 'let_sun_in' %}blu - lascia sole
-          {% elif action == 'keep_closed' %}spento - nessuna azione
+          {% elif action == 'keep_closed' %}spento - tieni chiuso
           {% else %}sconosciuto
           {% endif %}
         attributes:
           light_color_code: >-
             {% set action = states('sensor.envelope_recommended_action') %}
             {% if action == 'open_for_night_flush' %}green
-            {% elif action in ['prepare_night_flush', 'shade_now'] %}amber
+            {% elif action == 'shade_now' %}amber
             {% elif action == 'ac_justified' %}red
             {% elif action == 'let_sun_in' %}blue
-            {% elif action == 'keep_closed' %}off
+            {% elif action in ['keep_closed', 'prepare_night_flush'] %}off
             {% else %}unknown
             {% endif %}
-          uso_luce: "verde=apri, giallo=preparati/intervieni, rosso=tieni chiuso o usa AC, blu=lascia sole, spento=nessuna azione"
+          uso_luce: "verde=apri, giallo=intervieni sugli scuri, rosso=tieni chiuso o usa AC, blu=lascia sole, spento=tieni chiuso"
 
   - binary_sensor:
       - name: "Envelope giorno shade recommended"
@@ -829,10 +829,6 @@ automation:
         for: "00:05:00"
       - platform: state
         entity_id: sensor.envelope_recommended_action
-        to: prepare_night_flush
-        for: "00:05:00"
-      - platform: state
-        entity_id: sensor.envelope_recommended_action
         to: shade_now
         for: "00:05:00"
       - platform: state
@@ -849,7 +845,6 @@ automation:
             trigger.to_state is not none
             and trigger.to_state.state in [
               'open_for_night_flush',
-              'prepare_night_flush',
               'shade_now',
               'let_sun_in'
             ]
@@ -859,7 +854,6 @@ automation:
       action_label: >-
         {% set labels = {
           'open_for_night_flush': 'apri finestre per raffrescamento notturno',
-          'prepare_night_flush': 'prepara le finestre per raffrescamento notturno',
           'shade_now': 'chiudi scuri / applica ombreggiatura',
           'let_sun_in': 'lascia entrare il sole'
         } %}
@@ -867,8 +861,6 @@ automation:
       action_reason: >-
         {% if action == 'open_for_night_flush' %}
           Raffrescamento notturno favorevole: aprire ora le finestre aiuta a scaricare il calore accumulato.
-        {% elif action == 'prepare_night_flush' %}
-          La finestra esterna si sta aprendo: prepara l'apertura per il raffrescamento notturno.
         {% elif action == 'shade_now' %}
           Il guadagno solare o il rischio di surriscaldamento è alto: conviene schermare adesso.
         {% elif action == 'let_sun_in' %}
