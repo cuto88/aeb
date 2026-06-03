@@ -24,7 +24,7 @@ views:
                 color: amber
               - type: tile
                 entity: sensor.envelope_signal_color
-                name: "Segnale luce"
+                name: "Luce guida"
                 color: green
               - type: tile
                 entity: sensor.envelope_recommended_action

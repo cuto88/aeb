@@ -603,7 +603,7 @@ template:
           {{ labels.get(action, 'Osserva') }}
         attributes:
           action_code: "{{ states('sensor.envelope_recommended_action') }}"
-          signal_color: "{{ states('sensor.envelope_signal_color') }}"
+          signal_color: "{{ state_attr('sensor.envelope_signal_color', 'light_color_code') }}"
           reason: "{{ states('sensor.envelope_guida_motivo') }}"
           outdoor_window: "{{ states('sensor.envelope_outdoor_cooling_window_state') }}"
           night_flush_potential: "{{ states('sensor.envelope_house_night_flush_potential') }}"
@@ -654,15 +654,25 @@ template:
         icon: mdi:traffic-light
         state: >-
           {% set action = states('sensor.envelope_recommended_action') %}
-          {% if action == 'open_for_night_flush' %}green
-          {% elif action in ['prepare_night_flush', 'shade_now'] %}amber
-          {% elif action == 'ac_justified' %}red
-          {% elif action == 'let_sun_in' %}blue
-          {% elif action == 'keep_closed' %}off
-          {% else %}unknown
+          {% if action == 'open_for_night_flush' %}verde - apri ora
+          {% elif action == 'prepare_night_flush' %}giallo - preparati
+          {% elif action == 'shade_now' %}giallo - intervieni sugli scuri
+          {% elif action == 'ac_justified' %}rosso - tieni chiuso
+          {% elif action == 'let_sun_in' %}blu - lascia sole
+          {% elif action == 'keep_closed' %}spento - nessuna azione
+          {% else %}sconosciuto
           {% endif %}
         attributes:
-          intended_light_use: "green=open, amber=prepare/intervene, red=mechanical cooling, blue=solar gain, off=no action"
+          light_color_code: >-
+            {% set action = states('sensor.envelope_recommended_action') %}
+            {% if action == 'open_for_night_flush' %}green
+            {% elif action in ['prepare_night_flush', 'shade_now'] %}amber
+            {% elif action == 'ac_justified' %}red
+            {% elif action == 'let_sun_in' %}blue
+            {% elif action == 'keep_closed' %}off
+            {% else %}unknown
+            {% endif %}
+          uso_luce: "verde=apri, giallo=preparati/intervieni, rosso=tieni chiuso o usa AC, blu=lascia sole, spento=nessuna azione"
 
   - binary_sensor:
       - name: "Envelope giorno shade recommended"
