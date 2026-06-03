@@ -3,7 +3,7 @@ param(
   [string]$HaBaseUrl = "http://192.168.178.110:8123",
   [string]$HaHost = "dscomparin@192.168.178.110",
   [int]$Port = 22,
-  [string]$KeyPath = $(if ($env:HA_SSH_KEY_PATH) { $env:HA_SSH_KEY_PATH } elseif (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\ha_ed25519.safe") { "C:\2_OPS\aeb\.tmp\ha_ed25519.safe" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_ed25519") { "C:\2_OPS\secrets\ha\ha_ed25519" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_fallback_ed25519") { "C:\2_OPS\secrets\ha\ha_fallback_ed25519" } else { "C:\Users\randalab\.ssh\ha_ed25519" })
+  [string]$KeyPath = $(if ($env:HA_SSH_KEY_PATH) { $env:HA_SSH_KEY_PATH } elseif (Test-Path -LiteralPath "C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp") { "C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp" } elseif (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\ha_ed25519.safe") { "C:\2_OPS\aeb\.tmp\ha_ed25519.safe" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_ed25519") { "C:\2_OPS\secrets\ha\ha_ed25519" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_fallback_ed25519") { "C:\2_OPS\secrets\ha\ha_fallback_ed25519" } else { "C:\Users\randalab\.ssh\ha_ed25519" })
 )
 
 $ErrorActionPreference = "Stop"
@@ -176,8 +176,8 @@ foreach ($entityId in $entityIds) {
   $states[$entityId] = Get-HaState -HaBaseUrl $HaBaseUrl -Token $haToken -EntityId $entityId
 }
 
-$dbStatus = Invoke-HaSsh -SshExe $sshExe -HaHost $HaHost -Port $Port -KeyPath $KeyPath -Command "ls -lh /homeassistant/home-assistant_v2.db* 2>/dev/null | sed -n '1,20p'"
-$recorderErrors = Invoke-HaSsh -SshExe $sshExe -HaHost $HaHost -Port $Port -KeyPath $KeyPath -Command "ha core logs -n 250 | grep -i -E 'recorder|SQLAlchemyError|StaleDataError|database|corrupt' | tail -n 80"
+$dbStatus = Invoke-HaSsh -SshExe $sshExe -HaHost $HaHost -Port $Port -KeyPath $KeyPath -Command "ls -lh /opt/data/homeassistant/home-assistant_v2.db* 2>/dev/null | sed -n '1,20p'"
+$recorderErrors = Invoke-HaSsh -SshExe $sshExe -HaHost $HaHost -Port $Port -KeyPath $KeyPath -Command "docker logs --tail 250 homeassistant 2>&1 | grep -i -E 'recorder|SQLAlchemyError|StaleDataError|database|corrupt' | tail -n 80"
 
 $payload = [pscustomobject]@{
   captured_at = $capturedAt

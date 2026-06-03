@@ -1,8 +1,8 @@
 param(
   [switch]$RunRestart,
-  [string]$HaHost = "root@192.168.178.84",
-  [int]$Port = 2222,
-  [string]$KeyPath = $(if ($env:HA_SSH_KEY_PATH) { $env:HA_SSH_KEY_PATH } elseif (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\ha_ed25519.safe") { "C:\2_OPS\aeb\.tmp\ha_ed25519.safe" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_ed25519") { "C:\2_OPS\secrets\ha\ha_ed25519" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_fallback_ed25519") { "C:\2_OPS\secrets\ha\ha_fallback_ed25519" } else { "C:\Users\randalab\.ssh\ha_ed25519" })
+  [string]$HaHost = "dscomparin@192.168.178.110",
+  [int]$Port = 22,
+  [string]$KeyPath = $(if ($env:HA_SSH_KEY_PATH) { $env:HA_SSH_KEY_PATH } elseif (Test-Path -LiteralPath "C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp") { "C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp" } elseif (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\ha_ed25519.safe") { "C:\2_OPS\aeb\.tmp\ha_ed25519.safe" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_ed25519") { "C:\2_OPS\secrets\ha\ha_ed25519" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_fallback_ed25519") { "C:\2_OPS\secrets\ha\ha_fallback_ed25519" } else { "C:\Users\randalab\.ssh\ha_ed25519" })
 )
 
 $ErrorActionPreference = "Stop"
@@ -26,19 +26,19 @@ $knownHosts = "C:\2_OPS\secrets\ha\known_hosts"
 $coreCheckFile = Join-Path $dateDir ("phase4_ha_core_check_" + $stamp + ".txt")
 $summaryFile = Join-Path $dateDir ("phase4_daily_summary_" + $stamp + ".md")
 
-Say "==> HA core check"
-$checkCmd = "& '$sshExe' -o UserKnownHostsFile=$knownHosts -o StrictHostKeyChecking=yes -p $Port -i '$KeyPath' $HaHost 'ha core check'"
+Say "==> HA config check"
+$checkCmd = "& '$sshExe' -o UserKnownHostsFile=$knownHosts -o StrictHostKeyChecking=yes -p $Port -i '$KeyPath' $HaHost 'docker exec homeassistant python -m homeassistant --script check_config -c /config'"
 & $pwshExe -Command $checkCmd | Tee-Object -FilePath $coreCheckFile
 if ($LASTEXITCODE -ne 0) {
-  throw "ha core check failed (RC=$LASTEXITCODE)"
+  throw "HA container check_config failed (RC=$LASTEXITCODE)"
 }
 
 if ($RunRestart) {
-  Say "==> HA core restart + check"
-  $restartCmd = "& '$sshExe' -o UserKnownHostsFile=$knownHosts -o StrictHostKeyChecking=yes -p $Port -i '$KeyPath' $HaHost 'ha core restart && ha core check'"
+  Say "==> HA container restart + check"
+  $restartCmd = "& '$sshExe' -o UserKnownHostsFile=$knownHosts -o StrictHostKeyChecking=yes -p $Port -i '$KeyPath' $HaHost 'docker restart homeassistant >/dev/null && sleep 30 && docker exec homeassistant python -m homeassistant --script check_config -c /config'"
   & $pwshExe -Command $restartCmd | Out-Null
   if ($LASTEXITCODE -ne 0) {
-    throw "ha core restart/check failed (RC=$LASTEXITCODE)"
+    throw "HA container restart/check failed (RC=$LASTEXITCODE)"
   }
 }
 
@@ -58,7 +58,7 @@ if ($null -eq $currentBootScan -or $null -eq $writerScan) {
   throw "Missing runtime truth outputs in $dateDir"
 }
 
-$coreCheckOk = (Get-Content $coreCheckFile -Raw) -match "Command completed successfully"
+$coreCheckOk = (Get-Content $coreCheckFile -Raw) -match "Testing configuration at /config"
 $currentBootValue = (Get-Content $currentBootScan.FullName -Raw).Trim()
 $writerValue = (Get-Content $writerScan.FullName -Raw).Trim()
 
