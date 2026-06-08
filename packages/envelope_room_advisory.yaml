@@ -837,10 +837,6 @@ automation:
         entity_id: sensor.envelope_recommended_action
         to: shade_now
         for: "00:05:00"
-      - platform: state
-        entity_id: sensor.envelope_recommended_action
-        to: let_sun_in
-        for: "00:05:00"
     condition:
       - condition: state
         entity_id: input_boolean.envelope_notify_enabled
@@ -851,8 +847,7 @@ automation:
             trigger.to_state is not none
             and trigger.to_state.state in [
               'open_for_night_flush',
-              'shade_now',
-              'let_sun_in'
+              'shade_now'
             ]
           }}
     variables:
@@ -860,8 +855,7 @@ automation:
       action_label: >-
         {% set labels = {
           'open_for_night_flush': 'apri finestre per raffrescamento notturno',
-          'shade_now': 'chiudi scuri / applica ombreggiatura',
-          'let_sun_in': 'lascia entrare il sole'
+          'shade_now': 'chiudi scuri / applica ombreggiatura'
         } %}
         {{ labels.get(action, action | replace('_', ' ')) }}
       action_reason: >-
@@ -869,8 +863,6 @@ automation:
           Raffrescamento notturno favorevole: aprire ora le finestre aiuta a scaricare il calore accumulato.
         {% elif action == 'shade_now' %}
           Il guadagno solare o il rischio di surriscaldamento è alto: conviene schermare adesso.
-        {% elif action == 'let_sun_in' %}
-          Il guadagno passivo è utile: lascia entrare il sole.
         {% else %}
           {{ states('sensor.envelope_recommended_action') }}
         {% endif %}
