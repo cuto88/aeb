@@ -33,7 +33,14 @@ template:
           {% set t_cool = states('input_number.ac_cool_setpoint') | float(25) %}
           {% set t_zone_min = (zone_temps | min) if (zone_temps | length > 0) else none %}
           {% set t_zone_max = (zone_temps | max) if (zone_temps | length > 0) else none %}
-          {% set temp_cool_trigger = t_zone_max is number and t_zone_max > (t_cool + 0.5) %}
+          {% set cool_was_requested = this.state == 'COOL' %}
+          {% set temp_cool_trigger =
+            t_zone_max is number
+            and (
+              t_zone_max > (t_cool + 0.5)
+              or (cool_was_requested and t_zone_max > t_cool)
+            )
+          %}
           {% if t_zone_min is number and t_zone_min < t_heat %}
             HEAT
           {% elif temp_cool_trigger %}
