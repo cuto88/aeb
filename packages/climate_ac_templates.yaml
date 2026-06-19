@@ -108,7 +108,7 @@ template:
           {% set entities = ['binary_sensor.cm_driver_ac_giorno_is_on', 'binary_sensor.cm_driver_ac_notte_is_on'] %}
           {% set ns = namespace(ok=true) %}
           {% for ent_id in entities %}
-            {% if ent_id in states %}
+            {% if states(ent_id) not in ['unknown', 'unavailable'] %}
               {% set s = states[ent_id] %}
               {% if s.state == 'on' and (now() - s.last_changed).total_seconds() / 60 < mins %}
                 {% set ns.ok = false %}
@@ -124,7 +124,7 @@ template:
           {% set entities = ['binary_sensor.cm_driver_ac_giorno_is_on', 'binary_sensor.cm_driver_ac_notte_is_on'] %}
           {% set ns = namespace(ok=true) %}
           {% for ent_id in entities %}
-            {% if ent_id in states %}
+            {% if states(ent_id) not in ['unknown', 'unavailable'] %}
               {% set s = states[ent_id] %}
               {% if s.state == 'off' and (now() - s.last_changed).total_seconds() / 60 < mins %}
                 {% set ns.ok = false %}
