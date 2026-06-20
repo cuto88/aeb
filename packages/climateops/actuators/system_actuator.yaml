@@ -5,6 +5,70 @@ input_text:
     icon: mdi:thermostat-auto
 
 automation:
+  # SwitchBot Cloud exposes discrete ON/OFF commands, but after a restart or
+  # reconnect its switch entities can remain unknown. Establish a confirmed
+  # OFF baseline before the main actuator is allowed to start either AC zone.
+  - id: climateops_ac_feedback_bootstrap_off
+    alias: "ClimateOps – AC Feedback Bootstrap OFF"
+    mode: restart
+    trace:
+      stored_traces: 20
+    trigger:
+      - platform: homeassistant
+        event: start
+      - platform: state
+        entity_id:
+          - switch.ac_giorno
+          - switch.ac_notte
+        to: "unknown"
+        for: "00:00:30"
+      - platform: state
+        entity_id:
+          - switch.ac_giorno
+          - switch.ac_notte
+        to: "unavailable"
+        for: "00:00:30"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.cm_ac_branch_powered
+        state: "on"
+    action:
+      - choose:
+          - conditions: "{{ trigger.platform == 'homeassistant' }}"
+            sequence:
+              - delay: "00:00:45"
+      - condition: template
+        value_template: >-
+          {{
+            states('switch.ac_giorno') in ['unknown','unavailable']
+            or states('switch.ac_notte') in ['unknown','unavailable']
+          }}
+      - choose:
+          - conditions: >-
+              {{ states('switch.ac_giorno') in ['unknown','unavailable'] }}
+            sequence:
+              - service: switch.turn_off
+                continue_on_error: true
+                target:
+                  entity_id: switch.ac_giorno
+      - choose:
+          - conditions: >-
+              {{ states('switch.ac_notte') in ['unknown','unavailable'] }}
+            sequence:
+              - service: switch.turn_off
+                continue_on_error: true
+                target:
+                  entity_id: switch.ac_notte
+      - delay: "00:00:05"
+      - service: logbook.log
+        data:
+          name: "ClimateOps AC bootstrap"
+          entity_id: automation.climateops_ac_feedback_bootstrap_off
+          message: >-
+            Bootstrap OFF completato.
+            giorno={{ states('switch.ac_giorno') }},
+            notte={{ states('switch.ac_notte') }}.
+
   - id: climateops_system_actuate
     alias: "ClimateOps – System Actuate"
     mode: restart
