@@ -133,6 +133,54 @@ template:
           {% endfor %}
           {{ ns.ok }}
 
+      - name: "AC Giorno – Lock min ON OK"
+        unique_id: ac_giorno_lock_min_on_ok
+        state: >-
+          {% set mins = states('input_number.ac_min_on_minutes') | float(30) %}
+          {% set ent = states.binary_sensor.cm_driver_ac_giorno_is_on %}
+          {{
+            ent.state != 'on'
+            or (now() - ent.last_changed).total_seconds() / 60 >= mins
+          }}
+        availability: >-
+          {{ states('binary_sensor.cm_driver_ac_giorno_is_on') not in ['unknown','unavailable'] }}
+
+      - name: "AC Notte – Lock min ON OK"
+        unique_id: ac_notte_lock_min_on_ok
+        state: >-
+          {% set mins = states('input_number.ac_min_on_minutes') | float(30) %}
+          {% set ent = states.binary_sensor.cm_driver_ac_notte_is_on %}
+          {{
+            ent.state != 'on'
+            or (now() - ent.last_changed).total_seconds() / 60 >= mins
+          }}
+        availability: >-
+          {{ states('binary_sensor.cm_driver_ac_notte_is_on') not in ['unknown','unavailable'] }}
+
+      - name: "AC Giorno – Lock min OFF OK"
+        unique_id: ac_giorno_lock_min_off_ok
+        state: >-
+          {% set mins = states('input_number.ac_min_off_minutes') | float(20) %}
+          {% set ent = states.binary_sensor.cm_driver_ac_giorno_is_on %}
+          {{
+            ent.state != 'off'
+            or (now() - ent.last_changed).total_seconds() / 60 >= mins
+          }}
+        availability: >-
+          {{ states('binary_sensor.cm_driver_ac_giorno_is_on') not in ['unknown','unavailable'] }}
+
+      - name: "AC Notte – Lock min OFF OK"
+        unique_id: ac_notte_lock_min_off_ok
+        state: >-
+          {% set mins = states('input_number.ac_min_off_minutes') | float(20) %}
+          {% set ent = states.binary_sensor.cm_driver_ac_notte_is_on %}
+          {{
+            ent.state != 'off'
+            or (now() - ent.last_changed).total_seconds() / 60 >= mins
+          }}
+        availability: >-
+          {{ states('binary_sensor.cm_driver_ac_notte_is_on') not in ['unknown','unavailable'] }}
+
       - name: "AC – UR fuori banda comfort"
         unique_id: ac_ur_out_of_comfort_band
         state: >-

@@ -230,6 +230,12 @@ Non è un rename: la coesistenza è intenzionale. Warning alias possibile: `clim
 | AC richiesta automaticamente dal clima    | `binary_sensor.clima_ac_from_vmc_request` |
 | Min-ON lock ok                            | `binary_sensor.ac_lock_min_on_ok`         |
 | Min-OFF lock ok                           | `binary_sensor.ac_lock_min_off_ok`        |
+| AC day min-ON lock ok                     | `binary_sensor.ac_giorno_lock_min_on_ok`  |
+| AC day min-OFF lock ok                    | `binary_sensor.ac_giorno_lock_min_off_ok` |
+| AC night min-ON lock ok                   | `binary_sensor.ac_notte_lock_min_on_ok`   |
+| AC night min-OFF lock ok                  | `binary_sensor.ac_notte_lock_min_off_ok`  |
+| Prefer day sustained (0.7 C / 15 min)     | `binary_sensor.climateops_ac_prefer_day_sustained` |
+| Prefer night sustained (0.7 C / 15 min)   | `binary_sensor.climateops_ac_prefer_night_sustained` |
 | AC priority (P0–P4)                       | `sensor.ac_priority`                      |
 | AC state change reason                    | `sensor.ac_state_reason`                  |
 | AC reason (text)                          | `sensor.ac_reason`                        |

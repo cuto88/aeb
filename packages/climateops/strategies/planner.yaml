@@ -18,6 +18,64 @@ template:
             and states('binary_sensor.policy_allow_shift_load') not in ['unknown','unavailable']
           }}
 
+      - name: "ClimateOps AC Prefer Day Sustained"
+        unique_id: climateops_ac_prefer_day_sustained
+        state: >-
+          {% set t_day = states('sensor.t_in_giorno') | float(default=none) %}
+          {% set night_vals = [
+            states('sensor.t_in_notte1') | float(default=none),
+            states('sensor.t_in_notte2') | float(default=none),
+            states('sensor.t_in_bagno') | float(default=none)
+          ] | select('number') | list %}
+          {% set t_night_max = (night_vals | max) if (night_vals | length > 0) else none %}
+          {{
+            t_day is number
+            and t_night_max is number
+            and t_day >= (t_night_max + 0.7)
+          }}
+        delay_on: "00:15:00"
+        availability: >-
+          {{
+            states('sensor.t_in_giorno') not in ['unknown','unavailable','']
+            and (
+              states('sensor.t_in_notte1') not in ['unknown','unavailable','']
+              or states('sensor.t_in_notte2') not in ['unknown','unavailable','']
+              or states('sensor.t_in_bagno') not in ['unknown','unavailable','']
+            )
+          }}
+        attributes:
+          delta_required_c: 0.7
+          confirmation_minutes: 15
+
+      - name: "ClimateOps AC Prefer Night Sustained"
+        unique_id: climateops_ac_prefer_night_sustained
+        state: >-
+          {% set t_day = states('sensor.t_in_giorno') | float(default=none) %}
+          {% set night_vals = [
+            states('sensor.t_in_notte1') | float(default=none),
+            states('sensor.t_in_notte2') | float(default=none),
+            states('sensor.t_in_bagno') | float(default=none)
+          ] | select('number') | list %}
+          {% set t_night_max = (night_vals | max) if (night_vals | length > 0) else none %}
+          {{
+            t_day is number
+            and t_night_max is number
+            and t_night_max >= (t_day + 0.7)
+          }}
+        delay_on: "00:15:00"
+        availability: >-
+          {{
+            states('sensor.t_in_giorno') not in ['unknown','unavailable','']
+            and (
+              states('sensor.t_in_notte1') not in ['unknown','unavailable','']
+              or states('sensor.t_in_notte2') not in ['unknown','unavailable','']
+              or states('sensor.t_in_bagno') not in ['unknown','unavailable','']
+            )
+          }}
+        attributes:
+          delta_required_c: 0.7
+          confirmation_minutes: 15
+
   - sensor:
       - name: "ClimateOps Planner Recommended Mode"
         unique_id: climateops_planner_recommended_mode
@@ -93,11 +151,23 @@ template:
           {% set t_night_valid = t_night_vals | select('number') | list %}
           {% set t_night_max = (t_night_valid | max) if (t_night_valid | length > 0) else none %}
           {% set night_rooms = ['notte1', 'notte2', 'bagno'] %}
+          {% set day_on = is_state('binary_sensor.cm_driver_ac_giorno_is_on','on') %}
+          {% set night_on = is_state('binary_sensor.cm_driver_ac_notte_is_on','on') %}
+          {% set prefer_day = is_state('binary_sensor.climateops_ac_prefer_day_sustained','on') %}
+          {% set prefer_night = is_state('binary_sensor.climateops_ac_prefer_night_sustained','on') %}
           {% if heat_req %}
             HEAT
           {% elif cool_req and noncritical %}
-            {# Temperature-first: choose the physical split from the hottest room, not the clock. #}
-            {% if worst_room in night_rooms %}
+            {# Keep the active split unless the other zone is >=0.7 C hotter for 15 minutes. #}
+            {% if day_on and not night_on %}
+              {{ 'COOL_NIGHT' if prefer_night else 'COOL_DAY' }}
+            {% elif night_on and not day_on %}
+              {{ 'COOL_DAY' if prefer_day else 'COOL_NIGHT' }}
+            {% elif prefer_night %}
+              COOL_NIGHT
+            {% elif prefer_day %}
+              COOL_DAY
+            {% elif worst_room in night_rooms %}
               COOL_NIGHT
             {% elif worst_room == 'giorno' %}
               COOL_DAY
