@@ -29,7 +29,7 @@ template:
         state: >-
           {{
             is_state('binary_sensor.cm_ac_branch_in_season', 'on')
-            or states('sensor.cm_system_mode_suggested') in ['COOL_DAY', 'COOL_NIGHT']
+            or states('sensor.cm_system_mode_suggested') in ['COOL_DAY', 'COOL_NIGHT', 'COOL_BOTH']
             or is_state('binary_sensor.climateops_request_cool', 'on')
           }}
 
@@ -58,7 +58,7 @@ template:
         icon: mdi:play-circle-outline
         state: >-
           {{
-            states('sensor.cm_system_mode_suggested') in ['COOL_DAY', 'COOL_NIGHT']
+            states('sensor.cm_system_mode_suggested') in ['COOL_DAY', 'COOL_NIGHT', 'COOL_BOTH']
             or is_state('binary_sensor.climateops_request_cool', 'on')
           }}
 

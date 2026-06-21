@@ -3,160 +3,302 @@ views:
     path: ac_v2
     icon: mdi:air-conditioner
     type: sections
-    max_columns: 1
+    max_columns: 2
 
     sections:
       - cards:
           - type: heading
-            heading: "Stato generale AC"
-            icon: mdi:air-conditioner
-          - type: grid
-            columns: 1
-            square: false
-            cards:
-              - type: glance
-                title: "AC attiva"
-                state_color: true
-                columns: 2
-                entities:
-                  - entity: switch.ac_giorno
-                    name: "AC giorno"
-                  - entity: switch.ac_notte
-                    name: "AC notte"
-              - type: entities
-                show_header_toggle: false
-                entities:
-                  - type: attribute
-                    entity: climate.ac_giorno
-                    attribute: hvac_action
-                    name: "Stato AC giorno"
-                  - type: attribute
-                    entity: climate.ac_notte
-                    attribute: hvac_action
-                    name: "Stato AC notte"
-                  - type: attribute
-                    entity: climate.ac_giorno
-                    attribute: hvac_mode
-                    name: "Modalità giorno"
-                  - type: attribute
-                    entity: climate.ac_notte
-                    attribute: hvac_mode
-                    name: "Modalità notte"
-                  - type: attribute
-                    entity: climate.ac_giorno
-                    attribute: temperature
-                    name: "Target giorno (°C)"
-                  - type: attribute
-                    entity: climate.ac_notte
-                    attribute: temperature
-                    name: "Target notte (°C)"
-                  - entity: sensor.ur_out
-                    name: "UR esterna"
-                  - entity: sensor.delta_ah_in_out
-                    name: "ΔAH in-out"
-              - type: entities
-                title: "Ramo AC / Quadro"
-                show_header_toggle: false
-                entities:
-                  - entity: input_boolean.cm_ac_branch_powered
-                    name: "AC branch manual power toggle"
-                  - entity: binary_sensor.cm_ac_branch_powered
-                    name: "AC branch observed powered"
-                  - entity: binary_sensor.cm_ac_branch_in_season
-                    name: "AC in season"
-                  - entity: binary_sensor.cm_ac_branch_should_run
-                    name: "AC should run"
-                  - entity: binary_sensor.cm_ac_branch_should_be_powered
-                    name: "AC should be powered"
-                  - entity: sensor.cm_ac_branch_advice
-                    name: "AC advice"
-                  - entity: sensor.cm_ac_branch_intervention_reason
-                    name: "AC intervention reason"
+            heading: "Comfort AC multi-zona"
+            icon: mdi:home-thermometer
+          - type: markdown
+            title: "Come funziona"
+            content: |
+              Il sistema controlla separatamente le due macro-zone della casa.
+
+              **Zona giorno**
+
+              Usa temperatura, umidità e dew point del soggiorno.
+
+              **Zona notte**
+
+              Usa il valore più critico disponibile tra camere e bagno. Una
+              stanza calda o umida non viene quindi nascosta dalla media.
+
+              **Decisione**
+
+              - Solo il giorno richiede comfort → `COOL_DAY`
+              - Solo la notte richiede comfort → `COOL_NIGHT`
+              - Entrambe le zone richiedono comfort → `COOL_BOTH`
+              - Tutta la casa è nella fascia prevista → `COMFORT_OK`
+
+              I due split possono funzionare contemporaneamente.
+          - type: markdown
+            title: "Quando parte e quando si ferma"
+            content: |
+              **Temperatura**
+
+              - Avvio: temperatura oltre **target casa + 0,5 °C**
+              - Rientro: temperatura pari o inferiore al **target casa**
+
+              **Umidità**
+
+              L'AC interviene anche quando sono vere contemporaneamente queste
+              condizioni:
+
+              - umidità oltre **62%**
+              - dew point oltre **16,5 °C**
+              - temperatura sufficientemente alta da evitare sovraraffreddamento
+
+              Il rientro avviene con umidità entro **58%** oppure dew point
+              entro **15,5 °C**.
+
+              La richiesta deve persistere per 5 minuti. I lock minimi ON/OFF
+              proteggono gli apparecchi dai cicli ravvicinati.
+          - type: markdown
+            title: "Comandi manuali e target"
+            content: |
+              Uno spegnimento manuale sospende l'automatico per **90 minuti** e
+              spegne entrambi gli split. Durante questa pausa il sistema non li
+              riaccende.
+
+              Il comando **Riprendi automatico ora** annulla anticipatamente la
+              pausa.
+
+              Il **target temperatura casa** è la temperatura desiderata negli
+              ambienti. Agli split viene inviato un target più basso usando la
+              compensazione configurata, perché il loro sensore interno non
+              misura la stessa temperatura dei sensori ambiente.
+          - type: glance
+            title: "Decisione corrente"
+            state_color: true
+            columns: 3
+            entities:
+              - entity: sensor.ac_comfort_operating_state
+                name: "Stato comfort"
+              - entity: switch.ac_giorno
+                name: "Split giorno"
+              - entity: switch.ac_notte
+                name: "Split notte"
+          - type: entities
+            title: "Catena decisionale"
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.ac_giorno_comfort_request
+                name: "Richiesta zona giorno"
+              - entity: sensor.ac_giorno_comfort_reason
+                name: "Motivo zona giorno"
+              - entity: binary_sensor.ac_notte_comfort_request
+                name: "Richiesta zona notte"
+              - entity: sensor.ac_notte_comfort_reason
+                name: "Motivo zona notte"
+              - entity: sensor.climateops_hierarchy_mode
+                name: "Modalità richiesta"
+              - entity: sensor.cm_system_mode_suggested
+                name: "Modalità attuata"
+              - entity: binary_sensor.policy_allow_ac
+                name: "Policy consente AC"
+              - entity: binary_sensor.cm_ac_branch_powered
+                name: "Ramo AC alimentato"
+
+      - cards:
+          - type: heading
+            heading: "Pausa e protezioni"
+            icon: mdi:shield-home
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.ac_auto_pause
+                name: "Pausa automatismo 90 min"
+              - entity: timer.ac_auto_pause_timeout
+                name: "Tempo pausa residuo"
+              - entity: script.ac_resume_automatic
+                name: "Riprendi automatico ora"
+              - entity: binary_sensor.ac_giorno_lock_min_on_ok
+                name: "Lock minimo ON giorno scaduto"
+              - entity: binary_sensor.ac_giorno_lock_min_off_ok
+                name: "Lock minimo OFF giorno scaduto"
+              - entity: binary_sensor.ac_notte_lock_min_on_ok
+                name: "Lock minimo ON notte scaduto"
+              - entity: binary_sensor.ac_notte_lock_min_off_ok
+                name: "Lock minimo OFF notte scaduto"
+              - entity: binary_sensor.ac_failsafe_sensors_bad
+                name: "Failsafe sensori"
+          - type: markdown
+            content: |
+              Lo spegnimento manuale è sempre autorevole: entrambi gli split
+              restano esclusi dall'automatico per **90 minuti**. Il pulsante
+              “Riprendi automatico ora” annulla la pausa.
+
+              Gli spegnimenti automatici rispettano il tempo minimo ON; le
+              riaccensioni rispettano il tempo minimo OFF.
 
       - cards:
           - type: heading
             heading: "Zona giorno"
             icon: mdi:sofa
+          - type: grid
+            columns: 3
+            square: false
+            cards:
+              - type: gauge
+                entity: sensor.t_in_giorno
+                name: "Temperatura"
+                min: 22
+                max: 32
+                severity:
+                  green: 22
+                  yellow: 26
+                  red: 27
+              - type: gauge
+                entity: sensor.ur_in_giorno
+                name: "Umidità"
+                min: 35
+                max: 75
+                severity:
+                  green: 45
+                  yellow: 58
+                  red: 62
+              - type: gauge
+                entity: sensor.ac_giorno_dew_point
+                name: "Dew point"
+                min: 10
+                max: 22
+                severity:
+                  green: 10
+                  yellow: 15.5
+                  red: 16.5
           - type: entities
             show_header_toggle: false
             entities:
-              - entity: sensor.t_in_giorno
-                name: "Temperatura"
-              - entity: sensor.ur_in_giorno
-                name: "Umidità"
-              - entity: input_boolean.vent_finestra_giorno1_aperta
-                name: "Finestra giorno 1"
-              - entity: input_boolean.vent_finestra_giorno2_aperta
-                name: "Finestra giorno 2"
+              - entity: binary_sensor.ac_giorno_comfort_request
+                name: "Richiesta comfort"
+              - entity: sensor.ac_giorno_comfort_reason
+                name: "Motivo"
               - type: attribute
                 entity: climate.ac_giorno
                 attribute: temperature
-                name: "Target AC giorno"
+                name: "Target inviato allo split"
               - type: attribute
                 entity: climate.ac_giorno
-                attribute: hvac_mode
-                name: "Modalità AC giorno"
-              - entity: input_select.ac_giorno_fan
-                name: "Ventilatore AC giorno"
+                attribute: hvac_action
+                name: "Azione split"
 
       - cards:
           - type: heading
             heading: "Zona notte"
             icon: mdi:bed
+          - type: grid
+            columns: 3
+            square: false
+            cards:
+              - type: gauge
+                entity: sensor.ac_notte_temperatura_controllo
+                name: "T controllo max"
+                min: 22
+                max: 32
+                severity:
+                  green: 22
+                  yellow: 26
+                  red: 27
+              - type: gauge
+                entity: sensor.ac_notte_umidita_controllo
+                name: "UR controllo max"
+                min: 35
+                max: 75
+                severity:
+                  green: 45
+                  yellow: 58
+                  red: 62
+              - type: gauge
+                entity: sensor.ac_notte_dew_point
+                name: "Dew point"
+                min: 10
+                max: 22
+                severity:
+                  green: 10
+                  yellow: 15.5
+                  red: 16.5
           - type: entities
             show_header_toggle: false
             entities:
-              - entity: sensor.t_notte_med
-                name: "Temperatura media"
-              - entity: sensor.ur_notte_med
-                name: "Umidità media"
+              - entity: binary_sensor.ac_notte_comfort_request
+                name: "Richiesta comfort"
+              - entity: sensor.ac_notte_comfort_reason
+                name: "Motivo"
+              - entity: sensor.t_in_notte1
+                name: "Temperatura notte 1"
+              - entity: sensor.ur_in_notte1
+                name: "Umidità notte 1"
+              - entity: sensor.t_in_notte2
+                name: "Temperatura notte 2"
+              - entity: sensor.ur_in_notte2
+                name: "Umidità notte 2"
+              - entity: sensor.t_in_bagno
+                name: "Temperatura bagno"
+              - entity: sensor.ur_in_bagno
+                name: "Umidità bagno"
               - type: attribute
                 entity: climate.ac_notte
                 attribute: temperature
-                name: "Target AC notte"
-              - type: attribute
-                entity: climate.ac_notte
-                attribute: hvac_mode
-                name: "Modalità AC notte"
-              - entity: input_select.ac_notte_fan
-                name: "Ventilatore AC notte"
-          - type: grid
-            columns: 2
-            square: false
-            cards:
-              - type: entities
-                show_header_toggle: false
-                title: "Notte 1"
-                entities:
-                  - entity: sensor.t_in_notte1
-                    name: "T"
-                  - entity: sensor.ur_in_notte1
-                    name: "UR"
-                  - entity: input_boolean.vent_finestra_notte1_aperta
-                    name: "Finestra"
-              - type: entities
-                show_header_toggle: false
-                title: "Notte 2"
-                entities:
-                  - entity: sensor.t_in_notte2
-                    name: "T"
-                  - entity: sensor.ur_in_notte2
-                    name: "UR"
-                  - entity: input_boolean.vent_finestra_notte2_aperta
-                    name: "Finestra"
-              - type: entities
-                show_header_toggle: false
-                title: "Notte 3"
-                entities:
-                  - entity: input_boolean.vent_finestra_notte3_aperta
-                    name: "Finestra"
-              - type: entities
-                show_header_toggle: false
-                title: "Bagno"
-                entities:
-                  - entity: sensor.t_in_bagno
-                    name: "T"
-                  - entity: sensor.ur_in_bagno
-                    name: "UR"
-                  - entity: input_boolean.vent_finestra_bagno_aperta
-                    name: "Finestra"
+                name: "Target inviato allo split"
+
+      - cards:
+          - type: heading
+            heading: "Parametri comfort"
+            icon: mdi:tune-variant
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: input_number.ac_cool_setpoint
+                name: "Target temperatura casa"
+              - entity: input_number.ac_equipment_target_offset
+                name: "Compensazione target split"
+              - entity: input_number.ac_comfort_temp_on_delta
+                name: "Isteresi temperatura ON"
+              - entity: input_number.ac_comfort_ur_on
+                name: "Umidità avvio"
+              - entity: input_number.ac_comfort_ur_off
+                name: "Umidità rientro"
+              - entity: input_number.ac_comfort_dew_on
+                name: "Dew point avvio"
+              - entity: input_number.ac_comfort_dew_off
+                name: "Dew point rientro"
+              - entity: input_number.ac_comfort_humidity_min_temp
+                name: "Protezione minima temperatura"
+              - entity: input_number.ac_min_on_minutes
+                name: "Tempo minimo ON"
+              - entity: input_number.ac_min_off_minutes
+                name: "Tempo minimo OFF"
+
+      - cards:
+          - type: heading
+            heading: "Andamento 24 ore"
+            icon: mdi:chart-timeline-variant
+          - type: history-graph
+            title: "Richieste e attuatori"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: binary_sensor.ac_giorno_comfort_request
+                name: "Richiesta giorno"
+              - entity: binary_sensor.ac_notte_comfort_request
+                name: "Richiesta notte"
+              - entity: switch.ac_giorno
+                name: "Split giorno"
+              - entity: switch.ac_notte
+                name: "Split notte"
+              - entity: input_boolean.ac_auto_pause
+                name: "Pausa"
+          - type: history-graph
+            title: "Temperatura e umidità"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.t_in_giorno
+                name: "T giorno"
+              - entity: sensor.ac_notte_temperatura_controllo
+                name: "T notte max"
+              - entity: sensor.ur_in_giorno
+                name: "UR giorno"
+              - entity: sensor.ac_notte_umidita_controllo
+                name: "UR notte max"

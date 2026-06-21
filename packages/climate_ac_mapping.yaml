@@ -128,7 +128,14 @@ script:
         target:
           entity_id: climate.ac_giorno
         data:
-          temperature: "{{ states('input_number.ac_giorno_setpoint') | float(24) }}"
+          temperature: >-
+            {{
+              [
+                [states('input_number.ac_cool_setpoint') | float(26)
+                  - states('input_number.ac_equipment_target_offset') | float(2), 16] | max,
+                30
+              ] | min
+            }}
       - choose:
           - conditions: "{{ states('switch.ac_giorno') != 'on' }}"
             sequence:
@@ -149,7 +156,14 @@ script:
         target:
           entity_id: climate.ac_notte
         data:
-          temperature: "{{ states('input_number.ac_notte_setpoint') | float(24) }}"
+          temperature: >-
+            {{
+              [
+                [states('input_number.ac_cool_setpoint') | float(26)
+                  - states('input_number.ac_equipment_target_offset') | float(2), 16] | max,
+                30
+              ] | min
+            }}
       - choose:
           - conditions: "{{ states('switch.ac_notte') != 'on' }}"
             sequence:

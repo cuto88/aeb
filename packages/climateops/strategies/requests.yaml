@@ -28,49 +28,25 @@ template:
       - name: "ClimateOps Request Cool"
         unique_id: climateops_request_cool
         state: >-
-          {% set planner_cutover_on =
-            is_state('input_boolean.climateops_cutover_heating','on')
-            and is_state('input_boolean.climateops_cutover_ac','on')
-          %}
-          {% set mode = states('sensor.climateops_planner_recommended_mode') %}
-          {% if (not planner_cutover_on) and mode in ['unknown','unavailable',''] %}
-            {% set mode = states('sensor.planner_recommended_mode') %}
-          {% endif %}
-          {{ mode == 'COOL' }}
-        availability: >-
-          {% set planner_cutover_on =
-            is_state('input_boolean.climateops_cutover_heating','on')
-            and is_state('input_boolean.climateops_cutover_ac','on')
-          %}
           {{
-            states('sensor.climateops_planner_recommended_mode') not in ['unknown','unavailable','']
-            or (
-              (not planner_cutover_on)
-              and states('sensor.planner_recommended_mode') not in ['unknown','unavailable','']
-            )
+            is_state('binary_sensor.ac_giorno_comfort_request','on')
+            or is_state('binary_sensor.ac_notte_comfort_request','on')
+          }}
+        availability: >-
+          {{
+            states('binary_sensor.ac_giorno_comfort_request') not in ['unknown','unavailable']
+            or states('binary_sensor.ac_notte_comfort_request') not in ['unknown','unavailable']
           }}
 
       - name: "ClimateOps Request Idle"
         unique_id: climateops_request_idle
         state: >-
-          {% set planner_cutover_on =
-            is_state('input_boolean.climateops_cutover_heating','on')
-            and is_state('input_boolean.climateops_cutover_ac','on')
-          %}
-          {% set mode = states('sensor.climateops_planner_recommended_mode') %}
-          {% if (not planner_cutover_on) and mode in ['unknown','unavailable',''] %}
-            {% set mode = states('sensor.planner_recommended_mode') %}
-          {% endif %}
-          {{ mode == 'IDLE' }}
-        availability: >-
-          {% set planner_cutover_on =
-            is_state('input_boolean.climateops_cutover_heating','on')
-            and is_state('input_boolean.climateops_cutover_ac','on')
-          %}
           {{
-            states('sensor.climateops_planner_recommended_mode') not in ['unknown','unavailable','']
-            or (
-              (not planner_cutover_on)
-              and states('sensor.planner_recommended_mode') not in ['unknown','unavailable','']
-            )
+            is_state('binary_sensor.climateops_request_heat','off')
+            and is_state('binary_sensor.climateops_request_cool','off')
+          }}
+        availability: >-
+          {{
+            states('binary_sensor.climateops_request_heat') not in ['unknown','unavailable']
+            and states('binary_sensor.climateops_request_cool') not in ['unknown','unavailable']
           }}

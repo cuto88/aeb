@@ -1,0 +1,352 @@
+---
+# Professional whole-home cooling control.
+# Each split follows the comfort demand of its own macro-zone. Both may run.
+
+input_number:
+  ac_comfort_temp_on_delta:
+    name: "AC comfort - Delta temperatura ON"
+    min: 0.2
+    max: 1.5
+    step: 0.1
+    initial: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer-chevron-up
+  ac_comfort_ur_on:
+    name: "AC comfort - UR ON"
+    min: 55
+    max: 70
+    step: 1
+    initial: 62
+    unit_of_measurement: "%"
+    icon: mdi:water-percent-alert
+  ac_comfort_ur_off:
+    name: "AC comfort - UR OFF"
+    min: 45
+    max: 65
+    step: 1
+    initial: 58
+    unit_of_measurement: "%"
+    icon: mdi:water-percent-check
+  ac_comfort_dew_on:
+    name: "AC comfort - Dew point ON"
+    min: 14
+    max: 20
+    step: 0.5
+    initial: 16.5
+    unit_of_measurement: "°C"
+    icon: mdi:water-thermometer
+  ac_comfort_dew_off:
+    name: "AC comfort - Dew point OFF"
+    min: 12
+    max: 19
+    step: 0.5
+    initial: 15.5
+    unit_of_measurement: "°C"
+    icon: mdi:water-thermometer-outline
+  ac_comfort_humidity_min_temp:
+    name: "AC comfort - Temperatura minima deumidificazione"
+    min: 22
+    max: 26
+    step: 0.5
+    initial: 24
+    unit_of_measurement: "°C"
+    icon: mdi:snowflake-thermometer
+  ac_equipment_target_offset:
+    name: "AC comfort - Offset target split"
+    min: 0
+    max: 4
+    step: 0.5
+    initial: 2
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer-minus
+
+input_boolean:
+  ac_auto_pause:
+    name: "AC - Pausa automatismo"
+    icon: mdi:pause-circle
+
+timer:
+  ac_auto_pause_timeout:
+    name: "AC - Pausa automatismo residua"
+    duration: "01:30:00"
+    restore: true
+
+template:
+  - sensor:
+      - name: "AC Giorno Dew Point"
+        unique_id: ac_giorno_dew_point
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        availability: >-
+          {{
+            states('sensor.t_in_giorno') not in ['unknown','unavailable','']
+            and states('sensor.ur_in_giorno') not in ['unknown','unavailable','']
+          }}
+        state: >-
+          {% set t = states('sensor.t_in_giorno') | float %}
+          {% set rh = [[states('sensor.ur_in_giorno') | float, 100] | min, 1] | max %}
+          {% set a = 17.27 %}
+          {% set b = 237.7 %}
+          {% set gamma = ((a * t) / (b + t)) + ((rh / 100) | log) %}
+          {{ ((b * gamma) / (a - gamma)) | round(1) }}
+
+      - name: "AC Notte Temperatura Controllo"
+        unique_id: ac_notte_control_temperature
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        availability: >-
+          {{
+            [
+              states('sensor.t_in_notte1'),
+              states('sensor.t_in_notte2'),
+              states('sensor.t_in_bagno')
+            ] | reject('in', ['unknown','unavailable','']) | list | length > 0
+          }}
+        state: >-
+          {% set values = [
+            states('sensor.t_in_notte1') | float(default=none),
+            states('sensor.t_in_notte2') | float(default=none),
+            states('sensor.t_in_bagno') | float(default=none)
+          ] | select('number') | list %}
+          {{ (values | max) | round(1) }}
+        attributes:
+          strategy: "maximum of available night/bathroom sensors"
+
+      - name: "AC Notte Umidita Controllo"
+        unique_id: ac_notte_control_humidity
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        availability: >-
+          {{
+            [
+              states('sensor.ur_in_notte1'),
+              states('sensor.ur_in_notte2'),
+              states('sensor.ur_in_bagno')
+            ] | reject('in', ['unknown','unavailable','']) | list | length > 0
+          }}
+        state: >-
+          {% set values = [
+            states('sensor.ur_in_notte1') | float(default=none),
+            states('sensor.ur_in_notte2') | float(default=none),
+            states('sensor.ur_in_bagno') | float(default=none)
+          ] | select('number') | list %}
+          {{ (values | max) | round(1) }}
+        attributes:
+          strategy: "maximum of available night/bathroom sensors"
+
+      - name: "AC Notte Dew Point"
+        unique_id: ac_notte_dew_point
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        availability: >-
+          {{
+            states('sensor.ac_notte_temperatura_controllo') not in ['unknown','unavailable','']
+            and states('sensor.ac_notte_umidita_controllo') not in ['unknown','unavailable','']
+          }}
+        state: >-
+          {% set t = states('sensor.ac_notte_temperatura_controllo') | float %}
+          {% set rh = [[states('sensor.ac_notte_umidita_controllo') | float, 100] | min, 1] | max %}
+          {% set a = 17.27 %}
+          {% set b = 237.7 %}
+          {% set gamma = ((a * t) / (b + t)) + ((rh / 100) | log) %}
+          {{ ((b * gamma) / (a - gamma)) | round(1) }}
+
+      - name: "AC Giorno Comfort Reason"
+        unique_id: ac_giorno_comfort_reason
+        state: >-
+          {% set t = states('sensor.t_in_giorno') | float(default=none) %}
+          {% set ur = states('sensor.ur_in_giorno') | float(default=none) %}
+          {% set dp = states('sensor.ac_giorno_dew_point') | float(default=none) %}
+          {% set sp = states('input_number.ac_cool_setpoint') | float(26) %}
+          {% if is_state('input_boolean.ac_auto_pause','on') %}PAUSED_MANUAL_90M
+          {% elif t is not number %}SENSOR_UNAVAILABLE
+          {% elif t > sp + (states('input_number.ac_comfort_temp_on_delta') | float(0.5)) %}TEMPERATURE_HIGH
+          {% elif ur is number and dp is number
+                and ur > (states('input_number.ac_comfort_ur_on') | float(62))
+                and dp > (states('input_number.ac_comfort_dew_on') | float(16.5))
+                and t > (states('input_number.ac_comfort_humidity_min_temp') | float(24)) %}HUMIDITY_AND_DEW_POINT_HIGH
+          {% elif is_state('binary_sensor.ac_giorno_comfort_request','on') %}HYSTERESIS_HOLD
+          {% else %}COMFORT_SATISFIED
+          {% endif %}
+
+      - name: "AC Notte Comfort Reason"
+        unique_id: ac_notte_comfort_reason
+        state: >-
+          {% set t = states('sensor.ac_notte_temperatura_controllo') | float(default=none) %}
+          {% set ur = states('sensor.ac_notte_umidita_controllo') | float(default=none) %}
+          {% set dp = states('sensor.ac_notte_dew_point') | float(default=none) %}
+          {% set sp = states('input_number.ac_cool_setpoint') | float(26) %}
+          {% if is_state('input_boolean.ac_auto_pause','on') %}PAUSED_MANUAL_90M
+          {% elif t is not number %}SENSOR_UNAVAILABLE
+          {% elif t > sp + (states('input_number.ac_comfort_temp_on_delta') | float(0.5)) %}TEMPERATURE_HIGH
+          {% elif ur is number and dp is number
+                and ur > (states('input_number.ac_comfort_ur_on') | float(62))
+                and dp > (states('input_number.ac_comfort_dew_on') | float(16.5))
+                and t > (states('input_number.ac_comfort_humidity_min_temp') | float(24)) %}HUMIDITY_AND_DEW_POINT_HIGH
+          {% elif is_state('binary_sensor.ac_notte_comfort_request','on') %}HYSTERESIS_HOLD
+          {% else %}COMFORT_SATISFIED
+          {% endif %}
+
+      - name: "AC Comfort Operating State"
+        unique_id: ac_comfort_operating_state
+        icon: mdi:home-thermometer
+        state: >-
+          {% if is_state('input_boolean.ac_auto_pause','on') %}PAUSED
+          {% elif is_state('binary_sensor.ac_giorno_comfort_request','on')
+                and is_state('binary_sensor.ac_notte_comfort_request','on') %}COOL_BOTH
+          {% elif is_state('binary_sensor.ac_giorno_comfort_request','on') %}COOL_DAY
+          {% elif is_state('binary_sensor.ac_notte_comfort_request','on') %}COOL_NIGHT
+          {% else %}COMFORT_OK
+          {% endif %}
+        attributes:
+          day_reason: "{{ states('sensor.ac_giorno_comfort_reason') }}"
+          night_reason: "{{ states('sensor.ac_notte_comfort_reason') }}"
+          target_c: "{{ states('input_number.ac_cool_setpoint') }}"
+          pause_remaining: "{{ state_attr('timer.ac_auto_pause_timeout','remaining') }}"
+
+  - binary_sensor:
+      - name: "AC Giorno Comfort Request"
+        unique_id: ac_giorno_comfort_request
+        icon: mdi:sofa
+        delay_on: "00:05:00"
+        state: >-
+          {% set t = states('sensor.t_in_giorno') | float(default=none) %}
+          {% set ur = states('sensor.ur_in_giorno') | float(default=none) %}
+          {% set dp = states('sensor.ac_giorno_dew_point') | float(default=none) %}
+          {% set sp = states('input_number.ac_cool_setpoint') | float(26) %}
+          {% set delta = states('input_number.ac_comfort_temp_on_delta') | float(0.5) %}
+          {% set ur_on = states('input_number.ac_comfort_ur_on') | float(62) %}
+          {% set ur_off = states('input_number.ac_comfort_ur_off') | float(58) %}
+          {% set dp_on = states('input_number.ac_comfort_dew_on') | float(16.5) %}
+          {% set dp_off = states('input_number.ac_comfort_dew_off') | float(15.5) %}
+          {% set min_t = states('input_number.ac_comfort_humidity_min_temp') | float(24) %}
+          {% set was_on = this.state == 'on' %}
+          {% set temp_need = t is number and (t > sp if was_on else t > sp + delta) %}
+          {% set humidity_need =
+            t is number and ur is number and dp is number
+            and t > (min_t if was_on else min_t + 0.5)
+            and ur > (ur_off if was_on else ur_on)
+            and dp > (dp_off if was_on else dp_on)
+          %}
+          {{ is_state('input_boolean.ac_auto_pause','off') and (temp_need or humidity_need) }}
+        availability: "{{ states('sensor.t_in_giorno') not in ['unknown','unavailable',''] }}"
+        attributes:
+          temperature_c: "{{ states('sensor.t_in_giorno') }}"
+          humidity_pct: "{{ states('sensor.ur_in_giorno') }}"
+          dew_point_c: "{{ states('sensor.ac_giorno_dew_point') }}"
+
+      - name: "AC Notte Comfort Request"
+        unique_id: ac_notte_comfort_request
+        icon: mdi:bed
+        delay_on: "00:05:00"
+        state: >-
+          {% set t = states('sensor.ac_notte_temperatura_controllo') | float(default=none) %}
+          {% set ur = states('sensor.ac_notte_umidita_controllo') | float(default=none) %}
+          {% set dp = states('sensor.ac_notte_dew_point') | float(default=none) %}
+          {% set sp = states('input_number.ac_cool_setpoint') | float(26) %}
+          {% set delta = states('input_number.ac_comfort_temp_on_delta') | float(0.5) %}
+          {% set ur_on = states('input_number.ac_comfort_ur_on') | float(62) %}
+          {% set ur_off = states('input_number.ac_comfort_ur_off') | float(58) %}
+          {% set dp_on = states('input_number.ac_comfort_dew_on') | float(16.5) %}
+          {% set dp_off = states('input_number.ac_comfort_dew_off') | float(15.5) %}
+          {% set min_t = states('input_number.ac_comfort_humidity_min_temp') | float(24) %}
+          {% set was_on = this.state == 'on' %}
+          {% set temp_need = t is number and (t > sp if was_on else t > sp + delta) %}
+          {% set humidity_need =
+            t is number and ur is number and dp is number
+            and t > (min_t if was_on else min_t + 0.5)
+            and ur > (ur_off if was_on else ur_on)
+            and dp > (dp_off if was_on else dp_on)
+          %}
+          {{ is_state('input_boolean.ac_auto_pause','off') and (temp_need or humidity_need) }}
+        availability: "{{ states('sensor.ac_notte_temperatura_controllo') not in ['unknown','unavailable',''] }}"
+        attributes:
+          temperature_c: "{{ states('sensor.ac_notte_temperatura_controllo') }}"
+          humidity_pct: "{{ states('sensor.ac_notte_umidita_controllo') }}"
+          dew_point_c: "{{ states('sensor.ac_notte_dew_point') }}"
+
+script:
+  ac_resume_automatic:
+    alias: "AC - Riprendi automatico"
+    icon: mdi:play-circle
+    mode: restart
+    sequence:
+      - service: timer.cancel
+        target:
+          entity_id: timer.ac_auto_pause_timeout
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.ac_auto_pause
+
+automation:
+  - id: ac_manual_off_starts_90m_pause
+    alias: "AC - Spegnimento manuale avvia pausa 90 minuti"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id:
+          - switch.ac_giorno
+          - switch.ac_notte
+        from: "on"
+        to: "off"
+    condition:
+      - condition: template
+        value_template: "{{ trigger.to_state.context.user_id is not none }}"
+    action:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.ac_auto_pause
+      - service: timer.start
+        target:
+          entity_id: timer.ac_auto_pause_timeout
+        data:
+          duration: "01:30:00"
+      - service: switch.turn_off
+        continue_on_error: true
+        target:
+          entity_id:
+            - switch.ac_giorno
+            - switch.ac_notte
+      - service: logbook.log
+        data:
+          name: "AC comfort control"
+          entity_id: input_boolean.ac_auto_pause
+          message: "Spegnimento manuale rilevato: automatismo sospeso per 90 minuti."
+
+  - id: ac_auto_pause_control
+    alias: "AC - Gestione pausa automatismo"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_boolean.ac_auto_pause
+        to: "on"
+        id: pause_on
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.ac_auto_pause_timeout
+        id: timer_finished
+    action:
+      - choose:
+          - conditions: "{{ trigger.id == 'pause_on' }}"
+            sequence:
+              - service: timer.start
+                target:
+                  entity_id: timer.ac_auto_pause_timeout
+                data:
+                  duration: "01:30:00"
+              - service: switch.turn_off
+                continue_on_error: true
+                target:
+                  entity_id:
+                    - switch.ac_giorno
+                    - switch.ac_notte
+          - conditions: "{{ trigger.id == 'timer_finished' }}"
+            sequence:
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.ac_auto_pause
