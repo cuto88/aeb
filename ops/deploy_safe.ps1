@@ -1,8 +1,8 @@
 param(
   [string]$Branch = "main",
-  [string]$Target = "Z:\",
+  [string]$Target = "",
   [string]$BackupRoot = ".\_ha_runtime_backups",
-  [string]$RemoteHost = "dscomparin@192.168.178.110",
+  [string]$RemoteHost = $(if ($env:HA_SSH_HOST_LAN) { $env:HA_SSH_HOST_LAN } else { "dscomparin@192.168.178.110" }),
   [int]$RemotePort = 22,
   [string]$RemoteContainer = "homeassistant",
   [string]$RemotePath = "/config",
@@ -209,44 +209,17 @@ function New-SafeSshKeyCopy {
 }
 
 function Get-DeployKeyPath {
-  $copyCandidates = @(
-    "C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp",
-    $env:HA_SSH_KEY_PATH,
-    "C:\Users\randalab\.ssh\ha_ed25519",
-    "C:\2_OPS\secrets\ha\ha_ed25519",
-    "C:\2_OPS\secrets\ha\ha_fallback_ed25519"
-  )
-
-  foreach ($candidate in $copyCandidates) {
-    if ([string]::IsNullOrWhiteSpace($candidate)) { continue }
-    try {
-      if (-not (Test-Path -LiteralPath $candidate -ErrorAction Stop)) { continue }
-    } catch {
-      Say "WARN: key candidate path not readable ($candidate): $($_.Exception.Message)"
-      continue
-    }
-    try {
-      return New-SafeSshKeyCopy -SourcePath $candidate
-    } catch {
-      Say "WARN: key candidate not usable ($candidate): $($_.Exception.Message)"
-    }
+  if ([string]::IsNullOrWhiteSpace($env:HA_SSH_KEY_PATH)) {
+    throw "HA_SSH_KEY_PATH is required."
   }
-
-  if (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\ha_ed25519.safe") {
-    return "C:\2_OPS\aeb\.tmp\ha_ed25519.safe"
-  }
-
-  throw "No usable SSH key source found."
+  return New-SafeSshKeyCopy -SourcePath $env:HA_SSH_KEY_PATH
 }
 
 function Get-KnownHostsPath {
   if ($env:HA_SSH_KNOWN_HOSTS -and (Test-Path -LiteralPath $env:HA_SSH_KNOWN_HOSTS)) {
     return $env:HA_SSH_KNOWN_HOSTS
   }
-  if (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\known_hosts_ha_110") {
-    return "C:\2_OPS\aeb\.tmp\known_hosts_ha_110"
-  }
-  return "C:\2_OPS\secrets\ha\known_hosts"
+  throw "HA_SSH_KNOWN_HOSTS is required and must point to a readable file."
 }
 
 function Test-RemoteConfigTarget {

@@ -1,6 +1,8 @@
 [CmdletBinding()]
 param(
-  [string]$Source = "Z:\",
+  [Parameter(Mandatory = $true)]
+  [ValidateNotNullOrEmpty()]
+  [string]$Source,
   [string]$DestinationRoot = ".\_dr_backups",
   [switch]$IncludeStorage,
   [switch]$IncludeSecrets,
@@ -11,10 +13,6 @@ $ErrorActionPreference = 'Stop'
 
 function Say([string]$Message) {
   Write-Host $Message
-}
-
-function Resolve-FullPath([string]$Path) {
-  return [System.IO.Path]::GetFullPath((Resolve-Path -LiteralPath $Path).Path)
 }
 
 function Get-RelativePath {
@@ -148,7 +146,7 @@ foreach ($dir in $rootDirs) {
   if (Test-Path -LiteralPath $path) {
     $dest = Join-Path $snapshotRoot $dir
     New-Item -ItemType Directory -Force -Path $dest | Out-Null
-    & robocopy $path $dest /MIR /R:1 /W:1 /NFL /NDL /NP /NJH /NJS | Out-Null
+    & robocopy $path $dest /E /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NP /NJH /NJS | Out-Null
     if ($LASTEXITCODE -ge 8) {
       throw "Failed to copy directory '$dir' (RC=$LASTEXITCODE)"
     }
@@ -167,7 +165,7 @@ if ($IncludeStorage) {
   if (Test-Path -LiteralPath $storagePath) {
     $dest = Join-Path $snapshotRoot '.storage'
     New-Item -ItemType Directory -Force -Path $dest | Out-Null
-    & robocopy $storagePath $dest /MIR /R:1 /W:1 /NFL /NDL /NP /NJH /NJS | Out-Null
+    & robocopy $storagePath $dest /E /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NP /NJH /NJS | Out-Null
     if ($LASTEXITCODE -ge 8) {
       throw "Failed to copy .storage (RC=$LASTEXITCODE)"
     }
@@ -190,6 +188,7 @@ $manifest = [ordered]@{
   include_storage  = [bool]$IncludeStorage
   include_secrets  = [bool]$IncludeSecrets
   dry_run          = [bool]$DryRun
+  configuration_present = $true
   items            = $plannedItems
 }
 
@@ -203,13 +202,16 @@ Source: $sourceRoot
 Snapshot: $snapshotRoot
 
 Restore order:
-1. Stop Home Assistant.
-2. Restore configuration.yaml and the runtime folders.
-3. Restore .storage if it was included.
-4. Restore secrets.yaml only if IncludeSecrets was enabled and the file belongs outside Git.
-5. Start Home Assistant and run validation.
+1. Read docs/ops/RESTORE_RUNBOOK.md from a trusted clone.
+2. Verify manifest.json and confirm the intended target.
+3. Stop Home Assistant only with explicit operational approval.
+4. Restore configuration.yaml and the runtime folders.
+5. Restore .storage only if it was included and the scenario requires it.
+6. Restore secrets.yaml only if IncludeSecrets was enabled and the destination is protected.
+7. Start Home Assistant, run a config check, and complete the restore checklist.
 
 Do not treat this snapshot as a Git substitute.
+Do not copy this snapshot into the Git repository.
 "@
 
 Set-Content -LiteralPath (Join-Path $snapshotRoot 'README_RESTORE.txt') -Value $restoreText -Encoding utf8

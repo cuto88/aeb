@@ -4,7 +4,8 @@ Struttura base: packages/, docs/logic/, lovelace/.
 packages/ contiene automazioni e logica per domini HA.
 docs/logic/ ospita solo documentazione (nessun YAML runtime, automazioni o script): entry point `docs/logic/README.md`.
 lovelace/ conserva le dashboard YAML; docs/ e tools/ restano solo locali.
-ops/ include gli script di manutenzione: usa ops/repo_sync_and_gates.ps1 per sincronizzare verso Z:\config (con validation), ops/deploy_safe.ps1 per il deploy sicuro e ops/validate.ps1 come entrypoint unico dei controlli; gli script di hygiene/check sono di supporto.
+ops/ include gli script di manutenzione. `ops/validate.ps1` e` l'entrypoint dei controlli;
+il deploy resta un'azione separata e bloccata finche` portability, drift e dry-run non sono chiusi.
 Lo script di deploy corrente copia solo runtime HA: packages, lovelace, custom_components, themes e i YAML root ammessi. docs/ e tools/ restano locali; eventuali docs presenti su runtime sono residui storici da pulire con azione esplicita.
 
 Fonti di verità rapide: `docs/logic/core/README_sensori_clima.md` (mappa entità), `docs/logic/core/regole_core_logiche.md` (regole core), `docs/logic/core/prompt_codex_master.md` (governance prompt), `docs/strategy/AEB_100_AUTONOMY_OBJECTIVE.md` (obiettivo strategico autonomia 100%).
@@ -49,14 +50,25 @@ Compatibilità comandi/alias esistenti:
 
 Per evitare falsi positivi e cartelle di backup/quarantena, il lint YAML gira solo sui file tracciati da Git.
 
-## Disaster Recovery
-- Entry point: `docs/ops/DISASTER_RECOVERY.md`
+## Portability / Disaster Recovery
+
+- Setup nuova macchina: `docs/ops/DEV_MACHINE_SETUP.md`
+- Contratto env locale: `docs/security/dev-machine.env.example`
+- Disaster Recovery: `docs/ops/DISASTER_RECOVERY.md`
 - Restore runbook: `docs/ops/RESTORE_RUNBOOK.md`
 - Backup policy: `docs/ops/BACKUP_POLICY.md`
-- Snapshot runtime: `ops/backup_runtime_snapshot.ps1`
-- Check freshness backup: `ops/verify_backup_freshness.ps1`
-- Daily task: `ops/dr_backup_task.ps1`
-- Nota: il backup pre-deploy di `ops/deploy_safe.ps1` e` solo un rollback parziale, non sostituisce il DR completo.
+
+Comandi principali:
+
+```powershell
+pwsh -NoProfile -File .\ops\check_portability.ps1
+pwsh -NoProfile -File .\ops\backup_runtime_snapshot.ps1 -Source <HA_CONFIG_SOURCE> -DestinationRoot .\_dr_backups -DryRun
+pwsh -NoProfile -File .\ops\verify_backup_freshness.ps1 -BackupRoot .\_dr_backups -MaxAgeHours 24
+pwsh -NoProfile -File .\ops\validate.ps1
+```
+
+Il backup pre-deploy di `ops/deploy_safe.ps1` e` solo un rollback parziale. Nessun deploy
+e` consentito se portability o validate falliscono.
 
 ## Accesso runtime HA
 - Runtime corrente verificato il 2026-05-26: Home Assistant Core `2026.4.4` su `http://192.168.178.110:8123`, `config_dir=/config`.
@@ -64,23 +76,18 @@ Per evitare falsi positivi e cartelle di backup/quarantena, il lint YAML gira so
 - La Core API usa `HA_URL` e `HA_TOKEN` da `.env`; SSH non e` necessario per leggere stati, ma serve per deploy file se non esiste un bind mount accessibile.
 - SSH vecchio storico: `root@192.168.178.84:2222`, config path `/homeassistant`. Questo endpoint non e` piu` quello operativo dopo cutoff.
 - SSH nuovo operativo: `dscomparin@192.168.178.110:22`.
-- Chiavi HA storiche locali:
-  - primaria: `C:\2_OPS\secrets\ha\ha_ed25519`
-  - fallback: `C:\2_OPS\secrets\ha\ha_fallback_ed25519`
-  - copie temporanee: `C:\Users\randalab\.codex\memories\ha_keys\*`
-- Chiave attiva verificata 2026-05-26:
-  `C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp`
+- Le chiavi HA e il file `known_hosts` sono asset locali fuori Git. Configurarli tramite
+  `HA_SSH_KEY_PATH` e `HA_SSH_KNOWN_HOSTS`; non dipendere da path DS-01.
 - Host remoto verificato: `mercurio-edge`.
 - Container HA: `homeassistant`.
 - Bind mount HA: `/opt/data/homeassistant` -> `/config`.
-- Stato verificato 2026-05-26: le chiavi storiche/copie temporanee non sono accettate da `192.168.178.110:22` per `root`, `randalab`, `docker`, `homeassistant`, `ha`, `ubuntu`, `debian`; `dscomparin` e` l'utente operativo.
-- Chiave deploy generata ma non usata/autorizzata:
-  `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO7acbQK0Rfx79nqb2j5dGCzQ1b+UCBlEDTxBBZY0yWR codex-ha-110-deploy-2026-05-26`
+- L'utente operativo verificato e` `dscomparin`; ogni nuova workstation deve usare una
+  credenziale autorizzata e verificata senza copiarla nel repository.
 - Regola: per il runtime Docker, identificare il bind mount del container HA sul Linux host (`docker inspect <container>`) e deployare in `/config`, non `/homeassistant`.
 - Nota drift runtime 2026-05-26: il runtime contiene ancora package monolitici `climate_heating.yaml` e `climate_ventilation.yaml`; il repo locale contiene anche file split `climate_*_templates.yaml`. Evitare deploy ampio finche` questo drift non e` riconciliato.
 
 ## Secrets contract
-- Runtime env example: [docs/security/secrets.example](C:/2_OPS/aeb/docs/security/secrets.example)
+- Runtime env example: [docs/security/dev-machine.env.example](docs/security/dev-machine.env.example)
 - Live `.env` resta locale e ignorato da Git; contiene solo valori runtime effettivi.
 - I `!secret` richiesti dai package sono: `ehw_modbus_host`, `ehw_modbus_port`, `ehw_modbus_slave`, `mirai_modbus_host`.
 

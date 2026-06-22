@@ -7,8 +7,12 @@ param(
 $ErrorActionPreference = 'Stop'
 
 function Fail([string]$Message) {
-  Write-Host "WARN $Message"
+  Write-Host "BACKUP_VERIFY_FAIL $Message"
   exit 1
+}
+
+if ($MaxAgeHours -le 0) {
+  Fail "invalid_max_age_hours value=$MaxAgeHours"
 }
 
 if (-not (Test-Path -LiteralPath $BackupRoot)) {
@@ -30,6 +34,19 @@ try {
   $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
 } catch {
   Fail "manifest_unreadable path=$manifestPath"
+}
+
+if ($manifest.schema -ne 'aeb.dr.backup.v1') {
+  Fail "manifest_schema_invalid latest=$($latest.Name)"
+}
+
+if (-not $manifest.configuration_present) {
+  Fail "configuration_not_confirmed latest=$($latest.Name)"
+}
+
+$restoreReadme = Join-Path $latest.FullName 'README_RESTORE.txt'
+if (-not (Test-Path -LiteralPath $restoreReadme -PathType Leaf)) {
+  Fail "restore_readme_missing latest=$($latest.Name)"
 }
 
 $created = $null
@@ -59,6 +76,18 @@ if ($itemCount -le 0) {
   Fail "manifest_empty latest=$($latest.Name)"
 }
 
-Write-Host "OK latest=$($latest.Name) age_hours=$ageHours items=$itemCount root=$BackupRoot"
-exit 0
+$configurationRecord = @($manifest.items) |
+  Where-Object { $_.relative_path -eq 'configuration.yaml' } |
+  Select-Object -First 1
 
+if (-not $configurationRecord) {
+  Fail "configuration_missing_from_manifest latest=$($latest.Name)"
+}
+
+$configurationBackupPath = Join-Path $latest.FullName 'configuration.yaml'
+if (-not (Test-Path -LiteralPath $configurationBackupPath -PathType Leaf)) {
+  Fail "configuration_missing_from_snapshot latest=$($latest.Name)"
+}
+
+Write-Host "BACKUP_VERIFY_OK latest=$($latest.Name) age_hours=$ageHours items=$itemCount root=$BackupRoot"
+exit 0

@@ -11,16 +11,17 @@
 
 Default operativo consigliato per il job DR:
 
-- root backup esterno al repo: `C:\2_OPS\_repo_archives\aeb\_dr_backups`
+- root backup esterno al repo, configurato per macchina e non hardcoded
 - task schedulato: `ops/dr_backup_task.ps1`
 
-## Frequenze consigliate
+## Frequenze minime
 
-- Repo: ad ogni change approvato e pushato.
-- Runtime HA: prima di ogni deploy e almeno una volta al giorno.
-- `.storage/`: prima di re-auth integration, update cloud o modifiche auth, e almeno giornalmente se il runtime cambia spesso.
-- Secrets: ogni volta che cambia una chiave o una credenziale, con copia fuori Git.
-- Offsite: almeno una volta al giorno o dopo un deploy ad alto rischio.
+- Repo: continuo tramite commit e push Git dopo ogni change approvato.
+- Runtime HA: giornaliero e prima di ogni deploy autorizzato.
+- `.storage/`: incluso nel backup runtime giornaliero.
+- Secrets bundle: manuale dopo ogni modifica a secret, token o chiavi.
+- Offsite: giornaliero o subito dopo una modifica critica.
+- Restore drill: mensile.
 - Recorder DB: solo backup dedicato separato, non nel giro quotidiano DR.
 
 ## Retention minima
@@ -28,6 +29,8 @@ Default operativo consigliato per il job DR:
 - ultimi 7 snapshot runtime giornalieri
 - ultimi 4 snapshot settimanali
 - ultimi 3 snapshot mensili
+- almeno 1 copia offsite cifrata dell'ultimo snapshot valido
+- almeno 1 secrets bundle corrente e 1 precedente, entrambi protetti
 - ultimo backup parziale da deploy per rollback rapido
 
 ## Restore drill mensile

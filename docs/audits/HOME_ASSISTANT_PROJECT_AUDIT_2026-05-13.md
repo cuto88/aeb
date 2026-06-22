@@ -24,7 +24,7 @@ Decisione finale: **RUNTIME EVIDENCE GATE**.
 | DomesticOps | [packages/domestic_ops.yaml](../../packages/domestic_ops.yaml) | Advisory domestico FV-aware e notifiche | Overloaded, hotspot manutentivo |
 | UI Lovelace | `lovelace/` | Dashboard operative e legacy | Presente, ma con file legacy e archive |
 | Documentazione | [README.md](../../README.md), [docs/SOT_ENTITIES.md](../../docs/SOT_ENTITIES.md), [docs/audits/README.md](../../docs/audits/README.md), `docs/runtime_evidence/`, [docs/climateops/ENTRYPOINTS.md](../../docs/climateops/ENTRYPOINTS.md) | Governance, audit trail, mappa entita' | Buona copertura, ma non perfettamente allineata al runtime |
-| Segreti / runtime env | [../.env](../../.env) | URL e token HA locali | Critico, non governato correttamente |
+| Segreti / runtime env | `.env` locale non versionato | URL e token HA locali | Critico, non governato correttamente |
 
 ## 3. ARCHITECTURE SCORE
 | Dimensione | Score | Motivo |
@@ -42,7 +42,7 @@ Decisione finale: **RUNTIME EVIDENCE GATE**.
 ## 4. CRITICAL FINDINGS
 | ID | Severita' | Fatto/Ipotesi | Area | Evidenza file | Impatto | Azione consigliata |
 |---|---|---|---|---|---|---|
-| CRIT-01 | CRITICAL | FATTO | Security / secrets | [../.env](../../.env#L1-L2) | Token Home Assistant esposto in chiaro nel workspace; rischio di accesso non autorizzato se il file viene replicato, sincronizzato o accidentalmente committato | Ruotare il token, trattare `.env` come compromesso operativo e verificare che nessun log/docs lo abbia replicato |
+| CRIT-01 | CRITICAL | FATTO | Security / secrets | `.env` locale non versionato | Token Home Assistant esposto in chiaro nel workspace; rischio di accesso non autorizzato se il file viene replicato, sincronizzato o accidentalmente committato | Ruotare il token, trattare `.env` come compromesso operativo e verificare che nessun log/docs lo abbia replicato |
 
 Nessun altro finding **CRITICAL** e' dimostrabile in modo pulito dai file statici senza chiedere verifica runtime.
 
@@ -54,7 +54,7 @@ Nessun altro finding **CRITICAL** e' dimostrabile in modo pulito dai file static
 | WARN-03 | WARNING | FATTO | Ventilation templates | [packages/climate_ventilation_templates.yaml](../../packages/climate_ventilation_templates.yaml#L138-L222) | Il source usa `sensor.climateops_arbiter_suggested_mode/reason`, ma il runtime documentato espone `sensor.arbiter_suggested_mode/reason` | Drift tra source e runtime; rischio dashboard e advisory fuori allineamento |
 | WARN-04 | WARNING | FATTO | System facade | [packages/cm_system_facade.yaml](../../packages/cm_system_facade.yaml#L19-L21) | Fallback ancora agganciato a `sensor.climateops_planner_recommended_mode`, mentre il runtime documentato usa `sensor.planner_recommended_mode` | Fallback fragile e semanticamente obsoleto |
 | WARN-05 | WARNING | FATTO | Single writer / AC | [packages/climateops/actuators/system_actuator.yaml](../../packages/climateops/actuators/system_actuator.yaml) , [packages/climate_ac_mapping.yaml](../../packages/climate_ac_mapping.yaml) | `switch.ac_giorno` e `switch.ac_notte` sono toccati da script di apply, da un actuator centrale e da un'authority automation di enforcement | Coordinazione presente, ma il perimetro del writer non e' puro; rischio race/revert loop se i precondition falliscono |
-| WARN-06 | WARNING | FATTO | Recorder / performance | [configuration.yaml](../../configuration.yaml#L4-L18) , [docs/runtime_evidence/2026-05-13/aeb_runtime_audit_snapshot_20260513_073152.md](../../docs/runtime_evidence/2026-05-13/aeb_runtime_audit_snapshot_20260513_073152.md#L65-L68) | Recorder con purge ridotto a 30 giorni e shortlist di esclusione su metriche osservazionali; DB a 1.2G e backup corrotto da 1.4G | Rischio crescita, WAL churn, UI lenta e manutenzione DB piu' costosa |
+| WARN-06 | WARNING | FATTO | Recorder / performance | [configuration.yaml](../../configuration.yaml#L4-L18), evidenza runtime locale del 2026-05-13 | Recorder con purge ridotto a 30 giorni e shortlist di esclusione su metriche osservazionali; DB a 1.2G e backup corrotto da 1.4G | Rischio crescita, WAL churn, UI lenta e manutenzione DB piu' costosa |
 | WARN-07 | WARNING | FATTO | Package overloading | [packages/domestic_ops.yaml](../../packages/domestic_ops.yaml) , [packages/climateops_aeb_mvp.yaml](../../packages/climateops_aeb_mvp.yaml) | File troppo grandi e densita' logica alta; il costo di modifica cresce rapidamente | Spezzare per responsabilita' logiche, senza cambiare comportamento |
 | WARN-08 | WARNING | FATTO | Legacy artifacts | [lovelace/02_air_loop_legacy.yaml](../../lovelace/02_air_loop_legacy.yaml) , [lovelace/04_cooling_loop_legacy.yaml](../../lovelace/04_cooling_loop_legacy.yaml) , [lovelace/_archive/climateops_step7_plancia.yaml](../../lovelace/_archive/climateops_step7_plancia.yaml) | Artefatti legacy ancora nel tree; confondono la superficie operativa e aumentano il rischio di usare UI vecchie | Confermare se sono davvero fuori uso; se si, mantenerle solo in archivio documentato |
 | WARN-09 | WARNING | FATTO | Secrets governance | [packages/ehw_modbus_transport.yaml](../../packages/ehw_modbus_transport.yaml) , [ops/disabled_runtime/mirai_modbus.transport.yaml](../../ops/disabled_runtime/mirai_modbus.transport.yaml) , [docs/logic/core/README_sensori_mirai.md](../../docs/logic/core/README_sensori_mirai.md) | `!secret` usati correttamente e contratto documentato in `docs/security/secrets.example` | Onboarding e audit dei segreti piu' verificabili |
@@ -91,14 +91,14 @@ Nessun altro finding **CRITICAL** e' dimostrabile in modo pulito dai file static
 
 ## 9. RECORDER / PERFORMANCE
 - Rischio reale: [configuration.yaml](../../configuration.yaml#L4-L18) imposta `purge_keep_days: 30`, `auto_purge: true` e una shortlist di esclusione su metriche osservazionali; resta il rischio DB residuo ma il perimetro è governato.
-- Rischio reale: il snapshot runtime mostra [home-assistant_v2.db da 1.2G e backup corrotto da 1.4G](../../docs/runtime_evidence/2026-05-13/aeb_runtime_audit_snapshot_20260513_073152.md#L65-L68).
+- Rischio reale: l'evidenza runtime locale del 2026-05-13 mostrava `home-assistant_v2.db` da 1.2G e un backup corrotto da 1.4G.
 - Rischio reale: nel repo ci sono molti derivati frequenti, soprattutto `statistics`, `history_stats`, `time_pattern` e `logbook`; questo aumenta churn su recorder e WAL.
 - Candidate a esclusione o almeno a review prioritaria: advisory/observability ad alta frequenza in `packages/climateops_aeb_mvp.yaml`, `packages/climate_ac_observability.yaml`, `packages/climate_heating_observability.yaml`, `packages/energy_pm.yaml`, `packages/sdm120_modbus.yaml`, `packages/mirai_runtime_truth_advisory.yaml`, `packages/domestic_ops.yaml`.
 - Verifiche necessarie: crescita DB per 24h/7d, impatto su statistics helpers, cardinalita' delle entita' in logbook, coerenza long-term statistics, dimensione WAL/SHM.
 - Impatto atteso di una governanza seria: meno storage, meno lentezza UI, meno rischio di corruzione/backup sporchi.
 
 ## 10. SECURITY
-- Segreto trovato: [`.env`](../../.env#L1-L2) contiene `HA_URL` e un `HA_TOKEN` in chiaro.
+- Segreto trovato: `.env` locale non versionato contiene `HA_URL` e un `HA_TOKEN` in chiaro.
 - Segreti referenziati correttamente via `!secret`: `ehw_modbus_host`, `ehw_modbus_port`, `ehw_modbus_slave`, `mirai_modbus_host`.
 - Gap chiuso: il contratto segreti e' inventariato in [docs/security/secrets.example](../../docs/security/secrets.example).
 - Target sensibile centralizzato: `notify.telegram_davide` nel wrapper [packages/notify_telegram.yaml](../../packages/notify_telegram.yaml#L1-L20).

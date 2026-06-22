@@ -1,9 +1,9 @@
 # PowerShell shortcuts for Casa Mercurio ops.
 #
 # Keep this file self-contained so it can be dot-sourced from $PROFILE.
-# Update $HA_REPO if the repo path changes.
+# The repository root is derived from this tracked file.
 
-$HA_REPO = "C:\2_OPS\aeb"
+$HA_REPO = Split-Path -Parent $PSScriptRoot
 
 function Invoke-HaOpsScript {
   [CmdletBinding()]

@@ -1,8 +1,9 @@
 param(
   [switch]$RunRestart,
-  [string]$HaHost = "dscomparin@192.168.178.110",
+  [string]$HaHost = $(if ($env:HA_SSH_HOST_LAN) { $env:HA_SSH_HOST_LAN } else { "dscomparin@192.168.178.110" }),
   [int]$Port = 22,
-  [string]$KeyPath = $(if ($env:HA_SSH_KEY_PATH) { $env:HA_SSH_KEY_PATH } elseif (Test-Path -LiteralPath "C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp") { "C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp" } elseif (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\ha_ed25519.safe") { "C:\2_OPS\aeb\.tmp\ha_ed25519.safe" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_ed25519") { "C:\2_OPS\secrets\ha\ha_ed25519" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_fallback_ed25519") { "C:\2_OPS\secrets\ha\ha_fallback_ed25519" } else { "C:\Users\randalab\.ssh\ha_ed25519" })
+  [string]$KeyPath = $env:HA_SSH_KEY_PATH,
+  [string]$KnownHostsPath = $env:HA_SSH_KNOWN_HOSTS
 )
 
 $ErrorActionPreference = "Stop"
@@ -21,7 +22,10 @@ New-Item -ItemType Directory -Force -Path $dateDir | Out-Null
 
 $pwshExe = "C:\Program Files\PowerShell\7\pwsh.exe"
 $sshExe = "C:\Windows\System32\OpenSSH\ssh.exe"
-$knownHosts = "C:\2_OPS\secrets\ha\known_hosts"
+$knownHosts = $KnownHostsPath
+if ([string]::IsNullOrWhiteSpace($knownHosts) -or -not (Test-Path -LiteralPath $knownHosts)) {
+  throw "HA_SSH_KNOWN_HOSTS is required and must point to a readable file."
+}
 
 $coreCheckFile = Join-Path $dateDir ("phase4_ha_core_check_" + $stamp + ".txt")
 $summaryFile = Join-Path $dateDir ("phase4_daily_summary_" + $stamp + ".md")
@@ -44,7 +48,7 @@ if ($RunRestart) {
 
 Say "==> Runtime truth scan"
 & powershell -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "phase1_runtime_truth_check.ps1") `
-  -HaHost $HaHost -Port $Port -KeyPath $KeyPath
+  -HaHost $HaHost -Port $Port -KeyPath $KeyPath -KnownHostsPath $KnownHostsPath
 if ($LASTEXITCODE -ne 0) {
   throw "phase1_runtime_truth_check failed (RC=$LASTEXITCODE)"
 }

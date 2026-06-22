@@ -4,21 +4,16 @@ function Resolve-HaSecureKeyPath {
     [string]$Path
   )
 
-  $stablePath = Join-Path $PSScriptRoot ".tmp\ha_ed25519.safe"
-  if (Test-Path -LiteralPath $stablePath) {
-    return $stablePath
-  }
-
-  if (-not (Test-Path -LiteralPath $Path)) {
+  if ([string]::IsNullOrWhiteSpace($Path) -or -not (Test-Path -LiteralPath $Path)) {
     throw "Missing SSH key: $Path"
   }
 
-  $memRoot = Join-Path $env:USERPROFILE ".codex\memories\ha_keys"
-  New-Item -ItemType Directory -Force -Path $memRoot | Out-Null
+  $tmpRoot = Join-Path $PSScriptRoot ".tmp"
+  New-Item -ItemType Directory -Force -Path $tmpRoot | Out-Null
 
   $leaf = [System.IO.Path]::GetFileName($Path)
   $stamp = Get-Date -Format "yyyyMMdd_HHmmss_fff"
-  $target = Join-Path $memRoot ($leaf + "." + $stamp + ".temp")
+  $target = Join-Path $tmpRoot ($leaf + "." + $stamp + ".temp")
 
   Copy-Item -LiteralPath $Path -Destination $target -Force
 
@@ -36,9 +31,7 @@ function Resolve-HaSecureKeyPath {
     '/remove:g',
     '"BUILTIN\Users"',
     '/remove:g',
-    '"NT AUTHORITY\Authenticated Users"',
-    '/remove:g',
-    '"DS-01\CodexSandboxUsers"'
+    '"NT AUTHORITY\Authenticated Users"'
   ) -join ' '
   $proc = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", $icaclsCmd -NoNewWindow -PassThru -Wait
   if ($proc.ExitCode -ne 0) {

@@ -4,7 +4,7 @@ param(
   [string]$Action = "Status",
   [string]$TaskName = "CasaMercurio-DR-DailyBackup",
   [string]$StartTime = "03:15",
-  [string]$Source = "Z:\",
+  [string]$Source = "",
   [string]$BackupRoot = "",
   [switch]$IncludeStorage,
   [switch]$IncludeSecrets,
@@ -72,40 +72,17 @@ function New-DrSafeKeyCopy {
 }
 
 function Get-DrSshKeyPath {
-  $candidates = @(
-    $env:HA_SSH_KEY_PATH
-    "C:\2_OPS\aeb\.tmp\ha_ed25519.safe"
-    "C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp"
-    "C:\2_OPS\secrets\ha\ha_ed25519"
-    "C:\2_OPS\secrets\ha\ha_fallback_ed25519"
-  ) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
-
-  $lastError = $null
-  foreach ($candidate in $candidates) {
-    if (-not (Test-Path -LiteralPath $candidate)) {
-      continue
-    }
-    try {
-      return New-DrSafeKeyCopy -SourcePath $candidate
-    } catch {
-      $lastError = $_.Exception.Message
-    }
+  if ([string]::IsNullOrWhiteSpace($env:HA_SSH_KEY_PATH)) {
+    throw "HA_SSH_KEY_PATH is required for remote backup."
   }
-
-  if ($lastError) {
-    throw "No usable SSH key source found. Last error: $lastError"
-  }
-  throw "No usable SSH key source found."
+  return New-DrSafeKeyCopy -SourcePath $env:HA_SSH_KEY_PATH
 }
 
 function Get-DrKnownHostsPath {
   if ($env:HA_SSH_KNOWN_HOSTS -and (Test-Path -LiteralPath $env:HA_SSH_KNOWN_HOSTS)) {
     return $env:HA_SSH_KNOWN_HOSTS
   }
-  if (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\known_hosts_ha_110") {
-    return "C:\2_OPS\aeb\.tmp\known_hosts_ha_110"
-  }
-  return "C:\2_OPS\secrets\ha\known_hosts"
+  throw "HA_SSH_KNOWN_HOSTS is required for remote backup."
 }
 
 function Write-SnapshotMetadata {
@@ -138,6 +115,7 @@ function Write-SnapshotMetadata {
     include_storage  = [bool]$CopiedStorage
     include_secrets  = [bool]$CopiedSecrets
     dry_run          = $false
+    configuration_present = (Test-Path -LiteralPath (Join-Path $SnapshotRoot 'configuration.yaml') -PathType Leaf)
     items            = $items
   }
   $manifestPath = Join-Path $SnapshotRoot 'manifest.json'
@@ -272,7 +250,11 @@ function Invoke-DrBackupJob {
         throw "backup_runtime_snapshot.ps1 failed (RC=$LASTEXITCODE)"
       }
     } else {
-      Invoke-RemoteSnapshot -RemoteHost "dscomparin@192.168.178.110" -RemotePath "/opt/data/homeassistant" -SnapshotRoot (Join-Path $BackupPath $snapshotName) -LogFile $logFile -CopiedStorage:$CopyStorage -CopiedSecrets:$CopySecrets
+      $remoteHost = $env:HA_SSH_HOST_LAN
+      if ([string]::IsNullOrWhiteSpace($remoteHost)) {
+        throw "HA_SSH_HOST_LAN is required when Source is not a local path."
+      }
+      Invoke-RemoteSnapshot -RemoteHost $remoteHost -RemotePath "/opt/data/homeassistant" -SnapshotRoot (Join-Path $BackupPath $snapshotName) -LogFile $logFile -CopiedStorage:$CopyStorage -CopiedSecrets:$CopySecrets
     }
 
     $verifyArgs = @(

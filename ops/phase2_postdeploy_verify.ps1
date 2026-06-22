@@ -1,9 +1,10 @@
 param(
   [switch]$RunDeploy,
   [switch]$RunRestart,
-  [string]$HaHost = "root@192.168.178.84",
-  [int]$Port = 2222,
-  [string]$KeyPath = $(if ($env:HA_SSH_KEY_PATH) { $env:HA_SSH_KEY_PATH } elseif (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\ha_ed25519.safe") { "C:\2_OPS\aeb\.tmp\ha_ed25519.safe" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_ed25519") { "C:\2_OPS\secrets\ha\ha_ed25519" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_fallback_ed25519") { "C:\2_OPS\secrets\ha\ha_fallback_ed25519" } else { "C:\Users\randalab\.ssh\ha_ed25519" })
+  [string]$HaHost = $(if ($env:HA_SSH_HOST_LAN) { $env:HA_SSH_HOST_LAN } else { "dscomparin@192.168.178.110" }),
+  [int]$Port = 22,
+  [string]$KeyPath = $env:HA_SSH_KEY_PATH,
+  [string]$KnownHostsPath = $env:HA_SSH_KNOWN_HOSTS
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,7 +18,10 @@ function Say([string]$msg) {
 
 $pwshExe = "C:\Program Files\PowerShell\7\pwsh.exe"
 $sshExe = "C:\Windows\System32\OpenSSH\ssh.exe"
-$knownHosts = "C:\2_OPS\secrets\ha\known_hosts"
+$knownHosts = $KnownHostsPath
+if ([string]::IsNullOrWhiteSpace($knownHosts) -or -not (Test-Path -LiteralPath $knownHosts)) {
+  throw "HA_SSH_KNOWN_HOSTS is required and must point to a readable file."
+}
 
 if ($RunDeploy) {
   Say "==> Deploy SAFE"
@@ -45,7 +49,7 @@ if ($RunRestart) {
 
 Say "==> Phase1 runtime truth check"
 & powershell -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "phase1_runtime_truth_check.ps1") `
-  -HaHost $HaHost -Port $Port -KeyPath $KeyPath
+  -HaHost $HaHost -Port $Port -KeyPath $KeyPath -KnownHostsPath $KnownHostsPath
 if ($LASTEXITCODE -ne 0) {
   throw "phase1_runtime_truth_check failed (RC=$LASTEXITCODE)"
 }

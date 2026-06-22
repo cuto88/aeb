@@ -48,7 +48,6 @@ def materialize_ssh_key(source: str) -> str:
         "/remove:g",
         "BUILTIN\\Users",
         "NT AUTHORITY\\Authenticated Users",
-        "DS-01\\CodexSandboxUsers",
     ])
     if rc != 0:
         raise RuntimeError(f"failed to secure SSH key permissions: {out}")
@@ -74,7 +73,7 @@ def refresh_db_snapshot(args: argparse.Namespace, retries: int = 3) -> Path:
         cmd = [
             args.scp,
             "-o",
-            r"UserKnownHostsFile=C:\2_OPS\secrets\ha\known_hosts",
+            f"UserKnownHostsFile={args.known_hosts}",
             "-o",
             "StrictHostKeyChecking=yes",
             "-P",
@@ -201,11 +200,14 @@ def safe_float(v: str | None) -> float:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ssh-host", default="192.168.178.84")
-    parser.add_argument("--ssh-port", type=int, default=2222)
-    parser.add_argument("--ssh-user", default="root")
-    parser.add_argument("--ssh-key", default=os.environ.get("HA_SSH_KEY_PATH", r"C:\2_OPS\aeb\.tmp\ha_ed25519.safe"))
-    parser.add_argument("--scp", default=r"C:\Windows\System32\OpenSSH\scp.exe")
+    configured_host = os.environ.get("HA_SSH_HOST_LAN", "dscomparin@192.168.178.110")
+    default_user, _, default_host = configured_host.partition("@")
+    parser.add_argument("--ssh-host", default=default_host or configured_host)
+    parser.add_argument("--ssh-port", type=int, default=22)
+    parser.add_argument("--ssh-user", default=default_user if default_host else "dscomparin")
+    parser.add_argument("--ssh-key", default=os.environ.get("HA_SSH_KEY_PATH"))
+    parser.add_argument("--known-hosts", default=os.environ.get("HA_SSH_KNOWN_HOSTS"))
+    parser.add_argument("--scp", default=shutil.which("scp") or "scp")
     parser.add_argument("--poll-seconds", type=int, default=30)
     parser.add_argument("--power-threshold", type=float, default=450.0)
     parser.add_argument("--consecutive-polls", type=int, default=3)
@@ -228,6 +230,10 @@ def main() -> int:
     )
     parser.add_argument("--workspace", default=".")
     args = parser.parse_args()
+    if not args.ssh_key:
+        parser.error("--ssh-key or HA_SSH_KEY_PATH is required")
+    if not args.known_hosts:
+        parser.error("--known-hosts or HA_SSH_KNOWN_HOSTS is required")
     args.ssh_key = materialize_ssh_key(args.ssh_key)
 
     root = Path(args.workspace).resolve()

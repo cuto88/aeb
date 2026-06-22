@@ -16,14 +16,15 @@ Restore prima il controllo, poi la configurazione, poi lo stato runtime. GitHub 
 ## Scenario: repo ok, runtime rotto
 
 - prendere l`ultimo snapshot DR valido da `_dr_backups/` oppure da un percorso offsite
+- verificare `manifest.json` e `README_RESTORE.txt`
+- fermare HA prima di copiare dati runtime; questa azione richiede approvazione operativa
 - copiare i file verso il bind mount runtime
 - mantenere fuori Git tutto cio` che e` locale al runtime
 
-Comandi base:
+Verifica non distruttiva:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File ops\backup_runtime_snapshot.ps1 -Source Z:\ -DestinationRoot .\_dr_backups -IncludeStorage -IncludeSecrets
-powershell -NoProfile -ExecutionPolicy Bypass -File ops\verify_backup_freshness.ps1 -BackupRoot .\_dr_backups -MaxAgeHours 24
+pwsh -NoProfile -File .\ops\verify_backup_freshness.ps1 -BackupRoot .\_dr_backups -MaxAgeHours 24
 ```
 
 ## Scenario: host HA rotto
@@ -42,20 +43,43 @@ ssh dscomparin@192.168.178.110 "docker inspect homeassistant --format '{{json .M
 
 Poi ripristinare sul path effettivo della bind mount.
 
-## Scenario: secrets o chiavi mancanti
+## Scenario: DS-01 morto
 
-- recuperare `secrets.yaml` da un backup fuori Git
-- ricreare la chiave SSH operativa in un file con ACL pulita
+- clonare `cuto88/aeb` su DS-WORK o DS-XPS
+- seguire `docs/ops/DEV_MACHINE_SETUP.md`
+- recuperare `.env`, chiave SSH e `known_hosts` dal deposito sicuro, non da Git
+- verificare API, SSH, portability e validate
+- non eseguire deploy finche` il clone non e` riconciliato con il runtime
+
+## Scenario: chiavi mancanti
+
+- recuperare o generare una chiave dedicata alla nuova macchina
+- autorizzare la chiave sul target tramite un canale amministrativo separato
 - aggiornare `HA_SSH_KEY_PATH`
+- creare e verificare `HA_SSH_KNOWN_HOSTS`
+- verificare prima un comando SSH read-only
 - verificare che nessun secret sia stato committato
 
 Non mettere mai i secret nel repo per "far tornare tutto".
+
+## Restore da backup runtime
+
+1. Eseguire `verify_backup_freshness.ps1`.
+2. Leggere `manifest.json` senza aprire o stampare i secret.
+3. Confermare se lo snapshot include `.storage` e `secrets.yaml`.
+4. Verificare che il target sia il bind mount corretto.
+5. Fermare Home Assistant con approvazione esplicita.
+6. Copiare prima configurazione e directory runtime.
+7. Ripristinare `.storage` solo se richiesto dallo scenario.
+8. Ripristinare `secrets.yaml` solo dal bundle autorizzato.
+9. Avviare HA, eseguire config check e verifiche funzionali.
 
 ## Scenario: rollback post-deploy
 
 - usare il backup creato da `ops/deploy_safe.ps1` come rollback corto
 - se il rollback coinvolge `.storage`, passare al backup DR completo
-- dopo il restore, eseguire `ops/validate.ps1`
+- non usare il rollback parziale se manifest o target non sono chiari
+- dopo il restore, eseguire config check runtime e `ops/validate.ps1`
 
 ## Checklist finale
 
@@ -66,4 +90,3 @@ Non mettere mai i secret nel repo per "far tornare tutto".
 - `ops/verify_backup_freshness.ps1` ritorna OK
 - `ops/validate.ps1` ritorna OK
 - almeno un accesso UI admin disponibile
-

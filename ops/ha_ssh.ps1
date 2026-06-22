@@ -1,12 +1,19 @@
 param(
   [string]$RemoteCommand = "",
   [int]$Port = 22,
-  [string]$HaHost = "dscomparin@192.168.178.110",
-  [string]$KeyPath = $(if ($env:HA_SSH_KEY_PATH) { $env:HA_SSH_KEY_PATH } elseif (Test-Path -LiteralPath "C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp") { "C:\Users\randalab\.codex\memories\ha_keys\ha_ed25519.20260517_073034_121.temp" } elseif (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\ha_ed25519.safe") { "C:\2_OPS\aeb\.tmp\ha_ed25519.safe" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_ed25519") { "C:\2_OPS\secrets\ha\ha_ed25519" } elseif (Test-Path -LiteralPath "C:\2_OPS\secrets\ha\ha_fallback_ed25519") { "C:\2_OPS\secrets\ha\ha_fallback_ed25519" } else { "C:\Users\randalab\.ssh\ha_ed25519" }),
-  [string]$KnownHostsPath = $(if ($env:HA_SSH_KNOWN_HOSTS) { $env:HA_SSH_KNOWN_HOSTS } elseif (Test-Path -LiteralPath "C:\2_OPS\aeb\.tmp\known_hosts_ha_110") { "C:\2_OPS\aeb\.tmp\known_hosts_ha_110" } else { "C:\2_OPS\secrets\ha\known_hosts" })
+  [string]$HaHost = $(if ($env:HA_SSH_HOST_LAN) { $env:HA_SSH_HOST_LAN } else { "dscomparin@192.168.178.110" }),
+  [string]$KeyPath = $env:HA_SSH_KEY_PATH,
+  [string]$KnownHostsPath = $env:HA_SSH_KNOWN_HOSTS
 )
 
 $ErrorActionPreference = 'Stop'
+
+if ([string]::IsNullOrWhiteSpace($KeyPath)) {
+  throw "HA_SSH_KEY_PATH is required."
+}
+if ([string]::IsNullOrWhiteSpace($KnownHostsPath) -or -not (Test-Path -LiteralPath $KnownHostsPath)) {
+  throw "HA_SSH_KNOWN_HOSTS is required and must point to a readable file."
+}
 
 function New-SafeSshKeyCopy {
   param(
