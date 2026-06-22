@@ -39,6 +39,10 @@ The wrapper loads the local `.env`, prefers `HA_SSH_HOST_TAILSCALE` for the remo
 host, falls back to `HA_SSH_HOST_LAN` when needed, runs the core DR backup job, and
 performs a freshness check in the same pass.
 
+The separate freshness checker documented in `docs/ops/BACKUP_MONITORING.md` is a local
+checker with log/output/exit-code visibility only; it does not send Telegram or email
+notifications in this step.
+
 ## Default paths
 
 - source snapshot target: `__REMOTE_HOME_ASSISTANT_CONFIG__`

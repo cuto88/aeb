@@ -32,6 +32,7 @@ must state:
 
 ## What the check does
 
+- this is a local checker, not a Telegram/email notifier
 - reads the local backup root only
 - delegates validation to `ops/verify_backup_freshness.ps1`
 - emits `DR_BACKUP_ALERT_OK ...` on success
@@ -92,3 +93,11 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\ops\check_dr_backup_alert.ps1 -A
 - no retention pruning in this MVP
 - logs are local files only and should be reviewed manually
 - the backup task must still run first; this check is only a freshness alert
+
+## Future developments
+
+- Telegram notification on FAIL only
+- email notification on FAIL only
+- n8n integration
+- retention/pruning of backups
+- local DR status dashboard
