@@ -65,6 +65,10 @@ Recommended first step if you want a no-side-effect check:
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\ops\schedule_dr_backup_task.ps1 -Action Install -WhatIf
 ```
 
+Verification rule: the `-WhatIf` output must not echo any real `.env` value, especially
+`HA_TOKEN` or any variable name containing `TOKEN`, `SECRET`, `PASSWORD`, `KEY`, or
+`CREDENTIAL`.
+
 ### Run one scheduled pass manually
 
 ```powershell

@@ -54,7 +54,7 @@ function Import-EnvMap {
   foreach ($key in $Map.Keys) {
     $value = [string]$Map[$key]
     if (-not [string]::IsNullOrWhiteSpace($value)) {
-      Set-Item -Path ("Env:" + $key) -Value $value
+      [System.Environment]::SetEnvironmentVariable($key, $value, 'Process')
     }
   }
 }
