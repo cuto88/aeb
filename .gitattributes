@@ -1,4 +1,4 @@
-﻿# LF policy (scoped): only ops scripts + top-level README.
+# LF policy scoped: only ops scripts + top-level README.
 # Avoid touching docs backups, vendored code, quarantine, etc.
 
 ops/**/*.ps1      text eol=lf
