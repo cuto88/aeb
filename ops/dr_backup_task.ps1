@@ -155,14 +155,47 @@ function Invoke-RemoteSnapshot {
     throw "Missing ssh/tar tooling for remote DR snapshot."
   }
 
+  function Quote-ShellSingle([string]$Value) {
+    $escaped = $Value.Replace("'", "'""'""'")
+    return "'" + $escaped + "'"
+  }
+
   $sshKey = Get-DrSshKeyPath
   $knownHosts = Get-DrKnownHostsPath
   $logRoot = Split-Path -Parent $LogFile
   $sshErrFile = Join-Path $logRoot ("remote_ssh_" + (Get-Date -Format 'yyyyMMdd_HHmmss') + ".err")
   $tarErrFile = Join-Path $logRoot ("local_tar_" + (Get-Date -Format 'yyyyMMdd_HHmmss') + ".err")
-  $remoteCmd = @'
-docker exec homeassistant sh -lc "tar -czf - -C /config --exclude='backup' --exclude='_ha_runtime_backups' --exclude='_dr_backups' --exclude='home-assistant_v2.db' --exclude='home-assistant_v2.db-*' --exclude='home-assistant_v2.db.corrupt.*' --exclude='.git' --exclude='.git-local' --exclude='.tmp' --exclude='media' --exclude='tts' --exclude='www' ."
-'@
+  $tarExcludes = @(
+    'backup'
+    'backups'
+    '_ha_runtime_backups'
+    '_dr_backups'
+    '_codex_backups'
+    'home-assistant_v2.db'
+    'home-assistant_v2.db-*'
+    'home-assistant_v2.db.corrupt.*'
+    '.git'
+    '.git-local'
+    '.cache'
+    '.tmp'
+    'media'
+    'tts'
+    'www'
+  )
+  if (-not $CopiedStorage) {
+    $tarExcludes += '.storage'
+  }
+  if (-not $CopiedSecrets) {
+    $tarExcludes += 'secrets.yaml'
+  }
+
+  $tarArgs = @('tar', '-czf', '-', '-C', '/config')
+  foreach ($exclude in $tarExcludes) {
+    $tarArgs += @('--exclude', $exclude)
+  }
+  $tarArgs += '.'
+  $tarCommand = ($tarArgs | ForEach-Object { Quote-ShellSingle $_ }) -join ' '
+  $remoteCmd = 'docker exec homeassistant sh -lc ' + (Quote-ShellSingle $tarCommand)
 
   try {
     "Remote snapshot start: $(Get-Date -Format s) host=$RemoteHost path=$RemotePath" | Tee-Object -FilePath $LogFile -Append | Out-Null
