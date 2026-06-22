@@ -101,3 +101,4 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\ops\schedule_dr_backup_task.ps1 
 - Use this MVP only after the local `.env` has been validated.
 - If the task must be changed, preview first and avoid removing the task until the new
   configuration has been checked.
+- Freshness monitoring for the daily backup is documented in `docs/ops/BACKUP_MONITORING.md`.
