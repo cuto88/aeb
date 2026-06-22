@@ -69,6 +69,15 @@
   - `automation.climateops_system_actuate`
   - `script.ac_giorno_apply` / `script.ac_notte_apply`
   - stato `switch.ac_giorno` / `switch.ac_notte`
+- Requisito di provenienza operativa: ogni audit, cutover, disaster recovery, backup, restore,
+  migrazione, verifica infrastrutturale o deploy deve dichiarare esplicitamente:
+  - macchina operativa usata;
+  - runtime target verificato o toccato;
+  - stato della macchina legacy, se rilevante;
+  - modalita` di accesso usata: LAN, Tailscale, SSH, HA API, GitHub Actions o simili;
+  - deploy eseguito: si`/no;
+  - modifiche runtime eseguite: si`/no;
+  - commit o run GitHub Actions rilevanti, se presenti.
 - Quality gates:
   - non modificare un gate per nascondere o silenziare un problema reale;
   - se un gate fallisce, diagnosticare prima se il problema e` nel contenuto, nella policy o nel gate;

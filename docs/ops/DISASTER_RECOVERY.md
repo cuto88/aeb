@@ -48,6 +48,19 @@ fuori dall'host HA. Un backup presente solo su DS-01 non copre la perdita di DS-
 La presenza del backup non prova la recuperabilita`. Un drill mensile deve verificare
 manifest, leggibilita` e ordine di restore su una copia isolata o un runtime di test.
 
+## Requisito di provenienza operativa
+
+Ogni nota o audit su disaster recovery, backup, restore, migrazione, verifica
+infrastrutturale o deploy deve dichiarare in modo esplicito:
+
+- macchina operativa usata;
+- runtime target verificato o toccato;
+- stato della macchina legacy, se rilevante;
+- modalita` di accesso usata: LAN, Tailscale, SSH, HA API, GitHub Actions o simili;
+- deploy eseguito: si`/no;
+- modifiche runtime eseguite: si`/no;
+- commit o run GitHub Actions rilevanti, se presenti.
+
 ## Cosa GitHub non protegge
 
 - `.storage/`

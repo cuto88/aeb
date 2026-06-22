@@ -2,6 +2,18 @@
 
 Date: 2026-06-22
 
+## Operational provenance
+
+| Campo | Valore |
+| --- | --- |
+| Operator machine | `DS-WORK` |
+| Runtime target | `mercurio-edge` |
+| Legacy machine status | `DS-01 powered off` |
+| Access mode | `Tailscale + SSH + HA API + GitHub Actions` |
+| Deploy eseguito | `no` |
+| Runtime changes eseguite | `no` |
+| Commit / GitHub Actions rilevanti | commit `fb649b8`; GitHub Actions `docs: record DS-WORK DR pass audit`, `ops: harden remote DR backup exclusions`, `ci: remove missing vmc helper gate` |
+
 ## Contesto
 
 DS-01 e` stata spenta. Il progetto AEB / Home Assistant e` stato verificato da DS-WORK
