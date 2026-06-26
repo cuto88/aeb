@@ -2,7 +2,7 @@
 param(
   [ValidateSet("Preview", "Prune")]
   [string]$Action = "Preview",
-  [string]$BackupRoot = "C:\2_OPS\_repo_archives\aeb\_dr_backups",
+  [string]$BackupRoot = "",
   [int]$KeepDailyDays = 14,
   [int]$KeepWeeklyWeeks = 8,
   [string[]]$ProtectedSnapshots = @(),
@@ -33,7 +33,7 @@ function Get-LogContext {
     Remove-Item -LiteralPath $probe -Force -ErrorAction SilentlyContinue
     return $logRoot
   } catch {
-    $fallback = Join-Path (Split-Path -Parent $PSScriptRoot) ".tmp\dr_backup_retention_logs"
+    $fallback = Join-Path $repoRoot ".tmp\dr_backup_retention_logs"
     New-Item -ItemType Directory -Force -Path $fallback | Out-Null
     return $fallback
   }
@@ -253,6 +253,9 @@ function Get-RetentionPlan {
 }
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($BackupRoot)) {
+  $BackupRoot = Join-Path $repoRoot "_dr_backups"
+}
 $logRoot = Get-LogContext -Root $BackupRoot
 $logFile = Join-Path $logRoot ("dr_retention_" + (Get-Date -Format "yyyyMMdd_HHmmss") + ".log")
 
