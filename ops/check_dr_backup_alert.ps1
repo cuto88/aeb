@@ -4,7 +4,7 @@ param(
   [string]$Action = "Preview",
   [string]$TaskName = "CasaMercurio-DR-BackupFreshnessAlert",
   [string]$StartTime = "14:00",
-  [string]$BackupRoot = "C:\2_OPS\_repo_archives\aeb\_dr_backups",
+  [string]$BackupRoot = "",
   [int]$MaxAgeHours = 30,
   [int]$RunNowTimeoutSeconds = 300
 )
@@ -151,6 +151,9 @@ function Invoke-BackupAlertCheck {
 }
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($BackupRoot)) {
+  $BackupRoot = Join-Path $repoRoot "_dr_backups"
+}
 $shellExe = Get-PowerShellExe
 $taskActionArgs = @(
   "-NoProfile"
