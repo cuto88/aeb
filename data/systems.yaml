@@ -1,0 +1,405 @@
+schema_version: 0.1
+asset_id: casa_mercurio
+metadata:
+  created_from:
+    - chat_memory
+    - aeb_repo
+    - dropbox_materiali_tecnici
+  created_on: 2026-06-29
+  status: initial_extraction_plus_documented_specs
+  source_rule:
+    nominal_specs: Dropbox/manuali/schede tecniche
+    observed_runtime: Home Assistant runtime / recorder / evidence snapshots
+    design_or_measured_layout: rilievo, progetto, chat tecnica verificata
+
+systems:
+  home_assistant_aeb:
+    role: building_operating_system
+    runtime_host:
+      value: mercurio-edge
+      confidence: documented
+      source: aeb_repo_readme
+    runtime_type:
+      value: Docker/Core
+      confidence: documented
+      source: aeb_repo_readme
+    config_path:
+      value: /opt/data/homeassistant -> /config
+      confidence: documented
+      source: aeb_repo_readme
+    current_scope:
+      - VMC
+      - heating
+      - AC
+      - DHW_EHW
+      - PV_surplus
+      - grid_policy
+      - dashboards
+      - runtime_evidence
+
+  vmc:
+    role: mechanical_ventilation
+    model:
+      value: RIS M9 22 HA
+      manufacturer: VMC GROUP
+      confidence: documented
+      source: dropbox:RIS M9 22 HA 2018.pdf
+    nominal_specs:
+      airflow_at_100pa_m3_h:
+        value: 269
+        confidence: documented
+        source: dropbox:RIS M9 22 HA 2018.pdf
+      heat_recovery_type:
+        value: counterflow_polypropylene_heat_exchanger
+        confidence: documented
+        source: dropbox:RIS M9 22 HA 2018.pdf
+      heat_recovery_efficiency:
+        value: ">90%"
+        confidence: documented
+        source: dropbox:RIS M9 22 HA 2018.pdf
+      fans:
+        value: EC backward_curved_centrifugal_low_consumption
+        confidence: documented
+        source: dropbox:RIS M9 22 HA 2018.pdf
+      filters:
+        value: F7 ePM1 70% on extract and supply air
+        confidence: documented
+        source: dropbox:RIS M9 22 HA 2018.pdf
+      max_absorption:
+        current_a: 1.5
+        power_w: 173
+        confidence: documented
+        source: dropbox:RIS M9 22 HA 2018.pdf
+      voltage:
+        value: 230 V 1F 50-60 Hz
+        confidence: documented
+        source: dropbox:RIS M9 22 HA 2018.pdf
+      nominal_pipe_diameter_mm:
+        value: 160
+        confidence: documented
+        source: dropbox:RIS M9 22 HA 2018.pdf
+      weight_kg:
+        value: 47
+        confidence: documented
+        source: dropbox:RIS M9 22 HA 2018.pdf
+      sound_pressure_lpa_db_a_1_5m:
+        value: 39
+        confidence: documented
+        source: dropbox:RIS M9 22 HA 2018.pdf
+      bypass:
+        value: integrated_freecooling_freeheating_bypass
+        control_options: manual_motorized_or_automatic
+        confidence: documented
+        source: dropbox:RIS M9 22 HA 2018.pdf
+      operating_conditions:
+        ambient_temperature_c: "0..45"
+        relative_humidity_max_percent: 80
+        confidence: documented
+        source: dropbox:RIS M9 22 HA 2018.pdf
+    observed_runtime:
+      status:
+        value: maintenance_off_currently
+        confidence: user_reported
+        source: chat_2026-06-29
+      real_consumption_by_speed:
+        value: null
+        confidence: pending_runtime_evidence
+        source: Home Assistant runtime to collect after maintenance
+      runtime_entities_to_check:
+        - switch.vmc_vel_0
+        - switch.vmc_vel_1
+        - switch.vmc_vel_2
+        - switch.vmc_vel_3
+        - sensor.vmc_power_mean_15m
+        - sensor.vmc_power_max_24h
+    known_features:
+      - speed_relays_0_1_2_3
+      - bathroom_boost
+      - anti_dry_logic
+      - freecooling
+      - delta_t_delta_ah_logic
+      - window_opening_advice
+    actuators:
+      speed_0: switch.vmc_vel_0
+      speed_1: switch.vmc_vel_1
+      speed_2: switch.vmc_vel_2
+      speed_3: switch.vmc_vel_3
+    physical_distribution:
+      duct_diameter_mm:
+        value: 75
+        confidence: documented
+        source: chat_memory
+      main_machine_connection_diameter_mm:
+        value: 160
+        confidence: documented
+        source: dropbox:RIS M9 22 HA 2018.pdf
+      plenum_material:
+        value: galvanized_sheet_metal
+        confidence: documented
+        source: chat_memory
+      plenum_air_leakage_found:
+        value: true
+        confidence: documented
+        source: chat_memory
+      plenum_sealing_strategy:
+        value: butyl_sealant_plus_armaflex_or_equivalent_insulation
+        confidence: documented
+        source: chat_memory
+      garage_installation_context:
+        value: vmc_in_garage_about_10c_winter
+        confidence: documented
+        source: chat_memory
+    duct_lengths_m:
+      giorno_supply:
+        value: 9.7
+        confidence: documented
+        source: chat_memory
+      giorno_extract:
+        value: 5.1
+        confidence: documented
+        source: chat_memory
+      camera1_supply:
+        value: 39.5
+        confidence: documented
+        source: chat_memory
+      camera2_supply:
+        value: 32.2
+        confidence: documented
+        source: chat_memory
+      camera3_supply:
+        value: 20.3
+        confidence: documented
+        source: chat_memory
+      lavanderia_extract:
+        value: 24.4
+        confidence: documented
+        source: chat_memory
+    measured_flow_rates_by_speed:
+      value: null
+      confidence: to_confirm
+      source: future_measurement
+    used_by:
+      - iaq_policy
+      - humidity_control
+      - freecooling
+      - energy_dispatch
+
+  radiant_heating:
+    role: low_temperature_floor_heating
+    heat_source:
+      value: heat_pump
+      confidence: documented
+      source: chat_memory
+    heat_pump_family:
+      value: MIRAI SMI 4.0
+      manufacturer_or_brand: Emmeti
+      confidence: documented
+      source: dropbox:Scheda tecnica Mirai 4.0_compressed.pdf
+    possible_models_from_manual:
+      value:
+        - EH0618DC
+        - EH1018DC
+        - EH1218DC
+        - EH1618DC
+        - EH1718D3
+      confidence: documented_family_not_exact_unit
+      source: dropbox:Scheda tecnica Mirai 4.0_compressed.pdf
+      note: "Il manuale copre piu` modelli: serve targhetta/foto/runtime per identificare quello installato."
+    distribution:
+      value: underfloor_radiant
+      confidence: documented
+      source: chat_memory
+    manifold_zones:
+      value: 11
+      confidence: documented
+      source: chat_memory
+    heat_pump_min_flow_l_h:
+      value: 600
+      confidence: documented
+      source: chat_memory
+    observed_total_flow_l_h:
+      value: 930-990
+      confidence: documented
+      source: chat_memory
+    flowmeters:
+      value: 1-5 l_min, 0.5 step, approx 3.5 turns travel
+      confidence: documented
+      source: chat_memory
+    actuator:
+      logical: switch.heating_master
+      physical_relay: switch.4_ch_interruttore_3
+      confidence: documented
+      source: aeb_repo_entity_map
+    missing:
+      - exact_heat_pump_installed_model
+      - hydraulic_schema
+      - zone_to_room_mapping_complete
+      - design_supply_temperature_curve
+      - actual_valve_state_mapping
+      - flow_per_loop_final
+
+  ac:
+    role: cooling_dehumidification
+    manufacturer:
+      value: Toshiba
+      confidence: documented
+      source: dropbox:Imp. AC/TOSHIBA folder
+    system_family:
+      value: U2 multisplit R32
+      confidence: documented
+      source: dropbox:MULTI U2.pdf
+    outdoor_possible_models:
+      two_rooms:
+        - RAS-2M10U2AVG-E
+        - RAS-2M14U2AVG-E
+        - RAS-2M18U2AVG-E
+      three_or_more_rooms:
+        - RAS-3M18U2AVG-E
+        - RAS-3M26U2AVG-E
+        - RAS-4M27U2AVG-E
+        - RAS-5M34U2AVG-E
+      confidence: documented_family_not_exact_unit
+      source: dropbox:MULTI U2.pdf
+    indoor_possible_models_ducted:
+      - RAS-M07U2DVG-E
+      - RAS-M10U2DVG-E
+      - RAS-M13U2DVG-E
+      - RAS-M16U2DVG-E
+      - RAS-M22U2DVG-E
+      - RAS-M24U2DVG-E
+      confidence: documented_family_not_exact_unit
+      source: dropbox:20210602_IM_E0X7200601-2_R32_RAS-M_U2DVG-E_Ducted_07-24_EN.pdf
+    zones:
+      day: climate.ac_giorno
+      night: climate.ac_notte
+    switch_actuators:
+      day: switch.ac_giorno
+      night: switch.ac_notte
+    known_logic:
+      - COOL
+      - DRY
+      - humidity_thresholds
+      - min_on_off_locks
+      - vmc_block
+      - day_night_preference
+    missing:
+      - exact_outdoor_unit_model
+      - exact_indoor_unit_models_day_night
+      - real_power_metering
+      - indoor_unit_positions
+      - served_rooms_geometry
+
+  dhw_ehw:
+    role: domestic_hot_water
+    integration:
+      value: Modbus EHW
+      confidence: documented
+      source: aeb_repo
+    product_family:
+      value: Eco Hot Water
+      possible_models:
+        - EQ 2021
+        - EQ 3021 ES
+      confidence: documented_family_not_exact_unit
+      source: dropbox:Ecohotwater.pdf
+    nominal_specs_from_manual:
+      EQ_2021:
+        useful_volume_l: 190
+        tank_material: S235 JR steel with inorganic enamel internal treatment
+        load_profile: L
+        energy_class: A++
+        annual_energy_consumption_kwh: 665
+      EQ_3021_ES:
+        useful_volume_l: 270
+        tank_material: AISI 316-L stainless steel
+        solar_heat_exchanger_surface_m2: 1
+        solar_heat_exchanger_nominal_volume_l: 3.2
+        load_profile: XL
+        energy_class: A++
+        annual_energy_consumption_kwh: 985
+      both_models:
+        insulation: rigid PU average thickness 50 mm
+        electric_resistance_kw: 1.5
+        refrigerant: R134a
+        compressor: rotary
+        fan: centrifugal
+      confidence: documented_family_not_exact_unit
+      source: dropbox:Ecohotwater.pdf
+    known_runtime:
+      - telemetry_read_path
+      - setpoint_read_feedback
+      - governed_writer_path
+      - reversible_setpoint_write_on_register_1104_validated
+    missing_for_policy:
+      - exact_installed_model_EQ2021_or_EQ3021ES
+      - legionella_policy
+      - min_comfort_temperature
+      - max_safe_setpoint
+      - user_draw_profile
+      - real_energy_consumption
+
+  photovoltaic:
+    role: generation
+    platform:
+      value: SolarEdge integrated in HA
+      confidence: documented
+      source: chat_memory
+    inverter_model:
+      value: SolarEdge SE6000H
+      confidence: documented
+      source: dropbox:Imp. Fotovoltaico/dati.txt
+    nominal_power_kwp:
+      value: 6.5
+      confidence: documented
+      source: chat_memory
+    orientation:
+      value: west
+      confidence: documented
+      source: chat_memory
+    used_by:
+      - surplus_policy
+      - heating_pv_boost
+      - dhw_shift
+      - multi_load_dispatch
+    missing:
+      - exact_module_count
+      - string_layout
+      - export_limits
+      - battery_presence_confirmed
+
+  electrical_grid_metering:
+    role: grid_import_export_metering
+    meter:
+      value: SDM120 Modbus
+      confidence: documented
+      source: aeb_repo_entity_map
+    aliases:
+      - sensor.grid_power_w
+      - sensor.grid_direction
+      - sensor.grid_energy_import_kwh
+      - sensor.grid_voltage_v
+      - sensor.grid_current_a
+    missing:
+      - electricity_tariff_contract
+      - fixed_power_kw
+      - hourly_price_source
+      - export_remuneration
+
+  network_and_edge:
+    role: local_control_infrastructure
+    known_nodes:
+      - mercurio-edge
+      - DS-WORK
+      - DS-XPS
+    remote_access:
+      value: Tailscale
+      confidence: documented
+      source: chat_memory
+    orchestration_tools:
+      - Home Assistant
+      - n8n
+      - Ollama_or_local_models
+    excluded_or_not_active:
+      - Node-RED
+    notes:
+      - "Node-RED non va considerato componente attivo dello stack attuale salvo nuova indicazione."

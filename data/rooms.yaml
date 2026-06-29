@@ -1,0 +1,206 @@
+schema_version: 0.1
+asset_id: casa_mercurio
+metadata:
+  created_from: chat_memory
+  created_on: 2026-06-29
+  status: initial_extraction
+
+zones:
+  giorno:
+    role: living_day_zone
+    area_m2:
+      value: 29.03
+      confidence: documented
+      source: chat_memory
+    height_m:
+      value: 3.24
+      confidence: documented
+      source: chat_memory
+    volume_m3:
+      value: 94.06
+      confidence: documented
+      source: chat_memory
+    exposure:
+      value: west_main_openings
+      confidence: inferred
+      source: chat_memory
+    openings:
+      main_window_area_m2:
+        value: 4.30
+        confidence: documented
+        source: chat_memory
+    hvac_links:
+      vmc_supply_points:
+        value: 2
+        confidence: documented
+        source: chat_memory
+      vmc_extract_points:
+        value: 2
+        confidence: documented
+        source: chat_memory
+      ac_zone:
+        value: ac_giorno
+        confidence: documented
+        source: repo_entity_map
+      heating_zone:
+        value: giorno
+        confidence: documented
+        source: repo_entity_map
+    sensors:
+      temperature: sensor.t_in_giorno
+      humidity: sensor.ur_in_giorno
+
+  camera1:
+    role: night_zone_1
+    area_m2:
+      value: 15.49
+      confidence: documented
+      source: chat_memory
+    height_m:
+      value: 3.24
+      confidence: documented
+      source: chat_memory
+    volume_m3:
+      value: 50.19
+      confidence: documented
+      source: chat_memory
+    hvac_links:
+      vmc_supply_points:
+        value: 2
+        confidence: documented
+        source: chat_memory
+      vmc_extract_points:
+        value: 0
+        confidence: inferred
+        source: vmc_scheme_chat
+      heating_zone:
+        value: notte1_or_camera1
+        confidence: to_confirm
+        source: chat_memory
+    sensors:
+      temperature: sensor.t_in_notte1
+      humidity: sensor.ur_in_notte1
+
+  camera2:
+    role: night_zone_2
+    area_m2:
+      value: 9.43
+      confidence: documented
+      source: chat_memory
+    height_m:
+      value: 3.42
+      confidence: documented
+      source: chat_memory
+    volume_m3:
+      value: 32.25
+      confidence: documented
+      source: chat_memory
+    hvac_links:
+      vmc_supply_points:
+        value: 1
+        confidence: documented
+        source: chat_memory
+      vmc_extract_points:
+        value: 0
+        confidence: inferred
+        source: vmc_scheme_chat
+    sensors:
+      temperature: sensor.t_in_notte2
+      humidity: sensor.ur_in_notte2
+
+  camera3:
+    role: night_zone_3
+    area_m2:
+      value: 9.43
+      confidence: inferred
+      source: chat_memory_grouped_camera2_3
+      notes: "La memoria indica Camera2/3 9.43 m2 e 32.25 m3: verificare se entrambe identiche."
+    height_m:
+      value: 3.42
+      confidence: inferred
+      source: chat_memory_grouped_camera2_3
+    volume_m3:
+      value: 32.25
+      confidence: inferred
+      source: chat_memory_grouped_camera2_3
+    hvac_links:
+      vmc_supply_points:
+        value: 1
+        confidence: documented
+        source: chat_memory
+    sensors:
+      temperature: null
+      humidity: null
+      confidence: to_confirm
+      notes: "Repo cita notte3 nei KPI notte, ma entity fisica canonica non era presente nella prima tabella sensori clima."
+
+  lavanderia:
+    role: service_extract_zone
+    volume_m3:
+      value: 13.75
+      confidence: documented
+      source: chat_memory
+    area_m2:
+      value: null
+      confidence: to_confirm
+      source: missing
+    height_m:
+      value: null
+      confidence: to_confirm
+      source: missing
+    hvac_links:
+      vmc_extract_points:
+        value: 2
+        confidence: documented
+        source: chat_memory
+      vmc_supply_points:
+        value: 0
+        confidence: inferred
+        source: vmc_scheme_chat
+      heating_control_note:
+        value: lavanderia associated with camera1 thermostat/control
+        confidence: documented
+        source: chat_memory
+    sensors:
+      temperature: null
+      humidity: null
+      confidence: to_confirm
+
+  bagno:
+    role: bathroom_extract_zone
+    volume_m3:
+      value: 19.78
+      confidence: documented
+      source: chat_memory
+    area_m2:
+      value: null
+      confidence: to_confirm
+      source: missing
+    height_m:
+      value: null
+      confidence: to_confirm
+      source: missing
+    hvac_links:
+      vmc_extract_points:
+        value: 2
+        confidence: documented
+        source: chat_memory
+      vmc_supply_points:
+        value: 0
+        confidence: inferred
+        source: vmc_scheme_chat
+    sensors:
+      temperature: sensor.t_in_bagno
+      humidity: sensor.ur_in_bagno
+
+missing_room_data:
+  high_priority:
+    - exact_floor_plan_room_boundaries
+    - window_dimensions_by_room
+    - door_positions_and_air_transfer_paths
+    - room_exposures_by_facade
+    - actual_sensor_physical_position_and_height
+  medium_priority:
+    - internal_mass_surfaces
+    - shading_geometry_by_window
+    - use_profile_by_room
