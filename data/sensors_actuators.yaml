@@ -1,0 +1,206 @@
+schema_version: 0.1
+asset_id: casa_mercurio
+metadata:
+  created_from:
+    - aeb_repo_entity_map
+    - chat_memory
+  created_on: 2026-06-29
+  status: initial_extraction
+
+sensor_policy:
+  required_fields:
+    - entity_id
+    - physical_location
+    - measured_quantity
+    - calibration_status
+    - confidence
+    - used_by
+    - failure_mode
+
+ambient_sensors:
+  sensor.t_in_giorno:
+    measured_quantity: temperature
+    unit: C
+    physical_location: giorno
+    confidence: documented
+    source: aeb_repo_entity_map
+    used_by: [comfort, heating, ac, vmc, digital_twin]
+    calibration_status: to_confirm
+  sensor.ur_in_giorno:
+    measured_quantity: relative_humidity
+    unit: percent
+    physical_location: giorno
+    confidence: documented
+    source: aeb_repo_entity_map
+    used_by: [comfort, ac_dry, vmc, digital_twin]
+    calibration_status: to_confirm
+  sensor.t_in_notte1:
+    measured_quantity: temperature
+    unit: C
+    physical_location: camera1_or_notte1
+    confidence: documented
+    source: aeb_repo_entity_map
+    calibration_status: to_confirm
+  sensor.ur_in_notte1:
+    measured_quantity: relative_humidity
+    unit: percent
+    physical_location: camera1_or_notte1
+    confidence: documented
+    source: aeb_repo_entity_map
+    calibration_status: to_confirm
+  sensor.t_in_notte2:
+    measured_quantity: temperature
+    unit: C
+    physical_location: camera2_or_notte2
+    confidence: documented
+    source: aeb_repo_entity_map
+    calibration_status: to_confirm
+  sensor.ur_in_notte2:
+    measured_quantity: relative_humidity
+    unit: percent
+    physical_location: camera2_or_notte2
+    confidence: documented
+    source: aeb_repo_entity_map
+    calibration_status: to_confirm
+  sensor.t_in_bagno:
+    measured_quantity: temperature
+    unit: C
+    physical_location: bagno
+    confidence: documented
+    source: aeb_repo_entity_map
+    calibration_status: to_confirm
+  sensor.ur_in_bagno:
+    measured_quantity: relative_humidity
+    unit: percent
+    physical_location: bagno
+    confidence: documented
+    source: aeb_repo_entity_map
+    used_by: [vmc_bathroom_boost, ac_dry, comfort]
+    calibration_status: to_confirm
+  sensor.t_out:
+    measured_quantity: outdoor_temperature
+    unit: C
+    physical_location: outdoor
+    confidence: documented
+    source: aeb_repo_entity_map
+    calibration_status: to_confirm
+  sensor.ur_out:
+    measured_quantity: outdoor_relative_humidity
+    unit: percent
+    physical_location: outdoor
+    confidence: documented
+    source: aeb_repo_entity_map
+    calibration_status: to_confirm
+
+kpi_sensors:
+  sensor.t_in_med:
+    role: indoor_average_temperature
+    used_by: [heating, ac, comfort_score]
+    confidence: documented
+    source: aeb_repo_entity_map
+  sensor.ur_in_media:
+    role: indoor_average_relative_humidity
+    used_by: [vmc, ac_dry, comfort_score]
+    confidence: documented
+    source: aeb_repo_entity_map
+  sensor.ah_in:
+    role: indoor_absolute_humidity
+    used_by: [vmc, dehumidification_policy]
+    confidence: documented
+    source: aeb_repo_entity_map
+  sensor.ah_out:
+    role: outdoor_absolute_humidity
+    used_by: [vmc, freecooling, natural_ventilation]
+    confidence: documented
+    source: aeb_repo_entity_map
+  sensor.delta_t_in_out:
+    role: indoor_outdoor_temperature_delta
+    used_by: [freecooling, window_advice]
+    confidence: documented
+    source: aeb_repo_entity_map
+  sensor.delta_ah_in_out:
+    role: indoor_outdoor_absolute_humidity_delta
+    used_by: [vmc, window_advice]
+    confidence: documented
+    source: aeb_repo_entity_map
+
+actuators:
+  switch.vmc_vel_0:
+    system: vmc
+    action: speed_0_or_off
+    confidence: documented
+    source: aeb_repo_entity_map
+    failure_mode: wrong_speed_or_parallel_writer
+  switch.vmc_vel_1:
+    system: vmc
+    action: speed_1
+    confidence: documented
+    source: aeb_repo_entity_map
+  switch.vmc_vel_2:
+    system: vmc
+    action: speed_2_freecooling_or_boost
+    confidence: documented
+    source: aeb_repo_entity_map
+  switch.vmc_vel_3:
+    system: vmc
+    action: speed_3_bathroom_boost
+    confidence: documented
+    source: aeb_repo_entity_map
+  switch.heating_master:
+    system: radiant_heating
+    action: logical_heating_master
+    confidence: documented
+    source: aeb_repo_entity_map
+  switch.4_ch_interruttore_3:
+    system: radiant_heating
+    action: physical_relay
+    confidence: documented
+    source: aeb_repo_entity_map
+    failure_mode: relay_semantics_or_inverted_logic_mismatch
+  switch.ac_giorno:
+    system: ac
+    action: day_split_switch
+    confidence: documented
+    source: aeb_repo_entity_map
+  switch.ac_notte:
+    system: ac
+    action: night_split_switch
+    confidence: documented
+    source: aeb_repo_entity_map
+  climate.ac_giorno:
+    system: ac
+    action: day_split_thermostat_interface
+    confidence: documented
+    source: aeb_repo_entity_map
+  climate.ac_notte:
+    system: ac
+    action: night_split_thermostat_interface
+    confidence: documented
+    source: aeb_repo_entity_map
+
+future_or_pending_sensors:
+  wired_window_contacts:
+    status: standby
+    source: aeb_runtime_status
+    used_by: [natural_ventilation, ac_lockout, security]
+  co2_first_wave:
+    status: standby
+    source: aeb_runtime_status
+    used_by: [iaq_policy, vmc_baseline, occupancy_proxy]
+  garage_main_door_state:
+    status: standby
+    source: aeb_runtime_status
+    used_by: [security, thermal_boundary, notifications]
+  ds18b20_vmc_plenum_sensors:
+    status: planned_or_in_progress
+    source: chat_memory
+    used_by: [vmc_efficiency, heat_recovery_kpi, diagnostics]
+    notes: "Sonde cilindriche circa 3 mm / corpo sensore circa 5 cm citate nella chat VMC; posizione definitiva da confermare."
+
+calibration_requirements:
+  high_priority:
+    - physical_location_photo_or_description_for_each_sensor
+    - sensor_height_from_floor
+    - sensor_distance_from_windows_doors_supply_diffusers
+    - comparison_against_reference_thermometer_hygrometer
+    - recorder_availability_and_data_gaps
