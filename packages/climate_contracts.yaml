@@ -84,6 +84,9 @@ template:
 
       - name: "Contract actuators ready"
         unique_id: contract_actuators_ready
+        # Legacy aggregate readiness stays diagnostic-only. Operational gating
+        # must use subsystem-specific readiness so a dead VMC branch does not
+        # block AC actuation.
         state: >-
           {%- set required_actuators = [
             'switch.heating_master',
@@ -107,6 +110,48 @@ template:
               or optional_ac_states | select('eq', 'unknown') | list | count == optional_ac_actuators | length
             )
           }}
+      - name: "Contract AC Ready"
+        unique_id: contract_ac_ready
+        state: >-
+          {%- set ac_branch_powered = is_state('binary_sensor.cm_ac_branch_powered', 'on') -%}
+          {%- set ac_actuators = [
+            'switch.ac_giorno',
+            'switch.ac_notte'
+          ] -%}
+          {%- set ac_states = ac_actuators | map('states') | list -%}
+          {{
+            ac_branch_powered
+            and ac_states | reject('in', ['unknown','unavailable']) | list | count == ac_actuators | length
+          }}
+      - name: "Contract VMC Ready"
+        unique_id: contract_vmc_ready
+        state: >-
+          {%- set vmc_actuators = [
+            'switch.vmc_vel_0',
+            'switch.vmc_vel_1',
+            'switch.vmc_vel_2',
+            'switch.vmc_vel_3'
+          ] -%}
+          {%- set vmc_states = vmc_actuators | map('states') | list -%}
+          {{ vmc_states | reject('in', ['unknown','unavailable']) | list | count == vmc_actuators | length }}
+  - sensor:
+      - name: "Contract missing entities"
+        unique_id: contract_missing_entities
+        state: >-
+          {%- set required = [
+            'switch.heating_master',
+            'switch.vmc_vel_0',
+            'switch.vmc_vel_1',
+            'switch.vmc_vel_2',
+            'switch.vmc_vel_3'
+          ] -%}
+          {%- set ns = namespace(missing=[]) -%}
+          {%- for entity in required -%}
+            {%- if states(entity) == 'unknown' -%}
+              {%- set ns.missing = ns.missing + [entity] -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ ns.missing | join(', ') if ns.missing | length > 0 else 'OK' }}
       - name: "Contract actuators reason"
         unique_id: contract_actuators_reason
         state: >-
@@ -153,25 +198,59 @@ template:
           {%- else -%}
             OK
           {%- endif -%}
-
-  - sensor:
-      - name: "Contract missing entities"
-        unique_id: contract_missing_entities
+      - name: "Contract AC Reason"
+        unique_id: contract_ac_reason
         state: >-
-          {%- set required = [
-            'switch.heating_master',
+          {%- set ac_branch_powered = is_state('binary_sensor.cm_ac_branch_powered', 'on') -%}
+          {%- set ac_actuators = [
+            'switch.ac_giorno',
+            'switch.ac_notte'
+          ] -%}
+          {%- set missing = namespace(v=[]) -%}
+          {%- set unavailable = namespace(v=[]) -%}
+          {%- for entity in ac_actuators -%}
+            {%- set st = states(entity) -%}
+            {%- if st == 'unknown' -%}
+              {%- set missing.v = missing.v + [entity] -%}
+            {%- elif st == 'unavailable' -%}
+              {%- set unavailable.v = unavailable.v + [entity] -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- if not ac_branch_powered -%}
+            AC_BRANCH_OFF
+          {%- elif missing.v | length > 0 -%}
+            MISSING_AC: {{ missing.v | join(', ') }}
+          {%- elif unavailable.v | length > 0 -%}
+            UNAVAILABLE_AC: {{ unavailable.v | join(', ') }}
+          {%- else -%}
+            OK
+          {%- endif -%}
+      - name: "Contract VMC Reason"
+        unique_id: contract_vmc_reason
+        state: >-
+          {%- set vmc_actuators = [
             'switch.vmc_vel_0',
             'switch.vmc_vel_1',
             'switch.vmc_vel_2',
             'switch.vmc_vel_3'
           ] -%}
-          {%- set ns = namespace(missing=[]) -%}
-          {%- for entity in required -%}
-            {%- if states(entity) == 'unknown' -%}
-              {%- set ns.missing = ns.missing + [entity] -%}
+          {%- set missing = namespace(v=[]) -%}
+          {%- set unavailable = namespace(v=[]) -%}
+          {%- for entity in vmc_actuators -%}
+            {%- set st = states(entity) -%}
+            {%- if st == 'unknown' -%}
+              {%- set missing.v = missing.v + [entity] -%}
+            {%- elif st == 'unavailable' -%}
+              {%- set unavailable.v = unavailable.v + [entity] -%}
             {%- endif -%}
           {%- endfor -%}
-          {{ ns.missing | join(', ') if ns.missing | length > 0 else 'OK' }}
+          {%- if missing.v | length > 0 -%}
+            MISSING_VMC: {{ missing.v | join(', ') }}
+          {%- elif unavailable.v | length > 0 -%}
+            UNAVAILABLE_VMC: {{ unavailable.v | join(', ') }}
+          {%- else -%}
+            OK
+          {%- endif -%}
       - name: "Contract forecast reason"
         unique_id: contract_forecast_reason
         state: >-

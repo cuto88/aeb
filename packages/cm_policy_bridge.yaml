@@ -7,6 +7,12 @@ template:
       - name: "CM Contract Actuators Ready"
         unique_id: cm_contract_actuators_ready
         state: "{{ is_state('binary_sensor.contract_actuators_ready','on') }}"
+      - name: "CM Contract AC Ready"
+        unique_id: cm_contract_ac_ready
+        state: "{{ is_state('binary_sensor.contract_ac_ready','on') }}"
+      - name: "CM Contract VMC Ready"
+        unique_id: cm_contract_vmc_ready
+        state: "{{ is_state('binary_sensor.contract_vmc_ready','on') }}"
       - name: "CM Contract Surplus OK Defined"
         unique_id: cm_contract_surplus_ok_defined
         state: "{{ is_state('binary_sensor.contract_surplus_ok_defined','on') }}"
@@ -63,6 +69,12 @@ template:
       - name: "CM Contract Actuators Reason"
         unique_id: cm_contract_actuators_reason
         state: "{{ states('sensor.contract_actuators_reason') }}"
+      - name: "CM Contract AC Reason"
+        unique_id: cm_contract_ac_reason
+        state: "{{ states('sensor.contract_ac_reason') }}"
+      - name: "CM Contract VMC Reason"
+        unique_id: cm_contract_vmc_reason
+        state: "{{ states('sensor.contract_vmc_reason') }}"
       - name: "CM Policy Forecast Reason"
         unique_id: cm_policy_forecast_reason
         state: "{{ states('sensor.policy_forecast_reason') }}"
