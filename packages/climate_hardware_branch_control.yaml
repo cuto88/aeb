@@ -251,22 +251,6 @@ automation:
             reason: {{ states('sensor.cm_system_reason') }},
             advice: {{ states('sensor.cm_ac_branch_advice') }}.
           entity_id: binary_sensor.cm_ac_branch_should_be_powered
-      - service: persistent_notification.create
-        data:
-          notification_id: cm_ac_branch_manual_power_required
-          title: "AC quadro manuale da abilitare"
-          message: >
-            Il ramo AC dovrebbe essere alimentato ma il quadro manuale risulta OFF
-            da almeno 15 minuti.
-
-            Azione richiesta: verificare e, se coerente con le condizioni reali,
-            abilitare l'interruttore principale AC dal quadro.
-
-            Mode: {{ states('sensor.cm_system_mode_suggested') }}
-            Reason: {{ states('sensor.cm_system_reason') }}
-            Advice: {{ states('sensor.cm_ac_branch_advice') }}
-            Season: {{ states('binary_sensor.cm_ac_branch_in_season') }}
-            Cool request: {{ states('binary_sensor.climateops_request_cool') }}
       - action: script.telegram_ha_mercurio_send
         data:
           title: "Attenzione: quadro AC da verificare"
@@ -331,9 +315,6 @@ automation:
       - choose:
           - conditions: "{{ trg == 'binary_sensor.cm_ac_branch_powered' and is_state('binary_sensor.cm_ac_branch_powered', 'on') }}"
             sequence:
-              - service: persistent_notification.dismiss
-                data:
-                  notification_id: cm_ac_branch_manual_power_required
               - action: script.telegram_ha_mercurio_send
                 data:
                   title: "Aggiornamento quadro AC"
@@ -346,6 +327,13 @@ automation:
                     Ora: `{{ now() | string | replace('`', '') }}`
           - conditions: "{{ trg == 'binary_sensor.cm_ac_branch_should_be_powered' and is_state('binary_sensor.cm_ac_branch_should_be_powered', 'off') }}"
             sequence:
-              - service: persistent_notification.dismiss
+              - action: script.telegram_ha_mercurio_send
                 data:
-                  notification_id: cm_ac_branch_manual_power_required
+                  title: "Aggiornamento quadro AC"
+                  message: |
+                    L'avviso sul quadro AC manuale è rientrato.
+
+                    Ramo alimentato: `{{ ac_powered_label | replace('`', '') }}`
+                    Doveva essere alimentato: `{{ ac_should_be_powered_label | replace('`', '') }}`
+                    Indicazione sistema: `{{ ac_advice_label | replace('`', '') }}`
+                    Ora: `{{ now() | string | replace('`', '') }}`

@@ -1127,10 +1127,6 @@ script:
           name: "{{ title | default('DomesticOps') }}"
           message: "{{ message }}"
           entity_id: input_boolean.domesticops_notify_enabled
-      - service: persistent_notification.create
-        data:
-          title: "{{ title | default('DomesticOps') }}"
-          message: "{{ message }}"
       - action: script.telegram_ha_mercurio_send
         data:
           title: "{{ title | default('DomesticOps') }}"

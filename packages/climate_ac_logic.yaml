@@ -80,13 +80,6 @@ automation:
             Priority: {{ states('sensor.ventilation_priority') }},
             reason: {{ states('sensor.ventilation_reason') }}.
           entity_id: binary_sensor.clima_ac_from_vmc_request
-      - service: persistent_notification.create
-        data:
-          title: "VMC – richiesta AC"
-          message: >
-            La VMC / logica clima ha richiesto l'intervento dell'AC.
-            Motivo: {{ states('sensor.ventilation_reason') }}
-            (priority {{ states('sensor.ventilation_priority') }}).
 
 # ============================================================================
 # LEGACY AUTOMATIONS – disattivate a favore del controller unico

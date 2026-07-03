@@ -23,6 +23,20 @@ script:
             {{ message }}
 
 automation:
+  - id: notification_flags_reset_on_start
+    alias: "Notifications - reset flags on start"
+    mode: single
+    trigger:
+      - platform: homeassistant
+        event: start
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id:
+            - input_boolean.climate_debug_telegram
+            - input_boolean.vent_notifiche_attive
+            - input_boolean.envelope_notify_enabled
+            - input_boolean.domesticops_notify_enabled
   - alias: "Climate debug - Telegram HA Mercurio"
     id: climate_debug_telegram_notifications
     mode: queued
