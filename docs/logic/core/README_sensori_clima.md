@@ -225,6 +225,9 @@ Non è un rename: la coesistenza è intenzionale. Warning alias possibile: `clim
 | AC day split (thermostat interface)       | `climate.ac_giorno`                        |
 | AC night split (thermostat interface)     | `climate.ac_notte`                         |
 
+Nota operativa:
+- la logica AC notte usa come base le camere notte; il bagno resta fuori dalla decisione primaria e viene valutato nei modelli involucro / VMC.
+
 ### 5.1 Helpers
 
 | Ruolo                                      | Entity ID canonico                         |

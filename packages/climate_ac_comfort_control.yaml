@@ -100,19 +100,17 @@ template:
           {{
             [
               states('sensor.t_in_notte1'),
-              states('sensor.t_in_notte2'),
-              states('sensor.t_in_bagno')
+              states('sensor.t_in_notte2')
             ] | reject('in', ['unknown','unavailable','']) | list | length > 0
           }}
         state: >-
           {% set values = [
             states('sensor.t_in_notte1') | float(default=none),
-            states('sensor.t_in_notte2') | float(default=none),
-            states('sensor.t_in_bagno') | float(default=none)
+            states('sensor.t_in_notte2') | float(default=none)
           ] | select('number') | list %}
           {{ (values | max) | round(1) }}
         attributes:
-          strategy: "maximum of available night/bathroom sensors"
+          strategy: "maximum of available night sensors"
 
       - name: "AC Notte Umidita Controllo"
         unique_id: ac_notte_control_humidity
@@ -123,19 +121,17 @@ template:
           {{
             [
               states('sensor.ur_in_notte1'),
-              states('sensor.ur_in_notte2'),
-              states('sensor.ur_in_bagno')
+              states('sensor.ur_in_notte2')
             ] | reject('in', ['unknown','unavailable','']) | list | length > 0
           }}
         state: >-
           {% set values = [
             states('sensor.ur_in_notte1') | float(default=none),
-            states('sensor.ur_in_notte2') | float(default=none),
-            states('sensor.ur_in_bagno') | float(default=none)
+            states('sensor.ur_in_notte2') | float(default=none)
           ] | select('number') | list %}
           {{ (values | max) | round(1) }}
         attributes:
-          strategy: "maximum of available night/bathroom sensors"
+          strategy: "maximum of available night sensors"
 
       - name: "AC Notte Dew Point"
         unique_id: ac_notte_dew_point
