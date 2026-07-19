@@ -1,13 +1,13 @@
 # Ventilation — Plancia
 
-Obiettivo: descrivere la plancia legacy `lovelace/02_air_loop_legacy.yaml`.
+Obiettivo: descrivere la plancia dominio corrente `lovelace/02_air_loop.yaml` e distinguere la copia legacy conservata.
 
 Stato sidebar:
-- `configuration.yaml` mantiene la plancia legacy registrata come `1-ventilazione`, ma con `show_in_sidebar: false`.
-- `lovelace/02_air_loop.yaml` resta registrata come fallback tecnico, ma con `show_in_sidebar: false`.
-- `lovelace/01_eclss_casa.yaml` (`1-clima-casa`) e` l'entrypoint operativo moderno cross-modulo.
+- `02-vmc` registra `lovelace/02_air_loop.yaml` come `2 Air Loop`, visibile in sidebar.
+- `lovelace/_archive/legacy_dashboards/02_air_loop_legacy.yaml` e` conservata per confronto e rollback, ma non e` registrata in `configuration.yaml`.
+- `lovelace/01_eclss_casa.yaml` (`01-clima-casa`) resta l'entrypoint operativo cross-modulo.
 
-Struttura (legacy):
+Struttura del dominio:
 - "Stato generale": `sensor.ventilation_priority`, `sensor.ventilation_reason`, `binary_sensor.vmc_sensors_ok`.
 - "KPI aria": `sensor.t_in_med`, `sensor.ur_in_media`, `sensor.delta_t_in_out`, `sensor.delta_ah_in_out`.
 - "Freecooling Passivhaus": stato e indicatori `delta_*` + `sensor.clima_open_windows_recommended`.
@@ -18,7 +18,7 @@ Struttura (legacy):
 
 Note:
 - La sezione finestre non contiene più placeholder TODO; usa gli aggregati runtime del modulo `packages/climate_ventilation_windows.yaml`.
-- Layout legacy a cards semplici; la versione `v2` resta un fallback tecnico, mentre l'uso quotidiano passa dalla plancia unificata.
+- La plancia corrente usa una view `sections`; il file legacy mantiene il precedente layout a card semplici solo come riferimento storico.
 - La card `ClimateOps Cutover` e i relativi toggle sono stati rimossi dalla `v2` per ridurre rumore operativo UI.
 
 ## Riferimenti logici

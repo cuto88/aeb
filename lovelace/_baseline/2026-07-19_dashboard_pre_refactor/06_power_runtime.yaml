@@ -19,23 +19,6 @@ views:
               - `7 DHW / ACS`
               - `8 MIRAI Plant`
               - `9 Fieldbus` solo per raw / forensic
-          - type: grid
-            title: "Approfondimenti"
-            columns: 2
-            square: false
-            cards:
-              - type: button
-                name: "PV Array"
-                icon: mdi:solar-power
-                tap_action:
-                  action: navigate
-                  navigation_path: /05-fv-solaredge/pv_solaredge
-              - type: button
-                name: "Fieldbus SDM120"
-                icon: mdi:transit-connection-variant
-                tap_action:
-                  action: navigate
-                  navigation_path: /09-modbus/modbus-sdm120
           - type: entities
             title: "Quote oggi"
             show_header_toggle: false

@@ -46,47 +46,6 @@ views:
             entity: binary_sensor.solar_gain_advisory_inputs_ready
             name: "Solar gain inputs"
             color: yellow
-          - type: grid
-            title: "Apri dominio"
-            columns: 3
-            square: false
-            cards:
-              - type: button
-                name: "Air Loop"
-                icon: mdi:fan
-                tap_action:
-                  action: navigate
-                  navigation_path: /02-vmc/climate_vmc_v2
-              - type: button
-                name: "Heating"
-                icon: mdi:radiator
-                tap_action:
-                  action: navigate
-                  navigation_path: /03-riscaldamento/heating
-              - type: button
-                name: "Cooling"
-                icon: mdi:air-conditioner
-                tap_action:
-                  action: navigate
-                  navigation_path: /04-ac/ac_v2
-              - type: button
-                name: "DHW / ACS"
-                icon: mdi:water-boiler
-                tap_action:
-                  action: navigate
-                  navigation_path: /07-ehw-acs/ehw
-              - type: button
-                name: "MIRAI"
-                icon: mdi:heat-pump
-                tap_action:
-                  action: navigate
-                  navigation_path: /08-mirai/8-mirai
-              - type: button
-                name: "Envelope"
-                icon: mdi:home-thermometer-outline
-                tap_action:
-                  action: navigate
-                  navigation_path: /10-involucro/involucro
 
       - type: grid
         title: "Contracts"

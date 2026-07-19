@@ -10,7 +10,7 @@ Ventilation — ventilazione naturale + VMC.
 ## Entrypoints
 - YAML: `packages/climate_ventilation.yaml`, `packages/climate_ventilation_windows.yaml`.
 - Helper entities VMC: `packages/climate_ventilation_helpers.yaml`.
-- Lovelace tecnica: `lovelace/02_air_loop_legacy.yaml` (con fallback `lovelace/02_air_loop.yaml`).
+- Lovelace corrente: `lovelace/02_air_loop.yaml`; riferimento storico: `lovelace/_archive/legacy_dashboards/02_air_loop_legacy.yaml`.
 - Entrypoint utente corrente: `lovelace/01_eclss_casa.yaml`.
 
 ## KPI / Entità principali

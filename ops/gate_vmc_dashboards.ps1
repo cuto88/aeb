@@ -1,5 +1,7 @@
 param(
-    [string]$Dashboard1 = 'lovelace\02_air_loop_legacy.yaml',
+    # Il legacy non e` una dashboard operativa registrata: resta un riferimento
+    # storico per impedire regressioni dei quattro indicatori VMC nel confronto.
+    [string]$Dashboard1 = 'lovelace\_archive\legacy_dashboards\02_air_loop_legacy.yaml',
     [string]$Dashboard2 = 'lovelace\02_air_loop.yaml'
 )
 

@@ -40,6 +40,9 @@ if (-not (Test-Path $configPath)) {
 $configLines = Get-Content -Path $configPath
 $active = New-Object System.Collections.Generic.HashSet[string]
 foreach ($line in $configLines) {
+  if ($line -match "^\s*filename:\s*lovelace/(_archive|_baseline)(/|\\)") {
+    Fail "Archived or baseline Lovelace files must not be registered as operational dashboards: $($line.Trim())"
+  }
   if ($line -match "^\s*filename:\s*lovelace/([A-Za-z0-9_.-]+\.(yaml|yml))\s*$") {
     [void]$active.Add($matches[1])
   }
@@ -61,29 +64,20 @@ if ($missingFiles.Count -gt 0) {
   Fail "Dashboard references missing files."
 }
 
-$trackedRaw = $null
-try {
-  $trackedRaw = (& git -C $repoRoot ls-files -- "lovelace/*.yaml" "lovelace/*.yml" 2>$null)
-} catch {
-  $trackedRaw = $null
-}
-if (-not $trackedRaw) {
-  $trackedRaw = Get-ChildItem -Path (Join-Path $repoRoot "lovelace") -File -Include "*.yaml", "*.yml" |
-    ForEach-Object { "lovelace/" + $_.Name }
-}
-$tracked = @()
-if ($trackedRaw) {
-  $tracked = $trackedRaw |
-    Where-Object { [System.IO.Path]::GetDirectoryName($_).Replace('\', '/') -eq 'lovelace' } |
-    Where-Object { Test-Path (Join-Path $repoRoot $_) } |
-    ForEach-Object { [System.IO.Path]::GetFileName($_) } |
+$topLevel = @(
+  Get-ChildItem -Path (Join-Path $repoRoot "lovelace") -File |
+    Where-Object { $_.Extension -in ".yaml", ".yml" } |
+    ForEach-Object { $_.Name } |
     Sort-Object -Unique
+)
+if ($topLevel.Count -eq 0) {
+  Fail "No top-level Lovelace YAML files found."
 }
 
 $allowOrphans = @(
   ".gitkeep"
 )
-$orphans = $tracked | Where-Object { -not $active.Contains($_) -and $_ -notin $allowOrphans }
+$orphans = $topLevel | Where-Object { -not $active.Contains($_) -and $_ -notin $allowOrphans }
 if ($orphans.Count -gt 0) {
   $orphans | ForEach-Object { Write-Host ("[ORPHAN] lovelace/{0}" -f $_) }
   Fail "Tracked Lovelace files not referenced by configuration dashboards."
@@ -107,5 +101,5 @@ if ($forbiddenHits.Count -gt 0) {
   Fail "Dashboard hygiene violations detected."
 }
 
-Write-Host ("[OK] Lovelace dashboards gate passed. Active={0}, Tracked={1}" -f $active.Count, $tracked.Count)
+Write-Host ("[OK] Lovelace dashboards gate passed. Active={0}, TopLevel={1}" -f $active.Count, $topLevel.Count)
 exit 0

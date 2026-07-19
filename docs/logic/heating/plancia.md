@@ -3,8 +3,8 @@
 Riferimento: `lovelace/03_heating_loop.yaml`.
 
 Stato sidebar:
-- `2-heating` resta registrata ma non visibile (`show_in_sidebar: false`).
-- L'accesso utente operativo per il dominio clima e` `1-clima-casa`.
+- `03-riscaldamento` registra `lovelace/03_heating_loop.yaml` come `3 Heating Loop`, visibile in sidebar.
+- L'overview cross-modulo resta `01-clima-casa`; la plancia Heating e` il drill-down ufficiale del dominio.
 
 Sezioni principali:
 - "Stato generale": `binary_sensor.heating_should_run`, priorità/motivo e failsafe.

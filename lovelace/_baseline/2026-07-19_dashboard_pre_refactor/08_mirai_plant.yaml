@@ -16,12 +16,6 @@ views:
               Questa plancia e` il **drill-down macchina MIRAI**.
 
               Usa `9 Fieldbus` solo per raw bus / forensic basso livello.
-          - type: button
-            name: "Apri Fieldbus MIRAI"
-            icon: mdi:transit-connection-variant
-            tap_action:
-              action: navigate
-              navigation_path: /09-modbus/modbus-mirai
           - type: entities
             title: "Stato macchina"
             show_header_toggle: false

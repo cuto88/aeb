@@ -62,23 +62,6 @@ views:
             entity: binary_sensor.domesticops_drying_retrieval_needed
             name: "Rientro bucato"
             color: red
-          - type: grid
-            title: "Energia"
-            columns: 2
-            square: false
-            cards:
-              - type: button
-                name: "PV Array"
-                icon: mdi:solar-power
-                tap_action:
-                  action: navigate
-                  navigation_path: /05-fv-solaredge/pv_solaredge
-              - type: button
-                name: "Power Runtime"
-                icon: mdi:flash
-                tap_action:
-                  action: navigate
-                  navigation_path: /06-consumi/consumi
 
       - type: grid
         title: "Motore decisionale"

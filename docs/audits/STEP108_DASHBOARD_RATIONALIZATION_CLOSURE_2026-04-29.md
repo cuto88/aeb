@@ -46,3 +46,12 @@
 - Quality gates locali: `PASS`
 - Quality gates GitHub: `PASS`
 
+## Aggiornamento strutturale 2026-07-19
+
+## FACT
+
+- `12 Domestic Ops` fa parte della sidebar corrente.
+- `0-lovelace` e` stata rimossa da `configuration.yaml`: puntava al file inesistente `ui-lovelace.yaml` e non aveva un ruolo assegnato dalla governance corrente.
+- Le registrazioni `92-vmc-legacy` e `94-ac-legacy` sono state rimosse; i rispettivi file YAML restano disponibili nel repository e nella baseline pre-refactor.
+- La tranche 1 ha aggiunto soltanto navigazione esplicita e correzioni documentali; non ha spostato card, modificato entita` o cambiato logiche runtime.
+

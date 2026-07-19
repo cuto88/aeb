@@ -1,11 +1,11 @@
 # AC — Plancia
 
-Riferimento: `lovelace/04_cooling_loop_legacy.yaml`.
+Riferimento corrente: `lovelace/04_cooling_loop.yaml`.
 
 Stato sidebar:
-- `3-ac` resta registrata ma non visibile (`show_in_sidebar: false`).
-- `3-ac-v2` resta registrata ma non visibile (`show_in_sidebar: false`).
-- L'accesso utente operativo per il dominio clima e` `1-clima-casa`.
+- `04-ac` registra `lovelace/04_cooling_loop.yaml` come `4 Cooling Loop`, visibile in sidebar.
+- `lovelace/_archive/legacy_dashboards/04_cooling_loop_legacy.yaml` e` conservata per confronto e rollback, ma non e` registrata in `configuration.yaml`.
+- L'overview cross-modulo resta `01-clima-casa`; la plancia Cooling e` il drill-down ufficiale del dominio.
 
 Sezioni principali:
 - "Stato generale": priorità/motivo AC, stagione calda, failsafe e blocco VMC, con stato `switch.ac_giorno` e `switch.ac_notte`.

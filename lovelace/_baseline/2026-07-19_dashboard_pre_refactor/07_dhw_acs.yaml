@@ -41,12 +41,6 @@ views:
               - entity: sensor.ehw_setpoint
                 name: Setpoint
                 secondary_info: last-updated
-          - type: button
-            name: "Apri Fieldbus EHW"
-            icon: mdi:transit-connection-variant
-            tap_action:
-              action: navigate
-              navigation_path: /09-modbus/modbus-ehw
 
       - type: grid
         title: "Active policy"
