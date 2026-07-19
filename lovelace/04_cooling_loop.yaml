@@ -4,6 +4,27 @@ views:
     icon: mdi:air-conditioner
     type: sections
     max_columns: 2
+    badges:
+      - type: entity
+        entity: sensor.ac_comfort_operating_state
+        name: "Decisione corrente"
+        icon: mdi:state-machine
+        color: blue
+      - type: entity
+        entity: switch.ac_giorno
+        name: "Split giorno"
+        icon: mdi:air-conditioner
+        color: cyan
+      - type: entity
+        entity: switch.ac_notte
+        name: "Split notte"
+        icon: mdi:air-conditioner
+        color: indigo
+      - type: entity
+        entity: input_boolean.ac_dashboard_parameters_unlocked
+        name: "Parametri"
+        icon: mdi:lock
+        color: orange
 
     sections:
       - cards:
@@ -178,17 +199,6 @@ views:
           - type: heading
             heading: "Decisione e attuazione"
             icon: mdi:state-machine
-          - type: glance
-            title: "Decisione corrente"
-            state_color: true
-            columns: 3
-            entities:
-              - entity: sensor.ac_comfort_operating_state
-                name: "Stato comfort"
-              - entity: switch.ac_giorno
-                name: "Split giorno"
-              - entity: switch.ac_notte
-                name: "Split notte"
           - type: entities
             title: "Catena decisionale"
             show_header_toggle: false
