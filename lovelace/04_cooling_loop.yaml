@@ -84,8 +84,8 @@ views:
             square: false
             cards:
               - type: gauge
-                entity: sensor.ac_notte_temperatura_controllo
-                name: "T controllo max"
+                entity: sensor.ac_notte_temperatura_camere
+                name: "T camere max"
                 min: 22
                 max: 32
                 severity:
@@ -93,8 +93,8 @@ views:
                   yellow: 26
                   red: 27
               - type: gauge
-                entity: sensor.ac_notte_umidita_controllo
-                name: "UR controllo max"
+                entity: sensor.ac_notte_umidita_camere
+                name: "UR camere max"
                 min: 35
                 max: 75
                 severity:
@@ -183,9 +183,9 @@ views:
             hours_to_show: 24
             refresh_interval: 120
             entities:
-              - entity: sensor.ac_notte_temperatura_controllo
+              - entity: sensor.ac_notte_temperatura_camere
                 name: "Temperatura max"
-              - entity: sensor.ac_notte_umidita_controllo
+              - entity: sensor.ac_notte_umidita_camere
                 name: "Umidità max"
               - entity: sensor.ac_notte_dew_point
                 name: "Dew point"
@@ -276,8 +276,9 @@ views:
 
               **Zona giorno:** usa temperatura, umidità e dew point del soggiorno.
 
-              **Zona notte:** usa il valore più critico disponibile tra camere
-              e bagno. Una stanza calda o umida non viene nascosta dalla media.
+              **Zona notte:** usa il valore più critico disponibile tra le sole
+              camere. Il bagno è escluso perché i picchi transitori alterano la
+              richiesta AC ed è gestito dalla logica VMC/boost dedicata.
 
               **Decisione**
 
