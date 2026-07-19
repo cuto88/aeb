@@ -116,7 +116,8 @@ $gates = @(
     @{ Name = '[GATE 6] Entity naming gate'; Gate = 'GATE 6'; Script = 'ops/gate_entity_naming.ps1'; Args = @(); UsePowerShell = $true },
     @{ Name = '[GATE 7] Nested template gate'; Gate = 'GATE 7'; Script = 'ops/gates/check_no_nested_template.ps1'; Args = @(); UsePowerShell = $true },
     @{ Name = '[GATE 8] Artifact policy gate'; Gate = 'GATE 8'; Script = 'ops/gate_artifact_policy.ps1'; Args = @(); UsePowerShell = $true },
-    @{ Name = '[GATE 9] DOCS ops/gate_docs_links.ps1'; Gate = 'GATE 9'; Script = 'ops/gate_docs_links.ps1'; Args = @(); UsePowerShell = $true }
+    @{ Name = '[GATE 9] AC notte sensor policy'; Gate = 'GATE 9'; Script = 'ops/gate_ac_night_sensor_policy.ps1'; Args = @(); UsePowerShell = $true },
+    @{ Name = '[GATE 10] DOCS ops/gate_docs_links.ps1'; Gate = 'GATE 10'; Script = 'ops/gate_docs_links.ps1'; Args = @(); UsePowerShell = $true }
 )
 
 foreach ($gate in $gates) {
@@ -201,3 +202,4 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllLines((Join-Path $opsStateDir "gates.ok"), $gatesContent, $utf8NoBom)
 
 exit 0
+
