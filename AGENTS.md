@@ -95,3 +95,16 @@
   - azione corrente
   - prossimo passo immediato
 - In caso di timeout o blocco, comunicarlo subito con causa tecnica e recovery plan.
+
+## Chiusura e archiviazione task
+
+- Al termine di ogni attivita`, Codex deve dichiarare esplicitamente se la task
+  e` `ARCHIVIABILE` oppure `NON ARCHIVIABILE`.
+- Dichiarare `ARCHIVIABILE` solo quando tutto il lavoro richiesto e` concluso:
+  modifiche verificate, deploy eseguito se previsto, source of truth remota
+  pubblicata, documentazione aggiornata e nessun passo operativo obbligatorio
+  rimasto aperto.
+- Se la task non e` archiviabile, indicare sinteticamente cosa manca.
+- L'utente non deve dover chiedere autonomamente se puo` archiviare: Codex deve
+  proporre l'archiviazione nel messaggio finale quando i criteri sono soddisfatti.
+
