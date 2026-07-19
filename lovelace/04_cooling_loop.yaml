@@ -356,4 +356,3 @@ views:
                 name: "Tempo minimo ON"
               - entity: input_number.ac_min_off_minutes
                 name: "Tempo minimo OFF"
-
