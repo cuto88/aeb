@@ -13,6 +13,19 @@ function Ok($msg)   { Write-Host "[OK]   $msg" -ForegroundColor Green }
 
 Set-Location (Resolve-Path $Root)
 
+# `!include_dir_named packages` scans YAML below the directory recursively.
+# Backup YAML kept below packages can silently override the active package.
+$unsafePackageBackups = @(
+  Get-ChildItem -Path .\packages -Recurse -Include "*.yaml","*.yml" -File -ErrorAction SilentlyContinue |
+    Where-Object {
+      $_.FullName -match '[\\/](?:_codex_backups|_backup|backup|backups)(?:[\\/]|$)'
+    }
+)
+if ($unsafePackageBackups.Count -gt 0) {
+  $unsafePackageBackups | ForEach-Object { Write-Host " - $($_.FullName)" }
+  Fail "Backup YAML found below packages; move it outside the included package tree."
+}
+
 # Scan YAML files that can contain includes (exclude backups/runtime)
 $excludeDirs = @(
   "\.git\",
@@ -89,3 +102,4 @@ if ($missing.Count -gt 0) {
 
 Ok ("Include-tree check passed (checked {0} include(s))." -f $checked)
 exit 0
+
