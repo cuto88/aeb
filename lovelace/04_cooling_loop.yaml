@@ -20,11 +20,6 @@ views:
         name: "Split notte"
         icon: mdi:air-conditioner
         color: indigo
-      - type: entity
-        entity: input_boolean.ac_dashboard_parameters_unlocked
-        name: "Parametri"
-        icon: mdi:lock
-        color: orange
 
     sections:
       - cards:
@@ -251,7 +246,7 @@ views:
           - type: entities
             show_header_toggle: false
             entities:
-              - entity: input_boolean.ac_dashboard_parameters_unlocked
+              - entity: input_boolean.ac_param_unlock
                 name: "Sblocca modifica parametri"
           - type: markdown
             title: "Valori correnti — sola lettura"
@@ -270,7 +265,7 @@ views:
               | Tempo minimo OFF | **{{ states('input_number.ac_min_off_minutes') }} min** |
           - type: conditional
             conditions:
-              - entity: input_boolean.ac_dashboard_parameters_unlocked
+              - entity: input_boolean.ac_param_unlock
                 state: "on"
             card:
               type: entities
