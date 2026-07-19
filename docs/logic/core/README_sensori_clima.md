@@ -55,6 +55,7 @@ Tutti i package clima **devono** usare **esattamente** questi `entity_id`.
 | Umidità controllo zona notte | `sensor.ac_notte_umidita_controllo` |
 | Dew point zona notte | `sensor.ac_notte_dew_point` |
 | Pausa automatismo AC | `input_boolean.ac_auto_pause` |
+| Sblocco modifica parametri AC dalla plancia | `input_boolean.ac_dashboard_parameters_unlocked` |
 | Delta temperatura avvio | `input_number.ac_comfort_temp_on_delta` |
 | Soglia UR avvio | `input_number.ac_comfort_ur_on` |
 | Soglia UR rientro | `input_number.ac_comfort_ur_off` |
@@ -434,3 +435,4 @@ Entità principali:
 - `sensor.cm_system_reason`
 
 Nota: le entità legacy restano attive per un ciclo, ma non sono più naming target.
+
