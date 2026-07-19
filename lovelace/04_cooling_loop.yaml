@@ -243,11 +243,6 @@ views:
           - type: heading
             heading: "Parametri comfort"
             icon: mdi:tune-variant
-          - type: entities
-            show_header_toggle: false
-            entities:
-              - entity: input_boolean.ac_param_unlock
-                name: "Sblocca modifica parametri"
           - type: markdown
             title: "Valori correnti — sola lettura"
             content: |
@@ -263,35 +258,12 @@ views:
               | Protezione minima temperatura | **{{ states('input_number.ac_comfort_humidity_min_temp') }} °C** |
               | Tempo minimo ON | **{{ states('input_number.ac_min_on_minutes') }} min** |
               | Tempo minimo OFF | **{{ states('input_number.ac_min_off_minutes') }} min** |
-          - type: conditional
-            conditions:
-              - entity: input_boolean.ac_param_unlock
-                state: "on"
-            card:
-              type: entities
-              title: "Modifica parametri — SBLOCCATA"
-              show_header_toggle: false
-              entities:
-                - entity: input_number.ac_cool_setpoint
-                  name: "Target temperatura casa"
-                - entity: input_number.ac_equipment_target_offset
-                  name: "Compensazione target split"
-                - entity: input_number.ac_comfort_temp_on_delta
-                  name: "Isteresi temperatura ON"
-                - entity: input_number.ac_comfort_ur_on
-                  name: "Umidità avvio"
-                - entity: input_number.ac_comfort_ur_off
-                  name: "Umidità rientro"
-                - entity: input_number.ac_comfort_dew_on
-                  name: "Dew point avvio"
-                - entity: input_number.ac_comfort_dew_off
-                  name: "Dew point rientro"
-                - entity: input_number.ac_comfort_humidity_min_temp
-                  name: "Protezione minima temperatura"
-                - entity: input_number.ac_min_on_minutes
-                  name: "Tempo minimo ON"
-                - entity: input_number.ac_min_off_minutes
-                  name: "Tempo minimo OFF"
+          - type: button
+            name: "Apri modifica parametri"
+            icon: mdi:lock-open-variant
+            tap_action:
+              action: navigate
+              navigation_path: /04-ac/ac_parameters
 
       - cards:
           - type: heading
@@ -339,7 +311,48 @@ views:
               ambienti. Agli split viene inviato un target più basso usando la
               compensazione configurata.
 
-              I parametri sono normalmente in sola lettura. Attivare **Sblocca
-              modifica parametri** solo durante una regolazione e disattivarlo
-              appena terminato.
+              I parametri della plancia principale sono in sola lettura. Per
+              regolarli usare **Apri modifica parametri**, che porta alla
+              sottopagina dedicata.
+
+  - title: "Parametri AC"
+    path: ac_parameters
+    icon: mdi:tune-variant
+    subview: true
+    type: sections
+    max_columns: 1
+
+    sections:
+      - cards:
+          - type: heading
+            heading: "Modifica parametri comfort"
+            icon: mdi:lock-open-variant
+          - type: markdown
+            content: |
+              Questa è la pagina di modifica intenzionale. Cambiare un valore
+              solo quando necessario; tornando indietro, la plancia principale
+              resta in sola lettura.
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: input_number.ac_cool_setpoint
+                name: "Target temperatura casa"
+              - entity: input_number.ac_equipment_target_offset
+                name: "Compensazione target split"
+              - entity: input_number.ac_comfort_temp_on_delta
+                name: "Isteresi temperatura ON"
+              - entity: input_number.ac_comfort_ur_on
+                name: "Umidità avvio"
+              - entity: input_number.ac_comfort_ur_off
+                name: "Umidità rientro"
+              - entity: input_number.ac_comfort_dew_on
+                name: "Dew point avvio"
+              - entity: input_number.ac_comfort_dew_off
+                name: "Dew point rientro"
+              - entity: input_number.ac_comfort_humidity_min_temp
+                name: "Protezione minima temperatura"
+              - entity: input_number.ac_min_on_minutes
+                name: "Tempo minimo ON"
+              - entity: input_number.ac_min_off_minutes
+                name: "Tempo minimo OFF"
 
