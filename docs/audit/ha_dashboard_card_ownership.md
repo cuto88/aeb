@@ -61,14 +61,10 @@ Copertura verificata: 12 dashboard, 18 viste, 92 sezioni e 310 card top-level. L
 | Vista | Sezione | Card censite | Owner | Ruolo | Tipo | Frequenza | Decisione | Target | Motivazione |
 |---|---|---|---|---|---|---|---|---|---|
 | Heating | Runtime | griglia stato; entities | Heating | domain | state/command | daily | keep | Heating | Stato e controllo principali |
-| Heating | Termostati reali TEMP | markdown | Heating legacy diagnostics | observability | diagnostic/raw | incident | move | Observability | Evidenza hardware non quotidiana |
 | Heating | Setpoint e comandi | entities; Zone incluse | Heating | domain | tuning/command | weekly | keep | Heating | Tuning autorizzato del dominio |
-| Heating | Diagnostica | entities | Heating | observability | diagnostic | incident | move | Observability | Errori e segnali diagnostici |
 | Heating | Grafici | Temperature 12h; Errori setpoint 7 giorni | Heating | domain | trend | weekly | keep | Heating | Trend specifici del dominio |
 | Heating | Runtime e cicli | entities | Heating | domain | diagnostic | weekly | keep | Heating | KPI operativi del dominio |
-| Heating | Debug | entities | Heating | observability | raw/diagnostic | incident | move | Observability | Debug fuori dal drill-down quotidiano |
 | Heating | Timeline decisioni | history graph | Heating | domain | trend | weekly | keep | Heating | Explainability storica |
-| Heating | Legacy TEMP / remap | entities | Heating legacy diagnostics | observability | tuning/raw | incident | move | Observability | Mapping e calibrazione legacy |
 
 ## 4 Cooling Loop
 
@@ -91,7 +87,6 @@ Copertura verificata: 12 dashboard, 18 viste, 92 sezioni e 310 card top-level. L
 | PV Array | Stato attuale | Potenza istantanea; Stato | PV | domain | state | daily | keep | PV Array | Stato fonte energetica |
 | PV Array | Energia | Produzione; Produzione giornaliera 7 giorni | PV | domain | state/trend | weekly | keep | PV Array | KPI fonte |
 | PV Array | Trend 24h | Potenza FV 24h | PV | domain | trend | weekly | keep | PV Array | Trend fonte |
-| PV Array | Debug sensori | entities | PV | observability | raw/diagnostic | incident | move | Observability | Sorgenti raw/fallback |
 
 ## 6 Power Runtime
 
@@ -99,7 +94,6 @@ Copertura verificata: 12 dashboard, 18 viste, 92 sezioni e 310 card top-level. L
 |---|---|---|---|---|---|---|---|---|---|
 | Power Runtime | Runtime energia | Ruolo plancia; Approfondimenti | Energy | domain | diagnostic/command | daily | keep | Power Runtime | Contesto e navigazione |
 | Power Runtime | Runtime energia | Quote oggi; Potenze istantanee | Energy | domain | state | daily | keep | Power Runtime | Sintesi consumi |
-| Power Runtime | Runtime energia | Host locale ds-01 | Platform | observability | diagnostic | incident | move | Observability | Health host, non energia domestica |
 | Power Runtime | Consumi oggi | kWh/giorno | Energy | domain | state | daily | keep | Power Runtime | KPI giornaliero |
 | Power Runtime | Contatori cumulati | Prelevata cumulata | Energy | domain | state | weekly | keep | Power Runtime | KPI cumulato |
 | Power Runtime | Trend e KPI | Potenze 24h; KPI AEB 24h; Consumi 7 giorni | Energy/AEB | domain | trend | weekly | keep | Power Runtime | Ownership energia e ottimizzazione |
@@ -113,7 +107,6 @@ Copertura verificata: 12 dashboard, 18 viste, 92 sezioni e 310 card top-level. L
 | DHW | Active policy | AEB MVP DHW; Writer boundary | DHW/AEB | domain | state/tuning/diagnostic | weekly | keep | DHW | Policy e writer appartengono alla macchina |
 | DHW | Active policy | Policy/writer 24h; Docce proxy 7 giorni | DHW | domain | trend | weekly | keep | DHW | Trend semantico |
 | DHW | Diagnostica | Ruolo plancia; Note | DHW | domain | diagnostic | incident | keep | DHW | Contesto operatore |
-| DHW | Diagnostica | Raw registers; Vendor reg diagnostici | EHW fieldbus | fieldbus | raw | incident | move | Fieldbus EHW | Registri duplicati |
 | DHW | Diagnostica | Sonde semantiche | DHW | domain | state | daily | keep | DHW | Valori macchina interpretati |
 | DHW | Diagnostica | Temperature e consumi 24h | DHW | domain | trend | weekly | keep | DHW | Trend semantico |
 
@@ -123,10 +116,8 @@ Copertura verificata: 12 dashboard, 18 viste, 92 sezioni e 310 card top-level. L
 |---|---|---|---|---|---|---|---|---|---|
 | MIRAI | Runtime macchina | Ruolo plancia; Apri Fieldbus | MIRAI | domain | diagnostic/command | daily | keep | MIRAI | Contesto e navigazione |
 | MIRAI | Runtime macchina | Stato macchina; Corroborazione | MIRAI | domain | state/diagnostic | daily | keep | MIRAI | Stato semantico e conferme |
-| MIRAI | Runtime macchina | Probe e raw candidati | MIRAI fieldbus | fieldbus | raw/diagnostic | incident | move | Fieldbus MIRAI | Segnali raw duplicati |
 | MIRAI | Diagnostica | Diagnostica rapida | MIRAI/Observability | observability | diagnostic | incident | merge | Observability | Tenere solo fault sintetico nella macchina |
 | MIRAI | Diagnostica | Runtime truth closure | MIRAI | domain | diagnostic | weekly | keep | MIRAI | Validazione semantica macchina |
-| MIRAI | Diagnostica | Snapshot operativo | MIRAI fieldbus | fieldbus | raw/diagnostic | incident | move | Fieldbus MIRAI | Snapshot basso livello duplicato |
 | MIRAI | History 24h | history graph | MIRAI | domain | trend | weekly | keep | MIRAI | Trend macchina |
 
 ## 9 Fieldbus
@@ -135,11 +126,11 @@ Copertura verificata: 12 dashboard, 18 viste, 92 sezioni e 310 card top-level. L
 |---|---|---|---|---|---|---|---|---|---|
 | SDM120 raw | Bus health | Ruolo; SSOT energia; Misure raw; Contatori | SDM120 | fieldbus | raw/diagnostic | incident | keep | Fieldbus | Ownership canonica raw |
 | SDM120 raw | History | Trend elettrici; Energia 7 giorni | SDM120 | fieldbus | trend | incident | keep | Fieldbus | Evidenza bus |
-| MIRAI raw | Bus health | Ruolo; Link e postura; Raw e registri effettivi | MIRAI fieldbus | fieldbus | raw/diagnostic | incident | keep | Fieldbus | Ownership canonica raw |
+| MIRAI raw | Bus health | Ruolo; Link e postura; Raw e registri effettivi; Probe e raw candidati | MIRAI fieldbus | fieldbus | raw/diagnostic | incident | keep | Fieldbus | Ownership canonica raw, consolidata in Tranche 2B.1 |
 | MIRAI raw | Diagnostica | Snapshot operativo | MIRAI fieldbus | fieldbus | raw/diagnostic | incident | keep | Fieldbus | Evidenza snapshot |
 | MIRAI raw | History | history graph | MIRAI fieldbus | fieldbus | trend | incident | keep | Fieldbus | Evidenza bus |
 | EHW raw | Bus health | Ruolo; Readiness e mapping; Ultimo aggiornamento | EHW fieldbus | fieldbus | raw/diagnostic | incident | keep | Fieldbus | Ownership canonica raw |
-| EHW raw | Debug | Raw registers; Sonde semantiche; Temperature 24h | EHW fieldbus | fieldbus | raw/trend | incident | keep | Fieldbus | Forensic EHW |
+| EHW raw | Debug | Raw registers; Vendor reg diagnostici; Sonde semantiche; Temperature 24h | EHW fieldbus | fieldbus | raw/trend | incident | keep | Fieldbus | Forensic EHW consolidato in Tranche 2B.1 |
 
 ## 10 Envelope
 
@@ -164,6 +155,10 @@ Copertura verificata: 12 dashboard, 18 viste, 92 sezioni e 310 card top-level. L
 | Observability | Unavailable/unknown | Critical runtime; Battery/radio missing; Known gaps | Platform observability | observability | diagnostic | incident | keep | Observability | Gap espliciti |
 | Observability | Battery/radio risk | Battery telemetry; Wireless dependency map; markdown | Sensor platform | observability | diagnostic | incident | keep | Observability | Rischio telemetria |
 | Observability | Proxy vs physical | Driver truth | Actuator platform | observability | diagnostic | incident | keep | Observability | Verita` attuatori |
+| Observability | Climate diagnostics | Heating Diagnostica; Heating Debug | Heating | observability | diagnostic/raw | incident | keep | Observability | Diagnostica clima rimossa dal drill-down operativo |
+| Observability | Energy diagnostics | PV Debug sensori; Host locale ds-01 | PV / Platform | observability | diagnostic/raw | incident | keep | Observability | Provenienza energia e health host |
+| Observability | Domestic diagnostics | Sorgenti effettive; Entita` candidate grezze | Domestic Ops / Sensor platform | observability | diagnostic/raw | incident | keep | Observability | Mapping e sorgenti domestiche grezze |
+| Observability | Legacy mappings | Heating Termostati reali TEMP; Heating Legacy TEMP/remap | Heating legacy diagnostics | observability | diagnostic/raw/tuning | incident | keep | Observability | Evidenza e mapping legacy non operativi |
 
 ## 12 Domestic Ops
 
@@ -180,11 +175,10 @@ Copertura verificata: 12 dashboard, 18 viste, 92 sezioni e 310 card top-level. L
 | Domestic Ops | Helper e soglie | Abilitazioni; Soglie energia e drying | Domestic Ops | domain | tuning/command | weekly | keep | Domestic Ops | Tuning del dominio |
 | Domestic Ops | Storico | DomesticOps 24h; Contesto 24h; Cicli 7 giorni | Domestic Ops | domain | trend | weekly | keep | Domestic Ops | Trend dominio |
 | Domestic Ops | Routine domestiche | Reminder schedulati; Script notifica | Domestic Ops | domain | command/diagnostic | weekly | keep | Domestic Ops | Routine specifiche |
-| Domestic Ops | Diagnostica e mapping | Sorgenti effettive; Entita` candidate grezze | Domestic Ops / Sensor platform | observability | raw/diagnostic | incident | move | Observability | Mapping e sorgenti grezze |
 
 ## Candidati esatti per la Tranche 2B
 
-Le seguenti card possono essere spostate senza cambiare entity ID o logica; prima dell'implementazione va definito il layout target:
+Le voci 7-16 sono state implementate nella Tranche 2B.1 senza cambiare entity ID, template o navigation path. Le voci 1-6 restano candidate per tranche successive:
 
 1. ECLSS / ClimateOps / `Contratti` / card `entities` -> Observability / Contracts.
 2. ECLSS / AEB / `Planner & AEB` / `Planner dry-run` -> Power Runtime.
@@ -192,16 +186,16 @@ Le seguenti card possono essere spostate senza cambiare entity ID o logica; prim
 4. ECLSS / AEB / `Trend` / `Forecast and grid 24h` e `Planner and AEB 24h` -> Power Runtime.
 5. ECLSS / Passive House / `Rischio e azione` / `Stanza peggiore`, `Rischio`, `Scuri consigliati`, `Candidabili raffrescamento notturno`, `Stanze schermate` -> Envelope / Sintesi.
 6. ECLSS / Passive House / `Trend` / `Involucro 24h`, `Solare e scuri 24h` -> Envelope / Trend.
-7. Heating / `Termostati reali (TEMP)` / markdown -> Observability.
-8. Heating / `Diagnostica` / entities -> Observability.
-9. Heating / `Debug` / entities -> Observability.
-10. Heating / `Legacy TEMP / remap` / entities -> Observability.
-11. PV Array / `Debug sensori` / entities -> Observability.
-12. Power Runtime / `Runtime energia` / `Host locale ds-01` -> Observability.
-13. DHW / `Diagnostica` / `Raw registers` e `Vendor reg diagnostici` -> Fieldbus / EHW raw.
-14. MIRAI / `Runtime macchina` / `Probe e raw candidati` -> Fieldbus / MIRAI raw.
-15. MIRAI / `Diagnostica` / `Snapshot operativo` -> Fieldbus / MIRAI raw.
-16. Domestic Ops / `Diagnostica e mapping` / `Sorgenti effettive` e `Entita candidate grezze` -> Observability.
+7. `[DONE 2B.1]` Heating / `Termostati reali (TEMP)` / markdown -> Observability / Legacy mappings.
+8. `[DONE 2B.1]` Heating / `Diagnostica` / entities -> Observability / Climate diagnostics.
+9. `[DONE 2B.1]` Heating / `Debug` / entities -> Observability / Climate diagnostics.
+10. `[DONE 2B.1]` Heating / `Legacy TEMP / remap` / entities -> Observability / Legacy mappings.
+11. `[DONE 2B.1]` PV Array / `Debug sensori` / entities -> Observability / Energy diagnostics.
+12. `[DONE 2B.1]` Power Runtime / `Runtime energia` / `Host locale ds-01` -> Observability / Energy diagnostics.
+13. `[DONE 2B.1]` DHW / `Diagnostica` / `Raw registers` e `Vendor reg diagnostici` -> Fieldbus / EHW raw.
+14. `[DONE 2B.1]` MIRAI / `Runtime macchina` / `Probe e raw candidati` -> Fieldbus / MIRAI raw.
+15. `[DONE 2B.1]` MIRAI / `Diagnostica` / `Snapshot operativo` -> Fieldbus / MIRAI raw.
+16. `[DONE 2B.1]` Domestic Ops / `Diagnostica e mapping` / `Sorgenti effettive` e `Entita candidate grezze` -> Observability / Domestic diagnostics.
 
 Le card marcate `merge` richiedono invece una decisione contenutistica prima di essere cambiate; non sono ingressi automatici alla 2B.
 

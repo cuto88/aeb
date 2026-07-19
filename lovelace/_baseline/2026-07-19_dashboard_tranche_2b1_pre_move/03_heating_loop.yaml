@@ -43,6 +43,17 @@ views:
                 name: Riduzione notturna termostati
 
       - type: grid
+        title: "Heating – Termostati reali (TEMP)"
+        cards:
+          - type: markdown
+            content: |
+              ## Termostati reali (TEMP) — solo osservazione
+              Stato runtime 2026-03-29:
+              - ESP32 / LDR TEMP attualmente smontati
+              - binding default lasciati volutamente vuoti
+              - gli `input_text` restano disponibili per un futuro remap rapido
+
+      - type: grid
         title: "Heating  Setpoint e comandi"
         cards:
           - type: entities
@@ -69,6 +80,28 @@ views:
                 name: Usa zona notte 2
               - entity: input_boolean.heating_use_bagno
                 name: Usa bagno
+
+      - type: grid
+        title: "Heating – Diagnostica"
+        cards:
+          - type: entities
+            entities:
+              - entity: sensor.heating_error_zona_giorno
+                name: Errore zona giorno
+              - entity: sensor.heating_error_zona_notte
+                name: Errore zona notte
+              - entity: sensor.heating_rooms_below_target
+                name: Stanze sotto target
+              - entity: binary_sensor.heating_finestra_oraria
+                name: Finestra comfort
+              - entity: binary_sensor.heating_window_pv
+                name: Finestra FV
+              - entity: binary_sensor.heating_window_night
+                name: Finestra notte
+              - entity: binary_sensor.heating_esterna_fredda
+                name: Esterna fredda
+              - entity: binary_sensor.heating_almeno_una_stanza_sotto_target
+                name: Sotto target
 
       - type: grid
         title: "Heating Grafici 24h / 7gg"
@@ -115,6 +148,23 @@ views:
                 name: Ore ON ieri (storico)
 
       - type: grid
+        title: "Heating – Debug"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.t_in_min
+                name: T interna minima
+              - entity: binary_sensor.surplus_ok
+                name: Surplus FV OK
+              - entity: binary_sensor.heating_failsafe_sensors_bad
+                name: Failsafe sensori
+              - entity: switch.heating_master
+                name: Master heating
+              - entity: switch.4_ch_interruttore_3
+                name: Riduzione notturna termostati
+
+      - type: grid
         cards:
           - type: history-graph
             title: "Timeline decisioni – Heating (12h)"
@@ -135,5 +185,26 @@ views:
                 name: Finestra notte
               - entity: binary_sensor.surplus_ok
                 name: Surplus FV OK
+
+      - type: grid
+        title: "Heating – Legacy TEMP / remap"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: input_text.climateops_temp_thermostat_giorno_entity
+                name: "Camera1 source entity"
+              - entity: input_text.climateops_temp_thermostat_notte_entity
+                name: "Camera2 source entity"
+              - entity: input_text.climateops_temp_thermostat_giorno_raw_entity
+                name: "Camera1 raw entity"
+              - entity: input_text.climateops_temp_thermostat_notte_raw_entity
+                name: "Camera2 raw entity"
+              - entity: input_number.climateops_temp_thermostat_giorno_threshold_v
+                name: "Soglia Camera1 (V)"
+              - entity: input_number.climateops_temp_thermostat_notte_threshold_v
+                name: "Soglia Camera2 (V)"
+              - entity: input_number.climateops_temp_thermostat_hysteresis_v
+                name: "Isteresi (V)"
 
 # Heating dashboard normalized to ENTITY MAP (2025-02)

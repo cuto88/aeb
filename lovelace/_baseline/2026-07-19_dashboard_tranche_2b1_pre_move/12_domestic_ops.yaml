@@ -471,3 +471,50 @@ views:
             entities:
               - entity: script.domesticops_notify
                 name: "Notifica operativa"
+
+      - type: grid
+        title: "Diagnostica e mapping"
+        cards:
+          - type: entities
+            title: "Sorgenti effettive"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.domesticops_pv_power_w
+                name: "FV canonico"
+                secondary_info: last-updated
+              - type: attribute
+                entity: sensor.domesticops_pv_power_w
+                attribute: source
+                name: "Sorgente FV"
+              - entity: sensor.domesticops_outdoor_temperature_c
+                name: "Temperatura esterna"
+                secondary_info: last-updated
+              - type: attribute
+                entity: sensor.domesticops_outdoor_temperature_c
+                attribute: source
+                name: "Sorgente temperatura"
+              - entity: sensor.domesticops_outdoor_humidity
+                name: "Umidita esterna"
+                secondary_info: last-updated
+              - type: attribute
+                entity: sensor.domesticops_outdoor_humidity
+                attribute: source
+                name: "Sorgente umidita"
+              - entity: sensor.domesticops_rain_lookahead_source
+                name: "Sorgente pioggia"
+          - type: entities
+            title: "Entita candidate grezze"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.solaredge_potenza_attuale
+                name: "SolarEdge grezzo"
+              - entity: sensor.sensor_pv_power_w
+                name: "LocalTuya FV grezzo"
+              - entity: sensor.temperatura_esterna
+                name: "Temperatura esterna grezza"
+              - entity: sensor.umidita_esterna
+                name: "Umidita esterna grezza"
+              - entity: weather.forecast_casa
+                name: "Meteo casa"
+              - entity: sun.sun
+                name: "Sole runtime"

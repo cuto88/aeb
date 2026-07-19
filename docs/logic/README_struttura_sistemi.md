@@ -57,5 +57,6 @@ Ogni documento di logica corrisponde a un package YAML e alla relativa plancia L
 - **Plance macchina visibili in sidebar:** `lovelace/07_dhw_acs.yaml`, `lovelace/08_mirai_plant.yaml`.
 - **Plance legacy conservate ma non registrate:** `lovelace/_archive/legacy_dashboards/02_air_loop_legacy.yaml`, `lovelace/_archive/legacy_dashboards/04_cooling_loop_legacy.yaml`.
 - **Plance archiviate fuori dall'entrypoint utente:** `lovelace/_archive/climateops_step7_plancia.yaml` come copia storica; la voce dashboard e` gia' rimossa da `configuration.yaml` e l'originale `lovelace/climateops_step7_plancia.yaml` e` gia' stato rimosso dal repo attivo.
+- **Ownership tecnica:** le plance di dominio mantengono stato, comandi e trend; `11 Observability` possiede debug, health e mapping non operativi; `9 Fieldbus` possiede probe, registri e snapshot raw MIRAI/EHW.
 
 > Revisione documentazione clima: riferimenti allineati ai file runtime attuali.

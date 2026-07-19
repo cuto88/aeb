@@ -1,0 +1,12 @@
+filename: lovelace/01_eclss_casa.yaml
+filename: lovelace/02_air_loop.yaml
+filename: lovelace/03_heating_loop.yaml
+filename: lovelace/04_cooling_loop.yaml
+filename: lovelace/05_pv_array.yaml
+filename: lovelace/06_power_runtime.yaml
+filename: lovelace/07_dhw_acs.yaml
+filename: lovelace/08_mirai_plant.yaml
+filename: lovelace/09_fieldbus.yaml
+filename: lovelace/10_envelope.yaml
+filename: lovelace/11_observability.yaml
+filename: lovelace/12_domestic_ops.yaml

@@ -7,7 +7,8 @@ Sezioni principali:
 - "Energia": `sensor.pv_energy_daily`, `sensor.pv_energy_monthly`, `sensor.pv_energy_yearly`.
 - "Produzione giornaliera (7 giorni)": statistics su `sensor.pv_energy_total` (`period: day`, `stat: change`).
 - "Trend 24h": history potenza FV.
-- "Debug sensori": confronto raw SolarEdge / fallback LocalTuya / canonici.
+
+La diagnostica di provenienza `Debug sensori` e` stata spostata in `11 Observability`, sezione `Energy diagnostics`; la plancia PV conserva solo stato, produzione e trend operativi.
 
 Hardening applicato:
 - `sensor.pv_power_now` con fallback da `sensor.solaredge_potenza_attuale` a `sensor.sensor_pv_power_w`.

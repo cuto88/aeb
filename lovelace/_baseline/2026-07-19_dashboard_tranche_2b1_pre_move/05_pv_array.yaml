@@ -67,3 +67,25 @@ views:
             entities:
               - entity: sensor.pv_power_now
                 name: PV W
+
+      #######################################################################
+      # 3) DEBUG (OPZIONALE)
+      #######################################################################
+      - type: grid
+        title: "Debug sensori"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: sensor.pv_potenza_sorgente
+                name: Sorgente selezionata
+              - entity: sensor.solaredge_potenza_attuale
+                name: SolarEdge Potenza RAW
+              - entity: sensor.solaredge_energia_dall_installazione
+                name: SolarEdge Energia RAW
+              - entity: sensor.sensor_pv_power_w
+                name: LocalTuya Potenza RAW (fallback)
+              - entity: sensor.pv_power_now
+                name: PV Potenza canonico
+              - entity: sensor.pv_energy_total
+                name: PV Energia Totale

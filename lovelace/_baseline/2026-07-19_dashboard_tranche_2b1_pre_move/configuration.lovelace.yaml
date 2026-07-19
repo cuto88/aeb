@@ -1,0 +1,98 @@
+lovelace:
+  resource_mode: yaml
+  resources:
+    - url: /hacsfiles/mini-graph-card/mini-graph-card-bundle.js
+      type: module
+
+  dashboards:
+    01-clima-casa:
+      mode: yaml
+      title: "1 ECLSS Casa"
+      icon: mdi:home-thermometer
+      show_in_sidebar: true
+      filename: lovelace/01_eclss_casa.yaml
+
+    02-vmc:
+      mode: yaml
+      title: "2 Air Loop"
+      icon: mdi:fan
+      show_in_sidebar: true
+      filename: lovelace/02_air_loop.yaml
+
+    03-riscaldamento:
+      mode: yaml
+      title: "3 Heating Loop"
+      icon: mdi:radiator
+      show_in_sidebar: true
+      filename: lovelace/03_heating_loop.yaml
+
+    04-ac:
+      mode: yaml
+      title: "4 Cooling Loop"
+      icon: mdi:air-conditioner
+      show_in_sidebar: true
+      filename: lovelace/04_cooling_loop.yaml
+
+    05-fv-solaredge:
+      mode: yaml
+      title: "5 PV Array"
+      icon: mdi:solar-power
+      show_in_sidebar: true
+      filename: lovelace/05_pv_array.yaml
+
+    # 6-energia:
+    #   mode: yaml
+    #   title: "6 Energia"
+    #   icon: mdi:solar-power
+    #   show_in_sidebar: true
+    #   filename: lovelace/6_surplus_plancia.yaml
+
+    06-consumi:
+      mode: yaml
+      title: "6 Power Runtime"
+      icon: mdi:flash
+      show_in_sidebar: true
+      filename: lovelace/06_power_runtime.yaml
+
+    07-ehw-acs:
+      mode: yaml
+      title: "7 DHW / ACS"
+      icon: mdi:water-boiler
+      show_in_sidebar: true
+      filename: lovelace/07_dhw_acs.yaml
+
+    08-mirai:
+      mode: yaml
+      title: "8 MIRAI Plant"
+      icon: mdi:heat-pump
+      show_in_sidebar: true
+      require_admin: false
+      filename: lovelace/08_mirai_plant.yaml
+
+    09-modbus:
+      mode: yaml
+      title: "9 Fieldbus"
+      icon: mdi:transit-connection-variant
+      show_in_sidebar: true
+      filename: lovelace/09_fieldbus.yaml
+
+    10-involucro:
+      mode: yaml
+      title: "10 Envelope"
+      icon: mdi:home-thermometer-outline
+      show_in_sidebar: true
+      filename: lovelace/10_envelope.yaml
+
+    11-observability:
+      mode: yaml
+      title: "11 Observability"
+      icon: mdi:clipboard-pulse-outline
+      show_in_sidebar: true
+      filename: lovelace/11_observability.yaml
+
+    12-domestic-ops:
+      mode: yaml
+      title: "12 Domestic Ops"
+      icon: mdi:home-lightning-bolt-outline
+      show_in_sidebar: true
+      filename: lovelace/12_domestic_ops.yaml

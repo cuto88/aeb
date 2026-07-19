@@ -258,6 +258,22 @@ Fieldbus e Observability sono sedi coerenti per questi contenuti. ECLSS, Heating
 
 Ownership: l'overview espone al massimo indicatori sintetici; il drill-down possiede stato semantico, comandi e trend; Observability possiede health e debug; Fieldbus possiede registri e mapping raw. Una stessa entita` puo` apparire in piu` livelli solo se cambia la funzione informativa.
 
+## Esito Tranche 2B.1 - separazione raw, debug e diagnostica
+
+La Tranche 2B.1 applica il perimetro `move` gia` approvato, senza cambiare registrazioni, viste o navigation path:
+
+- Heating conserva runtime, comandi, trend e cicli; diagnostica, debug e mapping TEMP sono ora in Observability.
+- PV Array conserva stato, produzione e trend; `Debug sensori` e` ora in Observability.
+- Power Runtime conserva sintesi e KPI energia; `Host locale ds-01` e` ora in Observability.
+- DHW conserva stato macchina, policy, sonde semantiche e trend; `Raw registers` e `Vendor reg diagnostici` sono ora in Fieldbus / `modbus-ehw`.
+- MIRAI conserva stato macchina, corroborazione, runtime truth e trend; probe/raw e snapshot sono ora in Fieldbus / `modbus-mirai`.
+- Domestic Ops conserva workflow, comandi, tuning e trend; sorgenti effettive e candidate grezze sono ora in Observability.
+- Observability espone quattro sezioni esplicite: `Climate diagnostics`, `Energy diagnostics`, `Domestic diagnostics`, `Legacy mappings`.
+
+I duplicati semantici preesistenti `Snapshot operativo` MIRAI e `Raw registers` EHW sono stati sostituiti dalle versioni complete provenienti dalle dashboard di dominio; non sono state create copie parallele.
+
+Baseline dedicata: `lovelace/_baseline/2026-07-19_dashboard_tranche_2b1_pre_move/`.
+
 ## 12. File potenzialmente coinvolti
 
 - `configuration.yaml`

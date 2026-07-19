@@ -74,6 +74,24 @@ views:
                 name: PM3 / Asciugatrice W
               - entity: sensor.ds_01_power_w
                 name: ds-01 / HA host W
+          - type: entities
+            title: "Host locale ds-01"
+            show_header_toggle: false
+            entities:
+              - entity: switch.t34_smart_plug_interruttore_1
+                name: Smart plug outlet
+              - entity: sensor.ds_01_power_w
+                name: Potenza
+              - entity: sensor.ds_01_current_a
+                name: Corrente
+              - entity: sensor.ds_01_voltage_v
+                name: Tensione
+              - entity: sensor.ds01_energy_daily
+                name: kWh / giorno
+              - entity: sensor.ds01_energy_monthly
+                name: kWh / mese
+              - entity: sensor.ds_01_energy_total
+                name: kWh totale
       - type: grid
         title: "Consumi oggi"
         cards:

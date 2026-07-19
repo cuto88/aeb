@@ -1,6 +1,6 @@
 # ADR-HA-DASH-001 - Governance delle dashboard Home Assistant
 
-- Stato: Accepted; Tranche 1 e Tranche 2A implementate, Tranche 2B-3 proposte
+- Stato: Accepted; Tranche 1, 2A e 2B.1 implementate, Tranche 2B.2-3 proposte
 - Data: 2026-07-19
 - Ambito: dashboard YAML Lovelace del repository AEB
 
@@ -113,6 +113,26 @@ Nessuno spostamento di card, cambio entity ID o modifica runtime.
 
 Ogni spostamento deve preservare il controllo operatore e avere confronto visuale prima/dopo.
 
+#### Tranche 2B.1 - raw, debug e diagnostica
+
+Implementata separando esclusivamente le card gia` classificate `move`:
+
+- Heating, PV Array, Power Runtime e Domestic Ops -> sezioni diagnostiche di Observability;
+- DHW -> Fieldbus / `modbus-ehw` per registri raw e vendor;
+- MIRAI -> Fieldbus / `modbus-mirai` per probe/raw e snapshot;
+- duplicati semantici di destinazione sostituiti dalla versione completa spostata;
+- registrazioni, viste, navigation path, entity ID, template e logiche runtime invariati.
+
+La baseline di rollback e` `lovelace/_baseline/2026-07-19_dashboard_tranche_2b1_pre_move/`.
+
+#### Criteri di ingresso alla Tranche 2B.2
+
+- Quality Gates verdi sulla 2B.1;
+- verifica UI separata, se autorizzata, delle quattro nuove sezioni Observability e delle viste Fieldbus;
+- nessuna card 2B.1 residua nelle dashboard origine;
+- decisione esplicita sulle card `merge`, che restano escluse dalla 2B.1;
+- perimetro 2B.2 limitato alle mosse overview/domain gia` censite, senza redesign contestuale.
+
 ## Criteri di ingresso alla Tranche 2B
 
 - gate Lovelace e gate VMC verdi;
@@ -194,9 +214,21 @@ Contiene i 14 file Lovelace top-level presenti prima della tranche 1 e `configur
 - Entity ID: invariati per tutte le 12 dashboard rispetto alla baseline.
 - Link documentali: PASS.
 - `git diff --check` sul perimetro Tranche 2A: PASS.
-- `yamllint 1.38.0` e `ops/gates_run_ci.ps1`: PASS.
+- `git diff --check` globale: non pulito per whitespace in modifiche estranee gia` presenti nel worktree; tali file non sono stati corretti in questa tranche.
+- `ops/gates_run_ci.ps1`: tutti i gate eseguiti fino ad artifact policy sono PASS; il runner termina successivamente per `yamllint not found`, dipendenza assente nell'ambiente.
 
-## Provenienza operativa
+## Validazione della Tranche 2B.1
+
+- Baseline dedicata con SHA-256, entity ID globali, navigation path e registrazioni: creata.
+- Card confrontate strutturalmente con la baseline: 12/12 identiche, salvo i titoli aggiunti in Observability per mantenerle leggibili fuori dalle sezioni origine.
+- Entity ID globali: 424, insieme invariato.
+- Navigation path: 20, invariati.
+- Dashboard registrate: 12, invariate.
+- Parsing YAML con `yq`: PASS su 113 file.
+- `yamllint 1.38.0`, gate Lovelace, gate VMC, artifact policy e `ops/gates_run_ci.ps1`: PASS.
+- Runtime e deploy: non contattato, non eseguito.
+
+## Provenienza operativa Tranche 2B.1
 
 - Macchina operativa: workspace locale Windows `C:\2_OPS\aeb`.
 - Runtime target: `mercurio-edge` / Home Assistant Docker, non toccato.
