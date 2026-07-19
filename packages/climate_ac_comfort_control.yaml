@@ -64,9 +64,6 @@ input_boolean:
   ac_auto_pause:
     name: "AC - Pausa automatismo"
     icon: mdi:pause-circle
-  ac_param_unlock:
-    name: "AC - Modifica parametri dalla plancia"
-    icon: mdi:lock-open-variant
 
 timer:
   ac_auto_pause_timeout:
