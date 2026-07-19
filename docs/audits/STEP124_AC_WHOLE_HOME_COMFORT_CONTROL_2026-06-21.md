@@ -22,8 +22,11 @@ Ogni macro-zona usa temperatura, umidita` relativa e dew point.
 - conferma richiesta: 5 minuti;
 - lock minimi ON/OFF separati per split.
 
-La zona notte usa il massimo dei sensori disponibili di camere e bagno, per
-evitare che una stanza fuori comfort venga nascosta dalla media.
+La zona notte usa il massimo dei sensori disponibili delle sole camere
+`notte1` e `notte2`, per evitare che una stanza fuori comfort venga nascosta
+dalla media. Il bagno e` intenzionalmente escluso: i picchi transitori di
+temperatura e umidita` ne alterano eccessivamente la richiesta AC. Il bagno
+resta gestito dalla logica VMC/boost dedicata.
 
 ## Target
 
@@ -57,3 +60,4 @@ Uno spegnimento con contesto utente:
 
 Gli errori startup per unique ID `cm_*` duplicati e i timeout Modbus EHW erano
 gia` presenti e non sono stati introdotti da questo intervento.
+
