@@ -91,8 +91,8 @@ template:
           {% set gamma = ((a * t) / (b + t)) + ((rh / 100) | log) %}
           {{ ((b * gamma) / (a - gamma)) | round(1) }}
 
-      - name: "AC Notte Temperatura Controllo"
-        unique_id: ac_notte_control_temperature
+      - name: "AC Notte Temperatura Camere"
+        unique_id: ac_notte_rooms_temperature
         unit_of_measurement: "°C"
         device_class: temperature
         state_class: measurement
@@ -100,22 +100,20 @@ template:
           {{
             [
               states('sensor.t_in_notte1'),
-              states('sensor.t_in_notte2'),
-              states('sensor.t_in_bagno')
+              states('sensor.t_in_notte2')
             ] | reject('in', ['unknown','unavailable','']) | list | length > 0
           }}
         state: >-
           {% set values = [
             states('sensor.t_in_notte1') | float(default=none),
-            states('sensor.t_in_notte2') | float(default=none),
-            states('sensor.t_in_bagno') | float(default=none)
+            states('sensor.t_in_notte2') | float(default=none)
           ] | select('number') | list %}
           {{ (values | max) | round(1) }}
         attributes:
-          strategy: "maximum of available night/bathroom sensors"
+          strategy: "maximum of available night sensors; bathroom intentionally excluded"
 
-      - name: "AC Notte Umidita Controllo"
-        unique_id: ac_notte_control_humidity
+      - name: "AC Notte Umidita Camere"
+        unique_id: ac_notte_rooms_humidity
         unit_of_measurement: "%"
         device_class: humidity
         state_class: measurement
@@ -123,19 +121,17 @@ template:
           {{
             [
               states('sensor.ur_in_notte1'),
-              states('sensor.ur_in_notte2'),
-              states('sensor.ur_in_bagno')
+              states('sensor.ur_in_notte2')
             ] | reject('in', ['unknown','unavailable','']) | list | length > 0
           }}
         state: >-
           {% set values = [
             states('sensor.ur_in_notte1') | float(default=none),
-            states('sensor.ur_in_notte2') | float(default=none),
-            states('sensor.ur_in_bagno') | float(default=none)
+            states('sensor.ur_in_notte2') | float(default=none)
           ] | select('number') | list %}
           {{ (values | max) | round(1) }}
         attributes:
-          strategy: "maximum of available night/bathroom sensors"
+          strategy: "maximum of available night sensors; bathroom intentionally excluded"
 
       - name: "AC Notte Dew Point"
         unique_id: ac_notte_dew_point
@@ -144,12 +140,12 @@ template:
         state_class: measurement
         availability: >-
           {{
-            states('sensor.ac_notte_temperatura_controllo') not in ['unknown','unavailable','']
-            and states('sensor.ac_notte_umidita_controllo') not in ['unknown','unavailable','']
+            states('sensor.ac_notte_temperatura_camere') not in ['unknown','unavailable','']
+            and states('sensor.ac_notte_umidita_camere') not in ['unknown','unavailable','']
           }}
         state: >-
-          {% set t = states('sensor.ac_notte_temperatura_controllo') | float %}
-          {% set rh = [[states('sensor.ac_notte_umidita_controllo') | float, 100] | min, 1] | max %}
+          {% set t = states('sensor.ac_notte_temperatura_camere') | float %}
+          {% set rh = [[states('sensor.ac_notte_umidita_camere') | float, 100] | min, 1] | max %}
           {% set a = 17.27 %}
           {% set b = 237.7 %}
           {% set gamma = ((a * t) / (b + t)) + ((rh / 100) | log) %}
@@ -176,8 +172,8 @@ template:
       - name: "AC Notte Comfort Reason"
         unique_id: ac_notte_comfort_reason
         state: >-
-          {% set t = states('sensor.ac_notte_temperatura_controllo') | float(default=none) %}
-          {% set ur = states('sensor.ac_notte_umidita_controllo') | float(default=none) %}
+          {% set t = states('sensor.ac_notte_temperatura_camere') | float(default=none) %}
+          {% set ur = states('sensor.ac_notte_umidita_camere') | float(default=none) %}
           {% set dp = states('sensor.ac_notte_dew_point') | float(default=none) %}
           {% set sp = states('input_number.ac_cool_setpoint') | float(26) %}
           {% if is_state('input_boolean.ac_auto_pause','on') %}PAUSED_MANUAL_90M
@@ -244,8 +240,8 @@ template:
         icon: mdi:bed
         delay_on: "00:05:00"
         state: >-
-          {% set t = states('sensor.ac_notte_temperatura_controllo') | float(default=none) %}
-          {% set ur = states('sensor.ac_notte_umidita_controllo') | float(default=none) %}
+          {% set t = states('sensor.ac_notte_temperatura_camere') | float(default=none) %}
+          {% set ur = states('sensor.ac_notte_umidita_camere') | float(default=none) %}
           {% set dp = states('sensor.ac_notte_dew_point') | float(default=none) %}
           {% set sp = states('input_number.ac_cool_setpoint') | float(26) %}
           {% set delta = states('input_number.ac_comfort_temp_on_delta') | float(0.5) %}
@@ -263,10 +259,10 @@ template:
             and dp > (dp_off if was_on else dp_on)
           %}
           {{ is_state('input_boolean.ac_auto_pause','off') and (temp_need or humidity_need) }}
-        availability: "{{ states('sensor.ac_notte_temperatura_controllo') not in ['unknown','unavailable',''] }}"
+        availability: "{{ states('sensor.ac_notte_temperatura_camere') not in ['unknown','unavailable',''] }}"
         attributes:
-          temperature_c: "{{ states('sensor.ac_notte_temperatura_controllo') }}"
-          humidity_pct: "{{ states('sensor.ac_notte_umidita_controllo') }}"
+          temperature_c: "{{ states('sensor.ac_notte_temperatura_camere') }}"
+          humidity_pct: "{{ states('sensor.ac_notte_umidita_camere') }}"
           dew_point_c: "{{ states('sensor.ac_notte_dew_point') }}"
 
 script:
