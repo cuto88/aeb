@@ -61,5 +61,10 @@ Path previsto: `/13-stato-casa-tv/stato-casa`.
   riavvio del solo container `homeassistant`;
 - source of truth: branch `feat/aeb-tv-dashboard`, PR `#468`;
 - verifica post-riavvio: container `running`, endpoint HTTP `200`, tre nuove
-  entita` template presenti nel registry; secondo collaudo visuale TCL ancora
-  manuale dopo il deploy `v1.0.1`.
+  entita` template presenti nel registry;
+- deploy correttivo `v1.0.1`: solo
+  `lovelace/13_stato_casa_tv.yaml`, backup
+  `/config/_aeb_tv_backup_20260730_231415`, check configurazione pre e
+  post-deploy PASS, container `running`, endpoint HTTP `200`, nessun riavvio
+  richiesto;
+- secondo collaudo visuale TCL: ancora manuale.
