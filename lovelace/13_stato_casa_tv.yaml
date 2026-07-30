@@ -1,0 +1,152 @@
+# AEB TV Dashboard v1.0.0 - target primario 1920x1080
+title: "AEB — Stato casa"
+views:
+  - title: "AEB — Stato casa"
+    path: stato-casa
+    icon: mdi:home-monitor
+    type: sections
+    max_columns: 4
+    sections:
+      - type: grid
+        title: "Stato generale"
+        column_span: 2
+        cards:
+          - type: entity
+            entity: sensor.aeb_tv_stato_casa
+            name: "Casa"
+            icon: mdi:home-heart
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+
+      - type: grid
+        title: "Avvisi"
+        column_span: 2
+        cards:
+          - type: entity
+            entity: sensor.aeb_tv_avviso_prioritario
+            name: "Priorità"
+            icon: mdi:alert-circle-outline
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+
+      - type: grid
+        title: "Comfort"
+        cards:
+          - type: tile
+            entity: sensor.t_in_med
+            name: "Temperatura interna"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+          - type: tile
+            entity: sensor.t_out_effective
+            name: "Temperatura esterna"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+          - type: tile
+            entity: sensor.ur_in_media
+            name: "Umidità interna"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+
+      - type: grid
+        title: "Energia"
+        cards:
+          - type: tile
+            entity: sensor.pv_power_now
+            name: "Produzione FV"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+          - type: tile
+            entity: sensor.global_consumption_estimated_w
+            name: "Consumo casa"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+          - type: tile
+            entity: sensor.aeb_tv_scambio_rete
+            name: "Scambio rete"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+
+      - type: grid
+        title: "VMC"
+        cards:
+          - type: tile
+            entity: sensor.ventilation_state_reason
+            name: "Stato operativo"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+          - type: tile
+            entity: sensor.vmc_vel_index
+            name: "Velocità attiva"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+          - type: tile
+            entity: binary_sensor.vmc_freecooling_active
+            name: "Freecooling"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+
+      - type: grid
+        title: "Approfondimenti"
+        cards:
+          - type: grid
+            columns: 4
+            square: false
+            cards:
+              - type: button
+                name: "Clima"
+                icon: mdi:home-thermometer
+                tap_action:
+                  action: navigate
+                  navigation_path: /01-clima-casa/climate_casa
+              - type: button
+                name: "VMC"
+                icon: mdi:fan
+                tap_action:
+                  action: navigate
+                  navigation_path: /02-vmc/climate_vmc_v2
+              - type: button
+                name: "Energia"
+                icon: mdi:flash
+                tap_action:
+                  action: navigate
+                  navigation_path: /06-consumi/consumi
+              - type: button
+                name: "Osservabilità"
+                icon: mdi:clipboard-pulse-outline
+                tap_action:
+                  action: navigate
+                  navigation_path: /11-observability/observability
+          - type: markdown
+            content: "AEB TV · dashboard v1.0.0"
