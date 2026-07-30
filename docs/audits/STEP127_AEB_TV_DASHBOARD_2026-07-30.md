@@ -26,10 +26,23 @@ Non introduce soglie operative, automazioni o comandi.
 
 ## Layout e navigazione
 
-La dashboard `13-stato-casa-tv` espone una sola view `stato-casa`, usa
-`type: sections` con massimo quattro colonne e sei blocchi principali.
-Le sole azioni disponibili sono quattro link verso dashboard operative
-esistenti; tutte le card informative disabilitano tap e pressione prolungata.
+Il primo collaudo reale sulla TCL ha rilevato due vincoli bloccanti: sidebar
+incompleta e scrolling non affidabile con telecomando. La versione `v1.0.1`
+non dipende piu` da sidebar, swipe o scroll.
+
+La dashboard `13-stato-casa-tv` espone tre view native `type: panel`:
+
+- `stato-casa`: griglia fissa 4 colonne con i nove indicatori essenziali,
+  un solo pulsante `Tutte le dashboard` e versione discreta;
+- `menu-1`: sei dashboard operative, `Pagina successiva` e `Stato casa`;
+- `menu-2`: le altre sei dashboard operative, `Pagina precedente` e
+  `Stato casa`.
+
+I due menu sono `subview: true` con `back_path` verso la home, ma il ritorno
+primario resta sempre il pulsante visibile. Tutti i launcher usano card native
+`button` con `tap_action: navigate`; hold e doppio tap sono disabilitati.
+Ogni menu contiene otto pulsanti in una griglia 4 x 2 e non richiede scroll
+nel target Full HD.
 
 Path previsto: `/13-stato-casa-tv/stato-casa`.
 
@@ -46,6 +59,7 @@ Path previsto: `/13-stato-casa-tv/stato-casa`.
 - modifiche runtime: si`, backup
   `/config/_aeb_tv_backup_20260730_225505`, controllo configurazione PASS e
   riavvio del solo container `homeassistant`;
-- source of truth: branch `feat/aeb-tv-dashboard`, draft PR `#468`;
+- source of truth: branch `feat/aeb-tv-dashboard`, PR `#468`;
 - verifica post-riavvio: container `running`, endpoint HTTP `200`, tre nuove
-  entita` template presenti nel registry; collaudo visuale TCL ancora manuale.
+  entita` template presenti nel registry; secondo collaudo visuale TCL ancora
+  manuale dopo il deploy `v1.0.1`.
