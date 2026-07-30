@@ -36,8 +36,16 @@ Path previsto: `/13-stato-casa-tv/stato-casa`.
 ## Provenienza operativa
 
 - macchina operativa: workspace Windows `C:\2_OPS\aeb`;
-- runtime target: `mercurio-edge`, Home Assistant Core Docker, non toccato;
+- runtime target: `mercurio-edge`, Home Assistant Core Docker, container
+  `homeassistant`, bind mount `/opt/data/homeassistant` -> `/config`;
 - macchina legacy: non contattata;
-- accesso: filesystem locale e GitHub connector;
-- deploy: no;
-- modifiche runtime: no.
+- accesso: filesystem locale, GitHub connector, LAN/SSH e Docker;
+- deploy: si`, chirurgico sui tre file
+  `configuration.yaml`, `packages/aeb_tv_supervision.yaml` e
+  `lovelace/13_stato_casa_tv.yaml`;
+- modifiche runtime: si`, backup
+  `/config/_aeb_tv_backup_20260730_225505`, controllo configurazione PASS e
+  riavvio del solo container `homeassistant`;
+- source of truth: branch `feat/aeb-tv-dashboard`, draft PR `#468`;
+- verifica post-riavvio: container `running`, endpoint HTTP `200`, tre nuove
+  entita` template presenti nel registry; collaudo visuale TCL ancora manuale.
