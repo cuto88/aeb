@@ -27,8 +27,8 @@ views:
             name: "Modulo domestico"
             color: green
           - type: tile
-            entity: input_boolean.domesticops_notify_enabled
-            name: "Notifiche"
+            entity: input_boolean.aeb_telegram_notifications_enabled
+            name: "Notifiche Telegram AEB"
             color: blue
           - type: tile
             entity: binary_sensor.domesticops_lavastoviglie_window_ok
@@ -384,8 +384,8 @@ views:
             entities:
               - entity: input_boolean.domesticops_domestic_mode_enabled
                 name: "Modulo attivo"
-              - entity: input_boolean.domesticops_notify_enabled
-                name: "Notifiche attive"
+              - entity: input_boolean.aeb_telegram_notifications_enabled
+                name: "Notifiche Telegram AEB"
               - entity: input_boolean.domesticops_laundry_pending
                 name: "Bucato da gestire"
               - entity: input_boolean.domesticops_laundry_outside

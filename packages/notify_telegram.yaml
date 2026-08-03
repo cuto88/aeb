@@ -1,4 +1,29 @@
+input_boolean:
+  aeb_telegram_notifications_enabled:
+    name: "Notifiche Telegram AEB"
+    icon: mdi:telegram
+    initial: false
+
 script:
+  aeb_notify:
+    alias: "AEB - Notifica"
+    mode: queued
+    fields:
+      title:
+        description: "Titolo notifica"
+        example: "AEB"
+      message:
+        description: "Testo notifica"
+        example: "Aggiornamento operativo"
+    sequence:
+      - condition: state
+        entity_id: input_boolean.aeb_telegram_notifications_enabled
+        state: "on"
+      - action: script.telegram_ha_mercurio_send
+        data:
+          title: "{{ title | default('AEB', true) }}"
+          message: "{{ message }}"
+
   telegram_ha_mercurio_send:
     alias: "Telegram HA Mercurio - Invia messaggio"
     mode: queued
@@ -33,10 +58,6 @@ automation:
           - sensor.heating_priority
           - sensor.ac_priority
         for: "00:02:00"
-    condition:
-      - condition: state
-        entity_id: input_boolean.climate_debug_telegram
-        state: "on"
     variables:
       entity: "{{ trigger.entity_id }}"
       old: "{{ trigger.from_state.state if trigger.from_state is not none else 'unknown' }}"
@@ -104,7 +125,7 @@ automation:
           {{ new | replace('_', ' ') }}
         {% endif %}
     action:
-      - action: script.telegram_ha_mercurio_send
+      - action: script.aeb_notify
         data:
           title: "Aggiornamento clima: {{ subsystem }}"
           message: |

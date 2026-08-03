@@ -41,10 +41,6 @@ input_boolean:
     name: "Envelope bagno - shade applied"
     icon: mdi:window-shutter
     initial: false
-  envelope_notify_enabled:
-    name: "Envelope - Notifiche attive"
-    icon: mdi:bell
-    initial: false
 
 template:
   - binary_sensor:
@@ -838,9 +834,6 @@ automation:
         to: shade_now
         for: "00:05:00"
     condition:
-      - condition: state
-        entity_id: input_boolean.envelope_notify_enabled
-        state: "on"
       - condition: template
         value_template: >-
           {{
@@ -867,7 +860,7 @@ automation:
           {{ states('sensor.envelope_recommended_action') }}
         {% endif %}
     action:
-      - action: script.telegram_ha_mercurio_send
+      - action: script.aeb_notify
         data:
           title: "Azione richiesta: {{ action_label }}"
           message: |
@@ -896,9 +889,6 @@ automation:
         to: ac_justified
         for: "00:05:00"
     condition:
-      - condition: state
-        entity_id: input_boolean.envelope_notify_enabled
-        state: "on"
       - condition: template
         value_template: >-
           {{
@@ -917,7 +907,7 @@ automation:
           La finestra utile è terminata o non favorevole: conviene richiudere le finestre.
         {% endif %}
     action:
-      - action: script.telegram_ha_mercurio_send
+      - action: script.aeb_notify
         data:
           title: "Azione richiesta: chiudi finestre"
           message: |

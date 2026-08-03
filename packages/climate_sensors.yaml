@@ -1,7 +1,3 @@
-input_boolean:
-  climate_debug_telegram:
-    name: "Climate debug Telegram"
-
 template:
   - binary_sensor:
       - name: "clima_ac_from_vmc_request"
