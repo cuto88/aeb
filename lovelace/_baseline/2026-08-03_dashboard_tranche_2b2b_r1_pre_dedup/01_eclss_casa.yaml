@@ -692,9 +692,58 @@ views:
 
       - type: grid
         cards:
+          - type: tile
+            entity: sensor.envelope_worst_room_name
+            name: "Stanza peggiore"
+          - type: tile
+            entity: sensor.envelope_worst_room_overheating_risk
+            name: "Rischio"
+            color: red
+          - type: tile
+            entity: sensor.envelope_rooms_shade_recommended_count
+            name: "Scuri consigliati"
+          - type: tile
+            entity: sensor.envelope_rooms_night_flush_candidate_count
+            name: "Candidabili raffrescamento notturno"
+          - type: tile
+            entity: sensor.envelope_shade_applied_rooms
+            name: "Stanze schermate"
           - type: button
             name: "Apri 10 Involucro"
             icon: mdi:arrow-top-right-bold-box-outline
             tap_action:
               action: navigate
               navigation_path: /10-involucro/involucro
+
+      - type: grid
+        cards:
+          - type: history-graph
+            title: "Involucro 24h"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.t_in_med
+                name: "T interna"
+              - entity: sensor.t_out
+                name: "T esterna"
+              - entity: sensor.envelope_giorno_rise_rate_cph
+                name: "Giorno rise"
+              - entity: sensor.envelope_notte1_rise_rate_cph
+                name: "Notte1 rise"
+              - entity: sensor.envelope_notte2_rise_rate_cph
+                name: "Notte2 rise"
+          - type: history-graph
+            title: "Solare e scuri 24h"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.pv_power_now
+                name: "PV proxy sole"
+              - entity: sensor.envelope_house_night_flush_potential
+                name: "Raffrescamento notturno"
+              - entity: binary_sensor.close_shutters_recommended
+                name: "Scuri"
+              - entity: sensor.envelope_recommended_action
+                name: "Azione tecnica"
+              - entity: sensor.envelope_azione_consigliata
+                name: "Azione"

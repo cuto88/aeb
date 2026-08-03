@@ -68,7 +68,7 @@ views:
             name: "Scuri attivi"
           - type: tile
             entity: sensor.envelope_shade_applied_rooms_count
-            name: "Numero stanze schermate"
+            name: "Stanze schermate"
           - type: tile
             entity: sensor.envelope_shade_applied_rooms
             name: "Stanze"
@@ -153,36 +153,6 @@ views:
                 name: "Notte2 rise"
               - entity: sensor.envelope_t_out_drop_rate_cph
                 name: "T out drop"
-          - type: history-graph
-            title: "Involucro 24h"
-            hours_to_show: 24
-            refresh_interval: 120
-            entities:
-              - entity: sensor.t_in_med
-                name: "T interna"
-              - entity: sensor.t_out
-                name: "T esterna"
-              - entity: sensor.envelope_giorno_rise_rate_cph
-                name: "Giorno rise"
-              - entity: sensor.envelope_notte1_rise_rate_cph
-                name: "Notte1 rise"
-              - entity: sensor.envelope_notte2_rise_rate_cph
-                name: "Notte2 rise"
-          - type: history-graph
-            title: "Solare e scuri 24h"
-            hours_to_show: 24
-            refresh_interval: 120
-            entities:
-              - entity: sensor.pv_power_now
-                name: "PV proxy sole"
-              - entity: sensor.envelope_house_night_flush_potential
-                name: "Raffrescamento notturno"
-              - entity: binary_sensor.close_shutters_recommended
-                name: "Scuri"
-              - entity: sensor.envelope_recommended_action
-                name: "Azione tecnica"
-              - entity: sensor.envelope_azione_consigliata
-                name: "Azione"
 
       - type: grid
         title: "Zone"

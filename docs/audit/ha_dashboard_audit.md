@@ -294,6 +294,26 @@ navigation path o logiche:
 Baseline dedicata:
 `lovelace/_baseline/2026-08-03_dashboard_tranche_2b2a_r1_pre_move/`.
 
+## Esito Tranche 2B.2b-R1 - Passive House ed Envelope
+
+La Tranche 2B.2b-R1 consolida in Envelope la ownership della building physics:
+
+- le cinque card ECLSS `Stanza peggiore`, `Rischio`, `Scuri consigliati`,
+  `Candidabili raffrescamento notturno` e `Stanze schermate` sono state rimosse
+  come duplicati funzionali;
+- Envelope mantiene i cinque equivalenti canonici gia` esistenti; `Rischio
+  peggiore` e `Stanze` differiscono dalle sorgenti solo nel titolo;
+- il KPI distinto `sensor.envelope_shade_applied_rooms_count` resta in
+  Envelope con il nome Lovelace `Numero stanze schermate`;
+- i trend `Involucro 24h` e `Solare e scuri 24h` sono stati trasferiti
+  integralmente in Envelope / `Trend`;
+- il pulsante ECLSS `Apri 10 Involucro` resta disponibile e non cambia
+  navigation path;
+- entity ID, ordine e configurazione interna dei due trend sono invariati.
+
+Baseline e matrice di equivalenza:
+`lovelace/_baseline/2026-08-03_dashboard_tranche_2b2b_r1_pre_dedup/`.
+
 ## 12. File potenzialmente coinvolti
 
 - `configuration.yaml`

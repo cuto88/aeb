@@ -1,0 +1,13 @@
+navigation_path: /02-vmc/climate_vmc_v2
+navigation_path: /03-riscaldamento/heating
+navigation_path: /04-ac/ac_parameters
+navigation_path: /04-ac/ac_v2
+navigation_path: /05-fv-solaredge/pv_solaredge
+navigation_path: /06-consumi/consumi
+navigation_path: /07-ehw-acs/ehw
+navigation_path: /08-mirai/8-mirai
+navigation_path: /09-modbus/modbus-ehw
+navigation_path: /09-modbus/modbus-mirai
+navigation_path: /09-modbus/modbus-sdm120
+navigation_path: /10-involucro/involucro
+navigation_path: /11-observability/observability

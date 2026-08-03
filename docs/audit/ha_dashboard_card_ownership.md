@@ -4,7 +4,7 @@ Data censimento: 2026-07-19
 Ambito: 12 dashboard operative registrate in `configuration.yaml` dopo la Tranche 2A.
 Metodo: censimento statico di tutte le viste, sezioni e card top-level. Le card omogenee della stessa sezione sono raggruppate nella stessa riga, ma ogni card e` nominata. Le heading sono rappresentate dal nome della sezione e non costituiscono contenuto autonomo.
 
-Copertura verificata: 12 dashboard, 18 viste, 92 sezioni e 310 card top-level. Le card annidate nei grid sono censite tramite il nome funzionale del grid e l'elenco dei contenuti riportato nella stessa riga.
+Copertura verificata: 12 dashboard, 18 viste, 87 sezioni e 300 card top-level. Le card annidate nei grid sono censite tramite il nome funzionale del grid e l'elenco dei contenuti riportato nella stessa riga.
 
 ## Legenda
 
@@ -39,9 +39,9 @@ Copertura verificata: 12 dashboard, 18 viste, 92 sezioni e 310 card top-level. L
 | AEB | Planner & AEB | Planner dry-run; AEB MVP DHW | Power Runtime/DHW | domain | tuning/diagnostic | weekly | done 2B.2a-R1 | Power Runtime / DHW | Planner spostato; runtime diagnostico AEB deduplicato in DHW |
 | AEB | Trend | Forecast and grid 24h; Planner and AEB 24h | Power Runtime | domain | trend | weekly | done 2B.2a-R1 | Power Runtime | Ownership energia/ottimizzazione consolidata |
 | Passive House | Sintesi operativa | griglia guida; Scuri; AC; Scuri attivi; vantaggio umidita`; ETA apertura/chiusura; Inputs; markdown | Envelope | domain | state/diagnostic | daily | merge | Envelope | Tenere solo segnale e azione sintetici |
-| Passive House | Rischio e azione | Stanza peggiore; Rischio; Scuri consigliati; Candidabili; Stanze schermate | Envelope | domain | state | daily | move | Envelope | Duplicazione diretta della dashboard Envelope |
+| Passive House | Rischio e azione | Stanza peggiore; Rischio; Scuri consigliati; Candidabili; Stanze schermate | Envelope | domain | state | daily | done 2B.2b-R1 | Envelope | Deduplicate: mantenuti gli equivalenti canonici gia` presenti in Envelope |
 | Passive House | Rischio e azione | Apri 10 Involucro | Cross-domain | overview | command | daily | keep | Passive House | Accesso al dettaglio |
-| Passive House | Trend | Involucro 24h; Solare e scuri 24h | Envelope | domain | trend | weekly | move | Envelope | Trend di building physics |
+| Passive House | Trend | Involucro 24h; Solare e scuri 24h | Envelope | domain | trend | weekly | done 2B.2b-R1 | Envelope | Trend trasferiti integralmente nella sezione Trend |
 
 ## 2 Air Loop
 
@@ -178,14 +178,14 @@ Copertura verificata: 12 dashboard, 18 viste, 92 sezioni e 310 card top-level. L
 
 ## Candidati esatti per la Tranche 2B
 
-Le voci 7-16 sono state implementate nella Tranche 2B.1 senza cambiare entity ID, template o navigation path. Le voci 1-4 sono state implementate nella Tranche 2B.2a-R1 con deduplicazione controllata; le voci 5-6 restano candidate:
+Le voci 7-16 sono state implementate nella Tranche 2B.1 senza cambiare entity ID, template o navigation path. Le voci 1-4 sono state implementate nella Tranche 2B.2a-R1 con deduplicazione controllata; le voci 5-6 sono state implementate nella Tranche 2B.2b-R1:
 
 1. `[DONE 2B.2a-R1]` ECLSS / ClimateOps / `Contratti` -> Observability / Contracts / State e Reasons.
 2. `[DONE 2B.2a-R1]` ECLSS / AEB / `Planner & AEB` / `Planner dry-run` -> Power Runtime / Planner.
 3. `[DONE 2B.2a-R1]` ECLSS / AEB / `Planner & AEB` / `AEB MVP DHW` -> DHW / Active policy / runtime e diagnostica.
 4. `[DONE 2B.2a-R1]` ECLSS / AEB / `Trend` / `Forecast and grid 24h` e `Planner and AEB 24h` -> Power Runtime / Trend e KPI.
-5. ECLSS / Passive House / `Rischio e azione` / `Stanza peggiore`, `Rischio`, `Scuri consigliati`, `Candidabili raffrescamento notturno`, `Stanze schermate` -> Envelope / Sintesi.
-6. ECLSS / Passive House / `Trend` / `Involucro 24h`, `Solare e scuri 24h` -> Envelope / Trend.
+5. `[DONE 2B.2b-R1]` ECLSS / Passive House / `Rischio e azione`: rimossi i cinque duplicati; ownership assegnata agli equivalenti Envelope / Sintesi e Contesto.
+6. `[DONE 2B.2b-R1]` ECLSS / Passive House / `Trend` / `Involucro 24h`, `Solare e scuri 24h` -> Envelope / Trend.
 7. `[DONE 2B.1]` Heating / `Termostati reali (TEMP)` / markdown -> Observability / Legacy mappings.
 8. `[DONE 2B.1]` Heating / `Diagnostica` / entities -> Observability / Climate diagnostics.
 9. `[DONE 2B.1]` Heating / `Debug` / entities -> Observability / Climate diagnostics.
