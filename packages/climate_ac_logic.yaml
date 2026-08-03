@@ -80,7 +80,7 @@ automation:
             Priority: {{ states('sensor.ventilation_priority') }},
             reason: {{ states('sensor.ventilation_reason') }}.
           entity_id: binary_sensor.clima_ac_from_vmc_request
-      - service: persistent_notification.create
+      - action: script.aeb_notify
         data:
           title: "VMC – richiesta AC"
           message: >

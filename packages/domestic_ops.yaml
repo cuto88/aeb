@@ -38,10 +38,7 @@
 # - Lavatrice: sensor.pm2_mss310_power_w_main_channel
 # - Asciugatrice: sensor.pm3_mss310_power_w_main_channel
 # - Lavastoviglie: TODO se in futuro viene aggiunta una presa smart dedicata
-#
-# Telegram notify target used today:
-# - notify.telegram_davide
-# TODO: se il runtime espone un altro notify target Telegram, aggiornare lo script.
+# Le notifiche operative passano dal gate globale script.aeb_notify.
 
 input_number:
   domesticops_pv_surplus_min_w:
@@ -151,11 +148,6 @@ input_boolean:
   domesticops_laundry_pending:
     name: "DomesticOps - Bucato da fare"
     icon: mdi:washing-machine-alert
-
-  domesticops_notify_enabled:
-    name: "DomesticOps - Notifiche abilitate"
-    icon: mdi:message-badge
-    initial: true
 
   domesticops_domestic_mode_enabled:
     name: "DomesticOps - Modulo abilitato"
@@ -1119,19 +1111,12 @@ script:
         description: "Messaggio notifica"
         example: "Condizioni buone: avvia lavastoviglie ora."
     sequence:
-      - condition: state
-        entity_id: input_boolean.domesticops_notify_enabled
-        state: "on"
       - service: logbook.log
         data:
           name: "{{ title | default('DomesticOps') }}"
           message: "{{ message }}"
-          entity_id: input_boolean.domesticops_notify_enabled
-      - service: persistent_notification.create
-        data:
-          title: "{{ title | default('DomesticOps') }}"
-          message: "{{ message }}"
-      - action: script.telegram_ha_mercurio_send
+          entity_id: input_boolean.aeb_telegram_notifications_enabled
+      - action: script.aeb_notify
         data:
           title: "{{ title | default('DomesticOps') }}"
           message: |
