@@ -194,6 +194,8 @@ automation:
           raffrescamento giorno
         {% elif mode == 'COOL_NIGHT' %}
           raffrescamento notte
+        {% elif mode == 'COOL_BOTH' %}
+          raffrescamento giorno e notte
         {% elif mode == 'HEAT' %}
           riscaldamento
         {% elif mode == 'VENT_BASE' %}
