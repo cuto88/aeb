@@ -95,6 +95,10 @@ views:
             title: "State"
             show_header_toggle: false
             entities:
+              - entity: input_boolean.policy_vacation_mode
+                name: "Vacation mode"
+              - entity: binary_sensor.cm_policy_vacation_mode
+                name: "CM vacation mode"
               - entity: binary_sensor.cm_contract_actuators_defined
                 name: "Actuators defined"
               - entity: binary_sensor.cm_contract_actuators_ready
@@ -109,6 +113,8 @@ views:
                 name: "Tariff/grid contract"
               - entity: binary_sensor.cm_contract_hierarchy_mode_ready
                 name: "Hierarchy contract"
+              - entity: binary_sensor.cm_noncritical_loads_allowed
+                name: "Noncritical loads allowed"
           - type: entities
             title: "Reasons"
             show_header_toggle: false
