@@ -19,7 +19,7 @@ Ventilation — ventilazione naturale + VMC.
 - Termo-igrometria: `sensor.delta_t_in_out`, `sensor.delta_ah_in_out`, `sensor.ur_in_media`, `sensor.ur_out`, `sensor.t_out`, `sensor.ah_in`, `sensor.ah_out`.
 - Bagno: `sensor.ur_in_bagno` con soglie `input_number.vmc_bagno_on/off` e ΔUR.
 - Stato VMC e controlli: `sensor.ventilation_priority`, `sensor.ventilation_reason`, `sensor.vmc_vel_target`, `sensor.vmc_freecooling_status`, `binary_sensor.vmc_sensors_ok`.
-- Manuale/override: `input_boolean.vmc_manual`, `input_select.vmc_manual_speed`, `timer.vmc_manual_timeout`, `input_boolean.vent_override_estate`, `input_boolean.vent_notifiche_attive`.
+- Manuale/override: `input_boolean.vmc_manual`, `input_select.vmc_manual_speed`, `timer.vmc_manual_timeout`, `input_boolean.vent_override_estate`.
 - Fasce e timer: `input_datetime.vent_night_flush_start/end`, timer lock freecooling (`vmc_freecooling_max_run`, `vmc_freecooling_cooldown`) e anti-secco/boost (`vmc_anti_secco_lock`, `vmc_boost_lock`).
 
 ### Output (switch, scene)
@@ -43,7 +43,7 @@ Ventilation — ventilazione naturale + VMC.
 
 ### Modalità manuali / override
 - Modalità VMC: `input_select.vmc_mode` (auto/manual/off) con `input_select.vmc_manual_speed`; timer `vmc_manual_timeout` per rientro automatico.
-- Ventilazione: `input_boolean.vent_override_estate` forza stagione estiva; `input_boolean.vent_notifiche_attive` abilita/disabilita i messaggi.
+- Ventilazione: `input_boolean.vent_override_estate` forza stagione estiva; `input_boolean.aeb_telegram_notifications_enabled` abilita globalmente le notifiche operative AEB tramite `script.aeb_notify`.
 - Se `sensor.clima_open_windows_recommended` resta `on` abbastanza a lungo, il runtime può emettere una notifica Telegram umana per aprire le finestre.
 - Gli helper VMC restano definiti solo in `packages/climate_ventilation_helpers.yaml`; `packages/climate_ventilation.yaml` non deve ridefinire gli stessi domini top-level.
 

@@ -1,0 +1,171 @@
+# Ventilation helpers extracted from legacy ventilation package.
+# Purpose: keep VMC helper entities separate from state-machine logic.
+---
+input_select:
+  vmc_mode:
+    name: "VMC – Modalità"
+    options:
+      - auto
+      - manual
+      - "off"
+    icon: mdi:fan-auto
+  vmc_manual_speed:
+    name: "VMC – Velocità manuale"
+    options:
+      - "off"
+      - vel_0
+      - vel_1
+      - vel_2
+      - vel_3
+    icon: mdi:fan
+
+input_boolean:
+  vmc_manual:
+    name: "VMC – Abilita manuale"
+    icon: mdi:hand
+  vmc_boost_bagno:
+    name: "VMC – Boost bagno"
+    icon: mdi:fan-speed-3
+  vmc_bagno_delta_trigger_enable:
+    name: "VMC – Boost bagno via ΔUR"
+    icon: mdi:water-sync
+    initial: false
+  vent_override_estate:
+    name: "Ventilazione – Forza stagione estiva"
+    icon: mdi:weather-sunny
+
+input_number:
+  vmc_bagno_on:
+    name: "Bagno – UR ON"
+    min: 40
+    max: 90
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+    icon: mdi:water-percent
+    initial: 75
+  vmc_bagno_off:
+    name: "Bagno – UR OFF"
+    min: 40
+    max: 90
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+    icon: mdi:water-percent
+    initial: 65
+  vmc_bagno_delta_ur_on:
+    name: "Bagno – ΔUR ON"
+    min: 4
+    max: 25
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+    icon: mdi:water-plus
+    initial: 10
+  vmc_boost_manual_timeout_min:
+    name: "VMC – Timeout boost manuale"
+    min: 5
+    max: 180
+    step: 5
+    unit_of_measurement: "min"
+    mode: slider
+    icon: mdi:timer-outline
+    initial: 30
+  vmc_freecooling_delta:
+    name: "FC – ΔT minimo"
+    min: 0.5
+    max: 5
+    step: 0.1
+    unit_of_measurement: "°C"
+    mode: slider
+    icon: mdi:thermometer-chevron-down
+    initial: 2
+  vmc_freecooling_delta_ah:
+    name: "FC – ΔAH minimo"
+    min: 0.1
+    max: 5
+    step: 0.1
+    unit_of_measurement: "g/m³"
+    mode: slider
+    icon: mdi:water-percent
+    initial: 2
+  vmc_anti_secco_ur_min:
+    name: "Anti-secco – UR_min"
+    min: 20
+    max: 60
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+    icon: mdi:water-percent-alert
+    initial: 40
+  vent_deltat_min:
+    name: "Ventilazione – ΔT minimo"
+    min: 0.5
+    max: 5
+    step: 0.1
+    unit_of_measurement: "°C"
+    mode: slider
+    icon: mdi:thermometer-chevron-down
+    initial: 1.5
+  vent_deltaah_min:
+    name: "Ventilazione – ΔAH minimo"
+    min: 0.1
+    max: 5
+    step: 0.1
+    unit_of_measurement: "g/m³"
+    mode: slider
+    icon: mdi:water-percent
+    initial: 1.0
+  vent_backup_t_in:
+    name: "Ventilazione – Backup T interna"
+    min: 10
+    max: 35
+    step: 0.5
+    unit_of_measurement: "°C"
+    mode: slider
+    icon: mdi:thermometer
+    initial: 26
+  vent_backup_ur_in:
+    name: "Ventilazione – Backup UR interna"
+    min: 20
+    max: 90
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+    icon: mdi:water-percent
+    initial: 55
+
+input_text:
+  vent_messaggio_consiglio:
+    name: "Ventilazione – Messaggio di consiglio"
+    max: 255
+    initial: "Sistema inizializzato: in attesa dati sensori."
+
+input_datetime:
+  vent_night_flush_start:
+    name: "Ventilazione – Night flush start"
+    has_date: false
+    has_time: true
+    icon: mdi:weather-night
+    initial: "21:00"
+  vent_night_flush_end:
+    name: "Ventilazione – Night flush end"
+    has_date: false
+    has_time: true
+    icon: mdi:weather-sunset-up
+    initial: "08:00"
+
+timer:
+  vmc_manual_timeout:
+    name: Timeout modalità manuale
+    duration: "01:00:00"
+  vmc_boost_bagno_manual_timeout:
+    name: Timeout boost bagno manuale
+    duration: "00:30:00"
+
+counter:
+  vmc_churn_suppressed:
+    name: "VMC churn suppressed"
+    icon: mdi:shield-sync
+    initial: 0
+    step: 1

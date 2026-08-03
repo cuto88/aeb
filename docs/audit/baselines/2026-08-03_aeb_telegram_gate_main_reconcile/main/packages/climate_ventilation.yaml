@@ -1,0 +1,164 @@
+# LEGACY MODULE (do not refactor)
+# Migration status: legacy-owner
+# Strangler: ClimateOps observes only (no actuation)
+# Toggle: input_boolean.climateops_migration_enabled (future cutover)
+---
+###############################################################################
+# 1_ventilation.yaml – Modulo VMC e ventilazione naturale
+# Ricostruito da zero secondo logica/1_vent e core/regole_core_logiche:
+# - Priorità P0 failsafe, P1 boost bagno / anti-secco, P2 free-cooling, P4 baseline
+# - Gestione manuale (manual/off/auto) con velocità dedicate
+# - Diagnostica reason/priority e indice velocità
+# - Hook verso AC (block) e night-flush
+###############################################################################
+
+# NOTE – Relè hardware VMC
+# Le entità switch.vmc_vel_0 / 1 / 2 / 3 sono fornite da integrazioni esterne
+# (es. ESPHome / Modbus). Non sono definite in questo package: 1_ventilation
+# le usa solo come attuatori. Requisito: questi switch devono esistere in HA
+# con esattamente questi entity_id.
+
+homeassistant:
+  customize: {}
+
+# =============================
+# AUTOMAZIONI CORE
+# =============================
+automation:
+  - id: vmc_boost_bagno_manual_timeout
+    alias: "VMC - Timeout boost bagno manuale"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_boolean.vmc_boost_bagno
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.vmc_boost_bagno_manual_timeout
+    action:
+      - choose:
+          - conditions: >-
+              {{
+                trigger.platform == 'state'
+                and trigger.to_state is not none
+                and trigger.to_state.state == 'on'
+              }}
+            sequence:
+              - variables:
+                  timeout_min: "{{ states('input_number.vmc_boost_manual_timeout_min') | int(30) }}"
+                  hh: "{{ (timeout_min // 60) | int }}"
+                  mm: "{{ (timeout_min % 60) | int }}"
+                  timer_duration: "{{ '%02d:%02d:00' | format(hh, mm) }}"
+              - service: timer.start
+                target:
+                  entity_id: timer.vmc_boost_bagno_manual_timeout
+                data:
+                  duration: "{{ timer_duration }}"
+          - conditions: >-
+              {{
+                trigger.platform == 'state'
+                and trigger.to_state is not none
+                and trigger.to_state.state == 'off'
+              }}
+            sequence:
+              - service: timer.cancel
+                target:
+                  entity_id: timer.vmc_boost_bagno_manual_timeout
+          - conditions: >-
+              {{
+                trigger.platform == 'event'
+                and is_state('input_boolean.vmc_boost_bagno', 'on')
+              }}
+            sequence:
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.vmc_boost_bagno
+
+  # Gestione messaggio plancia / debug
+  - id: vmc_update_message
+    alias: "VMC – Aggiorna messaggio plancia"
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.ventilation_reason
+          - sensor.vmc_freecooling_status
+          - sensor.ventilation_priority
+          - binary_sensor.policy_allow_vmc_boost
+    action:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.vent_messaggio_consiglio
+        data:
+          value: >-
+            {{ states('sensor.ventilation_reason') }} – Freecooling: {{ states('sensor.vmc_freecooling_status') }}
+
+  - id: vmc_open_windows_telegram_alert
+    alias: "VMC – Notifica apertura finestre Telegram"
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id: sensor.clima_open_windows_recommended
+        to: "on"
+        for: "00:05:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.vent_notifiche_attive
+        state: "on"
+      - condition: state
+        entity_id: sensor.clima_open_windows_recommended
+        state: "on"
+    action:
+      - action: script.telegram_ha_mercurio_send
+        data:
+          title: "Ventilazione: apri finestre consigliato"
+          message: |
+            Il sistema indica che aprire le finestre è consigliato adesso.
+
+            Consiglio tecnico: `{{ states('sensor.clima_open_windows_recommended') }}`
+            Motivo ventilazione: `{{ states('sensor.ventilation_reason') | replace('`', '') }}`
+            Stato freecooling: `{{ states('sensor.vmc_freecooling_status') | replace('`', '') }}`
+            Consiglio involucro: `{{ states('sensor.envelope_recommended_action') | replace('`', '') }}`
+            Ora: `{{ now() | string | replace('`', '') }}`
+
+  - id: vmc_sync_core_backup_inputs
+    alias: "VMC – Sync core/legacy backup input"
+    mode: queued
+    trigger:
+      - platform: time_pattern
+        minutes: "/5"
+      - platform: state
+        entity_id:
+          - sensor.t_in_giorno
+          - sensor.t_in_notte1
+          - sensor.t_in_notte2
+          - sensor.t_in_bagno
+          - sensor.ur_in_giorno
+          - sensor.ur_in_notte1
+          - sensor.ur_in_notte2
+          - sensor.ur_in_bagno
+    condition:
+      - condition: template
+        value_template: >-
+          {{
+            states('sensor.t_in_med') not in ['unknown','unavailable','']
+            and states('sensor.ur_in_media') not in ['unknown','unavailable','']
+          }}
+    action:
+      - variables:
+          t_in_med: "{{ states('sensor.t_in_med') | float(26) }}"
+          ur_in_media: "{{ states('sensor.ur_in_media') | float(55) }}"
+      - service: input_number.set_value
+        target:
+          entity_id:
+            - input_number.core_backup_t_in
+            - input_number.vent_backup_t_in
+        data:
+          value: "{{ t_in_med }}"
+      - service: input_number.set_value
+        target:
+          entity_id:
+            - input_number.core_backup_ur_in
+            - input_number.vent_backup_ur_in
+        data:
+          value: "{{ ur_in_media }}"

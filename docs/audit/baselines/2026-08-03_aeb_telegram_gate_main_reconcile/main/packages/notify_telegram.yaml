@@ -1,0 +1,114 @@
+script:
+  telegram_ha_mercurio_send:
+    alias: "Telegram HA Mercurio - Invia messaggio"
+    mode: queued
+    fields:
+      title:
+        description: "Titolo notifica"
+        example: "Climate"
+      message:
+        description: "Testo notifica"
+        example: "Aggiornamento stato clima"
+    sequence:
+      - action: notify.send_message
+        target:
+          entity_id: notify.telegram_davide
+        data:
+          message: >-
+            {% set title = title | default('') | string | trim %}
+            {% if title %}
+              {{ title }}
+
+            {% endif %}
+            {{ message }}
+
+automation:
+  - alias: "Climate debug - Telegram HA Mercurio"
+    id: climate_debug_telegram_notifications
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.ventilation_priority
+          - sensor.heating_priority
+          - sensor.ac_priority
+        for: "00:02:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.climate_debug_telegram
+        state: "on"
+    variables:
+      entity: "{{ trigger.entity_id }}"
+      old: "{{ trigger.from_state.state if trigger.from_state is not none else 'unknown' }}"
+      new: "{{ trigger.to_state.state if trigger.to_state is not none else 'unknown' }}"
+      subsystem: >-
+        {% if trigger.entity_id == 'sensor.ventilation_priority' %}
+          Ventilation
+        {% elif trigger.entity_id == 'sensor.heating_priority' %}
+          Heating
+        {% elif trigger.entity_id == 'sensor.ac_priority' %}
+          AC
+        {% else %}
+          Climate
+        {% endif %}
+      reason: >-
+        {% if trigger.entity_id == 'sensor.ventilation_priority' %}
+          {{ states('sensor.ventilation_state_reason') }}
+        {% elif trigger.entity_id == 'sensor.heating_priority' %}
+          {{ states('sensor.heating_state_reason') }}
+        {% elif trigger.entity_id == 'sensor.ac_priority' %}
+          {{ states('sensor.ac_state_reason') }}
+        {% else %}
+          {{ states(trigger.entity_id) }}
+        {% endif %}
+      entity_label: >-
+        {% if trigger.entity_id == 'sensor.ventilation_priority' %}
+          Priorita ventilazione
+        {% elif trigger.entity_id == 'sensor.heating_priority' %}
+          Priorita riscaldamento
+        {% elif trigger.entity_id == 'sensor.ac_priority' %}
+          Priorita climatizzazione
+        {% else %}
+          Sensore clima
+        {% endif %}
+      old_label: >-
+        {% if old in ['unknown', 'unavailable', ''] %}
+          non disponibile
+        {% elif old.startswith('P0_') %}
+          {{ old | replace('P0_', 'P0 - ') | replace('_', ' ') }}
+        {% elif old.startswith('P1_') %}
+          {{ old | replace('P1_', 'P1 - ') | replace('_', ' ') }}
+        {% elif old.startswith('P2_') %}
+          {{ old | replace('P2_', 'P2 - ') | replace('_', ' ') }}
+        {% elif old.startswith('P3_') %}
+          {{ old | replace('P3_', 'P3 - ') | replace('_', ' ') }}
+        {% elif old.startswith('P4_') %}
+          {{ old | replace('P4_', 'P4 - ') | replace('_', ' ') }}
+        {% else %}
+          {{ old | replace('_', ' ') }}
+        {% endif %}
+      new_label: >-
+        {% if new in ['unknown', 'unavailable', ''] %}
+          non disponibile
+        {% elif new.startswith('P0_') %}
+          {{ new | replace('P0_', 'P0 - ') | replace('_', ' ') }}
+        {% elif new.startswith('P1_') %}
+          {{ new | replace('P1_', 'P1 - ') | replace('_', ' ') }}
+        {% elif new.startswith('P2_') %}
+          {{ new | replace('P2_', 'P2 - ') | replace('_', ' ') }}
+        {% elif new.startswith('P3_') %}
+          {{ new | replace('P3_', 'P3 - ') | replace('_', ' ') }}
+        {% elif new.startswith('P4_') %}
+          {{ new | replace('P4_', 'P4 - ') | replace('_', ' ') }}
+        {% else %}
+          {{ new | replace('_', ' ') }}
+        {% endif %}
+    action:
+      - action: script.telegram_ha_mercurio_send
+        data:
+          title: "Aggiornamento clima: {{ subsystem }}"
+          message: |
+            {{ entity_label }}: `{{ old_label | replace('`', '') }}` -> `{{ new_label | replace('`', '') }}`
+            Motivo: `{{ reason | string | replace('`', '') }}`
+            Sensore tecnico: `{{ entity | replace('`', '') }}`
+            Ora: `{{ now() | string | replace('`', '') }}`

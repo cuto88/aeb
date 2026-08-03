@@ -138,7 +138,7 @@ Copertura verificata: 12 dashboard, 18 viste, 87 sezioni e 300 card top-level. L
 |---|---|---|---|---|---|---|---|---|---|
 | Envelope | Sintesi | griglia guida; Guadagno passivo; AC giustificata; stanza/rischio; scuri; candidabili | Envelope | domain | state | daily | keep | Envelope | Sintesi building physics |
 | Envelope | Contesto | Finestra esterna; tempo; rimbalzo; scuri attivi; stanze schermate; stanze | Envelope | domain | state | daily | keep | Envelope | Contesto decisionale |
-| Envelope | Notifiche | Consensi; markdown | Envelope | domain | command/diagnostic | weekly | keep | Envelope | Controllo notifiche specifiche |
+| Envelope | Notifiche | Consenso Telegram AEB globale; markdown | Notifications | domain | command/diagnostic | weekly | keep | Envelope / Observability / Domestic Ops | Unico gate `input_boolean.aeb_telegram_notifications_enabled` |
 | Envelope | Finestre manuale | Stato e comandi | Envelope | domain | command/state | daily | keep | Envelope | Attuazione manuale |
 | Envelope | Trend | Temperature; Dinamica | Envelope | domain | trend | weekly | keep | Envelope | Trend building physics |
 | Envelope | Zone | Giorno; Notte1; Notte2; Bagno | Envelope | domain | state/diagnostic | weekly | keep | Envelope | Modello stanza dettagliato |

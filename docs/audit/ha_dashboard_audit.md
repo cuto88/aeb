@@ -202,7 +202,7 @@ Al momento dell'audit esistevano solo due navigazioni esplicite: Passive House v
 - DHW: writer enable, dry-run, request, raw calc e registri vendor.
 - MIRAI Plant: `mirai_debug_enable`, probe raw, registri U1 e snapshot.
 - Fieldbus: raw/forensic per ruolo, incluso il toggle debug MIRAI.
-- Envelope: `climate_debug_telegram`.
+- Le dashboard Envelope, Observability e Domestic Ops espongono il solo consenso globale `input_boolean.aeb_telegram_notifications_enabled`; i quattro consensi legacy non appartengono piu` al codice operativo.
 - Observability: canali debug/notifica, unavailable/unknown e gap noti.
 - Domestic Ops: versione/cache marker, mapping ed entita` candidate grezze.
 - ECLSS: contratti, missing entities, runtime truth MIRAI e writer/AEB.
@@ -313,6 +313,10 @@ La Tranche 2B.2b-R1 consolida in Envelope la ownership della building physics:
 
 Baseline e matrice di equivalenza:
 `lovelace/_baseline/2026-08-03_dashboard_tranche_2b2b_r1_pre_dedup/`.
+
+La successiva riconciliazione notification policy mantiene integralmente
+questo risultato e sostituisce nelle dashboard soltanto i consensi Telegram
+legacy con il gate globale `input_boolean.aeb_telegram_notifications_enabled`.
 
 ## 12. File potenzialmente coinvolti
 

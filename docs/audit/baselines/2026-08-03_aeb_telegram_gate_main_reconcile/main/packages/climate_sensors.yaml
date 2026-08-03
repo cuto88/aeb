@@ -1,0 +1,391 @@
+input_boolean:
+  climate_debug_telegram:
+    name: "Climate debug Telegram"
+
+template:
+  - binary_sensor:
+      - name: "clima_ac_from_vmc_request"
+        unique_id: clima_ac_from_vmc_request
+        state: >
+          {{
+            is_state('binary_sensor.cm_driver_ac_giorno_is_on', 'on')
+            or is_state('binary_sensor.cm_driver_ac_notte_is_on', 'on')
+          }}
+        attributes:
+          friendly_name: "AC richiesta dal clima"
+      - name: "t_out stale"
+        unique_id: t_out_stale
+        device_class: problem
+        state: >-
+          {% set raw = states('sensor.t_out') | float(default=none) %}
+          {% set weather_current = state_attr('weather.forecast_casa', 'temperature') %}
+          {% set weather_forecast = states('sensor.weather_forecast_temperature_1h') | float(default=none) %}
+          {% set ref = weather_current if weather_current is number else weather_forecast %}
+          {% set raw_obj = states.sensor.t_out %}
+          {% set age_h = ((as_timestamp(now()) - as_timestamp(raw_obj.last_changed, default=0)) / 3600) if raw_obj is not none else none %}
+          {{
+            raw is number
+            and ref is number
+            and age_h is number
+            and age_h >= 2
+            and ((raw - ref) | abs) >= 0.8
+          }}
+        attributes:
+          raw_value_c: "{{ states('sensor.t_out') }}"
+          weather_current_c: "{{ state_attr('weather.forecast_casa', 'temperature') }}"
+          weather_forecast_1h_c: "{{ states('sensor.weather_forecast_temperature_1h') }}"
+          raw_age_h: >-
+            {% set raw_obj = states.sensor.t_out %}
+            {% if raw_obj is not none %}
+              {{ ((as_timestamp(now()) - as_timestamp(raw_obj.last_changed, default=0)) / 3600) | round(2) }}
+            {% else %}
+              unknown
+            {% endif %}
+  - sensor:
+      - name: ventilation_state_reason
+        unique_id: ventilation_state_reason
+        state: >-
+          {% set priority = states('sensor.ventilation_priority') %}
+          {% if priority == 'P1_boost_bagno' %}
+            Boost bagno attivo
+          {% elif priority == 'P2_freecooling' %}
+            Freecooling attivo (ΔT/ΔAH favorevoli)
+          {% elif states('sensor.clima_open_windows_recommended') not in ['off','unknown','unavailable',''] %}
+            Finestre aperte consigliate
+          {% elif priority == 'P_manual' %}
+            Modalità manuale selezionata
+          {% elif priority == 'P0_off' %}
+            VMC in modalità OFF
+          {% elif priority == 'P0_failsafe' %}
+            Failsafe sensori VMC
+          {% elif priority == 'P1_anti_secco' %}
+            Anti-secco notturno
+          {% elif priority == 'P1_delta_ur' %}
+            Aria esterna più secca (ΔUR)
+          {% else %}
+            Baseline ventilazione
+          {% endif %}
+
+      - name: heating_state_reason
+        unique_id: heating_state_reason
+        state: >-
+          {% set priority = states('sensor.heating_priority') %}
+          {% set hard_reason = state_attr('binary_sensor.heating_failsafe_sensors_bad', 'reason') %}
+          {% if priority.startswith('P0') %}
+            {% if hard_reason == 'INDOOR_SENSOR_COVERAGE_LOW' %}
+              Failsafe riscaldamento: copertura sensori indoor insufficiente
+            {% elif hard_reason == 'OUTDOOR_UNAVAILABLE' %}
+              Failsafe riscaldamento: fallback outdoor non disponibile
+            {% elif hard_reason == 'OUTDOOR_SENSOR_RANGE' %}
+              Failsafe riscaldamento: temperatura outdoor fuori range
+            {% elif hard_reason == 'INDOOR_SENSOR_RANGE' %}
+              Failsafe riscaldamento: sensore indoor fuori range
+            {% else %}
+              Failsafe sensori riscaldamento
+            {% endif %}
+          {% elif priority == 'P1_anti_frost' %}
+            Protezione antigelo
+          {% elif priority == 'P2_comfort' %}
+            Comfort: stanze sotto setpoint
+          {% elif priority == 'P3_pv_boost' %}
+            Boost con surplus fotovoltaico
+          {% elif priority == 'P4_night_setback' %}
+            Setback notturno
+          {% elif priority == 'manual' %}
+            Modalità manuale attiva
+          {% else %}
+            Riscaldamento idle
+          {% endif %}
+
+      - name: ac_state_reason
+        unique_id: ac_state_reason
+        state: >-
+          {% set priority = states('sensor.ac_priority') %}
+          {% if priority == 'P0_failsafe' %}
+            Failsafe sensori AC
+          {% elif priority == 'P1_blocked_vmc' %}
+            Bloccato da VMC
+          {% elif priority == 'P2_dry' %}
+            Modalità deumidifica per UR alta
+          {% elif priority == 'P3_cooling' %}
+            Raffrescamento per superamento setpoint
+          {% elif priority == 'P4_night' %}
+            Modalità notturna ridotta
+          {% elif priority == 'manual' %}
+            Modalità manuale AC
+          {% else %}
+            AC idle
+          {% endif %}
+
+      - name: t_in_med
+        unique_id: t_in_med
+        icon: mdi:thermometer
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        attributes:
+          friendly_name: "T interna media"
+        state: >-
+          {% set vals = [
+            states('sensor.t_in_giorno'),
+            states('sensor.t_in_notte1'),
+            states('sensor.t_in_notte2'),
+            states('sensor.t_in_bagno')
+          ] %}
+          {% set valid = vals | reject('in', ['unknown','unavailable','']) | map('float') | list %}
+          {% if valid | length > 0 %}
+            {{ (valid | sum / (valid | length)) | round(2) }}
+          {% else %}
+            {{ states('input_number.core_backup_t_in') }}
+          {% endif %}
+
+      - name: t_notte_med
+        unique_id: t_notte_med
+        icon: mdi:thermometer
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        attributes:
+          friendly_name: "T zona notte media"
+        availability: >-
+          {{
+            states('sensor.t_in_bagno') not in ['unknown','unavailable','']
+            or states('sensor.t_in_notte1') not in ['unknown','unavailable','']
+            or states('sensor.t_in_notte2') not in ['unknown','unavailable','']
+            or states('sensor.t_in_notte3') not in ['unknown','unavailable','']
+            or states('sensor.t_in_lavanderia') not in ['unknown','unavailable','']
+          }}
+        state: >-
+          {% set values = [
+            states('sensor.t_in_bagno')|float(default=none),
+            states('sensor.t_in_notte1')|float(default=none),
+            states('sensor.t_in_notte2')|float(default=none),
+            states('sensor.t_in_notte3')|float(default=none),
+            states('sensor.t_in_lavanderia')|float(default=none)
+          ] | select('ne', none) | list %}
+          {% if values %}
+            {{ (values | sum / (values | length)) | round(2) }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: ur_in_media
+        unique_id: ur_in_media
+        icon: mdi:water-percent
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        attributes:
+          friendly_name: "UR interna media"
+        state: >-
+          {% set vals = [
+            states('sensor.ur_in_giorno'),
+            states('sensor.ur_in_notte1'),
+            states('sensor.ur_in_notte2'),
+            states('sensor.ur_in_bagno')
+          ] %}
+          {% set valid = vals | reject('in', ['unknown','unavailable','']) | map('float') | list %}
+          {% if valid | length > 0 %}
+            {{ (valid | sum / (valid | length)) | round(1) }}
+          {% else %}
+            {{ states('input_number.core_backup_ur_in') }}
+          {% endif %}
+
+      - name: ur_notte_med
+        unique_id: ur_notte_med
+        icon: mdi:water-percent
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        attributes:
+          friendly_name: "UR zona notte media"
+        availability: >-
+          {{
+            states('sensor.ur_in_bagno') not in ['unknown','unavailable','']
+            or states('sensor.ur_in_notte1') not in ['unknown','unavailable','']
+            or states('sensor.ur_in_notte2') not in ['unknown','unavailable','']
+            or states('sensor.ur_in_notte3') not in ['unknown','unavailable','']
+            or states('sensor.ur_in_lavanderia') not in ['unknown','unavailable','']
+          }}
+        state: >-
+          {% set values = [
+            states('sensor.ur_in_bagno')|float(default=none),
+            states('sensor.ur_in_notte1')|float(default=none),
+            states('sensor.ur_in_notte2')|float(default=none),
+            states('sensor.ur_in_notte3')|float(default=none),
+            states('sensor.ur_in_lavanderia')|float(default=none)
+          ] | select('ne', none) | list %}
+          {% if values %}
+            {{ (values | sum / (values | length)) | round(1) }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: ur_in_min
+        unique_id: ur_in_min
+        icon: mdi:water-percent
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        attributes:
+          friendly_name: "UR interna minima"
+        availability: >-
+          {{
+            states('sensor.ur_in_giorno') not in ['unknown','unavailable','']
+            or states('sensor.ur_in_notte1') not in ['unknown','unavailable','']
+            or states('sensor.ur_in_notte2') not in ['unknown','unavailable','']
+            or states('sensor.ur_in_bagno') not in ['unknown','unavailable','']
+          }}
+        state: >-
+          {% set values = [
+            states('sensor.ur_in_giorno')|float(default=none),
+            states('sensor.ur_in_notte1')|float(default=none),
+            states('sensor.ur_in_notte2')|float(default=none),
+            states('sensor.ur_in_bagno')|float(default=none)
+          ] | select('ne', none) | list %}
+          {% if values %}
+            {{ (values | min) | round(1) }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: ah_in
+        unique_id: ah_in
+        icon: mdi:water
+        unit_of_measurement: "g/m³"
+        state_class: measurement
+        attributes:
+          friendly_name: "AH interna"
+        availability: >-
+          {{
+            states('sensor.t_in_med') not in ['unknown','unavailable','']
+            and states('sensor.ur_in_media') not in ['unknown','unavailable','']
+          }}
+        state: >-
+          {% set T = states('sensor.t_in_med')|float(default=none) %}
+          {% set RH = states('sensor.ur_in_media')|float(default=none) %}
+          {% if T is number and RH is number %}
+            {% set RHc = [[RH, 100]|min, 1]|max %}
+            {% set es = 6.112 * (2.718281828 ** ((17.67*T)/(T+243.5))) %}
+            {% set pv = (RHc/100) * es %}
+            {{ (216.7 * pv / (T + 273.15)) | round(2) }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: t_out_effective
+        unique_id: t_out_effective
+        icon: mdi:thermometer
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        attributes:
+          friendly_name: "T esterna effettiva"
+          source: >-
+            {% set raw = states('sensor.t_out') | float(default=none) %}
+            {% set weather_current = state_attr('weather.forecast_casa', 'temperature') %}
+            {% set weather_forecast = states('sensor.weather_forecast_temperature_1h') | float(default=none) %}
+            {% if raw is number and is_state('binary_sensor.t_out_stale', 'off') %}
+              sensor.t_out
+            {% elif weather_current is number %}
+              weather.forecast_casa.temperature
+            {% elif weather_forecast is number %}
+              sensor.weather_forecast_temperature_1h
+            {% elif raw is number %}
+              sensor.t_out_no_fallback_available
+            {% else %}
+              unavailable
+            {% endif %}
+          raw_value_c: "{{ states('sensor.t_out') }}"
+          weather_current_c: "{{ state_attr('weather.forecast_casa', 'temperature') }}"
+          weather_forecast_1h_c: "{{ states('sensor.weather_forecast_temperature_1h') }}"
+          raw_age_h: >-
+            {% set raw_obj = states.sensor.t_out %}
+            {% if raw_obj is not none %}
+              {{ ((as_timestamp(now()) - as_timestamp(raw_obj.last_changed, default=0)) / 3600) | round(2) }}
+            {% else %}
+              unknown
+            {% endif %}
+          stale_flag: "{{ states('binary_sensor.t_out_stale') }}"
+        availability: >-
+          {{
+            states('sensor.t_out') not in ['unknown','unavailable','']
+            or state_attr('weather.forecast_casa', 'temperature') is number
+            or states('sensor.weather_forecast_temperature_1h') not in ['unknown','unavailable','']
+          }}
+        state: >-
+          {% set raw = states('sensor.t_out') | float(default=none) %}
+          {% set weather_current = state_attr('weather.forecast_casa', 'temperature') %}
+          {% set weather_forecast = states('sensor.weather_forecast_temperature_1h') | float(default=none) %}
+          {% if raw is number and is_state('binary_sensor.t_out_stale', 'off') %}
+            {{ raw | round(1) }}
+          {% elif weather_current is number %}
+            {{ weather_current | round(1) }}
+          {% elif weather_forecast is number %}
+            {{ weather_forecast | round(1) }}
+          {% elif raw is number %}
+            {{ raw | round(1) }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: ah_out
+        unique_id: ah_out
+        icon: mdi:water-outline
+        unit_of_measurement: "g/m³"
+        state_class: measurement
+        attributes:
+          friendly_name: "AH esterna"
+        availability: >-
+          {{ states('sensor.t_out_effective') not in ['unknown','unavailable',''] and
+             states('sensor.ur_out') not in ['unknown','unavailable',''] }}
+        state: >-
+          {% set T = states('sensor.t_out_effective')|float(default=none) %}
+          {% set RH = states('sensor.ur_out')|float(default=none) %}
+          {% if T is number and RH is number %}
+            {% set RHc = [[RH, 100]|min, 1]|max %}
+            {% set exponent = (17.67*T)/(T+243.5) %}
+            {% set es = 6.112 * (2.718281828 ** exponent) %}
+            {% set pv = RHc/100 * es %}
+            {{ (216.7 * pv / (T + 273.15)) | round(2) }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: delta_t_in_out
+        unique_id: delta_t_in_out
+        icon: mdi:thermometer-chevron-down
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        attributes:
+          friendly_name: "Delta T in-out"
+        availability: >-
+          {{
+            states('sensor.t_in_med') not in ['unknown','unavailable','']
+            and states('sensor.t_out_effective') not in ['unknown','unavailable','']
+          }}
+        state: >-
+          {% set tin = states('sensor.t_in_med')|float(default=none) %}
+          {% set tout = states('sensor.t_out_effective')|float(default=none) %}
+          {% if tin is number and tout is number %}
+            {{ (tin - tout) | round(2) }}
+          {% else %}
+            0
+          {% endif %}
+
+      - name: delta_ah_in_out
+        unique_id: delta_ah_in_out
+        icon: mdi:water-percent
+        unit_of_measurement: "g/m³"
+        state_class: measurement
+        attributes:
+          friendly_name: "Delta AH in-out"
+        state: >-
+          {% set ah_i = states('sensor.ah_in')|float(default=none) %}
+          {% set ah_o = states('sensor.ah_out')|float(default=none) %}
+          {% if ah_i is number and ah_o is number %}
+            {{ (ah_i - ah_o) | round(2) }}
+          {% else %}
+            0
+          {% endif %}

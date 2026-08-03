@@ -1,0 +1,191 @@
+# LEGACY MODULE (do not refactor)
+# Migration status: legacy-owner
+# Strangler: ClimateOps observes only (no actuation)
+# Toggle: input_boolean.climateops_migration_enabled (future cutover)
+---
+###############################################################################
+# climate_ac_logic.yaml – Controllo Aria Condizionata (Passivhaus-Oriented)
+# Controller unico AC con priorità, hook VMC e telemetria
+###############################################################################
+
+# NOTE – Attuatori hardware AC
+# Le entita` switch.ac_giorno e switch.ac_notte sono fornite da integrazioni
+# esterne (bridge IR, smart plug, ESPHome, ecc.) e restano il target fisico
+# degli script/attuatori. La telemetria/diagnostica deve invece leggere il
+# feedback canonico cm_driver_* per non dipendere dallo stato grezzo dello switch.
+
+# -----------------------------------------------------------------------------
+# PRIORITÀ AC (P0–P4)
+# -----------------------------------------------------------------------------
+# P0) Failsafe sensori – spegni AC.
+# P1) Block da VMC / anti-secco – AC vietata.
+# P2) DRY (deumidifica) – UR alta, T_in non troppo bassa.
+# P3) COOL (raffrescamento comfort) – T_in > setpoint, solo in stagione calda.
+# P4) Idle – tutto OFF.
+
+# ============================================================================
+# 1) HELPER INPUTS – definiti nel mapping (control interface layer)
+# ============================================================================
+input_boolean:
+  ac_send_command_busy:
+    name: "AC Send Command Busy"
+
+# ============================================================================
+# 3) AUTOMAZIONI – hook VMC + controller unico priorità
+# ============================================================================
+automation:
+  - id: ac_hook_block_from_vmc
+    alias: "AC – Hook: block da VMC"
+    mode: restart
+    trigger:
+      - platform: event
+        event_type: hook_vmc_request_ac_block
+    action:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.ac_block_vmc
+      - service: timer.start
+        target:
+          entity_id: timer.ac_block_vmc_timeout
+
+  - id: ac_hook_block_timeout_clear
+    alias: "AC – Hook: clear block VMC dopo timeout"
+    mode: restart
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.ac_block_vmc_timeout
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.ac_block_vmc
+
+  - id: clima_vmc_ac_request_alert
+    alias: "Clima – Alert richiesta AC da VMC"
+    description: "Mostra alert e registra log quando il clima/VMC richiede l'intervento dell'AC."
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.clima_ac_from_vmc_request
+        from: "off"
+        to: "on"
+    condition: []
+    action:
+      - service: logbook.log
+        data:
+          name: "Clima – richiesta AC"
+          message: >
+            VMC ha richiesto l'intervento dell'AC.
+            Priority: {{ states('sensor.ventilation_priority') }},
+            reason: {{ states('sensor.ventilation_reason') }}.
+          entity_id: binary_sensor.clima_ac_from_vmc_request
+      - service: persistent_notification.create
+        data:
+          title: "VMC – richiesta AC"
+          message: >
+            La VMC / logica clima ha richiesto l'intervento dell'AC.
+            Motivo: {{ states('sensor.ventilation_reason') }}
+            (priority {{ states('sensor.ventilation_priority') }}).
+
+# ============================================================================
+# LEGACY AUTOMATIONS – disattivate a favore del controller unico
+# ============================================================================
+#  - alias: "AC Giorno - controllo DRY/COOL"
+#    id: ac_giorno_control
+#    trigger:
+#      - platform: time_pattern
+#        minutes: "/1"
+#      - platform: state
+#        entity_id:
+#          - sensor.t_in_giorno
+#          - sensor.ur_in_giorno
+#          - binary_sensor.ac_need_cool
+#          - binary_sensor.ac_need_dry
+#    condition:
+#      - condition: state
+#        entity_id: binary_sensor.vmc_dry_active
+#        state: "off"
+#      - condition: state
+#        entity_id: binary_sensor.ac_blocco_notte
+#        state: "off"
+#    action:
+#      - choose:
+#          - conditions:
+#              - condition: state
+#                entity_id: binary_sensor.ac_should_run
+#                state: "on"
+#            sequence:
+#              - service: switch.turn_on
+#                target:
+#                  entity_id: switch.ac_giorno
+#          - conditions:
+#              - condition: state
+#                entity_id: binary_sensor.ac_should_run
+#                state: "off"
+#            sequence:
+#              - service: switch.turn_off
+#                target:
+#                  entity_id: switch.ac_giorno
+
+#  - alias: "AC Notte - blocco forzato"
+#    id: ac_notte_block
+#    trigger:
+#      - platform: time_pattern
+#        minutes: "/10"
+#    condition: []
+#    action:
+#      - service: switch.turn_off
+#        target:
+#          entity_id:
+#            - switch.ac_notte
+#            - switch.ac_giorno
+
+script:
+  # Legacy/manual wrapper retained for compatibility and UI visibility.
+  # It is not part of the canonical automatic writer chain.
+  ac_apply_targets:
+    alias: "AC – Apply targets"
+    mode: single
+    sequence:
+      - service: script.ac_giorno_apply
+      - service: script.ac_notte_apply
+  # Legacy/manual wrapper retained for compatibility and UI visibility.
+  # Canonical automatic authority stays in ClimateOps system_actuate.
+  ac_send_command:
+    alias: "AC – Send command (driver wrapper)"
+    mode: single
+    fields:
+      target:
+        description: "ac_giorno | ac_notte"
+        example: "ac_giorno"
+    sequence:
+      - condition: template
+        value_template: "{{ not is_state('input_boolean.ac_send_command_busy','on') }}"
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.ac_send_command_busy
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ target == 'ac_giorno' }}"
+            sequence:
+              - service: script.ac_giorno_apply
+          - conditions:
+              - condition: template
+                value_template: "{{ target == 'ac_notte' }}"
+            sequence:
+              - service: script.ac_notte_apply
+        default: []
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.ac_send_command_busy
+  # Leaf driver placeholder. The repo-side authority audit treats the
+  # apply scripts as the relevant callable edge for AC actuation.
+  ac_hw_press:
+    alias: "AC – HW press (leaf driver)"
+    mode: single
+    fields:
+      target:
+        description: "ac_giorno | ac_notte"
+    sequence: []

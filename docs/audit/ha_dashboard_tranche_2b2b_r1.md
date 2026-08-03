@@ -67,6 +67,13 @@ Gli esiti numerici dei gate, la pubblicazione, il deploy e la verifica visuale
 sono riportati nel rapporto operativo finale della tranche dopo la conclusione
 delle rispettive fasi.
 
+## Riconciliazione notification policy
+
+La policy Telegram globale e` stata riconciliata sul risultato 2B.2b-R1 senza
+alterare sintesi, KPI, trend o navigation path. Envelope espone ora
+`input_boolean.aeb_telegram_notifications_enabled`; i due trend e il nome
+`Numero stanze schermate` restano invariati.
+
 ## Rischi e rollback
 
 Il rischio e` limitato al layout Lovelace di ECLSS ed Envelope. Il rollback
