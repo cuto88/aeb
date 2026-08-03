@@ -79,3 +79,42 @@ alterare sintesi, KPI, trend o navigation path. Envelope espone ora
 Il rischio e` limitato al layout Lovelace di ECLSS ed Envelope. Il rollback
 consiste nel ripristino dei due YAML dalla baseline repository o dal backup
 runtime timestamped creato prima del deploy.
+
+## Chiusura operativa
+
+Il deploy consolidato e` stato completato il 2026-08-03 dal commit
+`4d411c55574de44992fdf8a047238da405b667c3`, dopo Quality Gates
+`30831956812` concluso con esito positivo.
+
+- repository: **DONE**;
+- deploy: **DONE**;
+- backup runtime:
+  `/config/backups/aeb_consolidated_deploy_20260803_20260803_184014/`;
+- file Lovelace effettivamente copiati:
+  `lovelace/01_eclss_casa.yaml` e `lovelace/10_envelope.yaml`;
+- `check_config`: **PASS**;
+- restart controllato di `homeassistant`: **PASS**;
+- verifica visuale desktop: **PASS**;
+- verifica visuale mobile: **PASS**;
+- cinque sintesi duplicate e due trend assenti da ECLSS: confermato;
+- sintesi canoniche, KPI count e due trend presenti in Envelope: confermato;
+- Observability e Domestic Ops preservate: confermato;
+- 12 dashboard operative e 13 navigation path: confermati;
+- entity ID Lovelace finali: 426, coerenti con la sostituzione dei quattro
+  consensi legacy con il consenso globale;
+- notification drift: riconciliato;
+- consenso globale: operativo e ripristinato su `off`;
+- test Telegram: gate OFF senza recapito; gate ON con una sola notifica
+  ricevuta;
+- regressioni introdotte: nessuna rilevata;
+- rollback: non necessario.
+
+Le anomalie runtime osservate su LocalTuya, Meross, Modbus e duplicati
+`unique_id` sono preesistenti e restano fuori dal perimetro della tranche.
+
+## Stato finale
+
+- Stato: **DONE**
+- Valutazione: **ARCHIVIABILE**
+- Prossima azione: nessuna; eventuali evoluzioni appartengono a task
+  separati.
