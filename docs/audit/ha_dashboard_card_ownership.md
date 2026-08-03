@@ -32,12 +32,12 @@ Copertura verificata: 12 dashboard, 18 viste, 92 sezioni e 310 card top-level. L
 | ClimateOps | Stato rapido | Vacation; System mode/reason; Actuators ready; stagione; request heat/cool | ClimateOps | overview | state/diagnostic | daily | merge | ClimateOps / Observability | Readiness completa appartiene a Observability |
 | ClimateOps | Ramo AC | Power posture; Runtime | Cooling/ClimateOps | domain | state/diagnostic | weekly | merge | Cooling | Dettaglio branch nel dominio |
 | ClimateOps | Ramo MIRAI | Power posture; Runtime | MIRAI/ClimateOps | domain | state/diagnostic | weekly | merge | MIRAI | Dettaglio branch nella macchina |
-| ClimateOps | Contratti | entities | Observability | observability | diagnostic | incident | move | Observability | Ownership esplicita dei contratti |
+| ClimateOps | Contratti | entities | Observability | observability | diagnostic | incident | done 2B.2a-R1 | Observability / Contracts | Deduplicata nelle card canoniche State e Reasons |
 | ClimateOps | Timeline | System 12h; Branch posture 12h | ClimateOps | overview | trend | weekly | keep | ClimateOps | Correlazione orchestratore |
 | AEB | Stato rapido | Vacation; Forecast ready/reason; Shift load; AEB MVP | AEB | overview | state | daily | keep | AEB | Sintesi policy |
 | AEB | Forecast & policy | Forecast runtime; Policy contracts | AEB/Observability | domain | diagnostic | weekly | merge | Power Runtime / Observability | Runtime energia nel dominio, readiness in Observability |
-| AEB | Planner & AEB | Planner dry-run; AEB MVP DHW | AEB/DHW | domain | tuning/diagnostic | weekly | move | Power Runtime / DHW | Non e` overview quotidiana |
-| AEB | Trend | Forecast and grid 24h; Planner and AEB 24h | AEB | domain | trend | weekly | move | Power Runtime | Ownership energia/ottimizzazione |
+| AEB | Planner & AEB | Planner dry-run; AEB MVP DHW | Power Runtime/DHW | domain | tuning/diagnostic | weekly | done 2B.2a-R1 | Power Runtime / DHW | Planner spostato; runtime diagnostico AEB deduplicato in DHW |
+| AEB | Trend | Forecast and grid 24h; Planner and AEB 24h | Power Runtime | domain | trend | weekly | done 2B.2a-R1 | Power Runtime | Ownership energia/ottimizzazione consolidata |
 | Passive House | Sintesi operativa | griglia guida; Scuri; AC; Scuri attivi; vantaggio umidita`; ETA apertura/chiusura; Inputs; markdown | Envelope | domain | state/diagnostic | daily | merge | Envelope | Tenere solo segnale e azione sintetici |
 | Passive House | Rischio e azione | Stanza peggiore; Rischio; Scuri consigliati; Candidabili; Stanze schermate | Envelope | domain | state | daily | move | Envelope | Duplicazione diretta della dashboard Envelope |
 | Passive House | Rischio e azione | Apri 10 Involucro | Cross-domain | overview | command | daily | keep | Passive House | Accesso al dettaglio |
@@ -178,12 +178,12 @@ Copertura verificata: 12 dashboard, 18 viste, 92 sezioni e 310 card top-level. L
 
 ## Candidati esatti per la Tranche 2B
 
-Le voci 7-16 sono state implementate nella Tranche 2B.1 senza cambiare entity ID, template o navigation path. Le voci 1-6 restano candidate per tranche successive:
+Le voci 7-16 sono state implementate nella Tranche 2B.1 senza cambiare entity ID, template o navigation path. Le voci 1-4 sono state implementate nella Tranche 2B.2a-R1 con deduplicazione controllata; le voci 5-6 restano candidate:
 
-1. ECLSS / ClimateOps / `Contratti` / card `entities` -> Observability / Contracts.
-2. ECLSS / AEB / `Planner & AEB` / `Planner dry-run` -> Power Runtime.
-3. ECLSS / AEB / `Planner & AEB` / `AEB MVP DHW` -> DHW / Active policy.
-4. ECLSS / AEB / `Trend` / `Forecast and grid 24h` e `Planner and AEB 24h` -> Power Runtime.
+1. `[DONE 2B.2a-R1]` ECLSS / ClimateOps / `Contratti` -> Observability / Contracts / State e Reasons.
+2. `[DONE 2B.2a-R1]` ECLSS / AEB / `Planner & AEB` / `Planner dry-run` -> Power Runtime / Planner.
+3. `[DONE 2B.2a-R1]` ECLSS / AEB / `Planner & AEB` / `AEB MVP DHW` -> DHW / Active policy / runtime e diagnostica.
+4. `[DONE 2B.2a-R1]` ECLSS / AEB / `Trend` / `Forecast and grid 24h` e `Planner and AEB 24h` -> Power Runtime / Trend e KPI.
 5. ECLSS / Passive House / `Rischio e azione` / `Stanza peggiore`, `Rischio`, `Scuri consigliati`, `Candidabili raffrescamento notturno`, `Stanze schermate` -> Envelope / Sintesi.
 6. ECLSS / Passive House / `Trend` / `Involucro 24h`, `Solare e scuri 24h` -> Envelope / Trend.
 7. `[DONE 2B.1]` Heating / `Termostati reali (TEMP)` / markdown -> Observability / Legacy mappings.

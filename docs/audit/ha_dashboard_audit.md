@@ -274,6 +274,26 @@ I duplicati semantici preesistenti `Snapshot operativo` MIRAI e `Raw registers` 
 
 Baseline dedicata: `lovelace/_baseline/2026-07-19_dashboard_tranche_2b1_pre_move/`.
 
+## Esito Tranche 2B.2a-R1 - alleggerimento ECLSS
+
+La Tranche 2B.2a-R1 riduce ECLSS senza cambiare entity ID, template, soglie,
+navigation path o logiche:
+
+- la card `Contratti` di ClimateOps e` stata deduplicata nella struttura canonica
+  Observability / `Contracts` / `State` e `Reasons`;
+- le tre entita` non ancora rappresentate sono state aggiunte a `State`, mentre
+  le cinque gia` presenti non sono state duplicate;
+- `Planner dry-run`, `Forecast and grid 24h` e `Planner and AEB 24h` sono state
+  spostate integralmente in Power Runtime;
+- la card operativa `AEB MVP DHW` di DHW e` rimasta invariata;
+- le cinque entita` diagnostiche esclusive della card ECLSS sono ora nella card
+  DHW `AEB MVP DHW — Runtime e diagnostica`;
+- le sezioni ECLSS rimaste vuote dopo lo spostamento sono state rimosse;
+- Passive House ed Envelope non sono state coinvolte.
+
+Baseline dedicata:
+`lovelace/_baseline/2026-08-03_dashboard_tranche_2b2a_r1_pre_move/`.
+
 ## 12. File potenzialmente coinvolti
 
 - `configuration.yaml`

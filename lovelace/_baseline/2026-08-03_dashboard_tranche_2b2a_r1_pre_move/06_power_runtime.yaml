@@ -109,22 +109,6 @@ views:
                 name: ds-01 kWh totale
 
       - type: grid
-        title: "Planner"
-        cards:
-          - type: entities
-            title: "Planner dry-run"
-            show_header_toggle: false
-            entities:
-              - entity: sensor.planner_heat_setpoint_reco
-                name: "Heat setpoint reco"
-              - entity: sensor.planner_cool_setpoint_reco
-                name: "Cool setpoint reco"
-              - entity: sensor.planner_dhw_run_reco
-                name: "DHW run reco"
-              - entity: sensor.planner_notes
-                name: "Planner notes"
-
-      - type: grid
         title: "Trend e KPI"
         cards:
           - type: history-graph
@@ -157,30 +141,6 @@ views:
                 name: Shift effectiveness %
               - entity: sensor.aeb_comfort_energy_score_pct
                 name: Comfort-energy %
-          - type: history-graph
-            title: "Forecast and grid 24h"
-            hours_to_show: 24
-            refresh_interval: 120
-            entities:
-              - entity: sensor.policy_forecast_pv_next_hour_w
-                name: "PV next hour W"
-              - entity: sensor.policy_forecast_temp_next_hour_c
-                name: "Temp next hour C"
-              - entity: sensor.policy_grid_price_now
-                name: "Grid price"
-              - entity: sensor.policy_grid_import_w
-                name: "Grid import W"
-          - type: history-graph
-            title: "Planner and AEB 24h"
-            hours_to_show: 24
-            refresh_interval: 120
-            entities:
-              - entity: sensor.planner_dhw_run_reco
-                name: "Planner DHW"
-              - entity: sensor.climateops_aeb_mvp_mode
-                name: "AEB MVP mode"
-              - entity: binary_sensor.climateops_aeb_mvp_permitted
-                name: "AEB MVP permitted"
           - type: statistics-graph
             title: "Consumi giornalieri (7 giorni)"
             chart_type: bar

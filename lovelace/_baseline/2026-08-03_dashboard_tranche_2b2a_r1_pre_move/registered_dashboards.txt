@@ -1,0 +1,12 @@
+38:    01-clima-casa:
+45:    02-vmc:
+52:    03-riscaldamento:
+59:    04-ac:
+66:    05-fv-solaredge:
+80:    06-consumi:
+87:    07-ehw-acs:
+94:    08-mirai:
+102:    09-modbus:
+109:    10-involucro:
+116:    11-observability:
+123:    12-domestic-ops:

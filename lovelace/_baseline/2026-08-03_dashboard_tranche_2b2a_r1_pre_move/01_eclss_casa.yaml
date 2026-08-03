@@ -515,6 +515,29 @@ views:
                 name: "MIRAI modbus ready"
 
       - type: grid
+        title: "Contratti"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.policy_vacation_mode
+                name: "Vacation mode"
+              - entity: binary_sensor.cm_policy_vacation_mode
+                name: "CM vacation mode"
+              - entity: binary_sensor.cm_contract_actuators_defined
+                name: "Actuators defined"
+              - entity: binary_sensor.cm_contract_actuators_ready
+                name: "Actuators ready"
+              - entity: sensor.cm_contract_missing_entities
+                name: "Missing entities"
+              - entity: sensor.cm_contract_actuators_reason
+                name: "Actuators reason"
+              - entity: binary_sensor.cm_contract_hierarchy_mode_ready
+                name: "Hierarchy ready"
+              - entity: binary_sensor.cm_noncritical_loads_allowed
+                name: "Noncritical loads allowed"
+
+      - type: grid
         title: "Timeline"
         cards:
           - type: history-graph
@@ -615,6 +638,82 @@ views:
                 name: "Grid price now"
               - entity: sensor.policy_grid_import_w
                 name: "Grid import W"
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Planner & AEB"
+            icon: mdi:transmission-tower
+          - type: entities
+            title: "Planner dry-run"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.planner_heat_setpoint_reco
+                name: "Heat setpoint reco"
+              - entity: sensor.planner_cool_setpoint_reco
+                name: "Cool setpoint reco"
+              - entity: sensor.planner_dhw_run_reco
+                name: "DHW run reco"
+              - entity: sensor.planner_notes
+                name: "Planner notes"
+          - type: entities
+            title: "AEB MVP DHW"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.climateops_aeb_mvp_enable
+                name: "AEB MVP enable"
+              - entity: input_boolean.climateops_aeb_mvp_dry_run
+                name: "AEB MVP dry-run"
+              - entity: sensor.climateops_aeb_mvp_mode
+                name: "AEB MVP mode"
+              - entity: sensor.climateops_aeb_mvp_reason
+                name: "AEB MVP reason"
+              - entity: sensor.climateops_aeb_mvp_target_now
+                name: "AEB MVP target"
+              - entity: sensor.climateops_aeb_mvp_target_actual_delta_c
+                name: "Target-actual delta"
+              - entity: binary_sensor.climateops_aeb_mvp_permitted
+                name: "AEB MVP permitted"
+              - entity: sensor.climateops_aeb_mvp_last_outcome
+                name: "Last outcome"
+              - entity: counter.climateops_aeb_mvp_live_requests_total
+                name: "Live requests total"
+              - entity: counter.climateops_aeb_mvp_holds_total
+                name: "Holds total"
+              - entity: input_text.climateops_aeb_mvp_last_action
+                name: "Last action"
+              - entity: input_datetime.climateops_aeb_mvp_last_action_ts
+                name: "Last action ts"
+
+      - type: grid
+        cards:
+          - type: heading
+            heading: "Trend"
+            icon: mdi:chart-line
+          - type: history-graph
+            title: "Forecast and grid 24h"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.policy_forecast_pv_next_hour_w
+                name: "PV next hour W"
+              - entity: sensor.policy_forecast_temp_next_hour_c
+                name: "Temp next hour C"
+              - entity: sensor.policy_grid_price_now
+                name: "Grid price"
+              - entity: sensor.policy_grid_import_w
+                name: "Grid import W"
+          - type: history-graph
+            title: "Planner and AEB 24h"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.planner_dhw_run_reco
+                name: "Planner DHW"
+              - entity: sensor.climateops_aeb_mvp_mode
+                name: "AEB MVP mode"
+              - entity: binary_sensor.climateops_aeb_mvp_permitted
+                name: "AEB MVP permitted"
 
   - title: "Passive House"
     path: passive-house

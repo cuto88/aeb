@@ -78,20 +78,6 @@ views:
               - entity: binary_sensor.climateops_dhw_low_shower_probability_window
                 name: Low shower probability
           - type: entities
-            title: "AEB MVP DHW — Runtime e diagnostica"
-            show_header_toggle: false
-            entities:
-              - entity: sensor.climateops_aeb_mvp_last_outcome
-                name: "Last outcome"
-              - entity: counter.climateops_aeb_mvp_live_requests_total
-                name: "Live requests total"
-              - entity: counter.climateops_aeb_mvp_holds_total
-                name: "Holds total"
-              - entity: input_text.climateops_aeb_mvp_last_action
-                name: "Last action"
-              - entity: input_datetime.climateops_aeb_mvp_last_action_ts
-                name: "Last action ts"
-          - type: entities
             title: "Writer boundary"
             show_header_toggle: false
             entities:
