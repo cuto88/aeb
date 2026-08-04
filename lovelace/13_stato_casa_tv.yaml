@@ -1,0 +1,299 @@
+# AEB TV Dashboard v1.0.1 - target primario 1920x1080
+title: "AEB — Stato casa"
+views:
+  - title: "AEB — Stato casa"
+    path: stato-casa
+    icon: mdi:home-monitor
+    type: panel
+    cards:
+      - type: grid
+        columns: 4
+        square: false
+        cards:
+          - type: entity
+            entity: sensor.aeb_tv_stato_casa
+            name: "Casa"
+            icon: mdi:home-heart
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: entity
+            entity: sensor.aeb_tv_avviso_prioritario
+            name: "Avviso prioritario"
+            icon: mdi:alert-circle-outline
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: tile
+            entity: sensor.t_in_med
+            name: "Temperatura interna"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: tile
+            entity: sensor.t_out_effective
+            name: "Temperatura esterna"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: tile
+            entity: sensor.ur_in_media
+            name: "Umidità interna"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: tile
+            entity: sensor.pv_power_now
+            name: "Produzione FV"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: tile
+            entity: sensor.global_consumption_estimated_w
+            name: "Consumo casa"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: tile
+            entity: sensor.aeb_tv_scambio_rete
+            name: "Scambio rete"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: tile
+            entity: sensor.ventilation_state_reason
+            name: "VMC"
+            vertical: true
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: button
+            name: "Tutte le dashboard"
+            icon: mdi:view-dashboard
+            show_state: false
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/menu-1
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: markdown
+            content: "AEB TV · dashboard v1.0.1"
+
+  - title: "Dashboard 1"
+    path: menu-1
+    icon: mdi:view-dashboard
+    type: panel
+    subview: true
+    back_path: /13-stato-casa-tv/stato-casa
+    cards:
+      - type: grid
+        columns: 4
+        square: false
+        cards:
+          - type: button
+            name: "1 ECLSS Casa"
+            icon: mdi:home-thermometer
+            tap_action:
+              action: navigate
+              navigation_path: /01-clima-casa/climate_casa
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: button
+            name: "2 Air Loop"
+            icon: mdi:fan
+            tap_action:
+              action: navigate
+              navigation_path: /02-vmc/climate_vmc_v2
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: button
+            name: "3 Heating Loop"
+            icon: mdi:radiator
+            tap_action:
+              action: navigate
+              navigation_path: /03-riscaldamento/heating
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: button
+            name: "4 Cooling Loop"
+            icon: mdi:air-conditioner
+            tap_action:
+              action: navigate
+              navigation_path: /04-ac/ac_v2
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: button
+            name: "5 PV Array"
+            icon: mdi:solar-power
+            tap_action:
+              action: navigate
+              navigation_path: /05-fv-solaredge/pv_solaredge
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: button
+            name: "6 Power Runtime"
+            icon: mdi:flash
+            tap_action:
+              action: navigate
+              navigation_path: /06-consumi/consumi
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: button
+            name: "Pagina successiva"
+            icon: mdi:arrow-right-bold-circle
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/menu-2
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: button
+            name: "Stato casa"
+            icon: mdi:home
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/stato-casa
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+
+  - title: "Dashboard 2"
+    path: menu-2
+    icon: mdi:view-dashboard-outline
+    type: panel
+    subview: true
+    back_path: /13-stato-casa-tv/stato-casa
+    cards:
+      - type: grid
+        columns: 4
+        square: false
+        cards:
+          - type: button
+            name: "7 DHW / ACS"
+            icon: mdi:water-boiler
+            tap_action:
+              action: navigate
+              navigation_path: /07-ehw-acs/ehw
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: button
+            name: "8 MIRAI Plant"
+            icon: mdi:heat-pump
+            tap_action:
+              action: navigate
+              navigation_path: /08-mirai/8-mirai
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: button
+            name: "9 Fieldbus"
+            icon: mdi:transit-connection-variant
+            tap_action:
+              action: navigate
+              navigation_path: /09-modbus/modbus-sdm120
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: button
+            name: "10 Envelope"
+            icon: mdi:home-thermometer-outline
+            tap_action:
+              action: navigate
+              navigation_path: /10-involucro/involucro
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: button
+            name: "11 Observability"
+            icon: mdi:clipboard-pulse-outline
+            tap_action:
+              action: navigate
+              navigation_path: /11-observability/observability
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: button
+            name: "12 Domestic Ops"
+            icon: mdi:home-lightning-bolt-outline
+            tap_action:
+              action: navigate
+              navigation_path: /12-domestic-ops/domestic_ops
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: button
+            name: "Pagina precedente"
+            icon: mdi:arrow-left-bold-circle
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/menu-1
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
+          - type: button
+            name: "Stato casa"
+            icon: mdi:home
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/stato-casa
+            hold_action:
+              action: none
+            double_tap_action:
+              action: none
