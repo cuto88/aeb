@@ -1,0 +1,17 @@
+name: Home Assistant Config Check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ha-config-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Home Assistant config check
+        uses: home-assistant/actions/helpers/config_check@master
+        with:
+          path: .
