@@ -1,3 +1,6 @@
+Exit code: 0
+Wall time: 0.8 seconds
+Output:
 ---
 input_text:
   cm_system_status:
@@ -87,9 +90,20 @@ automation:
       - condition: state
         entity_id: binary_sensor.cm_contract_actuators_defined
         state: "on"
-      - condition: state
-        entity_id: binary_sensor.cm_contract_actuators_ready
-        state: "on"
+      # A fault in an unrelated branch must not inhibit a cooling request.
+      # Allow the requested AC zone(s) to run when their command entities are
+      # available, even if the aggregate actuator-readiness contract is off.
+      - condition: template
+        value_template: >-
+          {% set requested_mode = states('sensor.cm_system_mode_suggested') %}
+          {% set day_ready = states('switch.ac_giorno') not in ['unknown','unavailable'] %}
+          {% set night_ready = states('switch.ac_notte') not in ['unknown','unavailable'] %}
+          {{
+            is_state('binary_sensor.cm_contract_actuators_ready','on')
+            or (requested_mode == 'COOL_DAY' and day_ready)
+            or (requested_mode == 'COOL_NIGHT' and night_ready)
+            or (requested_mode == 'COOL_BOTH' and day_ready and night_ready)
+          }}
       - condition: state
         entity_id: sensor.cm_contract_missing_entities
         state: "OK"
@@ -378,3 +392,4 @@ automation:
                   message: >-
                     Revert ON non autorizzato su switch.ac_notte.
                     mode={{ mode }}, policy_allow_ac={{ ac_policy_ok }}.
+
