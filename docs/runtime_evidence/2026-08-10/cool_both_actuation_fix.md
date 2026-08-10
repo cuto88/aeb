@@ -59,4 +59,31 @@ No broad package deployment was performed. The runtime file already contained
 the surgical condition change; the container restart made it active. The
 repository copy was aligned to the same condition.
 
+## Controlled COOL_BOTH test and follow-up
+
+A controlled observation was run after publication of the initial readiness
+fix. No policy, setpoint, or minimum-cycle lock was bypassed.
+
+- At 19:33 CEST both comfort requests were active and
+  `sensor.climateops_hierarchy_mode` was `COOL_BOTH`.
+- `sensor.cm_system_mode_suggested` nevertheless remained `COOL_DAY`.
+- Both AC switches were `off` and their 20-minute minimum-OFF locks were still
+  active after the bootstrap established an OFF baseline.
+- At 19:59 the same hierarchy/facade mismatch recurred after restart; the AC
+  entities passed through `unknown` and the bootstrap restored them to `off`.
+- At 20:04 the comfort request naturally returned to `IDLE`, so the test did
+  not force both units outside the active policy request.
+
+This exposed a second, independent race in the facade propagation. The final
+actuator correction therefore reads `sensor.climateops_hierarchy_mode`
+directly whenever `binary_sensor.contract_hierarchy_mode_ready` is `on`, with
+`sensor.cm_system_mode_suggested` retained only as fallback. The same canonical
+mode selection is used by the AC writer-authority enforcer and by the
+mode-aware readiness gate.
+
+The temporary probe package was removed. The final runtime configuration
+passed the native Home Assistant config check and the `homeassistant` container
+was restarted to load the definitive actuator configuration. A physical
+both-units-ON result was not claimed because the request returned to `IDLE`
+before the minimum-OFF/bootstrap window allowed a policy-compliant actuation.
 
