@@ -1,5 +1,5 @@
 Exit code: 0
-Wall time: 0.8 seconds
+Wall time: 0.9 seconds
 Output:
 # COOL_BOTH actuation fix — 2026-08-10
 
@@ -86,4 +86,22 @@ passed the native Home Assistant config check and the `homeassistant` container
 was restarted to load the definitive actuator configuration. A physical
 both-units-ON result was not claimed because the request returned to `IDLE`
 before the minimum-OFF/bootstrap window allowed a policy-compliant actuation.
+
+## Final live validation
+
+A later real `COOL_BOTH` request was monitored without restarting Home
+Assistant and without bypassing compressor protection:
+
+- `sensor.climateops_hierarchy_mode = COOL_BOTH` remained active;
+- both minimum-OFF locks remained `off` until the configured safe interval
+  elapsed;
+- at 20:38:00 CEST both
+  `binary_sensor.ac_giorno_lock_min_off_ok` and
+  `binary_sensor.ac_notte_lock_min_off_ok` changed to `on`;
+- `switch.ac_giorno` changed to `on` at 20:38:02;
+- `switch.ac_notte` changed to `on` at 20:38:03.
+
+Result: `TEST_PASS COOL_BOTH BOTH_SWITCHES_ON`. The earlier apparent failure
+after deploy was the expected 20-minute anti-cycle lock restarted by the AC
+feedback bootstrap, not a remaining writer failure.
 
