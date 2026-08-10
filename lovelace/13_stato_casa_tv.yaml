@@ -1,54 +1,229 @@
-# AEB TV Dashboard v1.0.1 - target primario 1920x1080
+# AEB TV Dashboard v2.0.0 - TV-first 10-foot HMI
+# Native picture-elements + native navigation buttons; no custom card dependency.
 title: "AEB — Stato casa"
 views:
-  - title: "AEB — Stato casa"
+  - title: "Stato casa"
     path: stato-casa
     icon: mdi:home-monitor
     type: panel
+    theme: "AEB TV"
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: picture-elements
+            image: /local/aeb-tv/home-v2.svg?v=200
+            elements:
+              - type: state-label
+                entity: sensor.aeb_tv_stato_casa
+                style:
+                  left: 50%
+                  top: 6.1%
+                  color: "#f4f7fa"
+                  font-size: 38px
+                  font-weight: 800
+                  letter-spacing: 1px
+                  pointer-events: none
+              - type: state-label
+                entity: sensor.aeb_tv_ora
+                style:
+                  left: 84%
+                  top: 6.1%
+                  color: "#f4f7fa"
+                  font-size: 38px
+                  font-weight: 700
+                  pointer-events: none
+              - type: state-label
+                entity: sensor.aeb_tv_temperatura_esterna
+                style:
+                  left: 93%
+                  top: 6.1%
+                  color: "#aeb9c6"
+                  font-size: 34px
+                  font-weight: 700
+                  pointer-events: none
+              - type: state-label
+                entity: sensor.aeb_tv_temperatura_interna
+                style:
+                  left: 14.6%
+                  top: 31.5%
+                  color: "#f4f7fa"
+                  font-size: 88px
+                  font-weight: 800
+                  pointer-events: none
+              - type: state-label
+                entity: sensor.aeb_tv_umidita_interna
+                style:
+                  left: 38.2%
+                  top: 31.5%
+                  color: "#f4f7fa"
+                  font-size: 88px
+                  font-weight: 800
+                  pointer-events: none
+              - type: state-label
+                entity: sensor.aeb_tv_temperatura_esterna
+                style:
+                  left: 61.8%
+                  top: 31.5%
+                  color: "#f4f7fa"
+                  font-size: 88px
+                  font-weight: 800
+                  pointer-events: none
+              - type: state-label
+                entity: sensor.aeb_tv_potenza_fv
+                style:
+                  left: 85.4%
+                  top: 31.5%
+                  color: "#ffd166"
+                  font-size: 80px
+                  font-weight: 800
+                  pointer-events: none
+              - type: state-label
+                entity: sensor.ac_priority
+                prefix: "AC  "
+                style:
+                  left: 6.2%
+                  top: 62.5%
+                  transform: translate(0,-50%)
+                  color: "#f4f7fa"
+                  font-size: 34px
+                  font-weight: 800
+                  pointer-events: none
+              - type: state-label
+                entity: sensor.heating_priority
+                prefix: "RISC  "
+                style:
+                  left: 6.2%
+                  top: 71.5%
+                  transform: translate(0,-50%)
+                  color: "#aeb9c6"
+                  font-size: 28px
+                  font-weight: 700
+                  pointer-events: none
+              - type: state-label
+                entity: sensor.ventilation_priority
+                style:
+                  left: 36.8%
+                  top: 62.5%
+                  transform: translate(0,-50%)
+                  color: "#f4f7fa"
+                  font-size: 34px
+                  font-weight: 800
+                  pointer-events: none
+              - type: state-label
+                entity: sensor.ventilation_reason
+                style:
+                  left: 36.8%
+                  top: 71.5%
+                  transform: translate(0,-50%)
+                  color: "#aeb9c6"
+                  font-size: 25px
+                  font-weight: 600
+                  max-width: 490px
+                  white-space: nowrap
+                  overflow: hidden
+                  text-overflow: ellipsis
+                  pointer-events: none
+              - type: state-label
+                entity: sensor.aeb_tv_consumo_casa
+                prefix: "CASA  "
+                style:
+                  left: 67.4%
+                  top: 62.5%
+                  transform: translate(0,-50%)
+                  color: "#f4f7fa"
+                  font-size: 34px
+                  font-weight: 800
+                  pointer-events: none
+              - type: state-label
+                entity: sensor.aeb_tv_scambio_rete
+                style:
+                  left: 67.4%
+                  top: 71.5%
+                  transform: translate(0,-50%)
+                  color: "#aeb9c6"
+                  font-size: 28px
+                  font-weight: 700
+                  pointer-events: none
+              - type: state-label
+                entity: sensor.aeb_tv_avviso_prioritario
+                style:
+                  left: 50%
+                  top: 88.4%
+                  color: "#f4f7fa"
+                  font-size: 32px
+                  font-weight: 800
+                  letter-spacing: 1px
+                  pointer-events: none
+          - type: grid
+            columns: 6
+            square: false
+            cards:
+              - type: button
+                name: "MENU"
+                icon: mdi:view-grid-outline
+                tap_action:
+                  action: navigate
+                  navigation_path: /13-stato-casa-tv/menu
+                hold_action:
+                  action: none
+              - type: button
+                name: "CLIMA"
+                icon: mdi:snowflake-thermometer
+                tap_action:
+                  action: navigate
+                  navigation_path: /13-stato-casa-tv/clima
+                hold_action:
+                  action: none
+              - type: button
+                name: "VMC"
+                icon: mdi:fan
+                tap_action:
+                  action: navigate
+                  navigation_path: /13-stato-casa-tv/vmc
+                hold_action:
+                  action: none
+              - type: button
+                name: "ENERGIA"
+                icon: mdi:solar-power
+                tap_action:
+                  action: navigate
+                  navigation_path: /13-stato-casa-tv/energia
+                hold_action:
+                  action: none
+              - type: button
+                name: "ACS"
+                icon: mdi:water-boiler
+                tap_action:
+                  action: navigate
+                  navigation_path: /13-stato-casa-tv/acs
+                hold_action:
+                  action: none
+              - type: button
+                name: "AZIONI"
+                icon: mdi:gesture-tap-button
+                tap_action:
+                  action: navigate
+                  navigation_path: /13-stato-casa-tv/azioni
+                hold_action:
+                  action: none
+
+  - title: "Clima"
+    path: clima
+    icon: mdi:snowflake-thermometer
+    type: panel
+    theme: "AEB TV"
+    subview: true
+    back_path: /13-stato-casa-tv/stato-casa
     cards:
       - type: grid
         columns: 4
         square: false
         cards:
-          - type: entity
-            entity: sensor.aeb_tv_stato_casa
-            name: "Casa"
-            icon: mdi:home-heart
-            tap_action:
-              action: none
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
-          - type: entity
-            entity: sensor.aeb_tv_avviso_prioritario
-            name: "Avviso prioritario"
-            icon: mdi:alert-circle-outline
-            tap_action:
-              action: none
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
           - type: tile
             entity: sensor.t_in_med
             name: "Temperatura interna"
             vertical: true
             tap_action:
-              action: none
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
-          - type: tile
-            entity: sensor.t_out_effective
-            name: "Temperatura esterna"
-            vertical: true
-            tap_action:
-              action: none
-            hold_action:
-              action: none
-            double_tap_action:
               action: none
           - type: tile
             entity: sensor.ur_in_media
@@ -56,19 +231,61 @@ views:
             vertical: true
             tap_action:
               action: none
+          - type: tile
+            entity: sensor.t_out_effective
+            name: "Temperatura esterna"
+            vertical: true
+            tap_action:
+              action: none
+          - type: entity
+            entity: sensor.ac_comfort_operating_state
+            name: "Climatizzazione"
+            icon: mdi:air-conditioner
+            tap_action:
+              action: none
+          - type: entity
+            entity: binary_sensor.heating_should_run
+            name: "Riscaldamento"
+            icon: mdi:radiator
+            tap_action:
+              action: none
+          - type: entity
+            entity: sensor.heating_reason
+            name: "Decisione riscaldamento"
+            tap_action:
+              action: none
+          - type: button
+            name: "REGOLA CLIMA"
+            icon: mdi:tune-variant
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/azioni-clima
             hold_action:
               action: none
-            double_tap_action:
-              action: none
+          - type: button
+            name: "HOME"
+            icon: mdi:home
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/stato-casa
+
+  - title: "Energia"
+    path: energia
+    icon: mdi:solar-power
+    type: panel
+    theme: "AEB TV"
+    subview: true
+    back_path: /13-stato-casa-tv/stato-casa
+    cards:
+      - type: grid
+        columns: 4
+        square: false
+        cards:
           - type: tile
             entity: sensor.pv_power_now
             name: "Produzione FV"
             vertical: true
             tap_action:
-              action: none
-            hold_action:
-              action: none
-            double_tap_action:
               action: none
           - type: tile
             entity: sensor.global_consumption_estimated_w
@@ -76,48 +293,124 @@ views:
             vertical: true
             tap_action:
               action: none
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
           - type: tile
             entity: sensor.aeb_tv_scambio_rete
             name: "Scambio rete"
             vertical: true
             tap_action:
               action: none
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
           - type: tile
-            entity: sensor.ventilation_state_reason
-            name: "VMC"
+            entity: sensor.grid_power_w
+            name: "Potenza rete"
             vertical: true
             tap_action:
               action: none
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
           - type: button
-            name: "Tutte le dashboard"
-            icon: mdi:view-dashboard
-            show_state: false
+            name: "HOME"
+            icon: mdi:home
             tap_action:
               action: navigate
-              navigation_path: /13-stato-casa-tv/menu-1
+              navigation_path: /13-stato-casa-tv/stato-casa
+
+  - title: "VMC"
+    path: vmc
+    icon: mdi:fan
+    type: panel
+    theme: "AEB TV"
+    subview: true
+    back_path: /13-stato-casa-tv/stato-casa
+    cards:
+      - type: grid
+        columns: 4
+        square: false
+        cards:
+          - type: tile
+            entity: sensor.ventilation_state_reason
+            name: "Stato VMC"
+            vertical: true
+            tap_action:
+              action: none
+          - type: tile
+            entity: sensor.vmc_vel_target
+            name: "Velocità target"
+            vertical: true
+            tap_action:
+              action: none
+          - type: tile
+            entity: binary_sensor.vmc_freecooling_active
+            name: "Freecooling"
+            vertical: true
+            tap_action:
+              action: none
+          - type: tile
+            entity: sensor.ur_in_media
+            name: "Umidità interna"
+            vertical: true
+            tap_action:
+              action: none
+          - type: button
+            name: "REGOLA VMC"
+            icon: mdi:fan-chevron-up
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/azioni-vmc
             hold_action:
               action: none
-            double_tap_action:
-              action: none
-          - type: markdown
-            content: "AEB TV · dashboard v1.0.1"
+          - type: button
+            name: "HOME"
+            icon: mdi:home
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/stato-casa
 
-  - title: "Dashboard 1"
-    path: menu-1
-    icon: mdi:view-dashboard
+  - title: "ACS"
+    path: acs
+    icon: mdi:water-boiler
     type: panel
+    theme: "AEB TV"
+    subview: true
+    back_path: /13-stato-casa-tv/stato-casa
+    cards:
+      - type: grid
+        columns: 4
+        square: false
+        cards:
+          - type: tile
+            entity: sensor.ehw_tank_top
+            name: "Bollitore alto"
+            vertical: true
+            tap_action:
+              action: none
+          - type: tile
+            entity: sensor.ehw_tank_bottom
+            name: "Bollitore basso"
+            vertical: true
+            tap_action:
+              action: none
+          - type: tile
+            entity: sensor.ehw_setpoint
+            name: "Setpoint"
+            vertical: true
+            tap_action:
+              action: none
+          - type: entity
+            entity: sensor.climateops_ehw_charge_state
+            name: "Stato produzione"
+            icon: mdi:water-boiler-auto
+            tap_action:
+              action: none
+          - type: button
+            name: "HOME"
+            icon: mdi:home
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/stato-casa
+
+  - title: "Azioni"
+    path: azioni
+    icon: mdi:gesture-tap-button
+    type: panel
+    theme: "AEB TV"
     subview: true
     back_path: /13-stato-casa-tv/stato-casa
     cards:
@@ -126,174 +419,271 @@ views:
         square: false
         cards:
           - type: button
-            name: "1 ECLSS Casa"
+            name: "CLIMA"
+            icon: mdi:snowflake-thermometer
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/azioni-clima
+            hold_action:
+              action: none
+          - type: button
+            name: "VMC"
+            icon: mdi:fan
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/azioni-vmc
+            hold_action:
+              action: none
+          - type: button
+            name: "BUCATO"
+            icon: mdi:washing-machine
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/azioni-bucato
+            hold_action:
+              action: none
+          - type: button
+            name: "HOME"
+            icon: mdi:home
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/stato-casa
+
+  - title: "Regola clima"
+    path: azioni-clima
+    icon: mdi:snowflake-thermometer
+    type: panel
+    theme: "AEB TV"
+    subview: true
+    back_path: /13-stato-casa-tv/azioni
+    cards:
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+          - type: entities
+            title: "CLIMATIZZAZIONE"
+            show_header_toggle: false
+            entities:
+              - entity: input_number.ac_giorno_setpoint
+                name: "Setpoint giorno"
+              - entity: input_number.ac_notte_setpoint
+                name: "Setpoint notte"
+              - entity: input_select.ac_giorno_mode
+                name: "Modalità giorno"
+              - entity: input_select.ac_notte_mode
+                name: "Modalità notte"
+          - type: entities
+            title: "RISCALDAMENTO"
+            show_header_toggle: false
+            entities:
+              - entity: input_number.temp_target_risc
+                name: "Setpoint comfort"
+              - entity: input_number.heating_setpoint_night
+                name: "Setpoint notte"
+              - entity: input_boolean.heating_manual_active
+                name: "Manuale — timeout 1 ora"
+              - entity: input_select.heating_manual_mode
+                name: "Modalità manuale"
+              - entity: timer.heating_manual_timeout
+                name: "Tempo residuo"
+          - type: button
+            name: "INDIETRO"
+            icon: mdi:arrow-left
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/azioni
+
+  - title: "Menu"
+    path: menu
+    icon: mdi:view-grid-outline
+    type: panel
+    theme: "AEB TV"
+    subview: true
+    back_path: /13-stato-casa-tv/stato-casa
+    cards:
+      - type: grid
+        columns: 4
+        square: false
+        cards:
+          - type: button
+            name: "CLIMA CASA"
             icon: mdi:home-thermometer
             tap_action:
               action: navigate
               navigation_path: /01-clima-casa/climate_casa
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
           - type: button
-            name: "2 Air Loop"
+            name: "VMC COMPLETA"
             icon: mdi:fan
             tap_action:
               action: navigate
               navigation_path: /02-vmc/climate_vmc_v2
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
           - type: button
-            name: "3 Heating Loop"
+            name: "RISCALDAMENTO"
             icon: mdi:radiator
             tap_action:
               action: navigate
               navigation_path: /03-riscaldamento/heating
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
           - type: button
-            name: "4 Cooling Loop"
+            name: "CLIMATIZZAZIONE"
             icon: mdi:air-conditioner
             tap_action:
               action: navigate
               navigation_path: /04-ac/ac_v2
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
           - type: button
-            name: "5 PV Array"
+            name: "FOTOVOLTAICO"
             icon: mdi:solar-power
             tap_action:
               action: navigate
               navigation_path: /05-fv-solaredge/pv_solaredge
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
           - type: button
-            name: "6 Power Runtime"
+            name: "CONSUMI"
             icon: mdi:flash
             tap_action:
               action: navigate
               navigation_path: /06-consumi/consumi
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
           - type: button
-            name: "Pagina successiva"
-            icon: mdi:arrow-right-bold-circle
+            name: "DOMESTIC OPS"
+            icon: mdi:home-lightning-bolt-outline
             tap_action:
               action: navigate
-              navigation_path: /13-stato-casa-tv/menu-2
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
+              navigation_path: /12-domestic-ops/domestic_ops
           - type: button
-            name: "Stato casa"
+            name: "DASHBOARD TECNICHE"
+            icon: mdi:tools
+            tap_action:
+              action: navigate
+              navigation_path: /13-stato-casa-tv/menu-tecnico
+          - type: button
+            name: "HOME"
             icon: mdi:home
             tap_action:
               action: navigate
               navigation_path: /13-stato-casa-tv/stato-casa
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
 
-  - title: "Dashboard 2"
-    path: menu-2
-    icon: mdi:view-dashboard-outline
+  - title: "Menu tecnico"
+    path: menu-tecnico
+    icon: mdi:tools
     type: panel
+    theme: "AEB TV"
     subview: true
-    back_path: /13-stato-casa-tv/stato-casa
+    back_path: /13-stato-casa-tv/menu
     cards:
       - type: grid
         columns: 4
         square: false
         cards:
           - type: button
-            name: "7 DHW / ACS"
+            name: "ACS COMPLETA"
             icon: mdi:water-boiler
             tap_action:
               action: navigate
               navigation_path: /07-ehw-acs/ehw
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
           - type: button
-            name: "8 MIRAI Plant"
+            name: "MIRAI"
             icon: mdi:heat-pump
             tap_action:
               action: navigate
               navigation_path: /08-mirai/8-mirai
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
           - type: button
-            name: "9 Fieldbus"
+            name: "FIELDBUS"
             icon: mdi:transit-connection-variant
             tap_action:
               action: navigate
               navigation_path: /09-modbus/modbus-sdm120
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
           - type: button
-            name: "10 Envelope"
+            name: "INVOLUCRO"
             icon: mdi:home-thermometer-outline
             tap_action:
               action: navigate
               navigation_path: /10-involucro/involucro
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
           - type: button
-            name: "11 Observability"
+            name: "OBSERVABILITY"
             icon: mdi:clipboard-pulse-outline
             tap_action:
               action: navigate
               navigation_path: /11-observability/observability
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
           - type: button
-            name: "12 Domestic Ops"
-            icon: mdi:home-lightning-bolt-outline
+            name: "INDIETRO"
+            icon: mdi:arrow-left
             tap_action:
               action: navigate
-              navigation_path: /12-domestic-ops/domestic_ops
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
+              navigation_path: /13-stato-casa-tv/menu
+
+  - title: "Regola VMC"
+    path: azioni-vmc
+    icon: mdi:fan
+    type: panel
+    theme: "AEB TV"
+    subview: true
+    back_path: /13-stato-casa-tv/azioni
+    cards:
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+          - type: entities
+            title: "VENTILAZIONE"
+            show_header_toggle: false
+            entities:
+              - entity: input_select.vmc_mode
+                name: "Modalità"
+              - entity: input_boolean.vmc_manual
+                name: "Manuale — timeout 1 ora"
+              - entity: input_select.vmc_manual_speed
+                name: "Velocità manuale"
+              - entity: timer.vmc_manual_timeout
+                name: "Tempo residuo"
+          - type: entities
+            title: "BAGNO"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.vmc_boost_bagno
+                name: "Boost bagno temporizzato"
+              - entity: timer.vmc_boost_bagno_manual_timeout
+                name: "Tempo boost residuo"
           - type: button
-            name: "Pagina precedente"
-            icon: mdi:arrow-left-bold-circle
+            name: "INDIETRO"
+            icon: mdi:arrow-left
             tap_action:
               action: navigate
-              navigation_path: /13-stato-casa-tv/menu-1
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
+              navigation_path: /13-stato-casa-tv/azioni
+
+  - title: "Bucato"
+    path: azioni-bucato
+    icon: mdi:washing-machine
+    type: panel
+    theme: "AEB TV"
+    subview: true
+    back_path: /13-stato-casa-tv/azioni
+    cards:
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+          - type: entities
+            title: "BUCATO"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.domesticops_laundry_pending
+                name: "Da gestire"
+              - entity: input_boolean.domesticops_laundry_outside
+                name: "Steso fuori"
+              - entity: input_select.domesticops_laundry_type
+                name: "Tipo"
+              - entity: input_number.domesticops_laundry_load_kg
+                name: "Carico"
+          - type: entities
+            title: "CONSIGLIO"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.domesticops_laundry_program_advice
+                name: "Programma"
+              - entity: sensor.domesticops_drying_advice_human
+                name: "Asciugatura"
           - type: button
-            name: "Stato casa"
-            icon: mdi:home
+            name: "INDIETRO"
+            icon: mdi:arrow-left
             tap_action:
               action: navigate
-              navigation_path: /13-stato-casa-tv/stato-casa
-            hold_action:
-              action: none
-            double_tap_action:
-              action: none
+              navigation_path: /13-stato-casa-tv/azioni
