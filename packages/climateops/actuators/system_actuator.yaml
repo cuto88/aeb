@@ -95,7 +95,11 @@ automation:
       # available, even if the aggregate actuator-readiness contract is off.
       - condition: template
         value_template: >-
-          {% set requested_mode = states('sensor.cm_system_mode_suggested') %}
+          {% set requested_mode =
+            states('sensor.climateops_hierarchy_mode')
+            if is_state('binary_sensor.contract_hierarchy_mode_ready','on')
+            else states('sensor.cm_system_mode_suggested')
+          %}
           {% set day_ready = states('switch.ac_giorno') not in ['unknown','unavailable'] %}
           {% set night_ready = states('switch.ac_notte') not in ['unknown','unavailable'] %}
           {{
@@ -109,7 +113,12 @@ automation:
         state: "OK"
     action:
       - variables:
-          mode: "{{ states('sensor.cm_system_mode_suggested') }}"
+          mode: >-
+            {{
+              states('sensor.climateops_hierarchy_mode')
+              if is_state('binary_sensor.contract_hierarchy_mode_ready','on')
+              else states('sensor.cm_system_mode_suggested')
+            }}
           manual_off_trigger: >-
             {{
               trigger.platform == 'state'
@@ -342,7 +351,12 @@ automation:
         state: "OK"
     action:
       - variables:
-          mode: "{{ states('sensor.cm_system_mode_suggested') }}"
+          mode: >-
+            {{
+              states('sensor.climateops_hierarchy_mode')
+              if is_state('binary_sensor.contract_hierarchy_mode_ready','on')
+              else states('sensor.cm_system_mode_suggested')
+            }}
           ac_auto_paused: "{{ is_state('input_boolean.ac_auto_pause','on') }}"
           ac_branch_powered: "{{ is_state('binary_sensor.cm_ac_branch_powered','on') }}"
           ac_available: >-
