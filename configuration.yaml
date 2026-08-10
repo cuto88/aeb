@@ -53,21 +53,21 @@ lovelace:
       mode: yaml
       title: "3 Heating Loop"
       icon: mdi:radiator
-      show_in_sidebar: true
+      show_in_sidebar: false
       filename: lovelace/03_heating_loop.yaml
 
     04-ac:
       mode: yaml
       title: "4 Cooling Loop"
       icon: mdi:air-conditioner
-      show_in_sidebar: true
+      show_in_sidebar: false
       filename: lovelace/04_cooling_loop.yaml
 
     05-fv-solaredge:
       mode: yaml
       title: "5 PV Array"
       icon: mdi:solar-power
-      show_in_sidebar: true
+      show_in_sidebar: false
       filename: lovelace/05_pv_array.yaml
 
     # 6-energia:
@@ -88,14 +88,14 @@ lovelace:
       mode: yaml
       title: "7 DHW / ACS"
       icon: mdi:water-boiler
-      show_in_sidebar: true
+      show_in_sidebar: false
       filename: lovelace/07_dhw_acs.yaml
 
     08-mirai:
       mode: yaml
       title: "8 MIRAI Plant"
       icon: mdi:heat-pump
-      show_in_sidebar: true
+      show_in_sidebar: false
       require_admin: false
       filename: lovelace/08_mirai_plant.yaml
 
@@ -103,21 +103,21 @@ lovelace:
       mode: yaml
       title: "9 Fieldbus"
       icon: mdi:transit-connection-variant
-      show_in_sidebar: true
+      show_in_sidebar: false
       filename: lovelace/09_fieldbus.yaml
 
     10-involucro:
       mode: yaml
       title: "10 Envelope"
       icon: mdi:home-thermometer-outline
-      show_in_sidebar: true
+      show_in_sidebar: false
       filename: lovelace/10_envelope.yaml
 
     11-observability:
       mode: yaml
       title: "11 Observability"
       icon: mdi:clipboard-pulse-outline
-      show_in_sidebar: true
+      show_in_sidebar: false
       filename: lovelace/11_observability.yaml
 
     12-domestic-ops:
@@ -131,6 +131,6 @@ lovelace:
       mode: yaml
       title: "13 AEB — Stato casa"
       icon: mdi:television-dashboard
-      show_in_sidebar: true
+      show_in_sidebar: false
       require_admin: false
       filename: lovelace/13_stato_casa_tv.yaml

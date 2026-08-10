@@ -9,6 +9,12 @@ views:
       - type: grid
         title: "Heating – Runtime"
         cards:
+          - type: button
+            name: "Torna a ECLSS Casa"
+            icon: mdi:arrow-left
+            tap_action:
+              action: navigate
+              navigation_path: /01-clima-casa/climate_casa
           - type: grid
             columns: 2
             square: false

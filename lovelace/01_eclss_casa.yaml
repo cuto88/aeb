@@ -69,47 +69,109 @@ views:
                 name: "Held by min ON"
               - entity: sensor.heating_should_run_source
                 name: "Heating source"
-          - type: grid
-            title: "Apri dominio"
-            columns: 3
-            square: false
+          - type: vertical-stack
             cards:
-              - type: button
-                name: "Air Loop"
-                icon: mdi:fan
-                tap_action:
-                  action: navigate
-                  navigation_path: /02-vmc/climate_vmc_v2
-              - type: button
-                name: "Heating"
-                icon: mdi:radiator
-                tap_action:
-                  action: navigate
-                  navigation_path: /03-riscaldamento/heating
-              - type: button
-                name: "Cooling"
-                icon: mdi:air-conditioner
-                tap_action:
-                  action: navigate
-                  navigation_path: /04-ac/ac_v2
-              - type: button
-                name: "DHW / ACS"
-                icon: mdi:water-boiler
-                tap_action:
-                  action: navigate
-                  navigation_path: /07-ehw-acs/ehw
-              - type: button
-                name: "MIRAI"
-                icon: mdi:heat-pump
-                tap_action:
-                  action: navigate
-                  navigation_path: /08-mirai/8-mirai
-              - type: button
-                name: "Observability"
-                icon: mdi:clipboard-pulse-outline
-                tap_action:
-                  action: navigate
-                  navigation_path: /11-observability/observability
+              - type: heading
+                heading: "Clima"
+                icon: mdi:home-thermometer
+              - type: grid
+                columns: 2
+                square: false
+                cards:
+                  - type: button
+                    name: "Air Loop"
+                    icon: mdi:fan
+                    tap_action:
+                      action: navigate
+                      navigation_path: /02-vmc/climate_vmc_v2
+                  - type: button
+                    name: "Heating Loop"
+                    icon: mdi:radiator
+                    tap_action:
+                      action: navigate
+                      navigation_path: /03-riscaldamento/heating
+                  - type: button
+                    name: "Cooling Loop"
+                    icon: mdi:air-conditioner
+                    tap_action:
+                      action: navigate
+                      navigation_path: /04-ac/ac_v2
+              - type: heading
+                heading: "Energia"
+                icon: mdi:lightning-bolt
+              - type: grid
+                columns: 2
+                square: false
+                cards:
+                  - type: button
+                    name: "Power Runtime"
+                    icon: mdi:flash
+                    tap_action:
+                      action: navigate
+                      navigation_path: /06-consumi/consumi
+                  - type: button
+                    name: "PV Array"
+                    icon: mdi:solar-power
+                    tap_action:
+                      action: navigate
+                      navigation_path: /05-fv-solaredge/pv_solaredge
+              - type: heading
+                heading: "Macchine"
+                icon: mdi:cog
+              - type: grid
+                columns: 2
+                square: false
+                cards:
+                  - type: button
+                    name: "DHW / ACS"
+                    icon: mdi:water-boiler
+                    tap_action:
+                      action: navigate
+                      navigation_path: /07-ehw-acs/ehw
+                  - type: button
+                    name: "MIRAI Plant"
+                    icon: mdi:heat-pump
+                    tap_action:
+                      action: navigate
+                      navigation_path: /08-mirai/8-mirai
+              - type: heading
+                heading: "Casa"
+                icon: mdi:home
+              - type: grid
+                columns: 2
+                square: false
+                cards:
+                  - type: button
+                    name: "Envelope"
+                    icon: mdi:home-thermometer-outline
+                    tap_action:
+                      action: navigate
+                      navigation_path: /10-involucro/involucro
+                  - type: button
+                    name: "Domestic Ops"
+                    icon: mdi:home-lightning-bolt-outline
+                    tap_action:
+                      action: navigate
+                      navigation_path: /12-domestic-ops/domestic_ops
+              - type: heading
+                heading: "Tecnico"
+                icon: mdi:tools
+              - type: grid
+                columns: 2
+                square: false
+                cards:
+                  - type: button
+                    name: "Observability"
+                    icon: mdi:clipboard-pulse-outline
+                    tap_action:
+                      action: navigate
+                      navigation_path: /11-observability/observability
+                  - type: button
+                    name: "Fieldbus"
+                    icon: mdi:transit-connection-variant
+                    tap_action:
+                      action: navigate
+                      navigation_path: /09-modbus/modbus-sdm120
       - type: grid
         cards:
           - type: heading

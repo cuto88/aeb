@@ -10,6 +10,12 @@ views:
       - type: grid
         title: "Runtime macchina"
         cards:
+          - type: button
+            name: "Torna a ECLSS Casa"
+            icon: mdi:arrow-left
+            tap_action:
+              action: navigate
+              navigation_path: /01-clima-casa/climate_casa
           - type: markdown
             title: "Ruolo plancia"
             content: |-

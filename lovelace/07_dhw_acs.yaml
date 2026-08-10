@@ -10,6 +10,12 @@ views:
       - type: grid
         title: "Runtime"
         cards:
+          - type: button
+            name: "Torna a ECLSS Casa"
+            icon: mdi:arrow-left
+            tap_action:
+              action: navigate
+              navigation_path: /01-clima-casa/climate_casa
           - type: entities
             title: "Stato operativo"
             show_header_toggle: false

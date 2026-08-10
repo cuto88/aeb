@@ -136,7 +136,7 @@ La baseline di rollback e` `lovelace/_baseline/2026-07-19_dashboard_tranche_2b1_
 ## Criteri di ingresso alla Tranche 2B
 
 - gate Lovelace e gate VMC verdi;
-- 12 dashboard top-level registrate e nessun orfano;
+- 13 dashboard top-level registrate e nessun orfano;
 - nessun file sotto `_archive` o `_baseline` registrato;
 - hash dei due legacy uguali alla baseline 2026-07-19;
 - parsing YAML completo riuscito;
