@@ -39,6 +39,19 @@ Optional flags:
 ./ops/deploy_safe.ps1 -Target Z:\ -RunConfigCheck
 ```
 
+For the Docker runtime reached through SSH, use PowerShell 7. The remote transport is non-interactive and bounded: it creates and validates a temporary TAR archive, verifies its SHA-256 before extraction, emits periodic heartbeats, and terminates child processes on timeout. A controlled restart must always be coupled to a successful configuration check:
+
+```powershell
+pwsh -NoProfile -File ./ops/deploy_safe.ps1 `
+  -Target REMOTE_SSH `
+  -RemoteHost user@home-assistant-host `
+  -RemoteContainer homeassistant `
+  -RemotePath /config `
+  -RunConfigCheck -Restart
+```
+
+Use `-DryRun` to validate the SSH target, manifest, destination and exclusions without creating a backup, uploading data, extracting files, restarting Home Assistant or writing `last_deploy.ok`. Transfer timeout and heartbeat defaults can be adjusted with `-TransferTimeoutSeconds` and `-HeartbeatSeconds`.
+
 Environment variables for mapping the SMB share (if `Z:` is missing):
 
 - `HA_SMB_SHARE` (e.g., `\\192.168.178.84\config`)

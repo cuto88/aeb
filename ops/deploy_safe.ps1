@@ -11,12 +11,17 @@ param(
   [switch]$IncludeBlueprints,
   [switch]$AllowDirty,
   [switch]$RunConfigCheck,
-  [switch]$RunGates
+  [switch]$Restart,
+  [switch]$DryRun,
+  [switch]$RunGates,
+  [int]$TransferTimeoutSeconds = 300,
+  [int]$HeartbeatSeconds = 15
 )
 
 $ErrorActionPreference = "Stop"
 
 . $PSScriptRoot\ha_secure_key.ps1
+. $PSScriptRoot\deploy_transport.ps1
 
 function Say($m){ Write-Host $m }
 function Fail($m){ throw $m }
@@ -267,11 +272,21 @@ function Invoke-RemoteMirror {
     }
   }
 
-  $remoteCommand = "docker exec $RemoteContainer tar -czf - -C $RemotePath " + (($existingEntries | ForEach-Object { $_ }) -join ' ') + " 2>/dev/null"
-  & $HaSshScript -Port $Port -HaHost $RemoteHostName -KeyPath $KeyPath -KnownHostsPath $KnownHostsPath -RemoteCommand $remoteCommand |
-    & $TarExe -xzf - -C $LocalPath
-  if ($LASTEXITCODE -ne 0) {
-    Say "[WARN] Remote mirror failed (RC=$LASTEXITCODE) - continuing with deploy"
+  if ($existingEntries.Count -eq 0) { throw 'Remote backup has no existing entries.' }
+  $archivePath = Join-Path ([System.IO.Path]::GetTempPath()) ("aeb-backup-{0}.tar.gz" -f [guid]::NewGuid().ToString('N'))
+  try {
+    $remoteCommand = "docker exec $RemoteContainer tar -czf - -C $RemotePath " + ($existingEntries -join ' ')
+    $sshArgs = Get-AebSshArguments -KeyPath $KeyPath -KnownHostsPath $KnownHostsPath -RemoteHostName $RemoteHostName -Port $Port -RemoteCommand $remoteCommand
+    $backup = Invoke-AebBoundedProcess -FilePath (Get-SshExe) -ArgumentList $sshArgs -OutputFile $archivePath -TimeoutSeconds $TransferTimeoutSeconds -HeartbeatSeconds $HeartbeatSeconds -Label 'remote backup transfer'
+    if ($backup.ExitCode -ne 0) { throw "Remote backup SSH failed (RC=$($backup.ExitCode)): $($backup.Stderr.Trim())" }
+    & $TarExe -tzf $archivePath | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "Remote backup archive validation failed (tar RC=$LASTEXITCODE)." }
+    & $TarExe -xzf $archivePath -C $LocalPath
+    if ($LASTEXITCODE -ne 0) { throw "Remote backup extraction failed (tar RC=$LASTEXITCODE)." }
+    Say ("[OK] Remote backup completed in {0}s" -f $backup.DurationSeconds)
+  }
+  finally {
+    Remove-Item -LiteralPath $archivePath -Force -ErrorAction SilentlyContinue
   }
 }
 
@@ -296,10 +311,35 @@ function Invoke-RemoteDeploy {
     }
   }
 
-  & $TarExe -czf - -C $SourceRoot @existingEntries |
-    & $HaSshScript -Port $Port -HaHost $RemoteHostName -KeyPath $KeyPath -KnownHostsPath $KnownHostsPath -RemoteCommand "docker exec -i $RemoteContainer tar -xzf - -C $RemotePath"
-  if ($LASTEXITCODE -ne 0) {
-    throw "Remote deploy failed (RC=$LASTEXITCODE)"
+  if ($existingEntries.Count -eq 0) { throw 'Deploy archive has no existing entries.' }
+  $archivePath = Join-Path ([System.IO.Path]::GetTempPath()) ("aeb-deploy-{0}.tar.gz" -f [guid]::NewGuid().ToString('N'))
+  $remoteArchive = "/tmp/aeb-deploy-{0}.tar.gz" -f [guid]::NewGuid().ToString('N')
+  try {
+    & $TarExe -czf $archivePath -C $SourceRoot @existingEntries
+    if ($LASTEXITCODE -ne 0) { throw "Local deploy archive creation failed (tar RC=$LASTEXITCODE)." }
+    & $TarExe -tzf $archivePath | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "Local deploy archive validation failed (tar RC=$LASTEXITCODE)." }
+
+    $uploadCommand = "umask 077; cat > $remoteArchive"
+    $uploadArgs = Get-AebSshArguments -KeyPath $KeyPath -KnownHostsPath $KnownHostsPath -RemoteHostName $RemoteHostName -Port $Port -RemoteCommand $uploadCommand
+    $upload = Invoke-AebBoundedProcess -FilePath (Get-SshExe) -ArgumentList $uploadArgs -InputFile $archivePath -TimeoutSeconds $TransferTimeoutSeconds -HeartbeatSeconds $HeartbeatSeconds -Label 'remote deploy upload'
+    if ($upload.ExitCode -ne 0) { throw "Remote deploy upload failed (SSH RC=$($upload.ExitCode)): $($upload.Stderr.Trim())" }
+
+    $localHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $archivePath).Hash.ToLowerInvariant()
+    $promoteCommand = "test `$(sha256sum $remoteArchive | cut -d' ' -f1) = $localHash && docker cp $remoteArchive ${RemoteContainer}:/tmp/aeb-deploy.tar.gz && docker exec $RemoteContainer tar -tzf /tmp/aeb-deploy.tar.gz >/dev/null && docker exec $RemoteContainer tar -xzf /tmp/aeb-deploy.tar.gz -C $RemotePath"
+    $promoteArgs = Get-AebSshArguments -KeyPath $KeyPath -KnownHostsPath $KnownHostsPath -RemoteHostName $RemoteHostName -Port $Port -RemoteCommand $promoteCommand
+    $promote = Invoke-AebBoundedProcess -FilePath (Get-SshExe) -ArgumentList $promoteArgs -TimeoutSeconds $TransferTimeoutSeconds -HeartbeatSeconds $HeartbeatSeconds -Label 'remote deploy validation and extraction'
+    if ($promote.ExitCode -ne 0) { throw "Remote deploy promotion failed (SSH RC=$($promote.ExitCode)): $($promote.Stderr.Trim())" }
+    Say ("[OK] Remote deploy uploaded in {0}s and extracted in {1}s" -f $upload.DurationSeconds, $promote.DurationSeconds)
+  }
+  finally {
+    Remove-Item -LiteralPath $archivePath -Force -ErrorAction SilentlyContinue
+    $cleanupCommand = "rm -f $remoteArchive; docker exec $RemoteContainer rm -f /tmp/aeb-deploy.tar.gz"
+    try {
+      $cleanupArgs = Get-AebSshArguments -KeyPath $KeyPath -KnownHostsPath $KnownHostsPath -RemoteHostName $RemoteHostName -Port $Port -RemoteCommand $cleanupCommand
+      $cleanup = Invoke-AebBoundedProcess -FilePath (Get-SshExe) -ArgumentList $cleanupArgs -TimeoutSeconds 30 -HeartbeatSeconds $HeartbeatSeconds -Label 'remote deploy cleanup'
+      if ($cleanup.ExitCode -ne 0) { Say "[WARN] Remote deploy cleanup failed (SSH RC=$($cleanup.ExitCode)): $($cleanup.Stderr.Trim())" }
+    } catch { Say "[WARN] Remote deploy cleanup failed: $($_.Exception.Message)" }
   }
 }
 
@@ -323,6 +363,13 @@ Say "IncludeWww : $IncludeWww"
 Say "IncludeBlueprints : $IncludeBlueprints"
 Say "AllowDirty : $AllowDirty"
 Say "RunGates   : $RunGates"
+Say "RunConfigCheck : $RunConfigCheck"
+Say "Restart    : $Restart"
+Say "DryRun     : $DryRun"
+
+if ($Restart -and -not $RunConfigCheck) {
+  throw '-Restart requires -RunConfigCheck.'
+}
 
 # --------------------------------------------------
 # 0) Refuse dirty working tree
@@ -390,6 +437,12 @@ $knownHostsPath = Get-KnownHostsPath
 $haSshScript = Join-Path $PSScriptRoot "ha_ssh.ps1"
 $useRemoteDeploy = $false
 $cleanupKeyPath = $keyPath
+trap {
+  if ($cleanupKeyPath -and (Test-Path -LiteralPath $cleanupKeyPath)) {
+    Remove-Item -LiteralPath $cleanupKeyPath -Force -ErrorAction SilentlyContinue
+  }
+  throw $_
+}
 
 # --------------------------------------------------
 # 0b) Preflight target path
@@ -452,6 +505,25 @@ if (-not $skipLocalGates) {
   if (-not $gatesState -or $gatesState.head -ne $currentHead -or $gatesState.status -ne "passed") {
     Fail "Gates failed or stale. Expected head '$currentHead' with status 'passed' in $gatesStatePath."
   }
+}
+
+if ($DryRun) {
+  $dryRunDirs = @('packages', 'lovelace', 'custom_components', 'themes')
+  if ($IncludeBlueprints) { $dryRunDirs += 'blueprints' }
+  if ($IncludeWww) { $dryRunDirs += 'www' }
+  if ($IncludeTts) { $dryRunDirs += 'tts' }
+  $dryRunFiles = @('configuration.yaml', 'automations.yaml', 'scripts.yaml', 'scenes.yaml', 'groups.yaml', 'customize.yaml')
+  Say "`n==> DRY RUN (no backup, upload, extraction, restart or marker)"
+  Say ("Transport : bounded SSH archive; timeout={0}s; heartbeat={1}s" -f $TransferTimeoutSeconds, $HeartbeatSeconds)
+  Say ("Destination: {0}:{1}:{2}" -f $RemoteHost, $RemoteContainer, $RemotePath)
+  Say ("Directories: {0}" -f ($dryRunDirs -join ', '))
+  Say ("Files      : {0}" -f ($dryRunFiles -join ', '))
+  Say 'Excluded   : secrets.yaml, .storage, .cloud, backup, backups, media, tts/www unless explicitly enabled'
+  Say '[OK] Deploy SAFE dry run completed without runtime writes.'
+  if ($cleanupKeyPath -and (Test-Path -LiteralPath $cleanupKeyPath)) {
+    Remove-Item -LiteralPath $cleanupKeyPath -Force -ErrorAction SilentlyContinue
+  }
+  exit 0
 }
 
 # --------------------------------------------------
@@ -531,7 +603,14 @@ if ($useRemoteDeploy) {
 # --------------------------------------------------
 if ($RunConfigCheck) {
   Say "`n==> POST-DEPLOY: Home Assistant config check"
-  if (Get-Command ha -ErrorAction SilentlyContinue) {
+  if ($useRemoteDeploy) {
+    $checkCommand = "docker exec $RemoteContainer python -m homeassistant --script check_config -c $RemotePath"
+    $checkArgs = Get-AebSshArguments -KeyPath $keyPath -KnownHostsPath $knownHostsPath -RemoteHostName $RemoteHost -Port $RemotePort -RemoteCommand $checkCommand
+    $check = Invoke-AebBoundedProcess -FilePath (Get-SshExe) -ArgumentList $checkArgs -TimeoutSeconds $TransferTimeoutSeconds -HeartbeatSeconds $HeartbeatSeconds -Label 'Home Assistant config check'
+    if ($check.Stdout) { Write-Host $check.Stdout.TrimEnd() }
+    if ($check.ExitCode -ne 0) { throw "Remote Home Assistant config check failed (RC=$($check.ExitCode)): $($check.Stderr.Trim())" }
+    Say ("[OK] Remote Home Assistant config check passed in {0}s." -f $check.DurationSeconds)
+  } elseif (Get-Command ha -ErrorAction SilentlyContinue) {
     & ha core check
     if ($LASTEXITCODE -ne 0) {
       throw "ha core check failed (RC=$LASTEXITCODE)"
@@ -540,6 +619,15 @@ if ($RunConfigCheck) {
   } else {
     Say "ha CLI not found. Run on HA host: 'ha core check' or use UI -> Server Controls -> Check Configuration."
   }
+}
+
+if ($Restart) {
+  Say "`n==> POST-DEPLOY: controlled Home Assistant restart"
+  if (-not $useRemoteDeploy) { throw 'Controlled restart is supported only for remote Docker deploys.' }
+  $restartArgs = Get-AebSshArguments -KeyPath $keyPath -KnownHostsPath $knownHostsPath -RemoteHostName $RemoteHost -Port $RemotePort -RemoteCommand "docker restart $RemoteContainer"
+  $restartResult = Invoke-AebBoundedProcess -FilePath (Get-SshExe) -ArgumentList $restartArgs -TimeoutSeconds 120 -HeartbeatSeconds $HeartbeatSeconds -Label 'Home Assistant restart'
+  if ($restartResult.ExitCode -ne 0) { throw "Remote Home Assistant restart failed (RC=$($restartResult.ExitCode)): $($restartResult.Stderr.Trim())" }
+  Say ("[OK] Home Assistant restart completed in {0}s." -f $restartResult.DurationSeconds)
 }
 
 # --------------------------------------------------

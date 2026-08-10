@@ -58,6 +58,11 @@ try {
 
   $sshArgs = @(
     '-T'
+    '-o', 'BatchMode=yes'
+    '-o', 'ConnectTimeout=10'
+    '-o', 'ConnectionAttempts=1'
+    '-o', 'ServerAliveInterval=15'
+    '-o', 'ServerAliveCountMax=2'
     '-o', "UserKnownHostsFile=$KnownHostsPath"
     '-o', 'StrictHostKeyChecking=yes'
     '-p', $Port
