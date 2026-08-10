@@ -126,3 +126,11 @@ lovelace:
       icon: mdi:home-lightning-bolt-outline
       show_in_sidebar: true
       filename: lovelace/12_domestic_ops.yaml
+
+    13-stato-casa-tv:
+      mode: yaml
+      title: "13 AEB — Stato casa"
+      icon: mdi:television-dashboard
+      show_in_sidebar: true
+      require_admin: false
+      filename: lovelace/13_stato_casa_tv.yaml

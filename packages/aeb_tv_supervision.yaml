@@ -1,0 +1,107 @@
+###############################################################################
+# PACKAGE: aeb_tv_supervision.yaml
+# Sintesi read-only per la dashboard TV AEB. Nessuna logica di controllo.
+###############################################################################
+
+template:
+  - sensor:
+      - name: "AEB TV stato casa"
+        unique_id: aeb_tv_house_status
+        icon: >-
+          {% if this.state == 'Anomalia' %}
+            mdi:home-alert
+          {% elif this.state == 'Attenzione' %}
+            mdi:home-search
+          {% else %}
+            mdi:home-check
+          {% endif %}
+        state: >-
+          {% set invalid = ['unknown', 'unavailable', '', 'none', 'None'] %}
+          {% set required = [
+            states('sensor.t_in_med'),
+            states('sensor.t_out_effective'),
+            states('sensor.ur_in_media'),
+            states('sensor.pv_power_now'),
+            states('sensor.global_consumption_estimated_w'),
+            states('sensor.grid_power_w'),
+            states('sensor.vmc_vel_target')
+          ] %}
+          {% set mirai_fault = states('sensor.mirai_fault_code_effective') | int(default=0) %}
+          {% if is_state('binary_sensor.ac_failsafe_sensors_bad', 'on')
+                or is_state('binary_sensor.heating_failsafe_sensors_bad', 'on')
+                or mirai_fault != 0 %}
+            Anomalia
+          {% elif required | select('in', invalid) | list | count > 0
+                or not is_state('binary_sensor.vmc_sensors_ok', 'on')
+                or is_state('binary_sensor.t_out_stale', 'on') %}
+            Attenzione
+          {% else %}
+            Casa OK
+          {% endif %}
+        attributes:
+          updated_at: "{{ now().isoformat() }}"
+
+      - name: "AEB TV avviso prioritario"
+        unique_id: aeb_tv_priority_alert
+        icon: mdi:alert-circle-outline
+        state: >-
+          {% set invalid = ['unknown', 'unavailable', '', 'none', 'None'] %}
+          {% set required = {
+            'temperatura interna': states('sensor.t_in_med'),
+            'temperatura esterna': states('sensor.t_out_effective'),
+            'umidità interna': states('sensor.ur_in_media'),
+            'fotovoltaico': states('sensor.pv_power_now'),
+            'consumo casa': states('sensor.global_consumption_estimated_w'),
+            'rete': states('sensor.grid_power_w'),
+            'VMC': states('sensor.vmc_vel_target')
+          } %}
+          {% set ns = namespace(missing=[]) %}
+          {% for label, value in required.items() %}
+            {% if value in invalid %}
+              {% set ns.missing = ns.missing + [label] %}
+            {% endif %}
+          {% endfor %}
+          {% set mirai_fault = states('sensor.mirai_fault_code_effective') | int(default=0) %}
+          {% if mirai_fault != 0 %}
+            Allarme MIRAI: codice {{ mirai_fault }}
+          {% elif is_state('binary_sensor.ac_failsafe_sensors_bad', 'on') %}
+            Sensori raffrescamento in failsafe
+          {% elif is_state('binary_sensor.heating_failsafe_sensors_bad', 'on') %}
+            Sensori riscaldamento in failsafe
+          {% elif not is_state('binary_sensor.vmc_sensors_ok', 'on') %}
+            Telemetria VMC incompleta
+          {% elif is_state('binary_sensor.t_out_stale', 'on') %}
+            Temperatura esterna non aggiornata
+          {% elif ns.missing | count > 0 %}
+            Dati assenti: {{ ns.missing | join(', ') }}
+          {% else %}
+            Nessun avviso
+          {% endif %}
+
+      - name: "AEB TV scambio rete"
+        unique_id: aeb_tv_grid_exchange
+        icon: >-
+          {% if states('sensor.grid_direction') == 'import' %}
+            mdi:transmission-tower-import
+          {% elif states('sensor.grid_direction') == 'export' %}
+            mdi:transmission-tower-export
+          {% else %}
+            mdi:transmission-tower
+          {% endif %}
+        availability: >-
+          {{
+            states('sensor.grid_power_w') | float(default=none) is number
+            and states('sensor.grid_direction') in ['import', 'export', 'idle']
+          }}
+        state: >-
+          {% set power = states('sensor.grid_power_w') | float(default=none) %}
+          {% set direction = states('sensor.grid_direction') %}
+          {% if power is not number %}
+            {{ none }}
+          {% elif direction == 'import' %}
+            Import {{ power | abs | round(0) }} W
+          {% elif direction == 'export' %}
+            Export {{ power | abs | round(0) }} W
+          {% else %}
+            Autoconsumo
+          {% endif %}
