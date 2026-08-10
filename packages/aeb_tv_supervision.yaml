@@ -1,10 +1,61 @@
 ###############################################################################
 # PACKAGE: aeb_tv_supervision.yaml
-# Sintesi read-only per la dashboard TV AEB. Nessuna logica di controllo.
+# Sintesi read-only e sensori di presentazione per la dashboard TV AEB.
+# Nessuna soglia o logica di controllo: solo formattazione con fallback "—".
 ###############################################################################
 
 template:
+  - trigger:
+      - platform: time_pattern
+        minutes: "/1"
+    sensor:
+      - name: "AEB TV ora"
+        unique_id: aeb_tv_clock
+        default_entity_id: sensor.aeb_tv_ora
+        state: "{{ now().strftime('%H:%M') }}"
+
   - sensor:
+      - name: "AEB TV temperatura interna"
+        unique_id: aeb_tv_temperature_inside_display
+        default_entity_id: sensor.aeb_tv_temperatura_interna
+        state: >-
+          {% set value = states('sensor.t_in_med') | float(default=none) %}
+          {{ (value | round(1) | string) ~ '°' if value is number else '—' }}
+
+      - name: "AEB TV umidità interna"
+        unique_id: aeb_tv_humidity_inside_display
+        default_entity_id: sensor.aeb_tv_umidita_interna
+        state: >-
+          {% set value = states('sensor.ur_in_media') | float(default=none) %}
+          {{ (value | round(0) | int | string) ~ '%' if value is number else '—' }}
+
+      - name: "AEB TV temperatura esterna"
+        unique_id: aeb_tv_temperature_outside_display
+        default_entity_id: sensor.aeb_tv_temperatura_esterna
+        state: >-
+          {% set value = states('sensor.t_out_effective') | float(default=none) %}
+          {{ (value | round(1) | string) ~ '°' if value is number else '—' }}
+
+      - name: "AEB TV potenza FV"
+        unique_id: aeb_tv_pv_power_display
+        default_entity_id: sensor.aeb_tv_potenza_fv
+        state: >-
+          {% set value = states('sensor.pv_power_now') | float(default=none) %}
+          {% if value is not number %}—
+          {% elif value | abs >= 1000 %}{{ (value / 1000) | round(1) }} kW
+          {% else %}{{ value | round(0) | int }} W
+          {% endif %}
+
+      - name: "AEB TV consumo casa"
+        unique_id: aeb_tv_house_power_display
+        default_entity_id: sensor.aeb_tv_consumo_casa
+        state: >-
+          {% set value = states('sensor.global_consumption_estimated_w') | float(default=none) %}
+          {% if value is not number %}—
+          {% elif value | abs >= 1000 %}{{ (value / 1000) | round(1) }} kW
+          {% else %}{{ value | round(0) | int }} W
+          {% endif %}
+
       - name: "AEB TV stato casa"
         unique_id: aeb_tv_house_status
         icon: >-
@@ -75,7 +126,7 @@ template:
           {% elif ns.missing | count > 0 %}
             Dati assenti: {{ ns.missing | join(', ') }}
           {% else %}
-            Nessun avviso
+            NESSUN AVVISO
           {% endif %}
 
       - name: "AEB TV scambio rete"
