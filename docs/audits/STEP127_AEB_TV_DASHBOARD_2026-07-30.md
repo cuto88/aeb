@@ -1,13 +1,21 @@
-# STEP127 - AEB TV dashboard
+# STEP127 - AEB TV dashboard v2.0.0
 
-Data: 2026-07-30
+Data avvio: 2026-07-30  
+Baseline consolidata: 2026-08-10
 
-## Obiettivo
+## Esito
 
-Dashboard Lovelace read-only per supervisione AEB su TV TCL Full HD. La vista
-privilegia stato casa, comfort, energia, VMC e un solo avviso prioritario.
+La dashboard AEB TV `v2.0.0` e` stata collaudata realmente su TV TCL a
+1920 x 1080. Il test sul dispositivo e la documentazione fotografica
+confermano un forte miglioramento della leggibilita` rispetto alla versione
+precedente.
 
-## Contratti dati
+La `v2.0.0` e` giudicata una base architetturale valida per la dashboard
+TV-first: consente di comprendere rapidamente lo stato della casa e separa
+in modo esplicito supervisione e azioni domestiche. Questo rilascio viene
+cristallizzato senza ulteriori modifiche grafiche o funzionali.
+
+## Contratti dati e sicurezza
 
 - comfort: `sensor.t_in_med`, `sensor.t_out_effective`,
   `sensor.ur_in_media`;
@@ -17,54 +25,68 @@ privilegia stato casa, comfort, energia, VMC e un solo avviso prioritario.
 - VMC: `sensor.ventilation_state_reason`, `sensor.vmc_vel_index`,
   `sensor.vmc_vel_target`, `binary_sensor.vmc_sensors_ok`,
   `binary_sensor.vmc_freecooling_active`;
-- anomalie: failsafe AC/heating, stale outdoor, VMC sensor coverage e fault
+- anomalie: failsafe AC/heating, stale outdoor, copertura sensori VMC e fault
   code MIRAI gia` esistenti.
 
-Il package `packages/aeb_tv_supervision.yaml` aggiunge soltanto tre sensori di
-presentazione: stato sintetico, avviso prioritario e scambio rete testuale.
-Non introduce soglie operative, automazioni o comandi.
+Il package `packages/aeb_tv_supervision.yaml` contiene esclusivamente sensori
+di presentazione. Non introduce soglie operative, bypass, automazioni o
+comandi tecnici. Le azioni esposte dalla dashboard riusano soltanto helper e
+controlli Home Assistant gia` mediati dalle logiche esistenti.
 
-## Layout e navigazione
+## Layout e navigazione v2.0.0
 
-Il primo collaudo reale sulla TCL ha rilevato due vincoli bloccanti: sidebar
-incompleta e scrolling non affidabile con telecomando. La versione `v1.0.1`
-non dipende piu` da sidebar, swipe o scroll.
-
-La dashboard `13-stato-casa-tv` espone tre view native `type: panel`:
-
-- `stato-casa`: griglia fissa 4 colonne con i nove indicatori essenziali,
-  un solo pulsante `Tutte le dashboard` e versione discreta;
-- `menu-1`: sei dashboard operative, `Pagina successiva` e `Stato casa`;
-- `menu-2`: le altre sei dashboard operative, `Pagina precedente` e
-  `Stato casa`.
-
-I due menu sono `subview: true` con `back_path` verso la home, ma il ritorno
-primario resta sempre il pulsante visibile. Tutti i launcher usano card native
-`button` con `tap_action: navigate`; hold e doppio tap sono disabilitati.
-Ogni menu contiene otto pulsanti in una griglia 4 x 2 e non richiede scroll
-nel target Full HD.
+La dashboard `13-stato-casa-tv` adotta una home HMI TV-first Full HD e
+subview dedicate a Stato generale, Clima, Energia, VMC, ACS e Azioni. La home
+mantiene la supervisione prioritaria; i comandi quotidiani sono separati
+visivamente dagli indicatori e raccolti nelle subview operative.
 
 Path previsto: `/13-stato-casa-tv/stato-casa`.
+
+Asset della baseline:
+
+- `lovelace/13_stato_casa_tv.yaml`;
+- `packages/aeb_tv_supervision.yaml`;
+- `themes/aeb_tv.yaml`;
+- `www/aeb-tv/home-v2.svg`.
+
+## Collaudo reale TCL
+
+- dispositivo: TV TCL;
+- risoluzione: 1920 x 1080;
+- caricamento dashboard: riuscito dopo riavvio dell'app Home Assistant;
+- assenza di dipendenza dallo scroll: confermata;
+- leggibilita`: forte miglioramento confermato da test reale e foto;
+- valutazione complessiva: `v2.0.0` approvata come baseline architetturale,
+  con polish visivo e di navigazione rinviato alla `v2.0.1`.
+
+## Polish residuo v2.0.1
+
+- eliminare header e sidebar Home Assistant tramite modalita`
+  kiosk/fullscreen compatibile con Android TV;
+- rendere human-readable gli stati `AC idle`, `RISC idle` e `P0_off`;
+- correggere la semantica del colore FV quando la produzione e` 0 W o e`
+  notte;
+- rendere molto evidente il focus D-pad;
+- rifinire footer e navigazione.
+
+Questi punti non bloccano il congelamento della `v2.0.0` e non sono inclusi
+nel presente intervento.
 
 ## Provenienza operativa
 
 - macchina operativa: workspace Windows `C:\2_OPS\aeb`;
-- runtime target: `mercurio-edge`, Home Assistant Core Docker, container
-  `homeassistant`, bind mount `/opt/data/homeassistant` -> `/config`;
+- runtime target verificato: `mercurio-edge` (`192.168.178.110`), Home
+  Assistant Core Docker, container `homeassistant`, bind mount
+  `/opt/data/homeassistant` -> `/config`;
 - macchina legacy: non contattata;
 - accesso: filesystem locale, GitHub connector, LAN/SSH e Docker;
-- deploy: si`, chirurgico sui tre file
-  `configuration.yaml`, `packages/aeb_tv_supervision.yaml` e
-  `lovelace/13_stato_casa_tv.yaml`;
-- modifiche runtime: si`, backup
-  `/config/_aeb_tv_backup_20260730_225505`, controllo configurazione PASS e
-  riavvio del solo container `homeassistant`;
+- deploy originario `v2.0.0`: si`, chirurgico sugli asset TV;
+- backup runtime `v2.0.0`: `/config/_aeb_tv_backup_20260810_v200_hmi`;
+- deploy durante il congelamento: no;
+- modifiche runtime durante il congelamento: no;
+- verifica di corrispondenza: hash SHA-256 locale/runtime identici per tutti
+  e quattro gli asset della baseline;
+- verifica runtime: container `homeassistant` running, check configurazione
+  Home Assistant ed endpoint HTTP verificati;
 - source of truth: branch `feat/aeb-tv-dashboard`, PR `#468`;
-- verifica post-riavvio: container `running`, endpoint HTTP `200`, tre nuove
-  entita` template presenti nel registry;
-- deploy correttivo `v1.0.1`: solo
-  `lovelace/13_stato_casa_tv.yaml`, backup
-  `/config/_aeb_tv_backup_20260730_231415`, check configurazione pre e
-  post-deploy PASS, container `running`, endpoint HTTP `200`, nessun riavvio
-  richiesto;
-- secondo collaudo visuale TCL: ancora manuale.
+- merge: non eseguito.
