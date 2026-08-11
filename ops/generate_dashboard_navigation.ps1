@@ -1,8 +1,8 @@
-$ErrorActionPreference = 'Stop'
-
 param(
   [string]$OutputPath = 'docs/architecture/AEB_DASHBOARD_NAVIGATION.generated.md'
 )
+
+$ErrorActionPreference = 'Stop'
 
 function Get-RepoRoot {
   $root = $null
@@ -65,7 +65,7 @@ function Get-ViewPaths {
       if (-not $views.Contains($matches[1])) { $views.Add($matches[1]) }
     }
   }
-  return @($views)
+  return ,$views
 }
 
 function Get-NavigationLinks {
@@ -98,7 +98,7 @@ function Get-NavigationLinks {
     }
   }
 
-  return @($links)
+  return ,$links
 }
 
 function Escape-Mermaid([string]$Value) {
@@ -116,7 +116,7 @@ foreach ($id in $registry.Keys) {
   $path = Join-Path $repoRoot ('lovelace/' + $file)
   if (-not (Test-Path -LiteralPath $path)) { continue }
   $registry[$id].Views = @(Get-ViewPaths -Path $path)
-  foreach ($link in Get-NavigationLinks -Path $path -SourceDashboard $id) {
+  foreach ($link in (Get-NavigationLinks -Path $path -SourceDashboard $id)) {
     $links.Add($link)
   }
 }
