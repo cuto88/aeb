@@ -34,7 +34,7 @@ function Get-ViewPaths([string]$path) {
       [void]$views.Add($matches[1])
     }
   }
-  return $views
+  return ,$views
 }
 
 $repoRoot = Get-RepoRoot
