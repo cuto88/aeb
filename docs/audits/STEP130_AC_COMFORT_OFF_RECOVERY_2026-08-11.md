@@ -48,6 +48,47 @@ indisponibile:
 4. il trigger periodico ogni due minuti garantisce il retry quando il lock non e`
    ancora scaduto al primo passaggio.
 
+## Validazione e pubblicazione
+
+- gate aggregato `ops/gates_run_ci.ps1`: PASS, `ALL GATES PASSED`, con
+  `yamllint 1.38.0` gia` installato nell'ambiente utente e aggiunto
+  temporaneamente al `PATH` del processo;
+- config check Home Assistant pre-deploy: PASS;
+- commit funzionale pubblicato su `main`:
+  `2abe21618f6f636d5439a5d1e567a45bbeedb2b5`;
+- deploy chirurgico: completato sul solo package attuatore;
+- checksum SHA-256 sorgente/runtime:
+  `8a6879ec94787fda7003bf90e2b1fd57e6a4cafdf61f346cb98318850151b7e3`;
+- backup di rollback puntuale: `step130_ac_off_20260811_205453`;
+- config check Home Assistant post-deploy: PASS;
+- restart controllato del container Home Assistant: completato, restart count
+  stabile e API nuovamente disponibile.
+
+## Evidenza runtime post-deploy
+
+Durante il riavvio l'integrazione AC ha inizialmente ripristinato gli switch come
+`unknown`. L'automazione di bootstrap AC ha quindi stabilito il baseline OFF con
+un unico contesto recorder:
+
+- `context_id = 019FF23409BD2ABF6EFFB181B696E070`;
+- `automation.climateops_ac_feedback_bootstrap_off` avviata alle 21:02:04 CEST;
+- `switch.turn_off` su `switch.ac_giorno` alle 21:02:49 CEST;
+- transizione osservata `switch.ac_giorno = off` nello stesso `context_id`;
+- logbook alle 21:02:55 CEST: `giorno=off, notte=off`.
+
+Al termine della verifica:
+
+- `switch.ac_giorno = off`;
+- `binary_sensor.ac_giorno_comfort_request = off`;
+- `sensor.climateops_hierarchy_mode = IDLE`;
+- `binary_sensor.cm_contract_actuators_ready = off`.
+
+Il difetto non e` stato riprodotto forzando una nuova accensione fisica, per non
+energizzare inutilmente il climatizzatore. La validazione strutturale conferma
+comunque che, con AC gia` `on`, il nuovo termine del gate consente di raggiungere
+il ramo OFF anche quando il contratto aggregato e` falso; lock, policy e criteri
+di accensione restano invariati.
+
 ## Provenienza operativa
 
 - macchina operativa: workstation Windows autorizzata per le operazioni AEB;
@@ -55,7 +96,8 @@ indisponibile:
   identificato nell'inventario operativo privato;
 - macchina legacy: non contattata e non modificata;
 - accesso diagnostico: LAN e SSH secondo l'inventario operativo privato;
-- deploy: previsto dopo pubblicazione e config check;
-- modifiche runtime: previste esclusivamente per il package attuatore
+- deploy: eseguito dopo pubblicazione, backup e config check pre-deploy;
+- modifiche runtime: eseguite esclusivamente per il package attuatore
   `packages/climateops/actuators/system_actuator.yaml`;
 - source of truth remota: `cuto88/aeb`, branch `main`.
+
