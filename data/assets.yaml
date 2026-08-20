@@ -162,3 +162,34 @@ assets:
       orientation: ovest
       controlled_load: null
     notes: "Alimentato L/N da LUCI EST.; carico downstream preciso ancora da completare."
+
+  - id: asset.energy.pdc_meter
+    type: asset
+    name: Contatore energia ramo PDC
+    status: installed
+    confidence: user_reported
+    sources:
+      - source_id: ssot_mercurio.AST-ELC-SDM-001
+        source_type: external_reference
+        locator: "SSOT Mercurio / ASSET_REGISTER"
+      - source_id: chat_record.2026-08-20.sdm120_pdc_install
+        source_type: user_report
+        locator: "Rilievo diretto installazione con foto manuale e quadro"
+        observed_at: 2026-08-20
+    updated_at: 2026-08-20
+    owner: aeb
+    attributes:
+      manufacturer: Eastron
+      model: SDM120 45A
+      installation_location: quadro_elettrico_mercurio
+      measured_branch: pdc
+      supply_position: downstream_of_pdc_protection
+      deenergized_when_pdc_breaker_off: true
+      wiring:
+        line_in_terminal: 1
+        line_out_terminal: 2
+        neutral_in_terminal: 4
+        neutral_out_terminal: 3
+        line_path: "protezione_PDC_L_out -> SDM_1 -> SDM_2 -> PDC_L"
+        neutral_path: "protezione_PDC_N_out -> SDM_4 -> SDM_3 -> PDC_N"
+    notes: "Installazione dichiarata attiva dall'utente; foto/manuale chat da persistere nel repository documentale Dropbox e poi referenziare come evidence primaria."
