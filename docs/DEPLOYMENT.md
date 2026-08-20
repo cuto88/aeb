@@ -52,6 +52,30 @@ pwsh -NoProfile -File ./ops/deploy_safe.ps1 `
 
 Use `-DryRun` to validate the SSH target, manifest, destination and exclusions without creating a backup, uploading data, extracting files, restarting Home Assistant or writing `last_deploy.ok`. Transfer timeout and heartbeat defaults can be adjusted with `-TransferTimeoutSeconds` and `-HeartbeatSeconds`.
 
+### Governed single-file deploy
+
+For a surgical package update, `-File` accepts one repository-relative YAML path directly under `packages/`. This mode skips all Git operations, backs up only the runtime target, guards against drift with the SHA-256 obtained from dry-run, copies only that file, and automatically restores the backup if the post-copy Home Assistant config check fails.
+
+```powershell
+$env:HA_SSH_KEY_PATH = 'C:\path\to\approved_key'
+$env:HA_SSH_KNOWN_HOSTS = 'C:\path\to\known_hosts'
+
+# Read-only preflight; note the reported runtime SHA-256.
+pwsh -NoProfile -File ./ops/deploy_safe.ps1 `
+  -Target REMOTE_SSH `
+  -File packages/mirai_modbus.yaml `
+  -DryRun
+
+# Guarded deploy of exactly one file.
+pwsh -NoProfile -File ./ops/deploy_safe.ps1 `
+  -Target REMOTE_SSH `
+  -File packages/mirai_modbus.yaml `
+  -ExpectedRemoteSha256 <sha256-from-dry-run> `
+  -RunConfigCheck -Restart
+```
+
+Absolute paths, traversal, nested package paths and paths outside `packages/*.yaml` or `packages/*.yml` are rejected. Live single-file deployment requires both `-ExpectedRemoteSha256` and `-RunConfigCheck`.
+
 Environment variables for mapping the SMB share (if `Z:` is missing):
 
 - `HA_SMB_SHARE` (e.g., `\\192.168.178.84\config`)
@@ -118,3 +142,4 @@ Eseguire questi 4 check rapidi dopo deploy/cutover ClimateOps v1.0:
 
 - `cm_contract_missing_entities` must be OK
 - `cm_contract_actuators_defined` must be ON
+

@@ -277,3 +277,91 @@ modbus:
         unit_of_measurement: "kWh"
         device_class: energy
         state_class: total_increasing
+
+      - name: "sdm120_ch3_voltage_v_raw"
+        unique_id: sdm120_ch3_voltage_v_raw
+        address: 0
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 3
+        scan_interval: 30
+        unit_of_measurement: "V"
+        device_class: voltage
+        state_class: measurement
+
+      - name: "sdm120_ch3_current_a_raw"
+        unique_id: sdm120_ch3_current_a_raw
+        address: 6
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 3
+        scan_interval: 30
+        unit_of_measurement: "A"
+        device_class: current
+        state_class: measurement
+
+      - name: "sdm120_ch3_active_power_w_raw"
+        unique_id: sdm120_ch3_active_power_w_raw
+        address: 12
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 3
+        scan_interval: 30
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+
+      - name: "sdm120_ch3_apparent_power_va_raw"
+        unique_id: sdm120_ch3_apparent_power_va_raw
+        address: 18
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 3
+        scan_interval: 30
+        unit_of_measurement: "VA"
+        state_class: measurement
+
+      - name: "sdm120_ch3_power_factor_raw"
+        unique_id: sdm120_ch3_power_factor_raw
+        address: 30
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 3
+        scan_interval: 30
+
+      - name: "sdm120_ch3_frequency_hz_raw"
+        unique_id: sdm120_ch3_frequency_hz_raw
+        address: 70
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 3
+        scan_interval: 30
+        unit_of_measurement: "Hz"
+        device_class: frequency
+        state_class: measurement
+
+      - name: "sdm120_ch3_import_energy_kwh_raw"
+        unique_id: sdm120_ch3_import_energy_kwh_raw
+        address: 72
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 3
+        scan_interval: 60
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+

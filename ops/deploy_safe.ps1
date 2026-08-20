@@ -14,6 +14,8 @@ param(
   [switch]$Restart,
   [switch]$DryRun,
   [switch]$RunGates,
+  [string]$File = "",
+  [string]$ExpectedRemoteSha256 = "",
   [int]$TransferTimeoutSeconds = 300,
   [int]$HeartbeatSeconds = 15
 )
@@ -301,7 +303,8 @@ function Invoke-RemoteDeploy {
     [string]$RemoteContainer,
     [string]$RemotePath,
     [string]$SourceRoot,
-    [string[]]$Entries
+    [string[]]$Entries,
+    [string]$RemoteGuardCommand = ""
   )
 
   $existingEntries = @()
@@ -326,7 +329,8 @@ function Invoke-RemoteDeploy {
     if ($upload.ExitCode -ne 0) { throw "Remote deploy upload failed (SSH RC=$($upload.ExitCode)): $($upload.Stderr.Trim())" }
 
     $localHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $archivePath).Hash.ToLowerInvariant()
-    $promoteCommand = "test `$(sha256sum $remoteArchive | cut -d' ' -f1) = $localHash && docker cp $remoteArchive ${RemoteContainer}:/tmp/aeb-deploy.tar.gz && docker exec $RemoteContainer tar -tzf /tmp/aeb-deploy.tar.gz >/dev/null && docker exec $RemoteContainer tar -xzf /tmp/aeb-deploy.tar.gz -C $RemotePath"
+    $guardPrefix = if ([string]::IsNullOrWhiteSpace($RemoteGuardCommand)) { "" } else { "$RemoteGuardCommand && " }
+    $promoteCommand = "${guardPrefix}test `$(sha256sum $remoteArchive | cut -d' ' -f1) = $localHash && docker cp $remoteArchive ${RemoteContainer}:/tmp/aeb-deploy.tar.gz && docker exec $RemoteContainer tar -tzf /tmp/aeb-deploy.tar.gz >/dev/null && docker exec $RemoteContainer tar -xzf /tmp/aeb-deploy.tar.gz -C $RemotePath"
     $promoteArgs = Get-AebSshArguments -KeyPath $KeyPath -KnownHostsPath $KnownHostsPath -RemoteHostName $RemoteHostName -Port $Port -RemoteCommand $promoteCommand
     $promote = Invoke-AebBoundedProcess -FilePath (Get-SshExe) -ArgumentList $promoteArgs -TimeoutSeconds $TransferTimeoutSeconds -HeartbeatSeconds $HeartbeatSeconds -Label 'remote deploy validation and extraction'
     if ($promote.ExitCode -ne 0) { throw "Remote deploy promotion failed (SSH RC=$($promote.ExitCode)): $($promote.Stderr.Trim())" }
@@ -343,11 +347,176 @@ function Invoke-RemoteDeploy {
   }
 }
 
+function Resolve-SingleFileRelativePath {
+  param(
+    [Parameter(Mandatory = $true)][string]$RepoRoot,
+    [Parameter(Mandatory = $true)][string]$RequestedPath
+  )
+
+  if ([string]::IsNullOrWhiteSpace($RequestedPath)) {
+    throw 'Single-file deploy requires a non-empty repo-relative path.'
+  }
+  if ([System.IO.Path]::IsPathRooted($RequestedPath)) {
+    throw "Single-file deploy path must be relative to the repository: '$RequestedPath'."
+  }
+
+  $normalized = $RequestedPath.Replace('\', '/')
+  if ($normalized -match '(^|/)\.\.(/|$)') {
+    throw "Single-file deploy rejects path traversal: '$RequestedPath'."
+  }
+  if ($normalized.StartsWith('./')) {
+    $normalized = $normalized.Substring(2)
+  }
+  if ($normalized -notmatch '^packages/[A-Za-z0-9_.-]+\.ya?ml$') {
+    throw "Single-file deploy allows only YAML files directly under packages/: '$RequestedPath'."
+  }
+
+  $repoFull = [System.IO.Path]::GetFullPath($RepoRoot).TrimEnd('\', '/')
+  $sourceFull = [System.IO.Path]::GetFullPath((Join-Path $repoFull $normalized))
+  if (-not $sourceFull.StartsWith("$repoFull$([System.IO.Path]::DirectorySeparatorChar)", [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw "Single-file deploy resolved outside the repository: '$RequestedPath'."
+  }
+  if (-not (Test-Path -LiteralPath $sourceFull -PathType Leaf)) {
+    throw "Single-file deploy source not found: '$normalized'."
+  }
+  return $normalized
+}
+
+function Invoke-RemoteHaConfigCheck {
+  param(
+    [Parameter(Mandatory = $true)][string]$KeyPath,
+    [Parameter(Mandatory = $true)][string]$KnownHostsPath,
+    [Parameter(Mandatory = $true)][string]$RemoteHostName,
+    [Parameter(Mandatory = $true)][int]$Port,
+    [Parameter(Mandatory = $true)][string]$RemoteContainerName,
+    [Parameter(Mandatory = $true)][string]$ConfigPath,
+    [Parameter(Mandatory = $true)][int]$TimeoutSeconds,
+    [Parameter(Mandatory = $true)][int]$Heartbeat
+  )
+
+  $command = "docker exec $RemoteContainerName python -m homeassistant --script check_config -c $ConfigPath"
+  $args = Get-AebSshArguments -KeyPath $KeyPath -KnownHostsPath $KnownHostsPath -RemoteHostName $RemoteHostName -Port $Port -RemoteCommand $command
+  return Invoke-AebBoundedProcess -FilePath (Get-SshExe) -ArgumentList $args -TimeoutSeconds $TimeoutSeconds -HeartbeatSeconds $Heartbeat -Label 'Home Assistant config check'
+}
+
+function Invoke-SingleFileRemoteDeploy {
+  param(
+    [Parameter(Mandatory = $true)][string]$RepoRoot,
+    [Parameter(Mandatory = $true)][string]$RelativePath
+  )
+
+  if ($Target -and $Target -ne 'REMOTE_SSH') {
+    throw "Single-file mode supports only the governed REMOTE_SSH transport. Received Target='$Target'."
+  }
+  if ($Restart -and -not $RunConfigCheck) {
+    throw '-Restart requires -RunConfigCheck.'
+  }
+  if (-not $DryRun -and -not $RunConfigCheck) {
+    throw 'Live single-file deploy requires -RunConfigCheck for automatic rollback governance.'
+  }
+  if (-not $DryRun -and $ExpectedRemoteSha256 -notmatch '^[a-fA-F0-9]{64}$') {
+    throw 'Live single-file deploy requires -ExpectedRemoteSha256 with exactly 64 hexadecimal characters.'
+  }
+
+  $sourcePath = Join-Path $RepoRoot $RelativePath
+  $localHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $sourcePath).Hash.ToLowerInvariant()
+  $keyPath = Get-DeployKeyPath
+  $knownHostsPath = Get-KnownHostsPath
+  $haSshScript = Join-Path $PSScriptRoot 'ha_ssh.ps1'
+  $tarExe = Get-TarExe
+  try {
+    Test-RemoteConfigTarget -HaSshScript $haSshScript -KeyPath $keyPath -KnownHostsPath $knownHostsPath -RemoteHostName $RemoteHost -Port $RemotePort -RemoteContainer $RemoteContainer -Path $RemotePath
+
+    $remoteFile = "$($RemotePath.TrimEnd('/'))/$RelativePath"
+    $hashCommand = "docker exec $RemoteContainer sha256sum $remoteFile"
+    $hashArgs = Get-AebSshArguments -KeyPath $keyPath -KnownHostsPath $knownHostsPath -RemoteHostName $RemoteHost -Port $RemotePort -RemoteCommand $hashCommand
+    $hashResult = Invoke-AebBoundedProcess -FilePath (Get-SshExe) -ArgumentList $hashArgs -TimeoutSeconds 30 -HeartbeatSeconds $HeartbeatSeconds -Label 'single-file drift hash'
+    if ($hashResult.ExitCode -ne 0) { throw "Unable to hash runtime target '$remoteFile': $($hashResult.Stderr.Trim())" }
+    $remoteHash = (($hashResult.Stdout.Trim() -split '\s+')[0]).ToLowerInvariant()
+    if ($remoteHash -notmatch '^[a-f0-9]{64}$') { throw "Invalid runtime SHA-256 response for '$remoteFile'." }
+
+    Say "== Deploy SAFE: governed single-file mode =="
+    Say "Repo file       : $RelativePath"
+    Say "Runtime file    : $remoteFile"
+    Say "Local SHA-256   : $localHash"
+    Say "Runtime SHA-256 : $remoteHash"
+    Say "Git operations  : disabled"
+
+    if ($DryRun) {
+      Say 'Mode            : DRY RUN'
+      Say 'Backup/copy/check/restart: skipped'
+      Say "Use -ExpectedRemoteSha256 $remoteHash for a guarded live deploy."
+      Say '[OK] Governed single-file dry run completed without runtime writes.'
+      return
+    }
+
+    $expectedHash = $ExpectedRemoteSha256.ToLowerInvariant()
+    if ($remoteHash -ne $expectedHash) {
+      throw "Single-file drift check failed. Expected runtime SHA-256 '$expectedHash', observed '$remoteHash'."
+    }
+
+    $stamp = Get-Date -Format 'yyyyMMdd_HHmmss'
+    $backupDir = "$($RemotePath.TrimEnd('/'))/backups/aeb_single_file_deploy_$stamp"
+    $backupFile = "$backupDir/$RelativePath"
+    $backupParent = $backupFile.Substring(0, $backupFile.LastIndexOf('/'))
+    $backupCommand = "docker exec $RemoteContainer sh -c 'mkdir -p $backupParent && cp -p $remoteFile $backupFile && sha256sum $backupFile | grep -q ^$expectedHash'"
+    $backupArgs = Get-AebSshArguments -KeyPath $keyPath -KnownHostsPath $knownHostsPath -RemoteHostName $RemoteHost -Port $RemotePort -RemoteCommand $backupCommand
+    $backup = Invoke-AebBoundedProcess -FilePath (Get-SshExe) -ArgumentList $backupArgs -TimeoutSeconds 60 -HeartbeatSeconds $HeartbeatSeconds -Label 'single-file runtime backup'
+    if ($backup.ExitCode -ne 0) { throw "Single-file runtime backup failed: $($backup.Stderr.Trim())" }
+    Say "Backup          : $backupFile"
+
+    $guard = "docker exec $RemoteContainer sh -c 'sha256sum $remoteFile | grep -q ^$expectedHash'"
+    Invoke-RemoteDeploy -HaSshScript $haSshScript -TarExe $tarExe -KeyPath $keyPath -KnownHostsPath $knownHostsPath -RemoteHostName $RemoteHost -Port $RemotePort -RemoteContainer $RemoteContainer -RemotePath $RemotePath -SourceRoot $RepoRoot -Entries @($RelativePath) -RemoteGuardCommand $guard
+
+    $postCheck = Invoke-RemoteHaConfigCheck -KeyPath $keyPath -KnownHostsPath $knownHostsPath -RemoteHostName $RemoteHost -Port $RemotePort -RemoteContainerName $RemoteContainer -ConfigPath $RemotePath -TimeoutSeconds $TransferTimeoutSeconds -Heartbeat $HeartbeatSeconds
+    if ($postCheck.Stdout) { Write-Host $postCheck.Stdout.TrimEnd() }
+    if ($postCheck.ExitCode -ne 0) {
+      Say '[FAIL] Post-deploy config check failed; restoring single-file backup.'
+      $rollbackCommand = "docker exec $RemoteContainer cp -p $backupFile $remoteFile"
+      $rollbackArgs = Get-AebSshArguments -KeyPath $keyPath -KnownHostsPath $knownHostsPath -RemoteHostName $RemoteHost -Port $RemotePort -RemoteCommand $rollbackCommand
+      $rollback = Invoke-AebBoundedProcess -FilePath (Get-SshExe) -ArgumentList $rollbackArgs -TimeoutSeconds 60 -HeartbeatSeconds $HeartbeatSeconds -Label 'single-file automatic rollback'
+      if ($rollback.ExitCode -ne 0) { throw "Post-deploy config check failed and automatic rollback failed: $($rollback.Stderr.Trim())" }
+      $rollbackCheck = Invoke-RemoteHaConfigCheck -KeyPath $keyPath -KnownHostsPath $knownHostsPath -RemoteHostName $RemoteHost -Port $RemotePort -RemoteContainerName $RemoteContainer -ConfigPath $RemotePath -TimeoutSeconds $TransferTimeoutSeconds -Heartbeat $HeartbeatSeconds
+      if ($rollbackCheck.ExitCode -ne 0) { throw 'Post-deploy config check failed; backup restored, but rollback config check also failed.' }
+      throw 'Post-deploy config check failed; backup restored and rollback config check passed.'
+    }
+    Say '[OK] Post-deploy Home Assistant config check passed.'
+
+    $postHashArgs = Get-AebSshArguments -KeyPath $keyPath -KnownHostsPath $knownHostsPath -RemoteHostName $RemoteHost -Port $RemotePort -RemoteCommand $hashCommand
+    $postHashResult = Invoke-AebBoundedProcess -FilePath (Get-SshExe) -ArgumentList $postHashArgs -TimeoutSeconds 30 -HeartbeatSeconds $HeartbeatSeconds -Label 'single-file post-deploy hash'
+    if ($postHashResult.ExitCode -ne 0) { throw 'Unable to verify post-deploy runtime SHA-256.' }
+    $postHash = (($postHashResult.Stdout.Trim() -split '\s+')[0]).ToLowerInvariant()
+    if ($postHash -ne $localHash) { throw "Post-deploy hash mismatch. Local '$localHash', runtime '$postHash'." }
+    Say "Post SHA-256    : $postHash"
+
+    if ($Restart) {
+      $restartArgs = Get-AebSshArguments -KeyPath $keyPath -KnownHostsPath $knownHostsPath -RemoteHostName $RemoteHost -Port $RemotePort -RemoteCommand "docker restart $RemoteContainer"
+      $restartResult = Invoke-AebBoundedProcess -FilePath (Get-SshExe) -ArgumentList $restartArgs -TimeoutSeconds 120 -HeartbeatSeconds $HeartbeatSeconds -Label 'Home Assistant restart'
+      if ($restartResult.ExitCode -ne 0) { throw "Remote Home Assistant restart failed: $($restartResult.Stderr.Trim())" }
+      Say '[OK] Controlled Home Assistant restart completed.'
+    }
+
+    Say '[OK] Governed single-file deploy completed.'
+  }
+  finally {
+    if ($keyPath -and (Test-Path -LiteralPath $keyPath)) {
+      Remove-Item -LiteralPath $keyPath -Force -ErrorAction SilentlyContinue
+    }
+  }
+}
+
 Say "== Deploy SAFE =="
 
 # --------------------------------------------------
 # Repo context
 # --------------------------------------------------
+$scriptRepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+if (-not [string]::IsNullOrWhiteSpace($File)) {
+  $singleRelativePath = Resolve-SingleFileRelativePath -RepoRoot $scriptRepoRoot -RequestedPath $File
+  Invoke-SingleFileRemoteDeploy -RepoRoot $scriptRepoRoot -RelativePath $singleRelativePath
+  exit 0
+}
+
 Resolve-StaleGitIndexLocks -RepoPath $PSScriptRoot\..
 $repoRoot = (git rev-parse --show-toplevel)
 Set-Location $repoRoot
@@ -642,3 +811,4 @@ Say "`n[OK] Deploy SAFE completed."
 if ($cleanupKeyPath -and (Test-Path -LiteralPath $cleanupKeyPath)) {
   Remove-Item -LiteralPath $cleanupKeyPath -Force -ErrorAction SilentlyContinue
 }
+

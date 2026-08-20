@@ -36,6 +36,7 @@
 - `deploy_safe.ps1` refuses to run if `configuration.yaml` or `secrets.yaml` is missing on the target.
 - `tts/` and `www/` are excluded by default; use `-IncludeTts` / `-IncludeWww` to deploy them intentionally.
 - Optional post-deploy check: `-RunConfigCheck` (runs `ha core check` when the HA CLI is available).
+- Governed surgical mode: `-File packages/<name>.yaml` skips Git operations, requires an expected runtime SHA-256 and `-RunConfigCheck` for live deploys, backs up only the target file, and automatically restores it if the post-copy config check fails. Use `-DryRun` first to obtain the guarded runtime hash.
 
 ## SSH key handling for Home Assistant
 - Preferred runtime path: `HA_SSH_KEY_PATH`
@@ -151,3 +152,4 @@ Esempi:
 - Known scheduler boundary: locked-down shells can deny Windows scheduled task registration (`Accesso negato`).
   In that case, use the runner manually/on-demand:
   `powershell -NoProfile -ExecutionPolicy Bypass -File ops\phase5_task_runner.ps1 -RetentionWhatIf`
+
