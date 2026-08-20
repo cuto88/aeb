@@ -152,4 +152,3 @@ Esempi:
 - Known scheduler boundary: locked-down shells can deny Windows scheduled task registration (`Accesso negato`).
   In that case, use the runner manually/on-demand:
   `powershell -NoProfile -ExecutionPolicy Bypass -File ops\phase5_task_runner.ps1 -RetentionWhatIf`
-

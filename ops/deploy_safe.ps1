@@ -811,4 +811,3 @@ Say "`n[OK] Deploy SAFE completed."
 if ($cleanupKeyPath -and (Test-Path -LiteralPath $cleanupKeyPath)) {
   Remove-Item -LiteralPath $cleanupKeyPath -Force -ErrorAction SilentlyContinue
 }
-

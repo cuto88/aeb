@@ -36,4 +36,3 @@ if ($source -notmatch 'Resolve-StaleGitIndexLocks[\s\S]+git fetch origin[\s\S]+g
 }
 
 Write-Host '[OK] deploy_safe single-file tests passed: syntax, traversal, whitelist, missing source, absolute path, broad-flow guard.'
-

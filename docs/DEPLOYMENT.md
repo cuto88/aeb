@@ -142,4 +142,3 @@ Eseguire questi 4 check rapidi dopo deploy/cutover ClimateOps v1.0:
 
 - `cm_contract_missing_entities` must be OK
 - `cm_contract_actuators_defined` must be ON
-
