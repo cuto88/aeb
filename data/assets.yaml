@@ -172,10 +172,11 @@ assets:
       - source_id: ssot_mercurio.AST-ELC-SDM-001
         source_type: external_reference
         locator: "SSOT Mercurio / ASSET_REGISTER"
-      - source_id: chat_record.2026-08-20.sdm120_pdc_install
-        source_type: user_report
-        locator: "Rilievo diretto installazione con foto manuale e quadro"
+      - source_id: dropbox.SRC-SDM-001
+        source_type: external_reference
+        locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Imp. Elettrico/2026-08-20_SDM120_PDC_installazione.md"
         observed_at: 2026-08-20
+        note: "Record persistente del rilievo e cablaggio; foto/manuale originali della chat ancora da associare come binari persistenti."
     updated_at: 2026-08-20
     owner: aeb
     attributes:
@@ -192,4 +193,4 @@ assets:
         neutral_out_terminal: 3
         line_path: "protezione_PDC_L_out -> SDM_1 -> SDM_2 -> PDC_L"
         neutral_path: "protezione_PDC_N_out -> SDM_4 -> SDM_3 -> PDC_N"
-    notes: "Installazione dichiarata attiva dall'utente; foto/manuale chat da persistere nel repository documentale Dropbox e poi referenziare come evidence primaria."
+    notes: "Installazione dichiarata attiva dall'utente; record tecnico persistente in Dropbox. Le foto/manuale originali restano da associare quando disponibile un upload binario verso Dropbox."
