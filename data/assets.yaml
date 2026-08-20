@@ -1,0 +1,164 @@
+schema_version: 1.0
+scope: casa_mercurio
+status: draft_partial_asset_register
+updated_at: 2026-08-20
+owner: aeb
+
+# Curated non-runtime asset register.
+# SSOT Mercurio is the cross-domain registry; this file is the versioned
+# technical digital-twin projection for AEB. Runtime HA state is not stored here.
+assets:
+  - id: asset.vmc.main
+    type: asset
+    name: Unita VMC principale
+    status: installed
+    confidence: documented
+    sources:
+      - source_id: ssot_mercurio.AST-VMC-001
+        source_type: external_reference
+        locator: "SSOT Mercurio / ASSET_REGISTER"
+    updated_at: 2026-08-20
+    owner: aeb
+    attributes:
+      manufacturer: VMC Group
+      family: RIS M9 / 22 HA BP
+      model: null
+      installation_location: garage
+    notes: "Modello/targhetta/matricola installati da confermare contro evidenza primaria."
+
+  - id: asset.heat_pump.main
+    type: asset
+    name: Pompa di calore riscaldamento
+    status: installed
+    confidence: documented
+    sources:
+      - source_id: ssot_mercurio.AST-PDC-001
+        source_type: external_reference
+        locator: "SSOT Mercurio / ASSET_REGISTER"
+    updated_at: 2026-08-20
+    owner: aeb
+    attributes:
+      manufacturer: Emmeti
+      family: MIRAI SMI 4.0
+      model: null
+    notes: "Famiglia documentata; modello installato esatto ancora da targhetta."
+
+  - id: asset.dhw.ehw
+    type: asset
+    name: Pompa di calore ACS
+    status: installed
+    confidence: documented
+    sources:
+      - source_id: ssot_mercurio.AST-ACS-001
+        source_type: external_reference
+        locator: "SSOT Mercurio / ASSET_REGISTER"
+    updated_at: 2026-08-20
+    owner: aeb
+    attributes:
+      manufacturer: Emmeti
+      family: Eco Hot Water
+      model: null
+    notes: "Modello e volume installati esatti da verificare su targhetta."
+
+  - id: asset.pv.inverter
+    type: asset
+    name: Inverter fotovoltaico
+    status: installed
+    confidence: documented
+    sources:
+      - source_id: ssot_mercurio.AST-PV-001
+        source_type: external_reference
+        locator: "SSOT Mercurio / ASSET_REGISTER"
+    updated_at: 2026-08-20
+    owner: aeb
+    attributes:
+      manufacturer: SolarEdge
+      model: SE6000H
+    notes: "Seriale/targhetta ancora da registrare."
+
+  - id: asset.ac.multisplit
+    type: asset
+    name: Sistema multisplit AC
+    status: installed
+    confidence: documented
+    sources:
+      - source_id: ssot_mercurio.AST-AC-001
+        source_type: external_reference
+        locator: "SSOT Mercurio / ASSET_REGISTER"
+    updated_at: 2026-08-20
+    owner: aeb
+    attributes:
+      manufacturer: Toshiba
+      family: U2 multisplit
+      model: null
+    notes: "Modelli esatti unita esterna e interne da targhetta."
+
+  - id: asset.electrical.external_lights.twilight_relay_west
+    type: asset
+    name: Crepuscolare luci esterne Ovest
+    status: installed
+    confidence: user_reported
+    sources:
+      - source_id: chat_record.2026-08-20.quadro_luci_esterne
+        source_type: user_report
+        locator: "Rilievo diretto quadro con foto; SSOT Mercurio SRC-ELC-001"
+        observed_at: 2026-08-20
+        note: "Utente ha tracciato i cablaggi sul quadro; foto persistente Dropbox ancora da associare."
+    updated_at: 2026-08-20
+    owner: aeb
+    attributes:
+      manufacturer: Finder
+      model: 11.31.8.230.0000
+      installation_location: quadro_elettrico_mercurio
+      supply_from: luci_est
+      sensor_terminals:
+        - B1
+        - B2
+      controlled_load: luci_esterne_ovest
+    notes: "Due conduttori superiori etichettati EST; B1/B2 collegati alla sonda esterna. Promuovere a verified quando la foto/evidenza persistente viene registrata."
+
+  - id: asset.electrical.external_lights.timer_entrance_east
+    type: asset
+    name: Orologio luci ingresso Est
+    status: installed
+    confidence: user_reported
+    sources:
+      - source_id: chat_record.2026-08-20.quadro_luci_esterne
+        source_type: user_report
+        locator: "Rilievo diretto quadro con foto; SSOT Mercurio SRC-ELC-001"
+        observed_at: 2026-08-20
+    updated_at: 2026-08-20
+    owner: aeb
+    attributes:
+      manufacturer: Theben
+      family: SELEKTA 170 top3
+      installation_location: quadro_elettrico_mercurio
+      supply_from: luci_est
+      orientation: est
+      controlled_load: luci_ingresso_est
+      wiring_notes:
+        - ritorno_sensore_movimento_su_contatto
+        - ritorno_luci_esterne_est_su_contatto
+        - ponte_da_L_superiore_al_secondo_ingresso_contatto
+    notes: "Mappatura da rilievo utente; associare foto persistente Dropbox."
+
+  - id: asset.electrical.external_lights.timer_west
+    type: asset
+    name: Orologio luci Ovest
+    status: installed
+    confidence: user_reported
+    sources:
+      - source_id: chat_record.2026-08-20.quadro_luci_esterne
+        source_type: user_report
+        locator: "Rilievo diretto quadro con foto; SSOT Mercurio SRC-ELC-001"
+        observed_at: 2026-08-20
+    updated_at: 2026-08-20
+    owner: aeb
+    attributes:
+      manufacturer: Theben
+      family: SELEKTA 170 top3
+      installation_location: quadro_elettrico_mercurio
+      supply_from: luci_est
+      orientation: ovest
+      controlled_load: null
+    notes: "Alimentato L/N da LUCI EST.; carico downstream preciso ancora da completare."
