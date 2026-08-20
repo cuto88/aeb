@@ -1,513 +1,339 @@
 # Mercurio — Energy Intelligence Roadmap
 
-**Status:** design / direction document  
+**Status:** target architecture / direction document  
 **Scope:** Home Assistant + SSOT Mercurio + n8n  
-**Goal:** trasformare il monitoraggio energetico esistente in un sistema capace di misurare, spiegare e ridurre i consumi reali della casa.
+**Implementation status:** BLOCKED pending Energy State Reconciliation  
+**Companion document:** `docs/ENERGY_STATE_RECONCILIATION.md`
 
 ## 1. Executive decision
 
-Mercurio dispone già di una base energetica avanzata in Home Assistant: sotto-contatori, utility meter giornalieri/mensili, statistiche di potenza, produzione FV, quote per carico, KPI di comfort/cicli HVAC, VMC e analisi advisory dell'involucro.
+AEB Energy is **not a new greenfield subsystem**. Historical AEB documentation already defined an Energy extension with power metering, surplus management and global energy KPIs, and the current repository contains substantial energy monitoring and policy components.
 
-Il gap principale non è aggiungere altri grafici o altri sensori. Il gap è costruire una catena di misura chiusa:
+The purpose of this roadmap is therefore not to redesign Energy from zero. It defines the **target end state and exit gates** against which the existing design, code and runtime must be reconciled.
 
-`contatore generale -> allocazione carichi -> contesto meteo/presenza -> baseline -> automazione -> risparmio verificato -> report mensile`
+Before any implementation, complete `ENERGY_STATE_RECONCILIATION.md` and classify existing capabilities as:
 
-La metrica primaria deve diventare il **consumo elettrico netto reale della casa, riconciliato con il contatore/bolletta e confrontato con un baseline normalizzato**. Le metriche dei singoli dispositivi servono a spiegare il totale e a individuare le azioni.
+- `DONE_VERIFIED`
+- `IMPLEMENTED_NOT_RUNTIME_VERIFIED`
+- `RUNTIME_ACTIVE_DATA_UNVERIFIED`
+- `DESIGNED_NOT_IMPLEMENTED`
+- `IMPLEMENTED_NOT_INTEGRATED`
+- `LEGACY_OR_OBSOLETE`
+- `MISSING`
 
-## 2. Perché serve ora
+No new YAML, Lovelace, n8n workflow, helper, sensor or automation should be created during the reconciliation phase.
 
-Dal registro bollette SSOT, il confronto omogeneo febbraio-luglio mostra:
+## 2. System objective
 
-| Periodo | 2025 | 2026 | Delta |
+ClimateOps and AEB Energy have different roles.
+
+- **ClimateOps:** pursue comfort, IAQ and safe climate operation.
+- **AEB Energy:** minimize energy consumption and cost subject to ClimateOps comfort/IAQ/equipment constraints.
+
+Target statement:
+
+`minimize kWh / EUR while comfort, IAQ and equipment guardrails remain satisfied`
+
+ClimateOps is therefore an input/constraint layer for Energy, not a competing system.
+
+## 3. Why this matters now
+
+From the Mercurio billing SSOT, the homogeneous February-July comparison currently shows:
+
+| Period | 2025 | 2026 | Delta |
 | --- | ---: | ---: | ---: |
-| feb-mar | 299 kWh | 514 kWh | +215 kWh |
-| apr-mag | 167 kWh | 299 kWh | +132 kWh |
-| giu-lug | 184 kWh | 247 kWh | +63 kWh |
-| **Totale feb-lug** | **650 kWh** | **1.060 kWh** | **+410 kWh / +63%** |
+| Feb-Mar | 299 kWh | 514 kWh | +215 kWh |
+| Apr-May | 167 kWh | 299 kWh | +132 kWh |
+| Jun-Jul | 184 kWh | 247 kWh | +63 kWh |
+| **Total Feb-Jul** | **650 kWh** | **1,060 kWh** | **+410 kWh / +63%** |
 
-Il gap mensile si sta riducendo, ma non esiste ancora una catena analitica sufficiente per attribuire il miglioramento recente alle automazioni HA oppure a meteo, presenza, abitudini o altri carichi.
+This does **not** prove ClimateOps is ineffective: ClimateOps has primarily pursued comfort. It does prove that AEB currently lacks a verified end-to-end method for attributing changes in total energy use to weather, occupancy, loads and automations.
 
-**Conclusione:** non è possibile oggi dimostrare il ROI energetico delle automazioni in modo robusto.
+## 4. Existing documented base
 
-## 3. Stato attuale verificato nel repository canonico
+Repository evidence already identifies:
 
-### 3.1 Metering e disaggregazione
+- local load sub-metering and utility meters;
+- PV production normalization and daily/monthly/yearly aggregation;
+- VMC energy monitoring;
+- ClimateOps comfort/cycle/VMC-boost KPIs;
+- energy policy concepts for PV surplus, forecasts, grid price and grid flow;
+- envelope efficiency advisory metrics.
 
-`packages/energy_pm.yaml` contiene:
+Historical documentation also described an Energy extension including shared energy helpers, power metering, surplus management and a global KPI layer.
 
-- utility meter giornalieri e mensili per Mirai, EHW, PM1, PM2, PM3;
-- statistiche di potenza media 15 min e picco 24 h;
-- monitoraggio cicli di lavatrice, asciugatrice e carichi dedicati;
-- somma delle potenze dei misuratori locali;
-- stima del consumo globale istantaneo come `PV + grid`;
-- somma energetica giornaliera dei carichi locali;
-- quota percentuale giornaliera dei singoli carichi.
+The reconciliation audit must determine what survived, what evolved, what is runtime-active and what remains incomplete.
 
-Questa è già una buona base di **sub-metering operativo**.
+## 5. Known documented boundary
 
-### 3.2 Fotovoltaico
+`docs/logic/energy_pm/README.md` explicitly describes Energy PM as dashboard-oriented monitoring without decision logic and states that daily load shares currently use only locally measured loads because the whole-house consumption does not have a sufficiently solid runtime SSOT for reliable global percentages.
 
-`packages/energy_pv_solaredge.yaml` normalizza:
+This is the current known bottleneck until runtime evidence proves otherwise.
 
-- potenza FV istantanea;
-- energia FV totale;
-- produzione giornaliera, mensile e annuale;
-- fallback di sorgente per la potenza.
+## 6. Target end-to-end architecture
 
-### 3.3 VMC
+The completed Energy chain must be:
 
-`packages/energy_vmc_reallocation.yaml` fornisce:
+`physical meter -> canonical HA entity -> long-term statistics -> whole-house balance -> load allocation -> context -> normalized baseline -> control action -> measured avoided kWh -> avoided EUR -> automatic report`
 
-- potenza media VMC a 15 min;
-- potenza massima VMC 24 h;
-- baseline storici legati alla riallocazione del misuratore PM1.
+### L0 — Whole-house truth
 
-La parte energetica VMC è però ancora soprattutto descrittiva: manca un KPI che metta in relazione kWh, portata/velocità, qualità aria e beneficio termico.
+Required concepts, reusing existing entities where valid:
 
-### 3.4 ClimateOps
+- grid import energy;
+- grid export energy;
+- PV production energy;
+- house consumption energy;
+- house instantaneous power.
 
-`packages/climateops_phase1_kpi.yaml` misura:
-
-- percentuale di tempo nella comfort band;
-- cicli riscaldamento;
-- cicli AC;
-- minuti di VMC boost.
-
-Sono KPI utili per qualità del controllo, ma **non misurano direttamente l'efficienza energetica**.
-
-### 3.5 Policy energetica
-
-`packages/climate_policy_energy.yaml` dispone già dei concetti per:
-
-- surplus FV;
-- forecast FV;
-- forecast temperatura esterna;
-- prezzo energia;
-- import/export rete;
-- soglie di import elevato;
-- policy fail-safe.
-
-Quindi esiste già il layer per passare in futuro da analisi a ottimizzazione predittiva.
-
-### 3.6 Involucro
-
-`packages/envelope_efficiency_advisory.yaml` calcola, durante finestre di free-decay:
-
-- drift termico interno;
-- cooldown rate;
-- perdita normalizzata su delta-T;
-- retention score;
-- solar utilization score;
-- livello qualitativo di efficienza involucro.
-
-È un'analisi interessante e avanzata, ma oggi rimane separata dal bilancio elettrico e dal consumo HVAC.
-
-## 4. Limite della verifica attuale
-
-Questa analisi è verificata sul **repository GitHub canonico**. `AGENTS.md` segnala esplicitamente un possibile drift tra package split nel repository e runtime Home Assistant, dovuto a patch chirurgiche applicate sul runtime monolitico.
-
-Di conseguenza, prima di considerare qualsiasi KPI come operativo deve essere eseguito un **runtime audit read-only** per verificare:
-
-1. entità effettivamente presenti;
-2. entity_id correnti;
-3. continuità delle long-term statistics;
-4. sorgenti del pannello Energy;
-5. utility meter realmente attivi;
-6. data di inizio dello storico affidabile;
-7. eventuali duplicazioni tra meter fisici e template.
-
-Fino a quel gate, distinguere sempre:
-
-- `REPO_VERIFIED`
-- `RUNTIME_VERIFIED`
-- `DATA_QUALITY_VERIFIED`
-
-## 5. Architettura target
-
-### Layer L0 — Truth meter
-
-Obiettivo: una sola verità del consumo totale.
-
-Entità canoniche target:
-
-- `sensor.energy_grid_import_total_kwh`
-- `sensor.energy_grid_export_total_kwh`
-- `sensor.energy_pv_total_kwh`
-- `sensor.energy_house_consumption_total_kwh`
-- `sensor.energy_house_power_w`
-
-Formula di controllo:
+Balance check:
 
 `house consumption ~= grid import + PV production - grid export`
 
-Il risultato deve essere riconciliabile con le letture del distributore e con le bollette.
+Do not create new canonical entities until the reconciliation audit determines whether suitable existing entities already exist.
 
-### Layer L1 — Load allocation
+### L1 — Load allocation
 
-Gerarchia consigliata:
+Target hierarchy:
 
 1. HVAC / Mirai
 2. ACS / EHW
 3. VMC
-4. lavatrice
-5. asciugatrice
-6. IT / server / workstation
-7. altri carichi misurati
-8. **residuo non attribuito**
+4. washing machine
+5. dryer
+6. IT/server/workstations
+7. other measured loads
+8. unattributed residual
 
-KPI principale:
+Target KPI:
 
-`unattributed_energy_pct = 100 * residual_kWh / house_kWh`
+`unattributed_energy_pct = residual_kWh / house_kWh * 100`
 
-**Target proposto:** attribuzione >= 80% iniziale, >= 90% a regime. Non aggiungere sotto-contatori se non riducono materialmente il residuo o abilitano una decisione.
+Initial target: >=80% attributed; mature target >=90%, only if additional metering has decision value.
 
-### Layer L2 — Time aggregation
+### L2 — Context normalization
 
-Per totale casa e principali carichi:
+Relevant context:
 
-- 15 min;
-- ora;
-- giorno;
-- mese;
-- anno.
+- outdoor temperature;
+- HDD/CDD or degree-hours;
+- occupancy/absence;
+- indoor comfort;
+- significant window opening;
+- HVAC state;
+- VMC state;
+- PV/solar conditions;
+- exceptional events.
 
-Il minuto serve al controllo; giorno/mese servono alla valutazione del risparmio.
+### L3 — Energy KPIs
 
-### Layer L3 — Context normalization
+#### House
 
-Registrare insieme ai consumi:
-
-- temperatura esterna media/min/max;
-- HDD/CDD o degree-hours;
-- umidità esterna;
-- irradianza/produzione FV;
-- casa occupata / ore-presenza;
-- giorni fuori casa;
-- comfort indoor;
-- finestre aperte significative;
-- modalità HVAC;
-- eventuali eventi eccezionali.
-
-Questo layer evita di chiamare "risparmio" una semplice differenza di clima o presenza.
-
-### Layer L4 — KPI Energy Intelligence
-
-#### Casa
-
-- kWh/giorno;
-- kWh/mese;
+- kWh/day and month;
 - kWh/m²;
-- base load notturno W;
-- picco massimo kW;
-- ore sopra soglia di potenza;
-- YoY kWh;
-- YoY %;
-- YoY normalizzato meteo/presenza;
-- costo reale €/mese;
-- residuo non attribuito %.
+- nighttime base load;
+- peak kW;
+- YoY raw;
+- YoY normalized;
+- real EUR/month;
+- unattributed residual %.
 
 #### HVAC
 
-- kWh/giorno e mese;
-- kWh/HDD in riscaldamento;
-- kWh/CDD in raffrescamento;
-- kWh per ora in comfort;
-- cicli/giorno;
-- durata media ciclo;
-- consumo standby;
-- COP operativo solo quando l'energia termica utile è misurabile o stimabile con sufficiente qualità.
+- kWh/day/month;
+- kWh/HDD heating;
+- kWh/CDD cooling;
+- kWh per comfort-hour;
+- cycles and average cycle duration;
+- standby consumption.
 
 #### ACS
 
-- kWh/giorno;
-- kWh/persona-giorno;
-- cicli/giorno;
-- perdite standby stimate;
-- quota coperta da surplus FV.
+- kWh/day;
+- kWh/person-day when occupancy data quality permits;
+- standby losses estimate;
+- PV-surplus share.
 
 #### VMC
 
-- kWh/giorno;
-- Wh/m³ se la portata è disponibile/affidabile;
-- kWh per modalità/velocità;
-- minuti boost;
-- relazione con CO2/UR/IAQ;
-- costo energetico del boost;
-- beneficio termico, solo dopo sensori temperatura/portata validati.
+- kWh/day;
+- kWh by speed/mode;
+- boost energy cost;
+- Wh/m3 only after airflow is validated;
+- relationship between energy, IAQ and thermal benefit.
 
-#### FV
+#### PV
 
-- produzione kWh;
-- autoconsumo %;
-- autosufficienza %;
-- export kWh;
-- energia flessibile spostata su surplus;
-- valore economico autoconsumato.
+- production;
+- self-consumption;
+- self-sufficiency;
+- export;
+- flexible energy shifted to surplus;
+- economic value of self-consumption.
 
-## 6. Baseline e misura del risparmio
+## 7. Baseline
 
-### Baseline primaria
+2025 can be used as the initial YoY reference where data is comparable, but must not automatically be treated as a normalized baseline.
 
-Usare 2025 come riferimento YoY dove i dati sono completi, ma non considerarlo automaticamente un baseline normalizzato.
+MVP method:
 
-Per ogni mese:
+1. same-period YoY;
+2. HDD/CDD normalization for climate loads;
+3. explicit correction for absence/occupancy where available;
+4. separation of major measured loads;
+5. residual analysis.
 
-`delta_raw_kWh = kWh_current - kWh_baseline`
+Only after sufficient clean history should more sophisticated regression be considered.
 
-Successivamente introdurre:
+## 8. Automation ROI contract
 
-`delta_normalized_kWh = actual - expected(weather, occupancy, season)`
+Every future energy automation must declare:
 
-### Metodo MVP
-
-Per partire senza over-engineering:
-
-1. confronto stesso mese anno precedente;
-2. normalizzazione semplice HDD/CDD per HVAC;
-3. correzione esplicita per giorni di assenza;
-4. separazione dei principali carichi misurati;
-5. residuo.
-
-Solo dopo almeno 6-12 mesi di dati puliti valutare regressioni più sofisticate.
-
-## 7. Misura del valore delle automazioni
-
-Ogni automazione energetica deve avere una scheda esperimento minima:
-
-- `automation_id`
-- ipotesi;
-- carico interessato;
-- KPI primario;
-- comfort/safety guardrail;
+- hypothesis;
+- affected load;
+- primary KPI;
+- ClimateOps comfort/IAQ/safety guardrails;
 - baseline;
-- data attivazione;
-- periodo di osservazione;
-- kWh evitati stimati;
-- euro evitati;
-- confidenza: LOW / MEDIUM / HIGH.
+- activation date;
+- observation period;
+- estimated avoided kWh;
+- avoided EUR;
+- confidence LOW/MEDIUM/HIGH.
 
-Esempio:
+Success is not `automation triggered`.
 
-> Ridurre VMC da velocità 2 a 1 durante finestre IAQ-safe dovrebbe ridurre i kWh VMC senza superare le soglie di qualità aria.
+Success is:
 
-Il KPI non è "automazione eseguita" ma `kWh evitati con guardrail rispettati`.
+`avoided kWh / EUR with guardrails satisfied`.
 
-## 8. Reconciliation con bollette
+## 9. Billing reconciliation
 
-Una volta al mese n8n deve confrontare:
+The Mercurio billing SSOT is an independent external validation source.
 
-- consumo HA del periodo;
-- lettura/consumo fatturato;
-- differenza assoluta kWh;
-- errore percentuale.
+Target monthly comparison:
 
-KPI:
+- HA consumption over matching billing period;
+- billed/distributor consumption;
+- absolute kWh difference;
+- percentage error.
 
-`meter_reconciliation_error_pct`
+Proposed gate:
 
-**Gate proposto:** <= 3% è verde; 3-5% da verificare; >5% blocca analisi ROI finché la causa non è spiegata.
+- <=3%: green;
+- 3-5%: investigate;
+- >5%: block ROI conclusions until explained.
 
-Le bollette Dropbox e il tab `Bollette` della SSOT Mercurio diventano il riferimento indipendente di validazione, non la sorgente realtime.
+Automation of this comparison with n8n is a **future implementation**, not part of the current documentation phase.
 
-## 9. Dashboard target
+## 10. Target reporting
 
-Creare una sola dashboard nuova: **Energy Intelligence**.
+Future reporting should converge on one Energy Intelligence view and one monthly scorecard rather than proliferating dashboards.
 
-### View 1 — Executive
+Executive outputs should eventually include:
 
-- oggi / mese / anno kWh;
-- YoY raw e normalizzato;
-- costo;
-- produzione FV;
-- autoconsumo;
-- residuo non attribuito;
-- reconciliation status;
-- top 3 cause del consumo.
+- house kWh;
+- YoY raw/normalized;
+- cost;
+- PV/self-consumption;
+- attributed vs residual energy;
+- top consumption causes;
+- ClimateOps guardrail status;
+- best/worst energy automation result;
+- reconciliation quality.
 
-### View 2 — Loads
+No dashboard implementation is authorized by this document.
 
-- stacked energy per principali carichi;
-- residuo;
-- base load;
-- picchi;
-- anomalie.
+## 11. Reconciliation-first roadmap
 
-### View 3 — Climate efficiency
+### Phase R0 — Documentation reconciliation
 
-- HVAC kWh vs HDD/CDD;
-- comfort band;
-- cicli;
-- envelope retention;
-- finestre / free cooling / solar gain.
+Read and reconcile historical Energy design, current module documentation and current repository implementation.
 
-### View 4 — Automation ROI
+Deliverable: `ENERGY_STATE_RECONCILIATION.md` populated with evidence and capability states.
 
-Per automazione:
+**Exit gate:** no known competing Energy SSOT and exact audit scope defined.
 
-- stato;
-- KPI target;
-- baseline;
-- delta kWh;
-- delta euro;
-- confidence;
-- guardrail violation.
+### Phase R1 — Runtime truth audit, read-only
 
-Nessun KPI deve essere aggiunto alla dashboard se non supporta una decisione.
+Inspect actual Home Assistant runtime without modifications.
 
-## 10. Reporting automatico
+Verify:
 
-n8n deve produrre un **Mercurio Energy Scorecard** mensile con massimo 10 righe utili:
+- entities;
+- entity IDs;
+- physical sources;
+- Energy Dashboard sources;
+- utility meters;
+- long-term statistics;
+- history start dates;
+- resets/gaps;
+- double-count risks.
 
-1. kWh mese;
-2. YoY raw;
-3. YoY normalizzato;
-4. costo;
-5. base load;
-6. top load;
-7. residuo %;
-8. PV/autoconsumo;
-9. migliore automazione del mese;
-10. anomalia/azione prioritaria.
+**Exit gate:** authoritative whole-house meter candidate and trustworthy history window identified.
 
-Output: SSOT Mercurio + notifica sintetica. Evitare report manuali.
+### Phase R2 — Gap classification
 
-## 11. Roadmap di implementazione
+Update documentation only and classify every required capability.
 
-### Fase 0 — Runtime truth audit
+**Exit gate:** exact list of work that is truly missing vs merely unintegrated.
 
-**Scopo:** sapere quali dati esistono realmente.
+### Phase I1 — Whole-house truth and reconciliation
 
-Deliverable:
+Future implementation phase. Reuse existing components wherever possible.
 
-- inventario energy entities runtime;
-- mappa source -> canonical -> KPI;
-- stato long-term statistics;
-- data-quality matrix;
-- sorgenti Energy Dashboard;
-- elenco duplicati/reset/gap.
+**Exit gate:** HA vs bill <=3% or difference explained.
 
-**Exit gate:** truth meter identificato e storico affidabile definito.
+### Phase I2 — Allocation and residual
 
-### Fase 1 — Whole-house truth + reconciliation
+Future implementation phase.
 
-Implementare:
+**Exit gate:** >=80% of normal-day energy attributed.
 
-- entità canoniche casa import/export/PV/consumo;
-- utility meter casa daily/monthly;
-- reconciliation mensile con bolletta;
-- errore %.
+### Phase I3 — Normalized baseline and scorecard
 
-**Exit gate:** differenza HA vs bolletta <= 3% oppure differenza spiegata.
+Future implementation phase.
 
-### Fase 2 — Allocation + residual
+**Exit gate:** monthly delta quantitatively explained.
 
-Implementare:
+### Phase I4 — Automation ROI
 
-- gerarchia carichi;
-- energia per carico;
-- residuo;
-- quota attribuita.
+Future implementation phase.
 
-**Exit gate:** >=80% del consumo attribuito nei giorni normali.
+**Exit gate:** at least three energy automations evaluated with measurable benefit/no-benefit and guardrails.
 
-### Fase 3 — Baseline YoY MVP
+### Phase I5 — Predictive optimization
 
-Implementare:
+Only after measurement quality is proven:
 
-- monthly YoY;
-- HDD/CDD;
-- occupancy correction minima;
-- baseline 2025;
-- Energy Scorecard.
-
-**Exit gate:** spiegazione quantitativa del delta mensile.
-
-### Fase 4 — Automation ROI
-
-Per ogni automazione energetica attiva:
-
-- definire ipotesi;
-- KPI;
-- guardrail;
-- periodo before/after o A/B quando possibile;
-- stima kWh/€ evitati.
-
-**Exit gate:** almeno 3 automazioni con beneficio o assenza di beneficio misurabile.
-
-### Fase 5 — Predictive optimization
-
-Solo dopo le fasi precedenti:
-
-- forecast FV;
-- prezzo;
-- meteo;
+- PV forecast;
+- weather;
+- price;
 - pre-heating/pre-cooling;
-- ACS su surplus;
+- ACS surplus scheduling;
 - peak shaving;
 - load shifting.
 
-Questo layer deve ottimizzare su dati validati, non compensare lacune di misura.
+## 12. Current project state
 
-## 12. MVP operativo consigliato
+At the date of this document:
 
-Il primo MVP deve stare in poche ore di lavoro e **non richiede nuovi sensori**:
+- ClimateOps is the mature comfort-oriented control layer;
+- Energy has substantial monitoring/policy foundations;
+- historical Energy architecture existed;
+- whole-house runtime truth is documented as a known weakness unless runtime audit proves it has since been resolved;
+- robust automation energy ROI is not yet demonstrated;
+- **development is intentionally paused until reconciliation is complete**.
 
-1. identificare il truth meter generale e validare lo storico;
-2. creare `house_energy_daily/monthly` + residual;
-3. creare confronto YoY mensile 2025/2026;
-4. aggiungere HDD/CDD;
-5. produrre una scorecard n8n mensile.
+## 13. Next action
 
-Solo dopo questo MVP decidere quali nuovi misuratori fisici hanno ROI.
+Perform the read-only Energy Runtime Reconciliation Audit defined in `ENERGY_STATE_RECONCILIATION.md`.
 
-## 13. Target proposti
+During that audit:
 
-Questi sono target di progetto, non valori attuali verificati:
+- do not modify HA;
+- do not create new entities;
+- do not create dashboards;
+- do not create n8n workflows;
+- update documentation with evidence first.
 
-| KPI | Target iniziale |
-| --- | ---: |
-| Meter reconciliation error | <= 3% |
-| Energia attribuita ai carichi | >= 80% |
-| Unattributed energy | <= 20% |
-| Dati energy disponibili | >= 99% |
-| Automazioni con KPI esplicito | 100% delle automazioni energetiche nuove |
-| Report manuale | 0 |
-| Tempo review mensile | <= 10 min |
-
-Il target di riduzione kWh non va fissato prima della normalizzazione del baseline. Dopo 2-3 mesi di dati puliti si potrà definire un obiettivo realistico, ad esempio percentuale annua di riduzione normalizzata.
-
-## 14. Pre-mortem operativo
-
-| Failure mode | Segnale precoce | Contromisura minima |
-| --- | --- | --- |
-| Doppio conteggio carichi | somma sub-meter > totale casa | gerarchia meter + residual, mai sommare rami sovrapposti |
-| HA e bolletta divergono | errore >5% | reconciliation mensile e blocco ROI |
-| Storico spezzato da rename/reset | salti nei total_increasing | registry canonico + audit long-term statistics |
-| Meteo scambiato per risparmio | YoY cambia con HDD/CDD | normalizzazione clima |
-| Presenza scambiata per risparmio | consumi bassi durante assenze | occupancy-days nel baseline |
-| Dashboard theatre | KPI senza decisione | ogni KPI deve avere owner/threshold/action |
-| Load shifting scambiato per saving | costo cala ma kWh no | kWh totale primario, costo secondario |
-| Comfort sacrificato per risparmio | comfort band peggiora | comfort e IAQ come guardrail |
-| Over-engineering | settimane senza scorecard | MVP Fasi 0-3 prima di ML/predittivo |
-
-## 15. Decisione architetturale
-
-**Direzione scelta:** Home Assistant rimane il motore realtime e di controllo; il repository `aeb` rimane la SSOT della logica; SSOT Mercurio contiene i dati economici/bollette; n8n esegue reconciliation, reporting e orchestrazione fuori dal realtime.
-
-Separazione delle responsabilità:
-
-- **HA:** misura, aggregazione breve, stato, automazione, guardrail;
-- **GitHub/aeb:** schema canonico, package, governance, versionamento;
-- **SSOT Mercurio:** bollette, baseline economico, serie consolidate;
-- **n8n:** ETL, confronto periodi, reconciliation, scorecard, alert;
-- **Dropbox:** archivio documentale delle fatture.
-
-## 16. Next action canonica
-
-**Prossima azione:** eseguire Fase 0 — `Energy Runtime Truth Audit` in modalità read-only.
-
-Non modificare ancora policy, automazioni o dashboard. Prima produrre la matrice:
-
-`entity -> physical meter -> load -> unit -> state_class -> history start -> daily/monthly aggregation -> overlap -> confidence`
-
-Da quella matrice derivano senza ambiguità le implementazioni Fase 1-3.
+Only after the documentation accurately describes the existing system should an implementation lot be approved.
