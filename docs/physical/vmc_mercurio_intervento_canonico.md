@@ -218,7 +218,7 @@ Le quattro sonde di processo devono misurare direttamente nel flusso, essere sta
 - baseline e misura finale confrontabili;
 - coibentazione continua nei punti critici;
 - portate terminali misurate, non dedotte dalle percentuali ventilatore;
-- bilancio mandata/ripresa verificato strumentalmente.
+- bilancio mandata/ripresa verificato strumentalmente;
 - filtri identificati con L×H×S, classe, codice e documentazione fotografica;
 - hood validato con cinque misure ripetute e dispersione operativa indicativamente entro ±5%;
 - portate finali misurate con porte chiuse e passaggi di trasferimento stabilizzati;
@@ -231,7 +231,7 @@ Le quattro sonde di processo devono misurare direttamente nel flusso, essere sta
 - adattatori Ø75→Ø100/125 e nuove bocchette;
 - soluzione definitiva elastomero/lana di roccia e relativo spessore;
 - necessità di post-riscaldamento;
-- eventuali ulteriori punti temperatura.
+- eventuali ulteriori punti temperatura;
 - ricambio filtro OEM/compatibile e periodicità definitiva;
 - spostamento della presa, passaggio in copertura, silenziatori e nuovi terminali esterni;
 - geometria definitiva dei due raccordi terminali stampati;
@@ -245,7 +245,7 @@ Le quattro sonde di processo devono misurare direttamente nel flusso, essere sta
 - portate stanza per stanza non approvate;
 - diametri di diaframma esplorativi;
 - tempi di cura del sigillante senza scheda tecnica del prodotto;
-- necessità automatica di bocchette Ø125.
+- necessità automatica di bocchette Ø125;
 - filtro spesso 22 mm, formati commerciali ipotizzati e classi F7/G4 o equivalenti;
 - ricircolo significativo dovuto ai 60 cm tra presa ed espulsione;
 - quote 69/63/47 mm e parametri dello STL come geometria esecutiva;
