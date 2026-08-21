@@ -1,3 +1,4 @@
+
 utility_meter:
   sdm120_ch2_import_energy_daily:
     source: sensor.sdm120_ch2_import_energy_kwh_raw
@@ -35,6 +36,9 @@ template:
           - sensor.sdm120_ch2_frequency_hz_raw
           - sensor.sdm120_ch2_power_factor_raw
           - sensor.sdm120_ch2_import_energy_kwh_raw
+          - sensor.sdm120_ch2_export_energy_kwh_raw
+          - sensor.sdm120_ch3_active_power_w_raw
+          - sensor.sdm120_ch3_import_energy_kwh_raw
       - platform: time_pattern
         seconds: "/30"
     sensor:
@@ -83,6 +87,30 @@ template:
         availability: "{{ states('sensor.sdm120_ch2_import_energy_kwh_raw') not in ['unknown','unavailable'] }}"
         state: "{{ states('sensor.sdm120_ch2_import_energy_kwh_raw') }}"
 
+      - name: "grid_energy_export_kwh"
+        unique_id: grid_energy_export_kwh
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+        availability: "{{ states('sensor.sdm120_ch2_export_energy_kwh_raw') not in ['unknown','unavailable'] }}"
+        state: "{{ states('sensor.sdm120_ch2_export_energy_kwh_raw') }}"
+
+      - name: "ac_power_w"
+        unique_id: ac_power_w
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        availability: "{{ states('sensor.sdm120_ch3_active_power_w_raw') not in ['unknown','unavailable'] }}"
+        state: "{{ states('sensor.sdm120_ch3_active_power_w_raw') }}"
+
+      - name: "ac_energy_total_kwh"
+        unique_id: ac_energy_total_kwh
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+        availability: "{{ states('sensor.sdm120_ch3_import_energy_kwh_raw') not in ['unknown','unavailable'] }}"
+        state: "{{ states('sensor.sdm120_ch3_import_energy_kwh_raw') }}"
+
       - name: "grid_direction"
         unique_id: grid_direction
         availability: "{{ states('sensor.sdm120_ch2_active_power_w_raw') not in ['unknown','unavailable'] }}"
@@ -107,6 +135,9 @@ homeassistant:
     sensor.sdm120_ch2_power_factor_raw: {friendly_name: "SDM120 CH2 - Fattore di potenza"}
     sensor.sdm120_ch2_frequency_hz_raw: {friendly_name: "SDM120 CH2 - Frequenza"}
     sensor.sdm120_ch2_import_energy_kwh_raw: {friendly_name: "SDM120 CH2 - Energia importata"}
+    sensor.sdm120_ch2_export_energy_kwh_raw: {friendly_name: "SDM120 CH2 - Energia esportata"}
+    sensor.sdm120_ch3_active_power_w_raw: {friendly_name: "SDM120 CH3 - Potenza attiva AC"}
+    sensor.sdm120_ch3_import_energy_kwh_raw: {friendly_name: "SDM120 CH3 - Energia AC"}
     sensor.sdm120_ch2_import_energy_daily: {friendly_name: "SDM120 CH2 - kWh / giorno"}
     sensor.sdm120_ch2_import_energy_monthly: {friendly_name: "SDM120 CH2 - kWh / mese"}
     sensor.grid_voltage_v: {friendly_name: "Grid SSOT - Tensione"}
@@ -115,4 +146,8 @@ homeassistant:
     sensor.grid_frequency_hz: {friendly_name: "Grid SSOT - Frequenza"}
     sensor.grid_power_factor: {friendly_name: "Grid SSOT - Fattore di potenza"}
     sensor.grid_energy_import_kwh: {friendly_name: "Grid SSOT - Energia importata"}
+    sensor.grid_energy_export_kwh: {friendly_name: "Grid SSOT - Energia esportata"}
+    sensor.ac_power_w: {friendly_name: "AC - Potenza ramo"}
+    sensor.ac_energy_total_kwh: {friendly_name: "AC - Energia totale ramo"}
     sensor.grid_direction: {friendly_name: "Grid SSOT - Direzione"}
+

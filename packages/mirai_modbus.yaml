@@ -278,6 +278,19 @@ modbus:
         device_class: energy
         state_class: total_increasing
 
+      - name: "sdm120_ch2_export_energy_kwh_raw"
+        unique_id: sdm120_ch2_export_energy_kwh_raw
+        address: 74
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 2
+        scan_interval: 60
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+
       - name: "sdm120_ch3_voltage_v_raw"
         unique_id: sdm120_ch3_voltage_v_raw
         address: 0
@@ -364,3 +377,4 @@ modbus:
         unit_of_measurement: "kWh"
         device_class: energy
         state_class: total_increasing
+
