@@ -1,0 +1,130 @@
+schema_version: 0.1
+asset_id: casa_mercurio
+metadata:
+  created_from:
+    - chat_memory
+    - aeb_repo_gap_analysis
+  created_on: 2026-06-29
+  status: active_backlog
+
+confirmation_needed:
+  q001_climate_zone:
+    question: "Qual e` il comune esatto di riferimento climatico per Casa Mercurio?"
+    why_it_matters: "Serve per temperature di progetto, gradi giorno, stagionalita`, policy heating/cooling."
+    priority: high
+    target_file: data/building_core.yaml
+    decision_type: factual
+  q002_camera3_geometry:
+    question: "Camera3 ha davvero area 9.43 m2, altezza 3.42 m e volume 32.25 m3 come Camera2?"
+    why_it_matters: "Evita modello termico sbagliato nella zona notte."
+    priority: high
+    target_file: data/rooms.yaml
+    decision_type: confirmation
+  q003_bagno_lavanderia_area_height:
+    question: "Quali sono area e altezza di bagno e lavanderia?"
+    why_it_matters: "Volumi noti ma geometria incompleta: serve per VMC, umidita`, comfort."
+    priority: high
+    target_file: data/rooms.yaml
+    decision_type: measurement
+  q004_vmc_model_and_flows:
+    question: "Marca/modello VMC e portate reali o nominali alle velocita` 0/1/2/3?"
+    why_it_matters: "Senza portate non si puo` ottimizzare IAQ/freecooling/costo elettrico."
+    priority: critical
+    target_file: data/systems.yaml
+    decision_type: factual
+  q005_pdc_model_curve:
+    question: "Marca/modello PDC, curva climatica, temperature mandata/ritorno e schema idraulico?"
+    why_it_matters: "Serve per preheat, inerzia radiante, PV boost e limiti anti-ciclo."
+    priority: critical
+    target_file: data/systems.yaml
+    decision_type: factual
+  q006_acs_tank:
+    question: "Volume accumulo ACS/EHW, fonte termica, limiti setpoint e policy legionella?"
+    why_it_matters: "Blocco principale per autonomia ACS action-grade."
+    priority: critical
+    target_file: data/systems.yaml
+    decision_type: factual
+  q007_tariff_contract:
+    question: "Contratto elettrico: potenza impegnata, prezzo energia, fasce, export/remunerazione?"
+    why_it_matters: "Senza tariffe il dispatch ottimizza energia ma non euro."
+    priority: critical
+    target_file: data/systems.yaml
+    decision_type: factual
+  q008_sensor_positions:
+    question: "Per ogni sensore T/UR: stanza, altezza, posizione, distanza da finestra/bocchetta/porta?"
+    why_it_matters: "Necessario per dare peso corretto ai dati e trovare sensori falsati."
+    priority: high
+    target_file: data/sensors_actuators.yaml
+    decision_type: measurement
+  q009_window_schedule:
+    question: "Dimensioni e orientamento di ogni serramento, oscuramenti, g-value se noto?"
+    why_it_matters: "Serve per solar gain e raffrescamento estivo."
+    priority: high
+    target_file: data/building_core.yaml
+    decision_type: factual
+  q010_room_use_profile:
+    question: "Uso reale per stanza: orari, presenza, comfort target, priorita` famiglia?"
+    why_it_matters: "Permette di ottimizzare comfort dove serve e non ovunque."
+    priority: medium
+    target_file: data/comfort_policy.yaml
+    decision_type: policy
+
+insertion_plan:
+  phase_1_fast_closure_1h:
+    goal: "Chiudere i dati fisici piu` critici con massima leva."
+    actions:
+      - confirm_climate_zone_and_common_building_location
+      - complete_room_geometry
+      - add_vmc_model_and_nominal_flows
+      - add_pdc_model_and_dhw_tank_data
+      - add_electricity_contract_basics
+    output_files:
+      - data/building_core.yaml
+      - data/rooms.yaml
+      - data/systems.yaml
+  phase_2_sensor_truth:
+    goal: "Rendere i dati HA pesabili e affidabili."
+    actions:
+      - map_each_sensor_to_physical_position
+      - add_calibration_status
+      - identify_unreliable_or_missing_sensors
+      - define_sensor_redundancy_for_critical_decisions
+    output_files:
+      - data/sensors_actuators.yaml
+      - data/calibration_log.yaml
+  phase_3_policy_bridge:
+    goal: "Passare dai dati al dispatch autonomo."
+    actions:
+      - define_comfort_policy_by_zone
+      - define_dhw_policy_bounds
+      - define_energy_tariff_policy
+      - define_multi_load_priority_table
+    output_files:
+      - data/comfort_policy.yaml
+      - data/energy_contract.yaml
+      - data/dispatch_policy.yaml
+  phase_4_runtime_bridge:
+    goal: "Usare i dati nel sistema senza rompere HA."
+    actions:
+      - create_read_only_validator
+      - generate_ha_helpers_or_markdown_summary_from_data
+      - run_dry_run_policy_checks
+      - only_then_consider_runtime_actuation
+    output_files:
+      - tools/data_validate.py
+      - docs/logic/digital_twin/README.md
+
+premortem:
+  failure_modes:
+    stale_data:
+      early_signal: "Dati in data/ divergono da runtime o lavori fisici recenti."
+      countermeasure: "Ogni modifica impianto deve aggiornare data/ nello stesso PR."
+    fake_precision:
+      early_signal: "Valori stimati usati come verificati."
+      countermeasure: "confidence obbligatoria e gate che blocca action-grade se confidence bassa."
+    overengineering:
+      early_signal: "Si creano molti file ma nessuna decisione migliora."
+      countermeasure: "Ogni campo deve avere used_by e almeno una decisione collegata."
+    unsafe_actuation:
+      early_signal: "Planner propone azioni senza verifica runtime."
+      countermeasure: "dry-run, shadow, limited live, rollback e manual override."
