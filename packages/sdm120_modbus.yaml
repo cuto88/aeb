@@ -1,4 +1,3 @@
-
 utility_meter:
   sdm120_ch2_import_energy_daily:
     source: sensor.sdm120_ch2_import_energy_kwh_raw
@@ -150,4 +149,3 @@ homeassistant:
     sensor.ac_power_w: {friendly_name: "AC - Potenza ramo"}
     sensor.ac_energy_total_kwh: {friendly_name: "AC - Energia totale ramo"}
     sensor.grid_direction: {friendly_name: "Grid SSOT - Direzione"}
-
