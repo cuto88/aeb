@@ -1,6 +1,6 @@
 # M52 — SolarEdge local resilience
 
-**Status:** ACTIVE / PHYSICAL_VALIDATION_REQUIRED  
+**Status:** ACTIVE / MODBUS_ENABLEMENT_REQUIRED  
 **Date:** 2026-08-25  
 **Scope:** Casa Mercurio PV source resilience; read-only discovery and validation before any Home Assistant change.
 
@@ -21,8 +21,16 @@ Current PV implementation remains the SolarEdge cloud lifetime wrapper. No entit
 - serial: `74059EAB-C2`
 - communication: Wi-Fi
 - historical hostname: `solaredgeinverter`
-- historical MAC candidate: `84:d6:c5:20:c5:bd`
-- current LAN IP: **UNKNOWN**
+- MAC: `84:d6:c5:20:c5:bd`
+- current LAN IP: `192.168.178.111`
+- identity confidence: HIGH
+
+Runtime evidence collected on 2026-08-25:
+
+- active EdgeRouter DHCP lease maps `192.168.178.111` to `84:d6:c5:20:c5:bd`;
+- Windows ARP reports the same IP/MAC mapping;
+- `mercurio-edge` neighbour cache reports the same IP/MAC mapping in `REACHABLE` state;
+- ping succeeds with TTL 64.
 
 The exact part number is a single-phase 6 kW HD-Wave inverter with SetApp configuration. SolarEdge documentation states that SetApp-configured inverters support SunSpec.
 
@@ -49,19 +57,36 @@ These addresses are **reference mappings only**. They are not authorized for run
 
 ### Phase 1 — LAN IP
 
-`UNRESOLVED`.
+`VERIFIED`.
 
-Neither the AEB repository nor the available connected data contains a current DHCP/ARP/mDNS observation for the inverter. Serial, historical hostname, and historical MAC do not prove a current IP.
+Current inverter identity is `192.168.178.111` ↔ `84:d6:c5:20:c5:bd` with HIGH confidence from DHCP, ARP, neighbour and ping evidence.
+
+Casa Mercurio LAN runtime drift was also identified:
+
+- EdgeRouter X / gateway / DHCP / DNS: `192.168.178.1` (`switch0 192.168.178.1/24`);
+- FRITZ!Box 6850 LTE: `192.168.178.3`;
+- `mercurio-edge`: `192.168.178.110`;
+- DS-XPS: `192.168.178.105`;
+- old documented EdgeRouter address `192.168.178.2` is no longer operational.
+
+The LAN inventory in `cuto88/mra-ops` has been reconciled to this runtime state.
 
 ### Phase 2 — local services
 
-`UNRESOLVED`.
+`PARTIALLY_VERIFIED / MODBUS_UNAVAILABLE`.
 
-TCP 1502, TCP 502, HTTP, and HTTPS have not been probed from the Casa Mercurio LAN. No conclusion may be made about whether Modbus TCP is enabled on this unit.
+Targeted read-only probes against `192.168.178.111` returned:
+
+- TCP 1502: CLOSED OR FILTERED
+- TCP 502: CLOSED OR FILTERED
+- HTTP: TIMEOUT
+- HTTPS: TIMEOUT
+
+Therefore Modbus TCP is not currently reachable. This does not prove incompatibility; given SolarEdge defaults, disabled Modbus TCP is the leading hypothesis. No enablement or configuration change has been attempted.
 
 ### Phase 3 — SunSpec identification
 
-`NOT_EXECUTED` because Phase 1/2 are unresolved.
+`NOT_EXECUTED` because no Modbus TCP endpoint is currently reachable.
 
 ### Phase 4 — local PV power
 
@@ -87,10 +112,14 @@ A migration must not apply an offset unless simultaneous measurements prove a st
 
 **NO**.
 
-Required before any source migration:
+Verified:
 
-- current inverter IP verified;
-- local protocol/port verified;
+- current inverter IP and MAC identity;
+- targeted service reachability state.
+
+Still required before any source migration:
+
+- Modbus TCP enabled/reachable through authorized commissioning;
 - SunSpec Common Model identity verified;
 - local power value and scale verified;
 - local lifetime value and scale verified;
@@ -100,4 +129,4 @@ Required before any source migration:
 
 ## Next action
 
-Recover the inverter current DHCP lease by matching MAC `84:d6:c5:20:c5:bd` on the active Casa Mercurio router/LAN. Do not scan the subnet and do not enable Modbus TCP yet.
+Using authorized SolarEdge SetApp commissioning access, inspect **Commissioning → Site Communication → Modbus TCP** and record the displayed enable/disable state and configured TCP port. Do not change the setting until the current state is known and the enablement action is explicitly authorized.
