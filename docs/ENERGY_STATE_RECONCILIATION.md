@@ -1,205 +1,224 @@
 # Mercurio — Energy State Reconciliation
 
-**Status:** documentation / audit plan only  
-**Implementation:** explicitly blocked until reconciliation is completed  
-**Scope:** existing AEB energy design, repository state, Home Assistant runtime, historical data and SSOT bollette
+**Status:** reconciled / runtime-verified  
+**Implementation:** M51 closeout completed; further Energy development may proceed from this verified baseline  
+**Scope:** AEB energy design, Home Assistant runtime, whole-house balance, PV/grid/AC energy sources, historical continuity  
+**Closeout reference:** `M51[MANUTENZIONE] Energy Dashboard HA — Ripristinare monitoraggio e validare export rete`  
+**Follow-up:** `M52[SYSTEM] SolarEdge locale — Verificare Modbus TCP/SunSpec e rendere resiliente il dato PV`
 
 ## 1. Decision
 
-The energy domain is **not a greenfield project**. Historical documentation shows that AEB already contemplated an Energy module with power metering, PV surplus management and global energy KPIs. The current repository also contains substantial energy monitoring and policy components.
+The whole-house Energy monitoring baseline is now reconciled and runtime-verified.
 
-The problem to solve before any further development is therefore:
+The canonical Home Assistant Energy contract is:
 
-> determine exactly which parts of the original Energy design are implemented, integrated, active in runtime, historically reliable, obsolete, or still missing.
+| Role | Canonical entity | Physical/logical source | Status |
+| --- | --- | --- | --- |
+| PV production | `sensor.pv_energy_total` | SolarEdge lifetime energy normalized Wh -> kWh | `DONE_VERIFIED` |
+| Grid import | `sensor.grid_energy_import_kwh` | SDM120 slave 2 import cumulative register | `DONE_VERIFIED` |
+| Grid export | `sensor.grid_energy_export_kwh` | SDM120 slave 2 export cumulative register | `DONE_VERIFIED` |
+| AC branch energy | `sensor.ac_energy_total_kwh` | SDM120 slave 3 import cumulative register | `DONE_VERIFIED` |
+| Grid instantaneous power | `sensor.grid_power_w` | SDM120 slave 2 active power, signed | `DONE_VERIFIED` |
+| AC branch power | `sensor.ac_power_w` | SDM120 slave 3 active power | `DONE_VERIFIED` |
 
-No new automation, dashboard, sensor, helper or optimization logic should be developed until this reconciliation is complete.
+Home Assistant Energy Dashboard is configured with the four cumulative entities above. Raw Modbus entities and legacy Energy entities are not part of the dashboard contract.
 
-## 2. Functional split
+## 2. Verified physical meaning
 
-AEB must keep two distinct but coordinated objectives.
+### Grid — SDM120 slave 2
 
-### ClimateOps
-Primary objective: **comfort / IAQ / safe climate operation**.
+Slave 2 is the authoritative bidirectional grid meter.
 
-ClimateOps provides constraints and operational demand such as comfort band, HVAC/VMC state, locks, reasons and safety conditions.
+Verified semantics:
 
-### AEB Energy
-Primary objective: **minimize kWh and EUR subject to ClimateOps constraints**.
+- positive `sensor.grid_power_w` = import;
+- negative `sensor.grid_power_w` = export;
+- import cumulative source = SDM120 register address 72;
+- export cumulative source = SDM120 register address 74;
+- both cumulative entities use kWh and `state_class: total_increasing`.
 
-Target optimization statement:
+Export was validated empirically during real export: the export counter increased while import remained stationary, with the energy increment coherent with measured power and elapsed time.
 
-`minimize energy/cost while comfort, IAQ and equipment constraints remain satisfied`
+### AC branch — SDM120 slave 3
 
-ClimateOps is therefore not replaced by Energy. It becomes a guardrail and source of context for energy optimization.
+Slave 3 measures the branch feeding the domestic AC units, including branch standby/auxiliary consumption.
 
-## 3. Evidence already found
+Canonical entities:
 
-### Historical design
+- `sensor.ac_power_w`;
+- `sensor.ac_energy_total_kwh`.
 
-`README_ClimaSystem.md` documents an Energy extension composed of:
+This is an individual load/sub-consumption and must not be added to the whole-house balance.
 
-- shared energy helpers/preferences;
-- network/load power metering;
-- PV surplus management and load diversion;
-- global energy KPI summary.
+### Legacy Dual Meter channels
 
-This confirms that the Energy direction existed before the current reconciliation.
+Dual Meter A/B channels are local load channels and are **not** authoritative grid import/export sources. They must not be promoted to the whole-house Energy contract.
 
-### Current monitoring documentation
+## 3. PV source and SolarEdge incident
 
-`docs/logic/energy_pm/README.md` defines Energy PM as dashboard-oriented monitoring and explicitly states that its daily load shares use only locally measured loads because a sufficiently solid runtime SSOT for whole-house consumption is not currently available.
+Canonical PV cumulative source remains:
 
-This is the clearest known boundary between the intended architecture and the currently documented operational maturity.
+`sensor.pv_energy_total`
 
-### Current repository capabilities
+implemented as a wrapper over:
 
-Existing repository components include at least:
+`sensor.solaredge_energia_dall_installazione`
 
-- local load metering and utility meters;
-- PV production normalization and aggregation;
-- VMC energy monitoring;
-- ClimateOps comfort/cycle KPIs;
-- energy policy inputs for PV surplus, forecast, grid price and grid flow;
-- envelope efficiency advisory metrics.
+with Wh -> kWh conversion and availability protection.
 
-These components must be reconciled, not duplicated.
+During M51 the SolarEdge cloud integration became stale while remaining technically `available`: current power and daily production returned zero and lifetime energy stopped increasing while the grid meter showed real export.
 
-## 4. Reconciliation matrix
+The integration itself remained authenticated and responsive; the stale content originated upstream in SolarEdge Monitoring telemetry/publication.
 
-Every Energy capability must be assigned exactly one state:
+SolarEdge later recovered and backfilled the missing production. Final observed healthy values included:
 
-| State | Meaning |
-| --- | --- |
-| `DONE_VERIFIED` | documented, implemented, active in runtime and data quality verified |
-| `IMPLEMENTED_NOT_RUNTIME_VERIFIED` | code exists but runtime state is not yet verified |
-| `RUNTIME_ACTIVE_DATA_UNVERIFIED` | active entity exists but history/measurement quality is not yet proven |
-| `DESIGNED_NOT_IMPLEMENTED` | canonical design exists but implementation is absent/incomplete |
-| `IMPLEMENTED_NOT_INTEGRATED` | component works locally but is not part of the end-to-end Energy chain |
-| `LEGACY_OR_OBSOLETE` | superseded component retained only for history/compatibility |
-| `MISSING` | capability required by the target architecture and not previously designed/implemented |
+- lifetime SolarEdge: `22,230,128 Wh`;
+- `sensor.pv_energy_total`: `22,230.128 kWh`;
+- current SolarEdge power: about `3,643.94 W`;
+- daily production restored and historical production for 2026-08-21 available again.
 
-Do not classify a capability as `MISSING` merely because it was not found in the first repository search.
+From 05:46 to 11:16 UTC on 2026-08-25 the lifetime increased from `22,222.596` to `22,230.128 kWh`, confirming resumed cumulative growth.
 
-## 5. Audit inventory to complete
+## 4. Energy Dashboard validation
 
-### A. Whole-house truth
+Persistent Energy Dashboard sources:
 
-Verify:
+```text
+PV:          sensor.pv_energy_total
+GRID IMPORT: sensor.grid_energy_import_kwh
+GRID EXPORT: sensor.grid_energy_export_kwh
+AC:          sensor.ac_energy_total_kwh
+```
 
-- physical source of grid import/export;
-- PV production source;
-- whole-house instantaneous power;
-- whole-house cumulative energy;
-- Home Assistant Energy Dashboard sources;
-- direction/sign conventions;
-- reset behavior;
-- long-term statistics continuity;
-- comparison against distributor/bill periods.
+Runtime validation confirmed for all four cumulative sensors:
 
-### B. Load metering
+- entity exists;
+- entity available;
+- unit `kWh`;
+- `device_class: energy`;
+- `state_class: total_increasing`;
+- Recorder long-term statistics present;
+- `has_sum: 1`;
+- no relevant repair issues;
+- no duplicate `_2` entities in the dashboard contract;
+- no legacy/raw entities used by the dashboard.
 
-For each physical/logical meter record:
+## 5. Whole-house balance
 
-- entity/source;
-- physical device/channel;
-- actual load;
-- power W entity;
-- cumulative kWh entity;
-- daily/monthly utility meters;
-- historical start date;
-- overlap/double-count risk;
-- current runtime status;
-- confidence.
+Canonical balance:
 
-Minimum known domains to reconcile:
+`house_consumption = PV + grid_import - grid_export`
 
-- Mirai / HVAC;
-- EHW / ACS;
-- VMC / PM1;
-- washing machine / PM2;
-- dryer / PM3;
-- DS-01 / IT;
-- other existing meters.
+Verified examples after SolarEdge recovery:
 
-### C. Energy logic
+### Export interval — 2026-08-25 07:00–08:00 UTC
 
-Verify the current status and ownership of:
+```text
+PV          = 1.532 kWh
+Grid import = 0.000 kWh
+Grid export = 1.170 kWh
+House       = 1.532 + 0.000 - 1.170 = 0.362 kWh
+```
 
-- PV surplus detection;
-- self-consumption logic;
-- flexible-load diversion;
-- grid import/export policy;
-- tariff/price policy;
-- PV forecast;
-- weather forecast;
-- peak/grid-power thresholds;
-- ACS energy scheduling;
-- HVAC energy-aware operation;
-- VMC energy-aware operation.
+### Import interval — 2026-08-25 00:00–01:00 UTC
 
-### D. ClimateOps interfaces
+```text
+PV          = 0.000 kWh
+Grid import = 0.120 kWh
+Grid export = 0.000 kWh
+House       = 0.000 + 0.120 - 0.000 = 0.120 kWh
+```
 
-Map Energy inputs available from ClimateOps:
+### Dashboard daily total observed during final validation
 
-- comfort band;
-- heating/AC runtime;
-- VMC mode/boost;
-- occupancy/house state where available;
-- window state;
-- indoor/outdoor temperature;
-- IAQ/humidity constraints;
-- reason/priority signals.
+```text
+PV          = 6.45 kWh
+Grid import = 1.01 kWh
+Grid export = 5.81 kWh
+House       = 6.45 + 1.01 - 5.81 = 1.65 kWh
+```
 
-The Energy layer must consume canonical ClimateOps interfaces rather than duplicate climate logic.
+The Home Assistant UI displayed the same `1.65 kWh` house consumption result.
 
-### E. Historical baseline
+Therefore whole-house Energy truth is now operationally usable.
 
-Determine for each relevant series:
+## 6. Historical data note
 
-- earliest trustworthy timestamp;
-- gaps;
-- entity renames;
-- meter replacements/resets;
-- changes in load assignment;
-- changes in household operation;
-- whether 2025 is directly comparable with 2026.
+SolarEdge backfilled the missing cumulative production, but Home Assistant Recorder received part of the recovery as later jumps rather than redistributing the energy into the original missing hourly intervals.
 
-The billing SSOT remains the independent external check for total purchased energy.
+Consequences:
 
-## 6. Required end-to-end chain
+- current cumulative state is correct;
+- SolarEdge daily historical production is recovered;
+- some hourly HA balances during the stale/backfill incident remain temporally distorted;
+- no destructive manual statistics repair is justified for this historical artifact.
 
-The Energy domain is considered complete only when this chain exists and is verified:
+This historical limitation does not block current operation.
 
-`physical meter -> canonical HA entity -> long-term statistics -> whole-house balance -> load allocation -> context normalization -> baseline -> control action -> measured delta kWh -> delta EUR -> automated report`
+## 7. Reconciliation matrix
 
-A component may be technically complete while the chain remains incomplete.
+| Capability | State | Evidence / note |
+| --- | --- | --- |
+| Grid instantaneous power | `DONE_VERIFIED` | SDM120 slave 2 signed active power |
+| Grid import cumulative | `DONE_VERIFIED` | slave 2 register 72 + LTS |
+| Grid export cumulative | `DONE_VERIFIED` | slave 2 register 74, empirically validated during export + LTS |
+| PV cumulative | `DONE_VERIFIED` | SolarEdge lifetime wrapper, recovered and increasing |
+| Home Assistant Energy Dashboard sources | `DONE_VERIFIED` | canonical PV/import/export/AC contract persisted and UI healthy |
+| Whole-house balance | `DONE_VERIFIED` | positive/plausible in both import and export intervals |
+| AC branch metering | `DONE_VERIFIED` | SDM120 slave 3 correlated with AC operation |
+| SolarEdge local/LAN source | `DESIGNED_NOT_IMPLEMENTED` | model supports SunSpec/Modbus family; local IP/service not yet verified |
+| Local PV resilience | `DESIGNED_NOT_IMPLEMENTED` | tracked separately by M52 |
+| Historical hourly reconstruction of cloud-stale interval | `LEGACY_OR_OBSOLETE` as repair target | keep existing statistics; no destructive rewrite |
 
-## 7. Documentation deliverables before development
+## 8. Local SolarEdge resilience follow-up — M52
 
-The reconciliation phase must produce/update only documentation:
+M51 is closed and must not remain blocked by local inverter integration.
 
-1. this state reconciliation document;
-2. `ENERGY_INTELLIGENCE_ROADMAP.md` as the target direction and phased exit gates;
-3. a runtime evidence matrix populated from read-only HA inspection when runtime access is performed;
-4. references from existing Energy module documentation to the reconciled target, where appropriate.
+The separate follow-up is:
 
-No YAML/Lovelace/n8n changes are part of this phase.
+`M52[SYSTEM] SolarEdge locale — Verificare Modbus TCP/SunSpec e rendere resiliente il dato PV`
 
-## 8. Exit gate for documentation phase
+Known inverter facts:
 
-Development may resume only when all of the following are known:
+- model: `SE6000H-RW000BNN4`;
+- communication: Wi-Fi;
+- historical hostname: `solaredgeinverter`;
+- historical MAC candidate: `84:d6:c5:20:c5:bd`;
+- current LAN IP: not yet known;
+- model family supports SunSpec / Modbus TCP when enabled;
+- SolarEdge Modbus TCP is normally disabled by default and commonly uses TCP 1502 when enabled.
 
-- authoritative whole-house meter candidate;
-- actual HA runtime Energy sources;
-- trustworthy historical period for each core meter;
-- load-meter overlap map;
-- status of the historical global-energy design;
-- status of surplus/policy modules;
-- exact list of `DESIGNED_NOT_IMPLEMENTED`, `IMPLEMENTED_NOT_INTEGRATED` and true `MISSING` items;
-- canonical document ownership with no competing SSOTs.
+M52 next action:
 
-## 9. Immediate next action
+1. recover the inverter current LAN IP from the active router/DHCP lease table;
+2. verify read-only whether TCP 1502 / SunSpec is already exposed;
+3. if available, read the Common Model first and then validate local AC Power and lifetime energy;
+4. do not change the canonical PV wrapper until local semantics, scale, monotonicity and continuity are proven.
 
-Perform a **read-only Energy Runtime Reconciliation Audit** against Home Assistant and populate the matrix above. Do not modify runtime during the audit.
+No offset is authorized without simultaneous comparable evidence.
 
-After the audit, update documentation first. Only then decide the smallest implementation lot.
+## 9. Development gate after M51
+
+The previous blanket development block is removed for the verified monitoring baseline.
+
+New Energy work may proceed only if it preserves these invariants:
+
+- grid truth remains SDM120 slave 2;
+- AC remains a sub-load from slave 3;
+- Energy Dashboard consumes canonical wrappers, not raw entities;
+- cumulative sensors must not use false-zero fallbacks;
+- `total_increasing` is reserved for true monotonic cumulative counters;
+- derived house/self-consumption energy must not be misrepresented as a raw cumulative meter;
+- historical statistics are not manually rewritten without a specific evidence-backed migration plan.
+
+## 10. Next Energy layer
+
+With whole-house truth now verified, subsequent roadmap work can focus on:
+
+- load allocation and unattributed residual;
+- billing reconciliation;
+- normalized baseline;
+- energy automation ROI;
+- predictive optimization.
+
+M52 improves PV-source resilience but is not a blocker for these current-state monitoring capabilities.
