@@ -1,117 +1,155 @@
 # Mercurio — Energy Intelligence Roadmap
 
-**Status:** target architecture / direction document  
+**Status:** active roadmap from verified monitoring baseline  
 **Scope:** Home Assistant + SSOT Mercurio + n8n  
-**Implementation status:** BLOCKED pending Energy State Reconciliation  
-**Companion document:** `docs/ENERGY_STATE_RECONCILIATION.md`
+**Implementation status:** whole-house monitoring baseline verified in M51; subsequent Energy layers may proceed incrementally  
+**Companion document:** `docs/ENERGY_STATE_RECONCILIATION.md`  
+**Resilience follow-up:** `M52[SYSTEM] SolarEdge locale — Verificare Modbus TCP/SunSpec e rendere resiliente il dato PV`
 
 ## 1. Executive decision
 
-AEB Energy is **not a new greenfield subsystem**. Historical AEB documentation already defined an Energy extension with power metering, surplus management and global energy KPIs, and the current repository contains substantial energy monitoring and policy components.
+AEB Energy is not a greenfield subsystem. The existing monitoring stack has now been reconciled against the Home Assistant runtime and the whole-house Energy contract is operationally verified.
 
-The purpose of this roadmap is therefore not to redesign Energy from zero. It defines the **target end state and exit gates** against which the existing design, code and runtime must be reconciled.
+M51 established a stable baseline for:
 
-Before any implementation, complete `ENERGY_STATE_RECONCILIATION.md` and classify existing capabilities as:
+- PV cumulative production;
+- grid import;
+- grid export;
+- whole-house balance;
+- AC branch sub-metering;
+- Home Assistant Energy Dashboard long-term statistics.
 
-- `DONE_VERIFIED`
-- `IMPLEMENTED_NOT_RUNTIME_VERIFIED`
-- `RUNTIME_ACTIVE_DATA_UNVERIFIED`
-- `DESIGNED_NOT_IMPLEMENTED`
-- `IMPLEMENTED_NOT_INTEGRATED`
-- `LEGACY_OR_OBSOLETE`
-- `MISSING`
+The roadmap can therefore move beyond the previous reconciliation-only phase. New work must reuse the verified contract and avoid reintroducing legacy/raw entities.
 
-No new YAML, Lovelace, n8n workflow, helper, sensor or automation should be created during the reconciliation phase.
+## 2. Verified Energy contract
 
-## 2. System objective
+Canonical cumulative sources:
 
-ClimateOps and AEB Energy have different roles.
+```text
+PV:          sensor.pv_energy_total
+GRID IMPORT: sensor.grid_energy_import_kwh
+GRID EXPORT: sensor.grid_energy_export_kwh
+AC:          sensor.ac_energy_total_kwh
+```
 
-- **ClimateOps:** pursue comfort, IAQ and safe climate operation.
+Canonical instantaneous sources relevant to the baseline:
+
+```text
+GRID POWER: sensor.grid_power_w
+AC POWER:   sensor.ac_power_w
+PV POWER:   sensor.pv_power_now
+```
+
+Whole-house balance:
+
+`house consumption = PV production + grid import - grid export`
+
+This balance has been verified in real import and export intervals after SolarEdge recovery.
+
+## 3. Current physical ownership
+
+### Grid
+
+SDM120 slave 2 is the authoritative bidirectional grid source.
+
+- active power is signed;
+- positive = import;
+- negative = export;
+- cumulative import and export are independent monotonic counters.
+
+### AC
+
+SDM120 slave 3 measures the domestic AC branch and is an individual/sub-consumption source, not an additional term in the house balance.
+
+### PV
+
+Current canonical cumulative PV source remains the SolarEdge cloud lifetime counter through `sensor.pv_energy_total`.
+
+A SolarEdge cloud-stale incident occurred during M51 and later recovered with backfill. Current monitoring is healthy, but local-source resilience remains a separate improvement tracked by M52.
+
+## 4. System objective
+
+ClimateOps and AEB Energy keep distinct roles.
+
+- **ClimateOps:** comfort, IAQ and safe climate operation.
 - **AEB Energy:** minimize energy consumption and cost subject to ClimateOps comfort/IAQ/equipment constraints.
 
 Target statement:
 
 `minimize kWh / EUR while comfort, IAQ and equipment guardrails remain satisfied`
 
-ClimateOps is therefore an input/constraint layer for Energy, not a competing system.
+ClimateOps is an input/constraint layer for Energy, not a competing system.
 
-## 3. Why this matters now
+## 5. Energy integrity rules
 
-From the Mercurio billing SSOT, the homogeneous February-July comparison currently shows:
+All subsequent phases must preserve these rules:
 
-| Period | 2025 | 2026 | Delta |
-| --- | ---: | ---: | ---: |
-| Feb-Mar | 299 kWh | 514 kWh | +215 kWh |
-| Apr-May | 167 kWh | 299 kWh | +132 kWh |
-| Jun-Jul | 184 kWh | 247 kWh | +63 kWh |
-| **Total Feb-Jul** | **650 kWh** | **1,060 kWh** | **+410 kWh / +63%** |
+- canonical Energy consumers use stable wrapper entities rather than raw Modbus/API entities;
+- cumulative energy templates must become unavailable when their raw source is unavailable instead of emitting false zero;
+- `state_class: total_increasing` is used only for genuine cumulative counters;
+- Dual Meter A/B channels remain local-load measurements and are not grid truth;
+- AC branch energy is a sub-consumption and is never added to whole-house consumption;
+- no offset-based source migration is allowed without proving semantic equivalence, scale and reset behavior;
+- long-term statistics are not destructively rewritten merely to make historical charts look cleaner.
 
-This does **not** prove ClimateOps is ineffective: ClimateOps has primarily pursued comfort. It does prove that AEB currently lacks a verified end-to-end method for attributing changes in total energy use to weather, occupancy, loads and automations.
+## 6. Current reconciliation status
 
-## 4. Existing documented base
+The former R0–R2 reconciliation phases are complete for the core whole-house monitoring contract.
 
-Repository evidence already identifies:
+| Capability | State |
+| --- | --- |
+| Grid power | `DONE_VERIFIED` |
+| Grid import cumulative | `DONE_VERIFIED` |
+| Grid export cumulative | `DONE_VERIFIED` |
+| PV cumulative | `DONE_VERIFIED` |
+| Whole-house balance | `DONE_VERIFIED` |
+| Energy Dashboard | `DONE_VERIFIED` |
+| AC branch power/energy | `DONE_VERIFIED` |
+| SolarEdge local resilience | `DESIGNED_NOT_IMPLEMENTED` / tracked by M52 |
 
-- local load sub-metering and utility meters;
-- PV production normalization and daily/monthly/yearly aggregation;
-- VMC energy monitoring;
-- ClimateOps comfort/cycle/VMC-boost KPIs;
-- energy policy concepts for PV surplus, forecasts, grid price and grid flow;
-- envelope efficiency advisory metrics.
+See `ENERGY_STATE_RECONCILIATION.md` for evidence and historical incident details.
 
-Historical documentation also described an Energy extension including shared energy helpers, power metering, surplus management and a global KPI layer.
+## 7. L0 — Whole-house truth
 
-The reconciliation audit must determine what survived, what evolved, what is runtime-active and what remains incomplete.
+**Status: DONE_VERIFIED for monitoring.**
 
-## 5. Known documented boundary
-
-`docs/logic/energy_pm/README.md` explicitly describes Energy PM as dashboard-oriented monitoring without decision logic and states that daily load shares currently use only locally measured loads because the whole-house consumption does not have a sufficiently solid runtime SSOT for reliable global percentages.
-
-This is the current known bottleneck until runtime evidence proves otherwise.
-
-## 6. Target end-to-end architecture
-
-The completed Energy chain must be:
-
-`physical meter -> canonical HA entity -> long-term statistics -> whole-house balance -> load allocation -> context -> normalized baseline -> control action -> measured avoided kWh -> avoided EUR -> automatic report`
-
-### L0 — Whole-house truth
-
-Required concepts, reusing existing entities where valid:
+Required concepts now exist and are usable:
 
 - grid import energy;
 - grid export energy;
 - PV production energy;
-- house consumption energy;
-- house instantaneous power.
+- house consumption derived from the balance;
+- signed grid instantaneous power.
 
-Balance check:
+Verified balance examples are documented in `ENERGY_STATE_RECONCILIATION.md`.
 
-`house consumption ~= grid import + PV production - grid export`
+Remaining L0 improvement is resilience, not correctness: M52 will determine whether the SolarEdge inverter can provide local SunSpec/Modbus power and lifetime energy as a future source or backup.
 
-Do not create new canonical entities until the reconciliation audit determines whether suitable existing entities already exist.
+## 8. L1 — Load allocation
 
-### L1 — Load allocation
+Next logical Energy layer.
 
 Target hierarchy:
 
 1. HVAC / Mirai
 2. ACS / EHW
 3. VMC
-4. washing machine
-5. dryer
-6. IT/server/workstations
-7. other measured loads
-8. unattributed residual
+4. AC branch
+5. washing machine
+6. dryer
+7. IT/server/workstations
+8. other measured loads
+9. unattributed residual
 
 Target KPI:
 
 `unattributed_energy_pct = residual_kWh / house_kWh * 100`
 
-Initial target: >=80% attributed; mature target >=90%, only if additional metering has decision value.
+Initial target: >=80% attributed; mature target >=90%, only when extra metering has decision value.
 
-### L2 — Context normalization
+Before adding meters, map existing measurements and overlap/double-count risks.
+
+## 9. L2 — Context normalization
 
 Relevant context:
 
@@ -125,9 +163,11 @@ Relevant context:
 - PV/solar conditions;
 - exceptional events.
 
-### L3 — Energy KPIs
+The Energy layer should consume canonical ClimateOps context rather than duplicate climate logic.
 
-#### House
+## 10. L3 — Energy KPIs
+
+### House
 
 - kWh/day and month;
 - kWh/m²;
@@ -138,7 +178,7 @@ Relevant context:
 - real EUR/month;
 - unattributed residual %.
 
-#### HVAC
+### HVAC / AC
 
 - kWh/day/month;
 - kWh/HDD heating;
@@ -147,14 +187,14 @@ Relevant context:
 - cycles and average cycle duration;
 - standby consumption.
 
-#### ACS
+### ACS
 
 - kWh/day;
-- kWh/person-day when occupancy data quality permits;
-- standby losses estimate;
+- kWh/person-day when occupancy quality permits;
+- standby-loss estimate;
 - PV-surplus share.
 
-#### VMC
+### VMC
 
 - kWh/day;
 - kWh by speed/mode;
@@ -162,7 +202,7 @@ Relevant context:
 - Wh/m3 only after airflow is validated;
 - relationship between energy, IAQ and thermal benefit.
 
-#### PV
+### PV
 
 - production;
 - self-consumption;
@@ -171,9 +211,9 @@ Relevant context:
 - flexible energy shifted to surplus;
 - economic value of self-consumption.
 
-## 7. Baseline
+## 11. Historical baseline
 
-2025 can be used as the initial YoY reference where data is comparable, but must not automatically be treated as a normalized baseline.
+2025 may be used as an initial YoY reference where data is comparable, but must not automatically be treated as a normalized baseline.
 
 MVP method:
 
@@ -183,9 +223,9 @@ MVP method:
 4. separation of major measured loads;
 5. residual analysis.
 
-Only after sufficient clean history should more sophisticated regression be considered.
+The SolarEdge stale/backfill incident in August 2026 is a known timestamp-quality artifact: cumulative state recovered, but some Home Assistant hourly statistics during the incident remain temporally distorted. Exclude or annotate that interval in analyses requiring hourly precision.
 
-## 8. Automation ROI contract
+## 12. Automation ROI contract
 
 Every future energy automation must declare:
 
@@ -206,104 +246,72 @@ Success is:
 
 `avoided kWh / EUR with guardrails satisfied`.
 
-## 9. Billing reconciliation
+## 13. Billing reconciliation
 
-The Mercurio billing SSOT is an independent external validation source.
+The Mercurio billing SSOT remains the independent external validation source.
 
 Target monthly comparison:
 
-- HA consumption over matching billing period;
+- HA grid import over matching billing period;
 - billed/distributor consumption;
 - absolute kWh difference;
 - percentage error.
 
-Proposed gate:
+Gate:
 
 - <=3%: green;
-- 3-5%: investigate;
+- 3–5%: investigate;
 - >5%: block ROI conclusions until explained.
 
-Automation of this comparison with n8n is a **future implementation**, not part of the current documentation phase.
+This is now a valid next implementation/audit phase because the authoritative HA grid-import source has been verified.
 
-## 10. Target reporting
+## 14. SolarEdge local resilience — M52
 
-Future reporting should converge on one Energy Intelligence view and one monthly scorecard rather than proliferating dashboards.
+M52 is a separate reliability task and does not block the current Energy Dashboard.
 
-Executive outputs should eventually include:
+Known inverter:
 
-- house kWh;
-- YoY raw/normalized;
-- cost;
-- PV/self-consumption;
-- attributed vs residual energy;
-- top consumption causes;
-- ClimateOps guardrail status;
-- best/worst energy automation result;
-- reconciliation quality.
+`SE6000H-RW000BNN4`
 
-No dashboard implementation is authorized by this document.
+Next action:
 
-## 11. Reconciliation-first roadmap
+1. recover current LAN IP from active router/DHCP using the known historical MAC/hostname evidence;
+2. test TCP 1502 / SunSpec read-only;
+3. identify the SunSpec Common Model;
+4. validate local AC Power and lifetime energy if exposed;
+5. compare local lifetime against the canonical cloud cumulative before any migration decision.
 
-### Phase R0 — Documentation reconciliation
+Do not integrate local power into energy unless no native lifetime counter is available and the fallback architecture is explicitly approved.
 
-Read and reconcile historical Energy design, current module documentation and current repository implementation.
+## 15. Phased roadmap from current state
 
-Deliverable: `ENERGY_STATE_RECONCILIATION.md` populated with evidence and capability states.
+### Phase I1 — Billing reconciliation
 
-**Exit gate:** no known competing Energy SSOT and exact audit scope defined.
+Compare authoritative HA grid import with distributor/bill periods.
 
-### Phase R1 — Runtime truth audit, read-only
+**Exit gate:** <=3% difference or explained variance.
 
-Inspect actual Home Assistant runtime without modifications.
+### Phase I2 — Load allocation and residual
 
-Verify:
+Map all existing sub-meters and calculate unattributed energy.
 
-- entities;
-- entity IDs;
-- physical sources;
-- Energy Dashboard sources;
-- utility meters;
-- long-term statistics;
-- history start dates;
-- resets/gaps;
-- double-count risks.
-
-**Exit gate:** authoritative whole-house meter candidate and trustworthy history window identified.
-
-### Phase R2 — Gap classification
-
-Update documentation only and classify every required capability.
-
-**Exit gate:** exact list of work that is truly missing vs merely unintegrated.
-
-### Phase I1 — Whole-house truth and reconciliation
-
-Future implementation phase. Reuse existing components wherever possible.
-
-**Exit gate:** HA vs bill <=3% or difference explained.
-
-### Phase I2 — Allocation and residual
-
-Future implementation phase.
-
-**Exit gate:** >=80% of normal-day energy attributed.
+**Exit gate:** >=80% normal-day attribution or a documented decision that further metering has insufficient ROI.
 
 ### Phase I3 — Normalized baseline and scorecard
 
-Future implementation phase.
+Normalize climate-sensitive loads and produce a monthly causal scorecard.
 
-**Exit gate:** monthly delta quantitatively explained.
+**Exit gate:** major monthly delta quantitatively explained.
 
 ### Phase I4 — Automation ROI
 
-Future implementation phase.
+Measure real effects of Energy automations under ClimateOps guardrails.
 
-**Exit gate:** at least three energy automations evaluated with measurable benefit/no-benefit and guardrails.
+**Exit gate:** at least three automations evaluated with measurable benefit/no-benefit.
 
 ### Phase I5 — Predictive optimization
 
-Only after measurement quality is proven:
+Only after measurement quality remains stable:
 
 - PV forecast;
 - weather;
@@ -313,27 +321,8 @@ Only after measurement quality is proven:
 - peak shaving;
 - load shifting.
 
-## 12. Current project state
+## 16. Immediate next action
 
-At the date of this document:
+For the core Energy roadmap, proceed with **billing reconciliation and load-allocation mapping** using the verified M51 contract.
 
-- ClimateOps is the mature comfort-oriented control layer;
-- Energy has substantial monitoring/policy foundations;
-- historical Energy architecture existed;
-- whole-house runtime truth is documented as a known weakness unless runtime audit proves it has since been resolved;
-- robust automation energy ROI is not yet demonstrated;
-- **development is intentionally paused until reconciliation is complete**.
-
-## 13. Next action
-
-Perform the read-only Energy Runtime Reconciliation Audit defined in `ENERGY_STATE_RECONCILIATION.md`.
-
-During that audit:
-
-- do not modify HA;
-- do not create new entities;
-- do not create dashboards;
-- do not create n8n workflows;
-- update documentation with evidence first.
-
-Only after the documentation accurately describes the existing system should an implementation lot be approved.
+In parallel, M52 may improve SolarEdge local resilience without altering the current canonical Energy Dashboard until the local source is fully proven.
