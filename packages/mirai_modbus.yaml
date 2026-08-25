@@ -11,12 +11,14 @@ modbus:
     close_comm_on_error: true
 
     sensors:
+      # Seasonal mode: MIRAI/slave 1 is powered off. Keep entity definitions but
+      # disable automatic polling so the shared bus remains available to SDM120.
       - name: "mirai_u1_status_word_raw"
         unique_id: mirai_u1_status_word_raw
         address: 1003
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_u1_fault_code_raw"
@@ -24,7 +26,7 @@ modbus:
         address: 1209
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_u1_status_code_raw"
@@ -32,7 +34,7 @@ modbus:
         address: 1208
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_status_word_raw"
@@ -40,7 +42,7 @@ modbus:
         address: 1003
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_fault_code_raw"
@@ -48,7 +50,7 @@ modbus:
         address: 1209
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_status_code_raw"
@@ -56,7 +58,7 @@ modbus:
         address: 1208
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_probe_temp_a_raw"
@@ -64,7 +66,7 @@ modbus:
         address: 4000
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_probe_temp_a_dup_9050_raw"
@@ -72,7 +74,7 @@ modbus:
         address: 9050
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_probe_temp_a_dup_9086_raw"
@@ -80,7 +82,7 @@ modbus:
         address: 9086
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_probe_temp_b_raw"
@@ -88,7 +90,7 @@ modbus:
         address: 3548
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_probe_temp_b_dup_9087_raw"
@@ -96,7 +98,7 @@ modbus:
         address: 9087
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_probe_temp_outdoor_raw"
@@ -104,7 +106,7 @@ modbus:
         address: 3515
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_probe_counter_1015_raw"
@@ -112,7 +114,7 @@ modbus:
         address: 1015
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_probe_state_3547_raw"
@@ -120,7 +122,7 @@ modbus:
         address: 3547
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 0
         slave: 1
 
       # Temporary read-only discovery probes from vendor Smart-MT notes.
@@ -130,7 +132,7 @@ modbus:
         address: 9007
         input_type: holding
         data_type: uint16
-        scan_interval: 60
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_discovery_compressor_9043_raw"
@@ -138,7 +140,7 @@ modbus:
         address: 9043
         input_type: holding
         data_type: uint16
-        scan_interval: 60
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_discovery_target_9051_raw"
@@ -146,7 +148,7 @@ modbus:
         address: 9051
         input_type: holding
         data_type: uint16
-        scan_interval: 60
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_discovery_reference_9052_raw"
@@ -154,7 +156,7 @@ modbus:
         address: 9052
         input_type: holding
         data_type: uint16
-        scan_interval: 60
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_discovery_outdoor_8986_raw"
@@ -162,7 +164,7 @@ modbus:
         address: 8986
         input_type: holding
         data_type: uint16
-        scan_interval: 60
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_discovery_outlet_8987_raw"
@@ -170,7 +172,7 @@ modbus:
         address: 8987
         input_type: holding
         data_type: uint16
-        scan_interval: 60
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_discovery_inlet_8988_raw"
@@ -178,7 +180,7 @@ modbus:
         address: 8988
         input_type: holding
         data_type: uint16
-        scan_interval: 60
+        scan_interval: 0
         slave: 1
 
       - name: "mirai_discovery_power_absorbed_9121_raw"
@@ -186,7 +188,7 @@ modbus:
         address: 9121
         input_type: holding
         data_type: uint16
-        scan_interval: 60
+        scan_interval: 0
         slave: 1
 
       - name: "sdm120_ch2_voltage_v_raw"
@@ -271,6 +273,106 @@ modbus:
         data_type: custom
         structure: ">f"
         slave: 2
+        scan_interval: 60
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+
+      - name: "sdm120_ch2_export_energy_kwh_raw"
+        unique_id: sdm120_ch2_export_energy_kwh_raw
+        address: 74
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 2
+        scan_interval: 60
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+
+      - name: "sdm120_ch3_voltage_v_raw"
+        unique_id: sdm120_ch3_voltage_v_raw
+        address: 0
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 3
+        scan_interval: 30
+        unit_of_measurement: "V"
+        device_class: voltage
+        state_class: measurement
+
+      - name: "sdm120_ch3_current_a_raw"
+        unique_id: sdm120_ch3_current_a_raw
+        address: 6
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 3
+        scan_interval: 30
+        unit_of_measurement: "A"
+        device_class: current
+        state_class: measurement
+
+      - name: "sdm120_ch3_active_power_w_raw"
+        unique_id: sdm120_ch3_active_power_w_raw
+        address: 12
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 3
+        scan_interval: 30
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+
+      - name: "sdm120_ch3_apparent_power_va_raw"
+        unique_id: sdm120_ch3_apparent_power_va_raw
+        address: 18
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 3
+        scan_interval: 30
+        unit_of_measurement: "VA"
+        state_class: measurement
+
+      - name: "sdm120_ch3_power_factor_raw"
+        unique_id: sdm120_ch3_power_factor_raw
+        address: 30
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 3
+        scan_interval: 30
+
+      - name: "sdm120_ch3_frequency_hz_raw"
+        unique_id: sdm120_ch3_frequency_hz_raw
+        address: 70
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 3
+        scan_interval: 30
+        unit_of_measurement: "Hz"
+        device_class: frequency
+        state_class: measurement
+
+      - name: "sdm120_ch3_import_energy_kwh_raw"
+        unique_id: sdm120_ch3_import_energy_kwh_raw
+        address: 72
+        input_type: input
+        count: 2
+        data_type: custom
+        structure: ">f"
+        slave: 3
         scan_interval: 60
         unit_of_measurement: "kWh"
         device_class: energy

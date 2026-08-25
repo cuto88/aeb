@@ -1,0 +1,23 @@
+AEB TV:
+  modes:
+    dark:
+      primary-background-color: "#10151c"
+      secondary-background-color: "#171d26"
+      card-background-color: "#202833"
+      primary-text-color: "#f4f7fa"
+      secondary-text-color: "#aeb9c6"
+      divider-color: "#344050"
+      accent-color: "#55b6ff"
+  primary-background-color: "#10151c"
+  secondary-background-color: "#171d26"
+  card-background-color: "#202833"
+  ha-card-background: "#202833"
+  ha-card-border-color: "#344050"
+  ha-card-border-radius: "22px"
+  primary-text-color: "#f4f7fa"
+  secondary-text-color: "#aeb9c6"
+  divider-color: "#344050"
+  accent-color: "#55b6ff"
+  state-icon-color: "#aeb9c6"
+  state-icon-active-color: "#55b6ff"
+  lovelace-background: "#10151c"
