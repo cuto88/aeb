@@ -86,18 +86,25 @@ assets:
     type: asset
     name: Sistema multisplit AC
     status: installed
-    confidence: documented
+    confidence: partial_verified
     sources:
       - source_id: ssot_mercurio.AST-AC-001
         source_type: external_reference
         locator: "SSOT Mercurio / ASSET_REGISTER"
-    updated_at: 2026-08-20
+      - source_id: dropbox.SRC-AC-PHOTO-001
+        source_type: photo_nameplate_evidence
+        locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Imp. AC/TOSHIBA/IMG_20241221_141644.jpg"
+        observed_at: 2026-08-26
+    updated_at: 2026-08-26
     owner: aeb
     attributes:
       manufacturer: Toshiba
       family: U2 multisplit
-      model: null
-    notes: "Modelli esatti unita esterna e interne da targhetta."
+      outdoor_model: RAS-2M18U2AVG-E
+      outdoor_serial_number: 12B01062
+      refrigerant: R32
+      indoor_models: null
+    notes: "Unita esterna verificata da targhetta; modelli esatti delle unita interne e associazione ai locali ancora da completare."
 
   - id: asset.electrical.external_lights.twilight_relay_west
     type: asset
