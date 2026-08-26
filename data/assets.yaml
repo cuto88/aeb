@@ -1,7 +1,7 @@
 schema_version: 1.0
 scope: casa_mercurio
 status: draft_partial_asset_register
-updated_at: 2026-08-20
+updated_at: 2026-08-26
 owner: aeb
 
 # Curated non-runtime asset register.
@@ -30,18 +30,24 @@ assets:
     type: asset
     name: Pompa di calore riscaldamento
     status: installed
-    confidence: documented
+    confidence: verified
     sources:
       - source_id: ssot_mercurio.AST-PDC-001
         source_type: external_reference
         locator: "SSOT Mercurio / ASSET_REGISTER"
-    updated_at: 2026-08-20
+      - source_id: dropbox.SRC-PDC-PHOTO-001
+        source_type: photo_nameplate_evidence
+        locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Imp. Termo-Idraulico/Mirai _pdc/IMG_20241221_141702.jpg"
+        observed_at: 2026-08-26
+    updated_at: 2026-08-26
     owner: aeb
     attributes:
       manufacturer: Emmeti
       family: MIRAI SMI 4.0
-      model: null
-    notes: "Famiglia documentata; modello installato esatto ancora da targhetta."
+      model: EH 0618 DC
+      serial_number: 2137EH0618DC0014
+      manufactured_year: 2021
+    notes: "Modello e seriale verificati direttamente dalla targhetta installata."
 
   - id: asset.dhw.ehw
     type: asset
