@@ -61,18 +61,30 @@ assets:
     type: asset
     name: Pompa di calore ACS
     status: installed
-    confidence: documented
+    confidence: project_specified_user_confirmed_unchanged
     sources:
       - source_id: ssot_mercurio.AST-ACS-001
         source_type: external_reference
         locator: "SSOT Mercurio / ASSET_REGISTER"
+      - source_id: dropbox.SRC-ACS-PROJ-001
+        source_type: project_execution_drawing
+        locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Progetti impianti/T02 L10.PDF"
+        observed_at: 2026-08-26
+        note: "Progetto esecutivo 27/04/2021; utente conferma che l'ACS non e stato sostituito rispetto al progetto."
     updated_at: 2026-08-26
     owner: aeb
     attributes:
       manufacturer: Emmeti
       family: Eco Hot Water
-      model: null
-    notes: "Targhetta non disponibile; modello e volume esatti richiedono documento specifico di ordine/fornitura/installazione. Non inferire dal manuale di famiglia."
+      model: EQ 3018 ES
+      nominal_dimensions_cm:
+        width: 60.0
+        depth: 67.0
+        height: 181.0
+      empty_weight_kg: 122
+      useful_volume_l: null
+      serial_number: null
+    notes: "Modello identificato dal progetto esecutivo e confermato dall'utente come invariato. Nessuna targhetta disponibile; volume utile e matricola restano non verificati. Non usare il manuale EQ3021ES per dedurre il volume del diverso modello EQ3018ES."
 
   - id: asset.pv.inverter
     type: asset
