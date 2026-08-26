@@ -61,7 +61,7 @@ assets:
     type: asset
     name: Pompa di calore ACS
     status: installed
-    confidence: project_specified_user_confirmed_unchanged
+    confidence: project_specified_user_confirmed_unchanged_exact_model_product_data
     sources:
       - source_id: ssot_mercurio.AST-ACS-001
         source_type: external_reference
@@ -71,12 +71,18 @@ assets:
         locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Progetti impianti/T02 L10.PDF"
         observed_at: 2026-08-26
         note: "Progetto esecutivo 27/04/2021; utente conferma che l'ACS non e stato sostituito rispetto al progetto."
+      - source_id: ssot_mercurio.SRC-ACS-PROD-001
+        source_type: manufacturer_published_product_record
+        locator: "https://www.bimobject.com/it/emmeti/product/heat_pump_eco_hot_water_eq_3018_es"
+        observed_at: 2026-08-26
+        note: "Scheda Emmeti SPA specifica del modello: capacita 300 L, dimensioni 600x1810x670 mm, peso 122 kg a vuoto."
     updated_at: 2026-08-26
     owner: aeb
     attributes:
       manufacturer: Emmeti
       family: Eco Hot Water
       model: EQ 3018 ES
+      nominal_capacity_l: 300
       nominal_dimensions_cm:
         width: 60.0
         depth: 67.0
@@ -84,7 +90,7 @@ assets:
       empty_weight_kg: 122
       useful_volume_l: null
       serial_number: null
-    notes: "Modello identificato dal progetto esecutivo e confermato dall'utente come invariato. Nessuna targhetta disponibile; volume utile e matricola restano non verificati. Non usare il manuale EQ3021ES per dedurre il volume del diverso modello EQ3018ES."
+    notes: "Modello identificato dal progetto esecutivo e confermato dall'utente come invariato. Capacita nominale 300 L da scheda prodotto specifica Emmeti. La fonte non distingue un volume utile separato; matricola non disponibile."
 
   - id: asset.pv.inverter
     type: asset
