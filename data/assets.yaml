@@ -12,19 +12,27 @@ assets:
     type: asset
     name: Unita VMC principale
     status: installed
-    confidence: documented
+    confidence: documented_specific_configuration
     sources:
       - source_id: ssot_mercurio.AST-VMC-001
         source_type: external_reference
         locator: "SSOT Mercurio / ASSET_REGISTER"
-    updated_at: 2026-08-20
+      - source_id: dropbox.SRC-VMC-SCAN-001
+        source_type: installation_specific_scan
+        locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Imp. VMC/SCAN_Modello.pdf"
+        observed_at: 2026-08-26
+    updated_at: 2026-08-26
     owner: aeb
     attributes:
       manufacturer: VMC Group
-      family: RIS M9 / 22 HA BP
-      model: null
+      family: RIS M9
+      model: 22 HA
+      configuration: HA
+      control: 3E
+      commercial_configuration: RIS M9 22 HA BP 3 VEL EVO
+      serial_number: null
       installation_location: garage
-    notes: "Modello/targhetta/matricola installati da confermare contro evidenza primaria."
+    notes: "Configurazione installata documentata da SCAN_Modello.pdf; il documento non contiene targhetta o matricola."
 
   - id: asset.heat_pump.main
     type: asset
@@ -58,13 +66,13 @@ assets:
       - source_id: ssot_mercurio.AST-ACS-001
         source_type: external_reference
         locator: "SSOT Mercurio / ASSET_REGISTER"
-    updated_at: 2026-08-20
+    updated_at: 2026-08-26
     owner: aeb
     attributes:
       manufacturer: Emmeti
       family: Eco Hot Water
       model: null
-    notes: "Modello e volume installati esatti da verificare su targhetta."
+    notes: "Targhetta non disponibile; modello e volume esatti richiedono documento specifico di ordine/fornitura/installazione. Non inferire dal manuale di famiglia."
 
   - id: asset.pv.inverter
     type: asset
