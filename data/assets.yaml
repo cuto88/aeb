@@ -1,0 +1,243 @@
+schema_version: 1.0
+scope: casa_mercurio
+status: draft_partial_asset_register
+updated_at: 2026-08-27
+owner: aeb
+
+# Curated non-runtime asset register.
+# SSOT Mercurio is the cross-domain registry; this file is the versioned
+# technical digital-twin projection for AEB. Runtime HA state is not stored here.
+assets:
+  - id: asset.vmc.main
+    type: asset
+    name: Unita VMC principale
+    status: installed
+    confidence: documented_specific_configuration
+    sources:
+      - source_id: ssot_mercurio.AST-VMC-001
+        source_type: external_reference
+        locator: "SSOT Mercurio / ASSET_REGISTER"
+      - source_id: dropbox.SRC-VMC-SCAN-001
+        source_type: installation_specific_scan
+        locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Imp. VMC/SCAN_Modello.pdf"
+        observed_at: 2026-08-26
+    updated_at: 2026-08-26
+    owner: aeb
+    attributes:
+      manufacturer: VMC Group
+      family: RIS M9
+      model: 22 HA
+      configuration: HA
+      control: 3E
+      commercial_configuration: RIS M9 22 HA BP 3 VEL EVO
+      serial_number: null
+      installation_location: garage
+    notes: "Configurazione installata documentata da SCAN_Modello.pdf; il documento non contiene targhetta o matricola."
+
+  - id: asset.heat_pump.main
+    type: asset
+    name: Pompa di calore riscaldamento
+    status: installed
+    confidence: verified
+    sources:
+      - source_id: ssot_mercurio.AST-PDC-001
+        source_type: external_reference
+        locator: "SSOT Mercurio / ASSET_REGISTER"
+      - source_id: dropbox.SRC-PDC-PHOTO-001
+        source_type: photo_nameplate_evidence
+        locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Imp. Termo-Idraulico/Mirai _pdc/IMG_20241221_141702.jpg"
+        observed_at: 2026-08-26
+    updated_at: 2026-08-26
+    owner: aeb
+    attributes:
+      manufacturer: Emmeti
+      family: MIRAI SMI 4.0
+      model: EH 0618 DC
+      serial_number: 2137EH0618DC0014
+      manufactured_year: 2021
+    notes: "Modello e seriale verificati direttamente dalla targhetta installata."
+
+  - id: asset.dhw.ehw
+    type: asset
+    name: Pompa di calore ACS
+    status: installed
+    confidence: project_specified_user_confirmed_unchanged_exact_model_product_data
+    sources:
+      - source_id: ssot_mercurio.AST-ACS-001
+        source_type: external_reference
+        locator: "SSOT Mercurio / ASSET_REGISTER"
+      - source_id: dropbox.SRC-ACS-PROJ-001
+        source_type: project_execution_drawing
+        locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Progetti impianti/T02 L10.PDF"
+        observed_at: 2026-08-26
+        note: "Progetto esecutivo 27/04/2021; utente conferma che l'ACS non e stato sostituito rispetto al progetto."
+      - source_id: ssot_mercurio.SRC-ACS-PROD-001
+        source_type: manufacturer_published_product_record
+        locator: "https://www.bimobject.com/it/emmeti/product/heat_pump_eco_hot_water_eq_3018_es"
+        observed_at: 2026-08-26
+        note: "Scheda Emmeti SPA specifica del modello: capacita 300 L, dimensioni 600x1810x670 mm, peso 122 kg a vuoto."
+    updated_at: 2026-08-26
+    owner: aeb
+    attributes:
+      manufacturer: Emmeti
+      family: Eco Hot Water
+      model: EQ 3018 ES
+      nominal_capacity_l: 300
+      nominal_dimensions_cm:
+        width: 60.0
+        depth: 67.0
+        height: 181.0
+      empty_weight_kg: 122
+      useful_volume_l: null
+      serial_number: null
+    notes: "Modello identificato dal progetto esecutivo e confermato dall'utente come invariato. Capacita nominale 300 L da scheda prodotto specifica Emmeti. La fonte non distingue un volume utile separato; matricola non disponibile."
+
+  - id: asset.pv.inverter
+    type: asset
+    name: Inverter fotovoltaico
+    status: installed
+    confidence: documented
+    sources:
+      - source_id: ssot_mercurio.AST-PV-001
+        source_type: external_reference
+        locator: "SSOT Mercurio / ASSET_REGISTER"
+    updated_at: 2026-08-20
+    owner: aeb
+    attributes:
+      manufacturer: SolarEdge
+      model: SE6000H
+    notes: "Seriale/targhetta ancora da registrare."
+
+  - id: asset.ac.multisplit
+    type: asset
+    name: Sistema multisplit AC
+    status: installed
+    confidence: outdoor_verified_indoor_project_documented
+    sources:
+      - source_id: ssot_mercurio.AST-AC-001
+        source_type: external_reference
+        locator: "SSOT Mercurio / ASSET_REGISTER"
+      - source_id: dropbox.SRC-AC-PHOTO-001
+        source_type: photo_nameplate_evidence
+        locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Imp. AC/TOSHIBA/IMG_20241221_141644.jpg"
+        observed_at: 2026-08-26
+      - source_id: dropbox.SRC-AC-PROJ-001
+        source_type: project_execution_drawing
+        locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Progetti impianti/T01 CLIMA.PDF"
+        observed_at: 2026-08-27
+        note: "La configurazione di progetto con UE RAS-2M18U2AVG-E associa UI RAS-M07U2DVG-E e RAS-M10U2DVG-E."
+    updated_at: 2026-08-27
+    owner: aeb
+    attributes:
+      manufacturer: Toshiba
+      family: U2 multisplit
+      outdoor_model: RAS-2M18U2AVG-E
+      outdoor_serial_number: 12B01062
+      refrigerant: R32
+      indoor_models:
+        - RAS-M07U2DVG-E
+        - RAS-M10U2DVG-E
+      indoor_model_evidence: project_documented_not_nameplate_verified
+    notes: "UE verificata da targhetta. T01 CLIMA associa alla stessa UE le due UI canalizzabili RAS-M07U2DVG-E e RAS-M10U2DVG-E; conferma fisica delle targhette UI resta opzionale per evidence grade massimo."
+
+  - id: asset.electrical.external_lights.twilight_relay_west
+    type: asset
+    name: Crepuscolare luci esterne Ovest
+    status: installed
+    confidence: user_reported
+    sources:
+      - source_id: chat_record.2026-08-20.quadro_luci_esterne
+        source_type: user_report
+        locator: "Rilievo diretto quadro con foto; SSOT Mercurio SRC-ELC-001"
+        observed_at: 2026-08-20
+        note: "Utente ha tracciato i cablaggi sul quadro; foto persistente Dropbox ancora da associare."
+    updated_at: 2026-08-20
+    owner: aeb
+    attributes:
+      manufacturer: Finder
+      model: 11.31.8.230.0000
+      installation_location: quadro_elettrico_mercurio
+      supply_from: luci_est
+      sensor_terminals:
+        - B1
+        - B2
+      controlled_load: luci_esterne_ovest
+    notes: "Due conduttori superiori etichettati EST; B1/B2 collegati alla sonda esterna. Promuovere a verified quando la foto/evidenza persistente viene registrata."
+
+  - id: asset.electrical.external_lights.timer_entrance_east
+    type: asset
+    name: Orologio luci ingresso Est
+    status: installed
+    confidence: user_reported
+    sources:
+      - source_id: chat_record.2026-08-20.quadro_luci_esterne
+        source_type: user_report
+        locator: "Rilievo diretto quadro con foto; SSOT Mercurio SRC-ELC-001"
+        observed_at: 2026-08-20
+    updated_at: 2026-08-20
+    owner: aeb
+    attributes:
+      manufacturer: Theben
+      family: SELEKTA 170 top3
+      installation_location: quadro_elettrico_mercurio
+      supply_from: luci_est
+      orientation: est
+      controlled_load: luci_ingresso_est
+      wiring_notes:
+        - ritorno_sensore_movimento_su_contatto
+        - ritorno_luci_esterne_est_su_contatto
+        - ponte_da_L_superiore_al_secondo_ingresso_contatto
+    notes: "Mappatura da rilievo utente; associare foto persistente Dropbox."
+
+  - id: asset.electrical.external_lights.timer_west
+    type: asset
+    name: Orologio luci Ovest
+    status: installed
+    confidence: user_reported
+    sources:
+      - source_id: chat_record.2026-08-20.quadro_luci_esterne
+        source_type: user_report
+        locator: "Rilievo diretto quadro con foto; SSOT Mercurio SRC-ELC-001"
+        observed_at: 2026-08-20
+    updated_at: 2026-08-20
+    owner: aeb
+    attributes:
+      manufacturer: Theben
+      family: SELEKTA 170 top3
+      installation_location: quadro_elettrico_mercurio
+      supply_from: luci_est
+      orientation: ovest
+      controlled_load: null
+    notes: "Alimentato L/N da LUCI EST.; carico downstream preciso ancora da completare."
+
+  - id: asset.energy.pdc_meter
+    type: asset
+    name: Contatore energia ramo PDC
+    status: installed
+    confidence: user_reported
+    sources:
+      - source_id: ssot_mercurio.AST-ELC-SDM-001
+        source_type: external_reference
+        locator: "SSOT Mercurio / ASSET_REGISTER"
+      - source_id: dropbox.SRC-SDM-001
+        source_type: external_reference
+        locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Imp. Elettrico/2026-08-20_SDM120_PDC_installazione.md"
+        observed_at: 2026-08-20
+        note: "Record persistente del rilievo e cablaggio; foto/manuale originali della chat ancora da associare come binari persistenti."
+    updated_at: 2026-08-20
+    owner: aeb
+    attributes:
+      manufacturer: Eastron
+      model: SDM120 45A
+      installation_location: quadro_elettrico_mercurio
+      measured_branch: pdc
+      supply_position: downstream_of_pdc_protection
+      deenergized_when_pdc_breaker_off: true
+      wiring:
+        line_in_terminal: 1
+        line_out_terminal: 2
+        neutral_in_terminal: 4
+        neutral_out_terminal: 3
+        line_path: "protezione_PDC_L_out -> SDM_1 -> SDM_2 -> PDC_L"
+        neutral_path: "protezione_PDC_N_out -> SDM_4 -> SDM_3 -> PDC_N"
+    notes: "Installazione dichiarata attiva dall'utente; record tecnico persistente in Dropbox. Le foto/manuale originali restano da associare quando disponibile un upload binario verso Dropbox."

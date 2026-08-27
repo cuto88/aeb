@@ -1,0 +1,164 @@
+schema_version: 0.1
+asset:
+  id: casa_mercurio
+  name: Casa Mercurio
+  project: AEB
+  type: residential_building
+  data_status: initial_chat_extraction
+  runtime_repo: cuto88/aeb
+
+metadata:
+  created_from:
+    - chat_memory
+    - existing_aeb_repo_context
+  created_on: 2026-06-29
+  notes:
+    - "Dati estratti da conversazioni tecniche precedenti: da verificare progressivamente contro elaborati, rilievi e runtime HA."
+    - "Questo file non contiene segreti e non deve contenere credenziali."
+
+location_context:
+  country:
+    value: Italia
+    confidence: verified
+    source: user_context
+  region:
+    value: Veneto
+    confidence: verified
+    source: user_context
+  operating_area:
+    value: Treviso / Silea / Preganziol
+    confidence: documented
+    source: chat_memory
+  climate_zone:
+    value: null
+    confidence: to_confirm
+    source: missing
+    used_by:
+      - heating_policy
+      - energy_model
+      - comfort_policy
+
+building:
+  construction_year:
+    value: 2020
+    confidence: documented
+    source: chat_memory
+    used_by:
+      - envelope_model
+      - maintenance_log
+  net_floor_area_m2:
+    value: 85
+    confidence: documented
+    source: chat_memory
+    used_by:
+      - energy_kpi_normalization
+      - thermal_model
+  orientation:
+    main_axis:
+      value: south_north
+      confidence: documented
+      source: chat_memory
+    main_openings:
+      value: west
+      confidence: documented
+      source: chat_memory
+      used_by:
+        - solar_gain_model
+        - cooling_policy
+        - shading_policy
+  passive_design_notes:
+    - value: aperture principali a ovest
+      confidence: documented
+      source: chat_memory
+    - value: sporto esterno circa 150 cm
+      confidence: documented
+      source: chat_memory
+    - value: finestra zona giorno circa 4.30 m2
+      confidence: documented
+      source: chat_memory
+
+performance_intent:
+  approach:
+    value: Passivhaus_oriented / Active Energy Building
+    confidence: documented
+    source: repo_and_chat_memory
+  system_goal:
+    value: "observe -> understand -> predict -> decide -> act -> verify -> improve"
+    confidence: documented
+    source: repo_strategy
+  priority_order:
+    - safety
+    - comfort
+    - indoor_air_quality
+    - energy_cost
+    - automation
+    - autonomy
+
+envelope_known:
+  external_insulation:
+    material:
+      value: EPS
+      confidence: documented
+      source: chat_memory
+    thickness_cm:
+      value: 20
+      confidence: documented
+      source: chat_memory
+      used_by:
+        - heat_loss_model
+        - thermal_inertia_model
+  windows:
+    frame:
+      value: PVC 5 camere
+      confidence: documented
+      source: chat_memory
+    glazing:
+      value: triplo vetro
+      confidence: documented
+      source: chat_memory
+  roof:
+    stratigraphy:
+      value: null
+      confidence: to_confirm
+      source: missing
+  floor:
+    stratigraphy:
+      value: null
+      confidence: to_confirm
+      source: missing
+
+energy_assets:
+  photovoltaic:
+    nominal_power_kwp:
+      value: 6.5
+      confidence: documented
+      source: chat_memory
+      used_by:
+        - pv_surplus_policy
+        - dhw_policy
+        - multi_load_dispatch
+    orientation:
+      value: west
+      confidence: documented
+      source: chat_memory
+    inverter_or_platform:
+      value: SolarEdge integrated in Home Assistant
+      confidence: documented
+      source: chat_memory
+  battery_storage:
+    present:
+      value: false
+      confidence: inferred
+      source: chat_memory_absence
+      notes: "Da confermare: non risulta accumulo citato come presente."
+
+known_missing_for_action_grade_model:
+  - exact_climate_zone_and_design_temperatures
+  - full_room_by_room_geometry
+  - wall_roof_floor_stratigraphies
+  - window_schedule_dimensions_and_g_values
+  - airtightness_or_blower_door_data
+  - thermal_bridge_assessment
+  - measured_heating_cooling_energy_by_period
+  - occupancy_profile
+  - comfort_setpoint_policy_by_zone
