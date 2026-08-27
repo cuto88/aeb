@@ -1,7 +1,7 @@
 schema_version: 1.0
 scope: casa_mercurio
 status: draft_partial_asset_register
-updated_at: 2026-08-26
+updated_at: 2026-08-27
 owner: aeb
 
 # Curated non-runtime asset register.
@@ -112,7 +112,7 @@ assets:
     type: asset
     name: Sistema multisplit AC
     status: installed
-    confidence: partial_verified
+    confidence: outdoor_verified_indoor_project_documented
     sources:
       - source_id: ssot_mercurio.AST-AC-001
         source_type: external_reference
@@ -121,7 +121,12 @@ assets:
         source_type: photo_nameplate_evidence
         locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Imp. AC/TOSHIBA/IMG_20241221_141644.jpg"
         observed_at: 2026-08-26
-    updated_at: 2026-08-26
+      - source_id: dropbox.SRC-AC-PROJ-001
+        source_type: project_execution_drawing
+        locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Progetti impianti/T01 CLIMA.PDF"
+        observed_at: 2026-08-27
+        note: "La configurazione di progetto con UE RAS-2M18U2AVG-E associa UI RAS-M07U2DVG-E e RAS-M10U2DVG-E."
+    updated_at: 2026-08-27
     owner: aeb
     attributes:
       manufacturer: Toshiba
@@ -129,8 +134,11 @@ assets:
       outdoor_model: RAS-2M18U2AVG-E
       outdoor_serial_number: 12B01062
       refrigerant: R32
-      indoor_models: null
-    notes: "Unita esterna verificata da targhetta; modelli esatti delle unita interne e associazione ai locali ancora da completare."
+      indoor_models:
+        - RAS-M07U2DVG-E
+        - RAS-M10U2DVG-E
+      indoor_model_evidence: project_documented_not_nameplate_verified
+    notes: "UE verificata da targhetta. T01 CLIMA associa alla stessa UE le due UI canalizzabili RAS-M07U2DVG-E e RAS-M10U2DVG-E; conferma fisica delle targhette UI resta opzionale per evidence grade massimo."
 
   - id: asset.electrical.external_lights.twilight_relay_west
     type: asset
