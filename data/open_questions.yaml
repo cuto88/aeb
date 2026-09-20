@@ -27,20 +27,20 @@ confirmation_needed:
     target_file: data/rooms.yaml
     decision_type: measurement
   q004_vmc_model_and_flows:
-    question: "Marca/modello VMC e portate reali o nominali alle velocita` 0/1/2/3?"
+    question: "Quali sono le portate reali o nominali della VMC alle velocita` 0/1/2/3?"
     why_it_matters: "Senza portate non si puo` ottimizzare IAQ/freecooling/costo elettrico."
     priority: critical
     target_file: data/systems.yaml
     decision_type: factual
   q005_pdc_model_curve:
-    question: "Marca/modello PDC, curva climatica, temperature mandata/ritorno e schema idraulico?"
+    question: "Quali sono curva climatica, temperature mandata/ritorno e schema idraulico della PDC?"
     why_it_matters: "Serve per preheat, inerzia radiante, PV boost e limiti anti-ciclo."
     priority: critical
     target_file: data/systems.yaml
     decision_type: factual
   q006_acs_tank:
-    question: "Volume accumulo ACS/EHW, fonte termica, limiti setpoint e policy legionella?"
-    why_it_matters: "Blocco principale per autonomia ACS action-grade."
+    question: "Quali sono fonte termica, limiti setpoint e policy legionella dell'ACS/EHW?"
+    why_it_matters: "Serve per autonomia ACS action-grade; modello EQ 3018 ES e capacita nominale 300 L sono gia documentati."
     priority: critical
     target_file: data/systems.yaml
     decision_type: factual
@@ -69,14 +69,27 @@ confirmation_needed:
     target_file: data/comfort_policy.yaml
     decision_type: policy
 
+  q011_vmc_serial:
+    question: "Qual e la matricola della VMC RIS M9 22 HA BP 3 VEL EVO?"
+    why_it_matters: "Migliora la tracciabilita manutentiva ma non blocca la baseline Digital Twin v1."
+    priority: low
+    target_file: data/assets.yaml
+    decision_type: factual
+  q012_toshiba_indoor_nameplates:
+    question: "Le targhette fisiche delle UI Toshiba confermano RAS-M07U2DVG-E e RAS-M10U2DVG-E?"
+    why_it_matters: "Aumenta l'evidence grade delle UI; i modelli restano documentati dal progetto e non bloccano la baseline."
+    priority: low
+    target_file: data/assets.yaml
+    decision_type: confirmation
+
 insertion_plan:
   phase_1_fast_closure_1h:
     goal: "Chiudere i dati fisici piu` critici con massima leva."
     actions:
       - confirm_climate_zone_and_common_building_location
       - complete_room_geometry
-      - add_vmc_model_and_nominal_flows
-      - add_pdc_model_and_dhw_tank_data
+      - add_vmc_nominal_and_measured_flows
+      - complete_pdc_curve_and_dhw_policy_bounds
       - add_electricity_contract_basics
     output_files:
       - data/building_core.yaml
