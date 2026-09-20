@@ -117,7 +117,8 @@ $gates = @(
     @{ Name = '[GATE 7] Nested template gate'; Gate = 'GATE 7'; Script = 'ops/gates/check_no_nested_template.ps1'; Args = @(); UsePowerShell = $true },
     @{ Name = '[GATE 8] Artifact policy gate'; Gate = 'GATE 8'; Script = 'ops/gate_artifact_policy.ps1'; Args = @(); UsePowerShell = $true },
     @{ Name = '[GATE 9] AC notte sensor policy'; Gate = 'GATE 9'; Script = 'ops/gate_ac_night_sensor_policy.ps1'; Args = @(); UsePowerShell = $true },
-    @{ Name = '[GATE 10] DOCS ops/gate_docs_links.ps1'; Gate = 'GATE 10'; Script = 'ops/gate_docs_links.ps1'; Args = @(); UsePowerShell = $true }
+    @{ Name = '[GATE 10] DOCS ops/gate_docs_links.ps1'; Gate = 'GATE 10'; Script = 'ops/gate_docs_links.ps1'; Args = @(); UsePowerShell = $true },
+    @{ Name = '[GATE 11] Secret hygiene'; Gate = 'GATE 11'; Script = 'ops/gate_secret_hygiene.ps1'; Args = @(); UsePowerShell = $true }
 )
 
 foreach ($gate in $gates) {
