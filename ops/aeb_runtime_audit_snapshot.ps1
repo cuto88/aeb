@@ -1,7 +1,7 @@
 param(
   [string]$EnvPath = ".env",
-  [string]$HaBaseUrl = "http://192.168.178.110:8123",
-  [string]$HaHost = $(if ($env:HA_SSH_HOST_LAN) { $env:HA_SSH_HOST_LAN } else { "dscomparin@192.168.178.110" }),
+  [string]$HaBaseUrl = "",
+  [string]$HaHost = $env:HA_SSH_HOST_LAN,
   [int]$Port = 22,
   [string]$KeyPath = $env:HA_SSH_KEY_PATH,
   [string]$KnownHostsPath = $env:HA_SSH_KNOWN_HOSTS
@@ -105,8 +105,17 @@ if ([string]::IsNullOrWhiteSpace($haToken)) {
   throw "HA_TOKEN missing in $resolvedEnvPath"
 }
 
-if (-not $PSBoundParameters.ContainsKey("HaBaseUrl") -and -not [string]::IsNullOrWhiteSpace($envMap["HA_URL"])) {
+if ([string]::IsNullOrWhiteSpace($HaBaseUrl) -and -not [string]::IsNullOrWhiteSpace($envMap["HA_URL"])) {
   $HaBaseUrl = $envMap["HA_URL"]
+}
+if ([string]::IsNullOrWhiteSpace($HaBaseUrl)) {
+  throw "HA_URL is required in $resolvedEnvPath or via -HaBaseUrl."
+}
+if ([string]::IsNullOrWhiteSpace($HaHost)) {
+  throw "HA_SSH_HOST_LAN is required."
+}
+if ([string]::IsNullOrWhiteSpace($KnownHostsPath) -or -not (Test-Path -LiteralPath $KnownHostsPath)) {
+  throw "HA_SSH_KNOWN_HOSTS is required and must point to a readable file."
 }
 
 $haUri = [System.Uri]$HaBaseUrl
