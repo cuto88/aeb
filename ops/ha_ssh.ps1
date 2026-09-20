@@ -1,13 +1,16 @@
 param(
   [string]$RemoteCommand = "",
   [int]$Port = 22,
-  [string]$HaHost = $(if ($env:HA_SSH_HOST_LAN) { $env:HA_SSH_HOST_LAN } else { "dscomparin@192.168.178.110" }),
+  [string]$HaHost = $env:HA_SSH_HOST_LAN,
   [string]$KeyPath = $env:HA_SSH_KEY_PATH,
   [string]$KnownHostsPath = $env:HA_SSH_KNOWN_HOSTS
 )
 
 $ErrorActionPreference = 'Stop'
 
+if ([string]::IsNullOrWhiteSpace($HaHost)) {
+  throw "HA_SSH_HOST_LAN is required."
+}
 if ([string]::IsNullOrWhiteSpace($KeyPath)) {
   throw "HA_SSH_KEY_PATH is required."
 }
