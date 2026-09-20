@@ -1,7 +1,7 @@
 schema_version: 1.0
 scope: casa_mercurio
 status: draft_partial_asset_register
-updated_at: 2026-08-27
+updated_at: 2026-09-20
 owner: aeb
 
 # Curated non-runtime asset register.
@@ -12,13 +12,13 @@ assets:
     type: asset
     name: Unita VMC principale
     status: installed
-    confidence: documented_specific_configuration
+    confidence: documented
     sources:
       - source_id: ssot_mercurio.AST-VMC-001
         source_type: external_reference
         locator: "SSOT Mercurio / ASSET_REGISTER"
       - source_id: dropbox.SRC-VMC-SCAN-001
-        source_type: installation_specific_scan
+        source_type: dropbox_document
         locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Imp. VMC/SCAN_Modello.pdf"
         observed_at: 2026-08-26
     updated_at: 2026-08-26
@@ -44,7 +44,7 @@ assets:
         source_type: external_reference
         locator: "SSOT Mercurio / ASSET_REGISTER"
       - source_id: dropbox.SRC-PDC-PHOTO-001
-        source_type: photo_nameplate_evidence
+        source_type: nameplate
         locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Imp. Termo-Idraulico/Mirai _pdc/IMG_20241221_141702.jpg"
         observed_at: 2026-08-26
     updated_at: 2026-08-26
@@ -61,18 +61,18 @@ assets:
     type: asset
     name: Pompa di calore ACS
     status: installed
-    confidence: project_specified_user_confirmed_unchanged_exact_model_product_data
+    confidence: documented
     sources:
       - source_id: ssot_mercurio.AST-ACS-001
         source_type: external_reference
         locator: "SSOT Mercurio / ASSET_REGISTER"
       - source_id: dropbox.SRC-ACS-PROJ-001
-        source_type: project_execution_drawing
+        source_type: project_document
         locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Progetti impianti/T02 L10.PDF"
         observed_at: 2026-08-26
         note: "Progetto esecutivo 27/04/2021; utente conferma che l'ACS non e stato sostituito rispetto al progetto."
       - source_id: ssot_mercurio.SRC-ACS-PROD-001
-        source_type: manufacturer_published_product_record
+        source_type: external_reference
         locator: "https://www.bimobject.com/it/emmeti/product/heat_pump_eco_hot_water_eq_3018_es"
         observed_at: 2026-08-26
         note: "Scheda Emmeti SPA specifica del modello: capacita 300 L, dimensioni 600x1810x670 mm, peso 122 kg a vuoto."
@@ -112,17 +112,17 @@ assets:
     type: asset
     name: Sistema multisplit AC
     status: installed
-    confidence: outdoor_verified_indoor_project_documented
+    confidence: documented
     sources:
       - source_id: ssot_mercurio.AST-AC-001
         source_type: external_reference
         locator: "SSOT Mercurio / ASSET_REGISTER"
       - source_id: dropbox.SRC-AC-PHOTO-001
-        source_type: photo_nameplate_evidence
+        source_type: nameplate
         locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Imp. AC/TOSHIBA/IMG_20241221_141644.jpg"
         observed_at: 2026-08-26
       - source_id: dropbox.SRC-AC-PROJ-001
-        source_type: project_execution_drawing
+        source_type: project_document
         locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Progetti impianti/T01 CLIMA.PDF"
         observed_at: 2026-08-27
         note: "La configurazione di progetto con UE RAS-2M18U2AVG-E associa UI RAS-M07U2DVG-E e RAS-M10U2DVG-E."
@@ -131,13 +131,28 @@ assets:
     attributes:
       manufacturer: Toshiba
       family: U2 multisplit
-      outdoor_model: RAS-2M18U2AVG-E
-      outdoor_serial_number: 12B01062
-      refrigerant: R32
+      outdoor_model:
+        value: RAS-2M18U2AVG-E
+        confidence: verified
+        sources:
+          - source_id: dropbox.SRC-AC-PHOTO-001
+      outdoor_serial_number:
+        value: 12B01062
+        confidence: verified
+        sources:
+          - source_id: dropbox.SRC-AC-PHOTO-001
+      refrigerant:
+        value: R32
+        confidence: verified
+        sources:
+          - source_id: dropbox.SRC-AC-PHOTO-001
       indoor_models:
-        - RAS-M07U2DVG-E
-        - RAS-M10U2DVG-E
-      indoor_model_evidence: project_documented_not_nameplate_verified
+        value:
+          - RAS-M07U2DVG-E
+          - RAS-M10U2DVG-E
+        confidence: documented
+        sources:
+          - source_id: dropbox.SRC-AC-PROJ-001
     notes: "UE verificata da targhetta. T01 CLIMA associa alla stessa UE le due UI canalizzabili RAS-M07U2DVG-E e RAS-M10U2DVG-E; conferma fisica delle targhette UI resta opzionale per evidence grade massimo."
 
   - id: asset.electrical.external_lights.twilight_relay_west
