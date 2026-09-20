@@ -82,12 +82,12 @@ foreach ($rel in $tracked) {
     $lineNo++
 
     if ($line -match $privateKeyPattern) {
-      $findings.Add("$rel:$lineNo private-key material")
+      $findings.Add("${rel}:$lineNo private-key material")
       continue
     }
 
     if ($line -match $bearerLiteralPattern -and $line -notmatch '\$env:') {
-      $findings.Add("$rel:$lineNo literal bearer token")
+      $findings.Add("${rel}:$lineNo literal bearer token")
       continue
     }
 
@@ -95,7 +95,7 @@ foreach ($rel in $tracked) {
     if ($m.Success) {
       $value = $m.Groups[3].Value
       if ($value -notmatch $placeholderPattern -and $value -notmatch '^\s*$') {
-        $findings.Add("$rel:$lineNo literal sensitive assignment ($($m.Groups[1].Value))")
+        $findings.Add("${rel}:$lineNo literal sensitive assignment ($($m.Groups[1].Value))")
       }
     }
   }
