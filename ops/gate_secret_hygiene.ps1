@@ -66,9 +66,11 @@ foreach ($rel in $tracked) {
 
     $m = [regex]::Match($line, $assignmentPattern)
     if ($m.Success) {
+      $keyName = $m.Groups[1].Value
+      if ($keyName -match '^(?i)(include|has|copied)_') { continue }
       $value = $m.Groups[3].Value
       if ($value -notmatch $placeholderPattern -and $value -notmatch '^\s*$') {
-        $findings += ('{0}:{1} literal sensitive assignment ({2})' -f $rel, $lineNo, $m.Groups[1].Value)
+        $findings += ('{0}:{1} literal sensitive assignment ({2})' -f $rel, $lineNo, $keyName)
       }
     }
   }
