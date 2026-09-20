@@ -77,7 +77,7 @@ Use these labels during audits:
 - `packages/mirai_modbus.yaml`: uses `!secret` for host.
 - Developer credentials are documented through placeholders in `docs/security/dev-machine.env.example`.
 - Git history lookup for paths `secrets.yaml`, `.env`, `id_rsa`, `id_ed25519`: no commits returned by the repository API.
-- Some active ops scripts still contain LAN endpoint fallbacks. These are not credentials, but are classified `STALE_REFERENCE / NEEDS_RUNTIME_VERIFY` until removed after SSH/runtime approval.
+- Active ops scripts no longer contain the previously identified hardcoded LAN/API endpoint fallbacks; `HA_SSH_HOST_LAN` and `HA_URL` are now explicit runtime inputs.
 - Live runtime values were not read or changed during this audit.
 
 ## Verification
