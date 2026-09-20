@@ -1,0 +1,21 @@
+schema_version: 1.0
+scope: casa_mercurio
+status: baseline
+updated_at: 2026-09-20
+owner: aeb
+
+# Curated non-runtime relationships. Both endpoints MUST resolve to stable
+# digital-twin entity identifiers already present in the curated data layer.
+relationships:
+  - id: relation.pdc_meter.meters.heat_pump
+    source: asset.energy.pdc_meter
+    relation: meters
+    target: asset.heat_pump.main
+    status: active
+    confidence: user_reported
+    sources:
+      - source_id: dropbox.SRC-SDM-001
+        source_type: dropbox_document
+        locator: "/1_Privato/1_Casa/Casa_Mercurio_71C/2_Materiali_tecnici/1_Impianti/Imp. Elettrico/2026-08-20_SDM120_PDC_installazione.md"
+        observed_at: 2026-08-20
+    notes: "Il contatore SDM120 e installato sul ramo PDC a valle della relativa protezione; la relazione resta user_reported finche l'evidenza persistente non viene promossa."
