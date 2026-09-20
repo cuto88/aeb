@@ -2,7 +2,7 @@ param(
   [string]$Branch = "main",
   [string]$Target = "",
   [string]$BackupRoot = ".\_ha_runtime_backups",
-  [string]$RemoteHost = $(if ($env:HA_SSH_HOST_LAN) { $env:HA_SSH_HOST_LAN } else { "dscomparin@192.168.178.110" }),
+  [string]$RemoteHost = $env:HA_SSH_HOST_LAN,
   [int]$RemotePort = 22,
   [string]$RemoteContainer = "homeassistant",
   [string]$RemotePath = "/config",
@@ -21,6 +21,10 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+
+if ([string]::IsNullOrWhiteSpace($RemoteHost)) {
+  throw "HA_SSH_HOST_LAN is required."
+}
 
 . $PSScriptRoot\ha_secure_key.ps1
 . $PSScriptRoot\deploy_transport.ps1

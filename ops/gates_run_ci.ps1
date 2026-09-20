@@ -77,6 +77,7 @@ Invoke-GateScript -Path 'ops/gates/check_no_nested_template.ps1'
 Invoke-GateScript -Path 'ops/gate_ac_night_sensor_policy.ps1'
 Invoke-GateScript -Path 'ops/gate_docs_links.ps1'
 Invoke-GateScript -Path 'ops/gate_artifact_policy.ps1'
+Invoke-GateScript -Path 'ops/gate_secret_hygiene.ps1'
 
 if (-not (Get-Command yamllint -ErrorAction SilentlyContinue)) {
   Write-Error 'yamllint not found.'
