@@ -86,7 +86,7 @@ foreach ($rel in $tracked) {
       continue
     }
 
-    if ($line -match $bearerLiteralPattern -and $line -notmatch '\$env:') {
+    if ($line -match $bearerLiteralPattern) {
       $findings.Add("${rel}:$lineNo literal bearer token")
       continue
     }
