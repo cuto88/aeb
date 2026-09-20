@@ -40,3 +40,15 @@
 
 - Il problema di sicurezza non e` risolto da questa nota.
 - E` pero` ora isolato come unico residuo ad alto ROI ancora aperto insieme al drift source/runtime.
+
+## CLOSEOUT 2026-09-20
+
+Evidence gate eseguito senza esporre valori dei secret:
+
+- Home Assistant mostrava due token workstation correnti (`Codex DS-XPS`, `eab_ds-work`) e il token legacy `codex-aeb-runtime`.
+- L'utente ha revocato/eliminato esplicitamente `codex-aeb-runtime` il 2026-09-20.
+- `.env` e` escluso dal repository tramite `.gitignore`; il contratto versionato usa solo placeholder.
+- Il percorso scheduled backup contiene gia` la regola di masking per evitare l'eco di `HA_TOKEN` e altre variabili sensibili.
+- Nessun valore di token e` stato copiato nella documentazione.
+
+Decisione: finding storico secret hygiene **CLOSED**. Eventuali futuri errori di autenticazione sono regressioni operative da correggere con credenziale dedicata, non motivo per ripetere l'intero audit di maggio.
