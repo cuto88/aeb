@@ -1,8 +1,8 @@
 # AEB Digital Twin Specification v1
 
-Status: **Draft**  
+Status: **Adopted**  
 Scope: **Casa Mercurio / AEB**  
-Authority: **normative for the non-runtime digital twin data layer after adoption**
+Authority: **normative for the non-runtime digital twin data layer**
 
 ## 1. Purpose
 
@@ -666,18 +666,20 @@ The first implementation target is `data/assets.yaml` or `data/assets/`, populat
 
 ## 25. Current known constraints
 
-At publication of this draft:
+At adoption of the v1 baseline:
 
-- the VMC is offline for maintenance, so current runtime baselines are intentionally deferred;
-- the VMC installed model is documented as RIS M9 22 HA;
-- heat pump, DHW and Toshiba AC families are documented, but exact installed models remain to be verified;
+- runtime baselines remain outside this milestone and are not required for adoption;
+- the VMC installed configuration is documented as RIS M9 22 HA BP 3 VEL EVO; its serial number remains an optional open question;
+- the heat pump is verified as Emmeti MIRAI EH 0618 DC with installed serial evidence;
+- the DHW asset is documented as Emmeti EQ 3018 ES, nominal capacity 300 L, from project and product evidence; its serial number remains optional;
+- the Toshiba outdoor unit is verified as RAS-2M18U2AVG-E; indoor units RAS-M07U2DVG-E and RAS-M10U2DVG-E are project-documented and physical nameplate confirmation remains optional;
 - the SolarEdge inverter model is documented as SE6000H;
-- existing data contains mixed legacy confidence terms that require gradual normalization;
+- legacy v0 files may retain legacy confidence terms during incremental migration, while new v1 curated records use the canonical vocabulary;
 - Dropbox documents and repository data are available, while live Home Assistant recorder access is not assumed by this specification.
 
 ## 26. Acceptance criteria for v1 adoption
 
-This draft can be marked **Adopted** when:
+The v1 baseline is **Adopted** when all of the following are true:
 
 - controlled vocabularies have been reviewed;
 - identifier rules are accepted;
@@ -685,3 +687,5 @@ This draft can be marked **Adopted** when:
 - at least one relationship chain resolves end-to-end;
 - legacy v0 compatibility is documented;
 - no runtime-control behaviour is changed by adoption.
+
+PR #467 establishes the initial adopted baseline: data/assets.yaml provides conforming curated assets, data/relationships.yaml provides the first resolved relationship, legacy v0 compatibility is retained, and the adoption changes do not modify Home Assistant runtime files.
