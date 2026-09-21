@@ -9,6 +9,7 @@ Stato sidebar:
 
 Sezioni principali:
 - "Stato generale": priorità/motivo AC, stagione calda, failsafe e blocco VMC, con stato `switch.ac_giorno` e `switch.ac_notte`.
+- "Zona giorno/notte": richiesta comfort, motivo, modalità HVAC richiesta (`dry`/`cool`) e supporto DRY dichiarato dall'entità `climate`.
 - "Setpoint e comandi": parametri dry/cool e lock min on/off.
 - "Manuale e blocchi": `input_boolean.ac_manual`, `input_select.ac_manual_mode`, timeout manuale e blocco da VMC.
 - "KPI principali": temperatura/umidità interna media ed esterna.

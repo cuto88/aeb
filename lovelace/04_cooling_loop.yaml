@@ -72,6 +72,12 @@ views:
                 name: "Richiesta comfort"
               - entity: sensor.ac_giorno_comfort_reason
                 name: "Motivo"
+              - entity: sensor.ac_giorno_requested_hvac_mode
+                name: "Modalità richiesta"
+              - type: attribute
+                entity: sensor.ac_giorno_requested_hvac_mode
+                attribute: dry_supported
+                name: "DRY supportato"
               - type: attribute
                 entity: climate.ac_giorno
                 attribute: temperature
@@ -125,6 +131,12 @@ views:
                 name: "Richiesta comfort"
               - entity: sensor.ac_notte_comfort_reason
                 name: "Motivo"
+              - entity: sensor.ac_notte_requested_hvac_mode
+                name: "Modalità richiesta"
+              - type: attribute
+                entity: sensor.ac_notte_requested_hvac_mode
+                attribute: dry_supported
+                name: "DRY supportato"
               - entity: sensor.t_in_notte1
                 name: "Temperatura notte 1"
               - entity: sensor.ur_in_notte1
@@ -208,10 +220,14 @@ views:
                 name: "Richiesta zona giorno"
               - entity: sensor.ac_giorno_comfort_reason
                 name: "Motivo zona giorno"
+              - entity: sensor.ac_giorno_requested_hvac_mode
+                name: "HVAC zona giorno"
               - entity: binary_sensor.ac_notte_comfort_request
                 name: "Richiesta zona notte"
               - entity: sensor.ac_notte_comfort_reason
                 name: "Motivo zona notte"
+              - entity: sensor.ac_notte_requested_hvac_mode
+                name: "HVAC zona notte"
               - entity: sensor.climateops_hierarchy_mode
                 name: "Modalità richiesta"
               - entity: sensor.cm_system_mode_suggested
@@ -230,6 +246,8 @@ views:
             entities:
               - entity: input_boolean.ac_auto_pause
                 name: "Pausa automatismo 90 min"
+              - entity: input_boolean.ac_auto_dry_enabled
+                name: "Deumidificazione automatica"
               - entity: timer.ac_auto_pause_timeout
                 name: "Tempo pausa residuo"
               - entity: script.ac_resume_automatic
@@ -292,6 +310,10 @@ views:
               - Solo la notte richiede comfort → `COOL_NIGHT`
               - Entrambe le zone richiedono comfort → `COOL_BOTH`
               - Tutta la casa è nella fascia prevista → `COMFORT_OK`
+
+              All'interno della zona richiesta, AEB usa `DRY` quando la causa è
+              esclusivamente umidità/dew point e `COOL` quando è presente una
+              richiesta termica. Se entrambe sono presenti, prevale `COOL`.
 
               I due split possono funzionare contemporaneamente.
           - type: markdown

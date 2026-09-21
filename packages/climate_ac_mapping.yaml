@@ -123,19 +123,33 @@ script:
     alias: AC Giorno Apply
     mode: restart
     sequence:
-      - service: climate.set_temperature
+      - variables:
+          requested_mode: "{{ states('sensor.ac_giorno_requested_hvac_mode') }}"
+          supported_modes: "{{ state_attr('climate.ac_giorno','hvac_modes') | default([], true) }}"
+          effective_mode: >-
+            {{ requested_mode if requested_mode in supported_modes else 'cool' }}
+      - service: climate.set_hvac_mode
         continue_on_error: true
         target:
           entity_id: climate.ac_giorno
         data:
-          temperature: >-
-            {{
-              [
-                [states('input_number.ac_cool_setpoint') | float(26)
-                  - states('input_number.ac_equipment_target_offset') | float(2), 16] | max,
-                30
-              ] | min
-            }}
+          hvac_mode: "{{ effective_mode }}"
+      - choose:
+          - conditions: "{{ effective_mode == 'cool' }}"
+            sequence:
+              - service: climate.set_temperature
+                continue_on_error: true
+                target:
+                  entity_id: climate.ac_giorno
+                data:
+                  temperature: >-
+                    {{
+                      [
+                        [states('input_number.ac_cool_setpoint') | float(26)
+                          - states('input_number.ac_equipment_target_offset') | float(2), 16] | max,
+                        30
+                      ] | min
+                    }}
       - choose:
           - conditions: "{{ states('switch.ac_giorno') != 'on' }}"
             sequence:
@@ -151,19 +165,33 @@ script:
     alias: AC Notte Apply
     mode: restart
     sequence:
-      - service: climate.set_temperature
+      - variables:
+          requested_mode: "{{ states('sensor.ac_notte_requested_hvac_mode') }}"
+          supported_modes: "{{ state_attr('climate.ac_notte','hvac_modes') | default([], true) }}"
+          effective_mode: >-
+            {{ requested_mode if requested_mode in supported_modes else 'cool' }}
+      - service: climate.set_hvac_mode
         continue_on_error: true
         target:
           entity_id: climate.ac_notte
         data:
-          temperature: >-
-            {{
-              [
-                [states('input_number.ac_cool_setpoint') | float(26)
-                  - states('input_number.ac_equipment_target_offset') | float(2), 16] | max,
-                30
-              ] | min
-            }}
+          hvac_mode: "{{ effective_mode }}"
+      - choose:
+          - conditions: "{{ effective_mode == 'cool' }}"
+            sequence:
+              - service: climate.set_temperature
+                continue_on_error: true
+                target:
+                  entity_id: climate.ac_notte
+                data:
+                  temperature: >-
+                    {{
+                      [
+                        [states('input_number.ac_cool_setpoint') | float(26)
+                          - states('input_number.ac_equipment_target_offset') | float(2), 16] | max,
+                        30
+                      ] | min
+                    }}
       - choose:
           - conditions: "{{ states('switch.ac_notte') != 'on' }}"
             sequence:
