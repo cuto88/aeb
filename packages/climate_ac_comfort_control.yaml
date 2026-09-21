@@ -64,6 +64,10 @@ input_boolean:
   ac_auto_pause:
     name: "AC - Pausa automatismo"
     icon: mdi:pause-circle
+  ac_auto_dry_enabled:
+    name: "AC - Deumidificazione automatica"
+    icon: mdi:water-percent
+    initial: true
 
 timer:
   ac_auto_pause_timeout:
@@ -203,6 +207,88 @@ template:
           night_reason: "{{ states('sensor.ac_notte_comfort_reason') }}"
           target_c: "{{ states('input_number.ac_cool_setpoint') }}"
           pause_remaining: "{{ state_attr('timer.ac_auto_pause_timeout','remaining') }}"
+
+      - name: "AC Giorno Requested HVAC Mode"
+        unique_id: ac_giorno_requested_hvac_mode
+        icon: mdi:air-conditioner
+        state: >-
+          {% set t = states('sensor.t_in_giorno') | float(default=none) %}
+          {% set ur = states('sensor.ur_in_giorno') | float(default=none) %}
+          {% set dp = states('sensor.ac_giorno_dew_point') | float(default=none) %}
+          {% set sp = states('input_number.ac_cool_setpoint') | float(26) %}
+          {% set delta = states('input_number.ac_comfort_temp_on_delta') | float(0.5) %}
+          {% set ur_on = states('input_number.ac_comfort_ur_on') | float(62) %}
+          {% set ur_off = states('input_number.ac_comfort_ur_off') | float(58) %}
+          {% set dp_on = states('input_number.ac_comfort_dew_on') | float(16.5) %}
+          {% set dp_off = states('input_number.ac_comfort_dew_off') | float(15.5) %}
+          {% set min_t = states('input_number.ac_comfort_humidity_min_temp') | float(24) %}
+          {% set requested = is_state('binary_sensor.ac_giorno_comfort_request','on') %}
+          {% set dry_enabled = is_state('input_boolean.ac_auto_dry_enabled','on') %}
+          {% set previous = this.state if this.state in ['cool','dry'] else 'cool' %}
+          {% set temp_start = t is number and t > sp + delta %}
+          {% set temp_hold = t is number and t > sp %}
+          {% set dry_start =
+            t is number and ur is number and dp is number
+            and t > min_t + 0.5 and ur > ur_on and dp > dp_on
+          %}
+          {% set dry_hold =
+            t is number and ur is number and dp is number
+            and t > min_t and ur > ur_off and dp > dp_off
+          %}
+          {% if not requested %}off
+          {% elif temp_start %}cool
+          {% elif previous == 'cool' and temp_hold %}cool
+          {% elif dry_enabled and dry_start %}dry
+          {% elif dry_enabled and previous == 'dry' and dry_hold %}dry
+          {% else %}{{ previous }}
+          {% endif %}
+        attributes:
+          policy: "COOL on thermal demand; DRY on humidity-only demand; preserve mode during hysteresis"
+          comfort_reason: "{{ states('sensor.ac_giorno_comfort_reason') }}"
+          auto_dry_enabled: "{{ is_state('input_boolean.ac_auto_dry_enabled','on') }}"
+          dry_supported: >-
+            {{ 'dry' in (state_attr('climate.ac_giorno','hvac_modes') | default([], true)) }}
+
+      - name: "AC Notte Requested HVAC Mode"
+        unique_id: ac_notte_requested_hvac_mode
+        icon: mdi:air-conditioner
+        state: >-
+          {% set t = states('sensor.ac_notte_temperatura_camere') | float(default=none) %}
+          {% set ur = states('sensor.ac_notte_umidita_camere') | float(default=none) %}
+          {% set dp = states('sensor.ac_notte_dew_point') | float(default=none) %}
+          {% set sp = states('input_number.ac_cool_setpoint') | float(26) %}
+          {% set delta = states('input_number.ac_comfort_temp_on_delta') | float(0.5) %}
+          {% set ur_on = states('input_number.ac_comfort_ur_on') | float(62) %}
+          {% set ur_off = states('input_number.ac_comfort_ur_off') | float(58) %}
+          {% set dp_on = states('input_number.ac_comfort_dew_on') | float(16.5) %}
+          {% set dp_off = states('input_number.ac_comfort_dew_off') | float(15.5) %}
+          {% set min_t = states('input_number.ac_comfort_humidity_min_temp') | float(24) %}
+          {% set requested = is_state('binary_sensor.ac_notte_comfort_request','on') %}
+          {% set dry_enabled = is_state('input_boolean.ac_auto_dry_enabled','on') %}
+          {% set previous = this.state if this.state in ['cool','dry'] else 'cool' %}
+          {% set temp_start = t is number and t > sp + delta %}
+          {% set temp_hold = t is number and t > sp %}
+          {% set dry_start =
+            t is number and ur is number and dp is number
+            and t > min_t + 0.5 and ur > ur_on and dp > dp_on
+          %}
+          {% set dry_hold =
+            t is number and ur is number and dp is number
+            and t > min_t and ur > ur_off and dp > dp_off
+          %}
+          {% if not requested %}off
+          {% elif temp_start %}cool
+          {% elif previous == 'cool' and temp_hold %}cool
+          {% elif dry_enabled and dry_start %}dry
+          {% elif dry_enabled and previous == 'dry' and dry_hold %}dry
+          {% else %}{{ previous }}
+          {% endif %}
+        attributes:
+          policy: "COOL on thermal demand; DRY on humidity-only demand; preserve mode during hysteresis"
+          comfort_reason: "{{ states('sensor.ac_notte_comfort_reason') }}"
+          auto_dry_enabled: "{{ is_state('input_boolean.ac_auto_dry_enabled','on') }}"
+          dry_supported: >-
+            {{ 'dry' in (state_attr('climate.ac_notte','hvac_modes') | default([], true)) }}
 
   - binary_sensor:
       - name: "AC Giorno Comfort Request"

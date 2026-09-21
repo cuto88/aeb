@@ -79,6 +79,10 @@ automation:
         entity_id: sensor.cm_system_mode_suggested
       - platform: state
         entity_id:
+          - sensor.ac_giorno_requested_hvac_mode
+          - sensor.ac_notte_requested_hvac_mode
+      - platform: state
+        entity_id:
           - switch.ac_giorno
           - switch.ac_notte
       - platform: time_pattern
@@ -150,6 +154,14 @@ automation:
               ac_branch_powered | bool
             }}
           ac_policy_ok: "{{ is_state('binary_sensor.policy_allow_ac','on') }}"
+          ac_day_requested_hvac_mode: "{{ states('sensor.ac_giorno_requested_hvac_mode') }}"
+          ac_night_requested_hvac_mode: "{{ states('sensor.ac_notte_requested_hvac_mode') }}"
+          ac_day_effective_hvac_mode: >-
+            {% set modes = state_attr('climate.ac_giorno','hvac_modes') | default([], true) %}
+            {{ ac_day_requested_hvac_mode if ac_day_requested_hvac_mode in modes else 'cool' }}
+          ac_night_effective_hvac_mode: >-
+            {% set modes = state_attr('climate.ac_notte','hvac_modes') | default([], true) %}
+            {{ ac_night_requested_hvac_mode if ac_night_requested_hvac_mode in modes else 'cool' }}
           ac_day_should_run: >-
             {{
               mode in ['COOL_DAY','COOL_BOTH']
@@ -303,8 +315,14 @@ automation:
           - conditions: >-
               {{
                 (ac_day_should_run | bool)
-                and states('switch.ac_giorno') != 'on'
-                and is_state('binary_sensor.ac_giorno_lock_min_off_ok','on')
+                and (
+                  states('switch.ac_giorno') != 'on'
+                  or states('climate.ac_giorno') != ac_day_effective_hvac_mode
+                )
+                and (
+                  states('switch.ac_giorno') == 'on'
+                  or is_state('binary_sensor.ac_giorno_lock_min_off_ok','on')
+                )
               }}
             sequence:
               - service: script.ac_giorno_apply
@@ -313,8 +331,14 @@ automation:
           - conditions: >-
               {{
                 (ac_night_should_run | bool)
-                and states('switch.ac_notte') != 'on'
-                and is_state('binary_sensor.ac_notte_lock_min_off_ok','on')
+                and (
+                  states('switch.ac_notte') != 'on'
+                  or states('climate.ac_notte') != ac_night_effective_hvac_mode
+                )
+                and (
+                  states('switch.ac_notte') == 'on'
+                  or is_state('binary_sensor.ac_notte_lock_min_off_ok','on')
+                )
               }}
             sequence:
               - service: script.ac_notte_apply

@@ -75,6 +75,7 @@ Invoke-GateScript -Path 'ops/gate_entity_naming.ps1'
 Invoke-GateScript -Path 'ops/gates/check_cm_naming.ps1'
 Invoke-GateScript -Path 'ops/gates/check_no_nested_template.ps1'
 Invoke-GateScript -Path 'ops/gate_ac_night_sensor_policy.ps1'
+Invoke-GateScript -Path 'ops/gate_ac_dry_mode_policy.ps1'
 Invoke-GateScript -Path 'ops/gate_docs_links.ps1'
 Invoke-GateScript -Path 'ops/gate_artifact_policy.ps1'
 
@@ -96,4 +97,3 @@ if ($trackedYamlFiles.Count -eq 0) {
 
 Write-Host 'ALL GATES PASSED'
 exit 0
-
