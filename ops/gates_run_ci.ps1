@@ -67,6 +67,7 @@ function Invoke-GateScript {
 $repoRoot = Get-RepoRoot
 Set-Location $repoRoot
 
+Invoke-GateScript -Path 'ops/gate_secret_hygiene.ps1'
 Invoke-GateScript -Path 'ops/gate_include_tree.ps1'
 Invoke-GateScript -Path 'ops/gate_ha_structure.ps1' -Args @('-CheckEntityMap')
 Invoke-GateScript -Path 'ops/gate_vmc_dashboards.ps1'
