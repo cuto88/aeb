@@ -3,7 +3,7 @@
 Status: ACTIVE  
 Owner chat: M60 — AEB Control Room  
 Scope: Casa Mercurio / AEB  
-Last reviewed: 2026-09-20
+Last reviewed: 2026-09-22
 
 ## Rules
 
@@ -19,7 +19,7 @@ Classification values: `CLOSED`, `COVERED`, `BACKLOG_ONLY`, `NEW_CHAT_REQUIRED`,
 
 | AEB_ID | WORKSTREAM | SOURCE | CURRENT_STATUS | CHAT_CODE | CLASSIFICATION | BLOCKER | NEXT_ACTION | PRIORITY |
 |---|---|---|---|---|---|---|---|---|
-| AEB-SEC-001 | Home Assistant secret hygiene | STEP111 + HA token inventory 2026-09-20 | Old `codex-aeb-runtime` token revoked; only current DS-XPS and DS-WORK long-lived tokens retained. `.env` ignored by Git; backup tooling masks secrets. | M60 | CLOSED | — | Reopen only on authentication regression or new evidence of secret exposure. | CLOSED |
+| AEB-SEC-001 | Home Assistant secret hygiene | STEP111 + HA token inventory 2026-09-20 + runtime hygiene closeout 2026-09-22 | Legacy token revoked; repo/runtime contract verified read-only. Secret hygiene gate is active on tracked files; 4/4 required `!secret` keys verified in runtime; no current exposure confirmed and no rotation required. | M60 | CLOSED | — | Reopen only on authentication regression or new evidence of secret exposure. Review `secrets.yaml` mode `744` separately if hardening is prioritized. | CLOSED |
 | AEB-STAT-001 | Current repo/runtime/docs checkpoint | audit reconciliation | Later runtime evidence supersedes the May checkpoint in several areas. | M60 | BACKLOG_ONLY | — | Refresh only when needed by an active decision. | P1 |
 | AEB-DR-001 | Portability / disaster recovery MVP | P0 portability + restore audits, June 2026 | Portability blockers closed; restore drill PASS; scheduled backup PASS. | — | CLOSED | — | — | CLOSED |
 | AEB-DR-002 | Backup retention / pruning | scheduled backup follow-up | Core backup works; retention/pruning is optional follow-up. | — | BACKLOG_ONLY | — | Define preview-first retention policy only when storage pressure/maintenance justifies it. | P3 |
@@ -66,3 +66,22 @@ Evidence collected on 2026-09-20:
 - No secret value was copied into this backlog or the repository.
 
 Result: `AEB-SEC-001 = CLOSED`. Any later authentication failure is treated as an operational regression and does not reopen the historical exposure unless evidence shows a new security issue.
+
+
+## 2026-09-22 runtime secret hygiene closeout
+
+This follow-up was executed inside owner chat `M60 — AEB Control Room`; there is no separate physical M61 chat. The transient M61 label is retained only as a historical alias and must not be reused as a new chat code.
+
+Evidence verified on 2026-09-22:
+
+- Home Assistant API authentication passed against `/api/config` on runtime version `2026.4.4`.
+- SSH access passed to `mercurio-edge` as `dscomparin`.
+- Container `homeassistant` was running and the bind mount `/opt/data/homeassistant -> /config` matched the developer/runtime contract.
+- `/config/secrets.yaml` existed and contained all four required keys: `ehw_modbus_host`, `ehw_modbus_port`, `ehw_modbus_slave`, and `mirai_modbus_host`.
+- Secret hygiene gate passed with zero tracked findings; all AEB quality gates and `git diff --check` passed.
+- PR #480 merged the repository changes to `main` at `bcf47da0144cceaf76cb8d82abe9d648efba3c85`.
+- No deploy, restart, runtime permission change, or credential rotation was performed.
+
+Residual review: `/config/secrets.yaml` was observed as `root:root` mode `744`. This is non-blocking for the closed AEB-SEC-001 outcome and should be handled only as a separate hardening review if prioritized.
+
+Result: `AEB-SEC-001 = CLOSED`. The next P1 execution workstream remains `AEB-ENER-003 — Billing reconciliation + load allocation`.
