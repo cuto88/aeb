@@ -62,12 +62,10 @@ template:
         delay_on: "00:01:00"
         delay_off: "00:01:00"
 
-sensor:
-  - platform: template
-    sensors:
-      ac_branch_operating_state:
-        friendly_name: "AC branch operating state"
-        value_template: >-
+  - sensor:
+      - name: "AC branch operating state"
+        default_entity_id: sensor.ac_branch_operating_state
+        state: >-
           {% set p = states('sensor.ac_power_w') | float(default=none) %}
           {% set on_w = states('input_number.ac_power_confirm_on_w') | float(0) %}
           {% set off_w = states('input_number.ac_power_confirm_off_w') | float(0) %}
@@ -85,8 +83,8 @@ sensor:
           {% else %}
             indeterminate_hysteresis_band
           {% endif %}
-        icon_template: mdi:air-conditioner
-        attribute_templates:
+        icon: mdi:air-conditioner
+        attributes:
           measurement_entity: sensor.ac_power_w
           measurement_scope: "shared AC branch; not unit-specific"
           confirmation_delay: "60 seconds; temporal delay, not a sample-count guarantee"
@@ -94,9 +92,9 @@ sensor:
           confirmation_off_w: "{{ states('input_number.ac_power_confirm_off_w') }}"
           confirmation_enabled: "{{ states('input_boolean.ac_power_confirmation_enabled') }}"
 
-      ac_giorno_operating_state:
-        friendly_name: "AC giorno operating state"
-        value_template: >-
+      - name: "AC giorno operating state"
+        default_entity_id: sensor.ac_giorno_operating_state
+        state: >-
           {% set branch = states('sensor.ac_branch_operating_state') %}
           {% if branch == 'unknown' %}
             unknown
@@ -113,11 +111,11 @@ sensor:
           {% else %}
             request_not_confirmed
           {% endif %}
-        icon_template: mdi:air-conditioner
+        icon: mdi:air-conditioner
 
-      ac_notte_operating_state:
-        friendly_name: "AC notte operating state"
-        value_template: >-
+      - name: "AC notte operating state"
+        default_entity_id: sensor.ac_notte_operating_state
+        state: >-
           {% set branch = states('sensor.ac_branch_operating_state') %}
           {% if branch == 'unknown' %}
             unknown
@@ -134,8 +132,9 @@ sensor:
           {% else %}
             request_not_confirmed
           {% endif %}
-        icon_template: mdi:air-conditioner
+        icon: mdi:air-conditioner
 
+sensor:
   - platform: statistics
     name: t_out_effective_mean_24h
     entity_id: sensor.t_out_effective
