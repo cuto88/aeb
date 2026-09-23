@@ -310,6 +310,14 @@ views:
                 name: "AC giorno proxy"
               - entity: binary_sensor.ac_notte_is_on_proxy
                 name: "AC notte proxy"
+              - entity: switch.ac_giorno
+                name: "AC giorno — richiesta/comando"
+              - entity: switch.ac_notte
+                name: "AC notte — richiesta/comando"
+              - entity: binary_sensor.ac_branch_power_confirmed
+                name: "AC ramo — funzionamento confermato"
+              - entity: sensor.ac_branch_operating_state
+                name: "AC ramo — stato misura condivisa"
               - entity: switch.heating_master
                 name: "Heating command"
               - entity: switch.vmc_vel_1

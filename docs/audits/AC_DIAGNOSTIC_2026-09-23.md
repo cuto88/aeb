@@ -37,11 +37,17 @@ modificare alcun comando:
 - `sensor.ac_giorno_operating_state`;
 - `sensor.ac_notte_operating_state`.
 
+Il binary sensor del ramo usa isteresi reale: richiede almeno 80 W per
+accendersi, resta confermato nella banda 30–80 W e perde la conferma solo sotto
+30 W, con `delay_on` e `delay_off` temporali di 1 minuto. Se la misura non è
+disponibile o HA è in riavvio, l’entità diventa `unavailable`/`unknown`, mai
+`off`.
+
 La calibrazione Recorder ha prodotto `ON = 80 W`, `OFF = 30 W`: nello standby
 osservato il massimo è 16,98 W, mentre le finestre certamente attive hanno
 campioni da 101,4 W a 426,99 W. Il margine evita di classificare ventilazione
 o standby come compressore. La misura è campionata circa ogni 30 secondi; il
-ritardo ON/OFF implementato è di 1 minuto, cioè almeno due campioni consecutivi.
+ritardo temporale ON/OFF implementato è di 1 minuto. Il ritardo è temporale: non garantisce un numero esatto di campioni Recorder.
 Anche dopo la calibrazione la misura CH3 potrà confermare solo il ramo AC, non
 la singola unità quando giorno e notte sono contemporaneamente richiesti.
 
@@ -83,18 +89,19 @@ passa ON, seguito dal proxy e dal driver, mentre `sensor.ac_power_w` resta
 (7,93–16,98 W), quindi il comando è stato dichiarato acceso senza conferma
 fisica. La misura è disponibile in quel periodo: non è un caso `unknown`.
 
+La PR draft #482 contiene i tre file M65; il merge e il deploy non sono stati eseguiti.
+
 ## Matrice di evidenza
 
 - **Standby**: verificato dai dati, 4.928 campioni nel periodo esteso a `<=30 W`;
 - **funzionamento confermato del ramo**: verificato dai dati, 174 campioni a `>=80 W` nelle finestre attive storiche;
-- **isteresi 30–80 W**: nessun campione osservato nella retention; comportamento verificato solo dalla logica candidata e dal `check_config`;
+- **isteresi 30–80 W**: nessun campione osservato nella retention; transizioni ON → banda → OFF provate con test della logica candidata, non dal Recorder;
 - **misura assente (`unknown`/`unavailable`)**: nessun caso osservato nella retention; ramo verificato solo staticamente nella logica candidata e dal `check_config`;
 - **ramo condiviso**: verificato dai dati, `sensor.ac_power_w` e `sensor.sdm120_ch3_active_power_w_raw` hanno 3.194 campioni ciascuno e valori coincidenti nella finestra post-guasto; non consentono attribuzione alla singola unità.
 
 ## Pre-mortem
 
-- Picco transitorio: soglia ON a 80 W e conferma dopo 1 minuto; il picco deve
-  superare due campioni consecutivi.
+- Picco transitorio: soglia ON a 80 W e conferma dopo un minuto continuo sopra soglia;
 - Standby/ventilazione: ricavare la banda OFF/ON da campioni con compressore
   sicuramente fermo e attivo; mantenere la banda isteretica.
 - Misuratore guasto: `unknown`/`calibration_required`, mai `off`; la

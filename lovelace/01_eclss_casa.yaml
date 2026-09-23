@@ -499,6 +499,10 @@ views:
                 name: "AC giorno proxy"
               - entity: binary_sensor.ac_notte_is_on_proxy
                 name: "AC notte proxy"
+              - entity: binary_sensor.ac_branch_power_confirmed
+                name: "AC ramo — funzionamento confermato"
+              - entity: sensor.ac_branch_operating_state
+                name: "AC ramo — stato misura condivisa"
               - entity: binary_sensor.stagione_calda
                 name: "Hot season"
               - entity: input_number.ac_cool_setpoint

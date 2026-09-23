@@ -36,31 +36,31 @@ input_number:
     unit_of_measurement: "W"
     mode: box
 
-binary_sensor:
-  - platform: template
-    sensors:
-      ac_branch_power_confirmed:
-        friendly_name: "AC branch power confirmed"
+template:
+  - binary_sensor:
+      - name: "AC branch power confirmed"
+        unique_id: ac_branch_power_confirmed
+        default_entity_id: binary_sensor.ac_branch_power_confirmed
         device_class: running
-        value_template: >-
+        state: >-
           {% set p = states('sensor.ac_power_w') | float(default=none) %}
           {% set on_w = states('input_number.ac_power_confirm_on_w') | float(0) %}
+          {% set off_w = states('input_number.ac_power_confirm_off_w') | float(0) %}
+          {% set was_on = this.state == 'on' %}
           {{
-            is_state('input_boolean.ac_power_confirmation_enabled','on')
-            and p is number
-            and on_w > 0
-            and p >= on_w
+            p is number
+            and on_w > off_w
+            and (p >= on_w or (was_on and p >= off_w))
           }}
-        availability_template: >-
+        availability: >-
           {{
             is_state('input_boolean.ac_power_confirmation_enabled','on')
             and states('sensor.ac_power_w') not in ['unknown','unavailable','']
             and states('input_number.ac_power_confirm_on_w') | float(0) > 0
+            and states('input_number.ac_power_confirm_off_w') | float(0) >= 0
           }}
-        delay_on:
-          minutes: 1
-        delay_off:
-          minutes: 1
+        delay_on: "00:01:00"
+        delay_off: "00:01:00"
 
 sensor:
   - platform: template
