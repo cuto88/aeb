@@ -50,14 +50,11 @@ Tutti i package clima **devono** usare **esattamente** questi `entity_id`.
 | Stato operativo comfort AC | `sensor.ac_comfort_operating_state` |
 | Motivo zona giorno | `sensor.ac_giorno_comfort_reason` |
 | Motivo zona notte | `sensor.ac_notte_comfort_reason` |
-| Modalità HVAC richiesta zona giorno | `sensor.ac_giorno_requested_hvac_mode` |
-| Modalità HVAC richiesta zona notte | `sensor.ac_notte_requested_hvac_mode` |
 | Dew point zona giorno | `sensor.ac_giorno_dew_point` |
 | Temperatura controllo zona notte | `sensor.ac_notte_temperatura_controllo` |
 | Umidità controllo zona notte | `sensor.ac_notte_umidita_controllo` |
 | Dew point zona notte | `sensor.ac_notte_dew_point` |
 | Pausa automatismo AC | `input_boolean.ac_auto_pause` |
-| Abilitazione deumidificazione automatica | `input_boolean.ac_auto_dry_enabled` |
 | Delta temperatura avvio | `input_number.ac_comfort_temp_on_delta` |
 | Soglia UR avvio | `input_number.ac_comfort_ur_on` |
 | Soglia UR rientro | `input_number.ac_comfort_ur_off` |
@@ -278,6 +275,10 @@ Non è un rename: la coesistenza è intenzionale. Warning alias possibile: `clim
 | AC night — last OFF                       | `sensor.ac_notte_ultimo_off`              |
 | AC day ON proxy (observed/logic bridge)   | `binary_sensor.ac_giorno_is_on_proxy`     |
 | AC night ON proxy (observed/logic bridge) | `binary_sensor.ac_notte_is_on_proxy`      |
+| AC branch power confirmation               | `binary_sensor.ac_branch_power_confirmed` |
+| AC branch operating state (shared meter)   | `sensor.ac_branch_operating_state`       |
+| AC day operating state                     | `sensor.ac_giorno_operating_state`       |
+| AC night operating state                   | `sensor.ac_notte_operating_state`        |
 
 ---
 
@@ -435,4 +436,5 @@ Entità principali:
 - `sensor.cm_system_reason`
 
 Nota: le entità legacy restano attive per un ciclo, ma non sono più naming target.
+
 
