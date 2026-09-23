@@ -302,6 +302,46 @@ systems:
       nominal_capacity_l: 300
       confidence: documented
       source: data/assets.yaml#asset.dhw.ehw
+    installed_model_manual:
+      document_id: E7000670C
+      applies_to:
+        - EQ 2018
+        - EQ 3018 ES
+      source: https://areariservata.emmeti.com/it/vfm/Documenti/Documenti%20tecnici/Manuali%20uso%20e%20installazione/E7000670C.pdf
+      confidence: documented_model_specific
+      operating_limits:
+        water_temperature_c:
+          min: 9
+          max: 60
+        user_setpoint_c:
+          min: 10
+          max: 60
+          step: 0.5
+        manual_overtemperature_trip_c_approx: 85
+      legionella_factory_parameters:
+        g01:
+          meaning: thermal_treatment_setpoint_c
+          default: 60
+          min: 30
+          max: 70
+        g02:
+          meaning: thermal_treatment_duration_min
+          default: 0
+          min: 0
+          max: 90
+        g03:
+          meaning: thermal_treatment_start_hour
+          default: 0
+          min: 0
+          max: 23
+        g04:
+          meaning: thermal_treatment_interval_days
+          default: 7
+          min: 7
+          max: 99
+      notes: >-
+        g02=0 min disables the factory treatment by default. Current installed
+        g01..g04 values remain runtime evidence, not inferred from defaults.
     family_reference_manual:
       note: >-
         Ecohotwater.pdf Rev. A 04.2021 covers EQ 2021 and EQ 3021 ES, not the
@@ -344,8 +384,7 @@ systems:
       - governed_writer_path
       - reversible_setpoint_write_on_register_1104_validated
     missing_for_policy:
-      - model_specific_EQ3018_ES_operating_limits
-      - model_specific_legionella_policy_and_current_configuration
+      - current_installed_g01_g02_g03_g04_values
       - min_comfort_temperature
       - max_safe_setpoint
       - user_draw_profile
