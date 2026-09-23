@@ -87,7 +87,7 @@ sensor:
         attribute_templates:
           measurement_entity: sensor.ac_power_w
           measurement_scope: "shared AC branch; not unit-specific"
-          confirmation_delay: "1 minute; two approximately 30 s samples"
+          confirmation_delay: "60 seconds; temporal delay, not a sample-count guarantee"
           confirmation_on_w: "{{ states('input_number.ac_power_confirm_on_w') }}"
           confirmation_off_w: "{{ states('input_number.ac_power_confirm_off_w') }}"
           confirmation_enabled: "{{ states('input_boolean.ac_power_confirmation_enabled') }}"

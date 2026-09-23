@@ -227,7 +227,7 @@ views:
             name: "UR giorno"
           - type: tile
             entity: climate.ac_giorno
-            name: "AC giorno"
+            name: "AC giorno — richiesta/comando SwitchBot"
             state_content:
               - preset_mode
               - current_temperature
@@ -257,7 +257,7 @@ views:
             name: "UR notte media"
           - type: tile
             entity: climate.ac_notte
-            name: "AC notte"
+            name: "AC notte — richiesta/comando SwitchBot"
             state_content:
               - preset_mode
               - current_temperature
@@ -496,9 +496,9 @@ views:
               - entity: switch.ac_notte
                 name: "AC notte"
               - entity: binary_sensor.ac_giorno_is_on_proxy
-                name: "AC giorno proxy"
+                name: "AC giorno — proxy richiesta/comando SwitchBot"
               - entity: binary_sensor.ac_notte_is_on_proxy
-                name: "AC notte proxy"
+                name: "AC notte — proxy richiesta/comando SwitchBot"
               - entity: binary_sensor.ac_branch_power_confirmed
                 name: "AC ramo — funzionamento confermato"
               - entity: sensor.ac_branch_operating_state

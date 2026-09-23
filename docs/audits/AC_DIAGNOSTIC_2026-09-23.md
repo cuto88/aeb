@@ -98,7 +98,7 @@ La PR draft #482 contiene i tre file M65; il merge e il deploy non sono stati es
 - **isteresi 30–80 W**: nessun campione osservato nella retention; transizioni ON → banda → OFF provate con test della logica candidata, non dal Recorder;
 - **misura assente (`unknown`/`unavailable`)**: nessun caso osservato nella retention; ramo verificato solo staticamente nella logica candidata e dal `check_config`;
 - **ramo condiviso**: verificato dai dati, `sensor.ac_power_w` e `sensor.sdm120_ch3_active_power_w_raw` hanno 3.194 campioni ciascuno e valori coincidenti nella finestra post-guasto; non consentono attribuzione alla singola unità.
-
+\n`unknown` copre una misura dichiarata indisponibile (`unknown`/`unavailable`). Un misuratore fermo sull’ultimo valore ma ancora disponibile non viene rilevato da questa logica: richiede un controllo di freschezza separato, da introdurre solo dopo aver verificato dati e comportamento.\n
 ## Pre-mortem
 
 - Picco transitorio: soglia ON a 80 W e conferma dopo un minuto continuo sopra soglia;
@@ -118,7 +118,7 @@ La PR draft #482 contiene i tre file M65; il merge e il deploy non sono stati es
 - legacy `.84:2222`: non usato;
 - accesso: SSH read-only da DS-WORK via alias `mercurio-edge`;
 - deploy/modifiche runtime/comandi impianto: no;
-- commit/GitHub Actions: nessuno;
+- commit/PR: PR draft #482 sul branch `codex/m65-ac-feedback-20260923-v3`; il merge e il deploy non sono stati eseguiti; GitHub Actions: nessun check pubblicato al momento della verifica;
 - trace: `trace.saved_traces` disponibile ma fermo al 2026-08-21; non contiene
   trace del 22 settembre, quindi la correlazione event-level della trace non è
   disponibile oltre la timeline Recorder.
