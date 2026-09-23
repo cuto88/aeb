@@ -278,6 +278,10 @@ Non è un rename: la coesistenza è intenzionale. Warning alias possibile: `clim
 | AC night — last OFF                       | `sensor.ac_notte_ultimo_off`              |
 | AC day ON proxy (observed/logic bridge)   | `binary_sensor.ac_giorno_is_on_proxy`     |
 | AC night ON proxy (observed/logic bridge) | `binary_sensor.ac_notte_is_on_proxy`      |
+| AC branch power confirmation               | `binary_sensor.ac_branch_power_confirmed` |
+| AC branch operating state (shared meter)   | `sensor.ac_branch_operating_state`       |
+| AC day operating state                     | `sensor.ac_giorno_operating_state`       |
+| AC night operating state                   | `sensor.ac_notte_operating_state`        |
 
 ---
 

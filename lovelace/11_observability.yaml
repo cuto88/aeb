@@ -307,9 +307,17 @@ views:
               - entity: binary_sensor.vmc_is_running_proxy
                 name: "VMC proxy"
               - entity: binary_sensor.ac_giorno_is_on_proxy
-                name: "AC giorno proxy"
+                name: "AC giorno — proxy richiesta/comando SwitchBot"
               - entity: binary_sensor.ac_notte_is_on_proxy
-                name: "AC notte proxy"
+                name: "AC notte — proxy richiesta/comando SwitchBot"
+              - entity: switch.ac_giorno
+                name: "AC giorno — richiesta/comando SwitchBot"
+              - entity: switch.ac_notte
+                name: "AC notte — richiesta/comando SwitchBot"
+              - entity: binary_sensor.ac_branch_power_confirmed
+                name: "AC ramo — funzionamento confermato"
+              - entity: sensor.ac_branch_operating_state
+                name: "AC ramo — stato misura condivisa"
               - entity: switch.heating_master
                 name: "Heating command"
               - entity: switch.vmc_vel_1

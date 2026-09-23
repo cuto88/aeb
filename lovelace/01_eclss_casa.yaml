@@ -227,7 +227,7 @@ views:
             name: "UR giorno"
           - type: tile
             entity: climate.ac_giorno
-            name: "AC giorno"
+            name: "AC giorno — richiesta/comando SwitchBot"
             state_content:
               - preset_mode
               - current_temperature
@@ -257,7 +257,7 @@ views:
             name: "UR notte media"
           - type: tile
             entity: climate.ac_notte
-            name: "AC notte"
+            name: "AC notte — richiesta/comando SwitchBot"
             state_content:
               - preset_mode
               - current_temperature
@@ -334,9 +334,9 @@ views:
             show_header_toggle: false
             entities:
               - entity: switch.ac_giorno
-                name: "AC giorno"
+                name: "AC giorno — richiesta/comando SwitchBot"
               - entity: switch.ac_notte
-                name: "AC notte"
+                name: "AC notte — richiesta/comando SwitchBot"
               - entity: input_boolean.ac_block_vmc
                 name: "Block da VMC"
               - entity: binary_sensor.ac_block_by_vmc
@@ -415,9 +415,9 @@ views:
               - entity: sensor.ac_reason
                 name: "Reason AC"
               - entity: switch.ac_giorno
-                name: "AC giorno"
+                name: "AC giorno — richiesta/comando SwitchBot"
               - entity: switch.ac_notte
-                name: "AC notte"
+                name: "AC notte — richiesta/comando SwitchBot"
           - type: history-graph
             title: "Heating 12h"
             hours_to_show: 12
@@ -492,13 +492,17 @@ views:
             show_header_toggle: false
             entities:
               - entity: switch.ac_giorno
-                name: "AC giorno"
+                name: "AC giorno — richiesta/comando SwitchBot"
               - entity: switch.ac_notte
-                name: "AC notte"
+                name: "AC notte — richiesta/comando SwitchBot"
               - entity: binary_sensor.ac_giorno_is_on_proxy
-                name: "AC giorno proxy"
+                name: "AC giorno — proxy richiesta/comando SwitchBot"
               - entity: binary_sensor.ac_notte_is_on_proxy
-                name: "AC notte proxy"
+                name: "AC notte — proxy richiesta/comando SwitchBot"
+              - entity: binary_sensor.ac_branch_power_confirmed
+                name: "AC ramo — funzionamento confermato"
+              - entity: sensor.ac_branch_operating_state
+                name: "AC ramo — stato misura condivisa"
               - entity: binary_sensor.stagione_calda
                 name: "Hot season"
               - entity: input_number.ac_cool_setpoint
