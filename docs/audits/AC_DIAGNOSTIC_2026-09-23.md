@@ -83,6 +83,14 @@ passa ON, seguito dal proxy e dal driver, mentre `sensor.ac_power_w` resta
 (7,93–16,98 W), quindi il comando è stato dichiarato acceso senza conferma
 fisica. La misura è disponibile in quel periodo: non è un caso `unknown`.
 
+## Matrice di evidenza
+
+- **Standby**: verificato dai dati, 4.928 campioni nel periodo esteso a `<=30 W`;
+- **funzionamento confermato del ramo**: verificato dai dati, 174 campioni a `>=80 W` nelle finestre attive storiche;
+- **isteresi 30–80 W**: nessun campione osservato nella retention; comportamento verificato solo dalla logica candidata e dal `check_config`;
+- **misura assente (`unknown`/`unavailable`)**: nessun caso osservato nella retention; ramo verificato solo staticamente nella logica candidata e dal `check_config`;
+- **ramo condiviso**: verificato dai dati, `sensor.ac_power_w` e `sensor.sdm120_ch3_active_power_w_raw` hanno 3.194 campioni ciascuno e valori coincidenti nella finestra post-guasto; non consentono attribuzione alla singola unità.
+
 ## Pre-mortem
 
 - Picco transitorio: soglia ON a 80 W e conferma dopo 1 minuto; il picco deve
