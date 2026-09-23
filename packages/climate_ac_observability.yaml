@@ -76,6 +76,8 @@ sensor:
             calibration_required
           {% elif p is not number %}
             unknown
+          {% elif states('binary_sensor.ac_branch_power_confirmed') in ['unknown','unavailable'] %}
+            unknown
           {% elif is_state('binary_sensor.ac_branch_power_confirmed','on') %}
             confirmed_on
           {% elif p <= off_w %}
