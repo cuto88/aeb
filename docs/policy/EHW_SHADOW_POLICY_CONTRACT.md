@@ -37,17 +37,23 @@ The shadow package must not:
   `sensor.ehw_tank_bottom`.
 - The safe writer targets Modbus register `1104` and has validated dry-run and
   narrow live-write paths.
-- The vendor range for register `1104` is 10-60 degC. This is a transport range,
-  not an approved operating policy.
+- The model-specific Emmeti manual `E7000670C` for `EQ 2018 / EQ 3018 ES`
+  documents a 9-60 degC water operating field and a user setpoint of 10-60
+  degC in 0.5 degC increments. The validated writer register `1104` exposes the
+  same 10-60 degC setpoint range. This is a manufacturer boundary, not by
+  itself an approved comfort/preheat policy.
 - The installed unit is documented in the AEB digital twin as an Emmeti
   Eco Hot Water `EQ 3018 ES`, nominal capacity 300 L. The source is the 2021
   plant design plus the owner's confirmation that the installed ACS unit was
   not replaced.
-- Dropbox contains `Ecohotwater.pdf`, Rev. A 04/2021, for the later/different
-  `EQ 2021` and `EQ 3021 ES` models. It documents a configurable thermal ACS
-  treatment for limiting Legionella, disabled by default and governed by
-  parameters `g01..g04`. This is useful family evidence but is not accepted as
-  model-specific authority for the installed `EQ 3018 ES`.
+- The same model-specific manual documents a thermal ACS treatment for limiting
+  Legionella with factory parameters: `g01=60 degC` (range 30-70), `g02=0 min`
+  (range 0-90), `g03=0 h` (range 0-23), and `g04=7 d` (range 7-99). The factory
+  treatment is effectively disabled by the zero-minute duration. These defaults
+  do not prove the current installed configuration.
+- Dropbox also contains `Ecohotwater.pdf`, Rev. A 04/2021, for the later
+  `EQ 2021 / EQ 3021 ES` generation. It is retained as family evidence but is
+  not the authority for installed-unit limits.
 - `binary_sensor.policy_surplus_ok` has 2 minute ON and 3 minute OFF hysteresis.
 - Grid direction and power are normalized through
   `binary_sensor.policy_grid_importing_now` and `sensor.policy_grid_power_w`.
@@ -62,8 +68,8 @@ recommendation until explicitly verified:
 - minimum comfort temperature;
 - normal operating target;
 - maximum normal/preheat target;
-- native `EQ 3018 ES` legionella schedule, authority, setpoint and current
-  configuration;
+- current installed values of `g01..g04` and the resulting native legionella
+  schedule/state;
 - acceptable input freshness at runtime;
 - user draw profile.
 
@@ -161,8 +167,8 @@ accounting and tariff baseline. They must not be labelled as measured savings.
 
 All conditions are mandatory:
 
-- installed model remains `EQ 3018 ES`; its model-specific manufacturer
-  operating constraints are verified;
+- installed model remains `EQ 3018 ES`; model-specific manufacturer operating
+  constraints remain sourced from manual `E7000670C`;
 - comfort minimum, normal target and maximum preheat target approved;
 - native legionella behavior documented and left authoritative;
 - at least 14 consecutive days of valid shadow history;
