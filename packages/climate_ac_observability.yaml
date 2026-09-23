@@ -8,7 +8,132 @@ counter:
     initial: 0
     step: 1
 
+# Measurement confirmation is branch-level.  The SDM120 CH3 meter is shared by
+# both AC units, so it can confirm the branch but cannot attribute compressor
+# activity to day or night.  The thresholds below are calibrated from the
+# Recorder evidence documented in docs/audits/AC_DIAGNOSTIC_2026-09-23.md.
+input_boolean:
+  ac_power_confirmation_enabled:
+    name: "AC power confirmation enabled"
+    icon: mdi:flash-check-outline
+    initial: true
+
+input_number:
+  ac_power_confirm_on_w:
+    name: "AC power confirmation ON threshold"
+    min: 0
+    max: 5000
+    step: 1
+    initial: 80
+    unit_of_measurement: "W"
+    mode: box
+  ac_power_confirm_off_w:
+    name: "AC power confirmation OFF threshold"
+    min: 0
+    max: 5000
+    step: 1
+    initial: 30
+    unit_of_measurement: "W"
+    mode: box
+
+binary_sensor:
+  - platform: template
+    sensors:
+      ac_branch_power_confirmed:
+        friendly_name: "AC branch power confirmed"
+        device_class: running
+        value_template: >-
+          {% set p = states('sensor.ac_power_w') | float(default=none) %}
+          {% set on_w = states('input_number.ac_power_confirm_on_w') | float(0) %}
+          {{
+            is_state('input_boolean.ac_power_confirmation_enabled','on')
+            and p is number
+            and on_w > 0
+            and p >= on_w
+          }}
+        availability_template: >-
+          {{
+            is_state('input_boolean.ac_power_confirmation_enabled','on')
+            and states('sensor.ac_power_w') not in ['unknown','unavailable','']
+            and states('input_number.ac_power_confirm_on_w') | float(0) > 0
+          }}
+        delay_on:
+          minutes: 1
+        delay_off:
+          minutes: 1
+
 sensor:
+  - platform: template
+    sensors:
+      ac_branch_operating_state:
+        friendly_name: "AC branch operating state"
+        value_template: >-
+          {% set p = states('sensor.ac_power_w') | float(default=none) %}
+          {% set on_w = states('input_number.ac_power_confirm_on_w') | float(0) %}
+          {% set off_w = states('input_number.ac_power_confirm_off_w') | float(0) %}
+          {% set enabled = is_state('input_boolean.ac_power_confirmation_enabled','on') %}
+          {% if not enabled or on_w <= 0 or off_w <= 0 or on_w <= off_w %}
+            calibration_required
+          {% elif p is not number %}
+            unknown
+          {% elif is_state('binary_sensor.ac_branch_power_confirmed','on') %}
+            confirmed_on
+          {% elif p <= off_w %}
+            off
+          {% else %}
+            indeterminate_hysteresis_band
+          {% endif %}
+        icon_template: mdi:air-conditioner
+        attribute_templates:
+          measurement_entity: sensor.ac_power_w
+          measurement_scope: "shared AC branch; not unit-specific"
+          confirmation_delay: "1 minute; two approximately 30 s samples"
+          confirmation_on_w: "{{ states('input_number.ac_power_confirm_on_w') }}"
+          confirmation_off_w: "{{ states('input_number.ac_power_confirm_off_w') }}"
+          confirmation_enabled: "{{ states('input_boolean.ac_power_confirmation_enabled') }}"
+
+      ac_giorno_operating_state:
+        friendly_name: "AC giorno operating state"
+        value_template: >-
+          {% set branch = states('sensor.ac_branch_operating_state') %}
+          {% if branch == 'unknown' %}
+            unknown
+          {% elif branch == 'calibration_required' %}
+            calibration_required
+          {% elif states('switch.ac_giorno') in ['unknown','unavailable'] %}
+            unknown
+          {% elif is_state('switch.ac_giorno','off') %}
+            off
+          {% elif branch == 'confirmed_on' and is_state('switch.ac_notte','off') %}
+            confirmed_branch_only_not_unit
+          {% elif branch == 'confirmed_on' %}
+            confirmed_shared_branch_not_unit
+          {% else %}
+            request_not_confirmed
+          {% endif %}
+        icon_template: mdi:air-conditioner
+
+      ac_notte_operating_state:
+        friendly_name: "AC notte operating state"
+        value_template: >-
+          {% set branch = states('sensor.ac_branch_operating_state') %}
+          {% if branch == 'unknown' %}
+            unknown
+          {% elif branch == 'calibration_required' %}
+            calibration_required
+          {% elif states('switch.ac_notte') in ['unknown','unavailable'] %}
+            unknown
+          {% elif is_state('switch.ac_notte','off') %}
+            off
+          {% elif branch == 'confirmed_on' and is_state('switch.ac_giorno','off') %}
+            confirmed_branch_only_not_unit
+          {% elif branch == 'confirmed_on' %}
+            confirmed_shared_branch_not_unit
+          {% else %}
+            request_not_confirmed
+          {% endif %}
+        icon_template: mdi:air-conditioner
+
   - platform: statistics
     name: t_out_effective_mean_24h
     entity_id: sensor.t_out_effective
@@ -96,3 +221,4 @@ sensor:
     type: time
     start: "{{ now() - timedelta(hours=24) }}"
     end: "{{ now() }}"
+
