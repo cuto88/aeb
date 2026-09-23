@@ -39,6 +39,15 @@ The shadow package must not:
   narrow live-write paths.
 - The vendor range for register `1104` is 10-60 degC. This is a transport range,
   not an approved operating policy.
+- The installed unit is documented in the AEB digital twin as an Emmeti
+  Eco Hot Water `EQ 3018 ES`, nominal capacity 300 L. The source is the 2021
+  plant design plus the owner's confirmation that the installed ACS unit was
+  not replaced.
+- Dropbox contains `Ecohotwater.pdf`, Rev. A 04/2021, for the later/different
+  `EQ 2021` and `EQ 3021 ES` models. It documents a configurable thermal ACS
+  treatment for limiting Legionella, disabled by default and governed by
+  parameters `g01..g04`. This is useful family evidence but is not accepted as
+  model-specific authority for the installed `EQ 3018 ES`.
 - `binary_sensor.policy_surplus_ok` has 2 minute ON and 3 minute OFF hysteresis.
 - Grid direction and power are normalized through
   `binary_sensor.policy_grid_importing_now` and `sensor.policy_grid_power_w`.
@@ -53,8 +62,8 @@ recommendation until explicitly verified:
 - minimum comfort temperature;
 - normal operating target;
 - maximum normal/preheat target;
-- installed EHW model;
-- native legionella schedule, authority and setpoint;
+- native `EQ 3018 ES` legionella schedule, authority, setpoint and current
+  configuration;
 - acceptable input freshness at runtime;
 - user draw profile.
 
@@ -152,7 +161,8 @@ accounting and tariff baseline. They must not be labelled as measured savings.
 
 All conditions are mandatory:
 
-- installed model and manufacturer operating constraints verified;
+- installed model remains `EQ 3018 ES`; its model-specific manufacturer
+  operating constraints are verified;
 - comfort minimum, normal target and maximum preheat target approved;
 - native legionella behavior documented and left authoritative;
 - at least 14 consecutive days of valid shadow history;
