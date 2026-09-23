@@ -223,4 +223,3 @@ sensor:
     type: time
     start: "{{ now() - timedelta(hours=24) }}"
     end: "{{ now() }}"
-
