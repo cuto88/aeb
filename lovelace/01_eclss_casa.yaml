@@ -334,9 +334,9 @@ views:
             show_header_toggle: false
             entities:
               - entity: switch.ac_giorno
-                name: "AC giorno"
+                name: "AC giorno — richiesta/comando SwitchBot"
               - entity: switch.ac_notte
-                name: "AC notte"
+                name: "AC notte — richiesta/comando SwitchBot"
               - entity: input_boolean.ac_block_vmc
                 name: "Block da VMC"
               - entity: binary_sensor.ac_block_by_vmc
