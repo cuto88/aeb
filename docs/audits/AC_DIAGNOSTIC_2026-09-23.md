@@ -89,7 +89,7 @@ passa ON, seguito dal proxy e dal driver, mentre `sensor.ac_power_w` resta
 (7,93–16,98 W), quindi il comando è stato dichiarato acceso senza conferma
 fisica. La misura è disponibile in quel periodo: non è un caso `unknown`.
 
-La PR draft #482 contiene i tre file M65; il merge e il deploy non sono stati eseguiti.
+La PR draft #482 contiene cinque file M65 (package, rapporto, README sensori e le due viste); il merge e il deploy non sono stati eseguiti.
 
 ## Matrice di evidenza
 
@@ -98,7 +98,33 @@ La PR draft #482 contiene i tre file M65; il merge e il deploy non sono stati es
 - **isteresi 30–80 W**: nessun campione osservato nella retention; transizioni ON → banda → OFF provate con test della logica candidata, non dal Recorder;
 - **misura assente (`unknown`/`unavailable`)**: nessun caso osservato nella retention; ramo verificato solo staticamente nella logica candidata e dal `check_config`;
 - **ramo condiviso**: verificato dai dati, `sensor.ac_power_w` e `sensor.sdm120_ch3_active_power_w_raw` hanno 3.194 campioni ciascuno e valori coincidenti nella finestra post-guasto; non consentono attribuzione alla singola unità.
-\n`unknown` copre una misura dichiarata indisponibile (`unknown`/`unavailable`). Un misuratore fermo sull’ultimo valore ma ancora disponibile non viene rilevato da questa logica: richiede un controllo di freschezza separato, da introdurre solo dopo aver verificato dati e comportamento.\n
+
+`unknown` copre una misura dichiarata indisponibile (`unknown`/`unavailable`). Un misuratore fermo sull’ultimo valore ma ancora disponibile non viene rilevato da questa logica: richiede un controllo di freschezza separato, da introdurre solo dopo aver verificato dati e comportamento.
+
+### Riavvio HA e freschezza della misura
+
+La logica operativa ora controlla prima lo stato del binary sensor di conferma:
+se è `unknown` o `unavailable`, `sensor.ac_branch_operating_state` è
+`unknown` anche quando `sensor.ac_power_w` espone temporaneamente un numero
+ripristinato. La transizione è stata provata con test mirato della logica, senza
+inviare comandi al clima; non è stata osservata nel Recorder storico.
+
+Nel repository non esiste un heartbeat o timestamp indipendente che attesti una
+lettura Modbus SDM120 riuscita: `packages/sdm120_modbus.yaml` aggiorna le
+entità derivate con un trigger periodico di 30 secondi, ma non espone l'esito
+della lettura. Nel runtime, le ultime 24 ore del canale raw hanno 2.855
+campioni, gap mediano 30,064 s, p95 30,066 s e massimo 60,178 s; non ci sono
+stati `unknown` e non risultano coppie consecutive identiche nel Recorder.
+Questo non dimostra che un valore fermo venga rilevato: il Recorder registra il
+valore, non il successo della lettura Modbus.
+
+Il punto d'integrazione corretto è il produttore Modbus/SDM120: esporre un
+`last_success_timestamp` o contatore monotono aggiornato solo dopo una lettura
+riuscita, insieme a disponibilità, errori e intervallo. Servono 24–48 ore di
+raccolta passiva di questi segnali; il timeout va scelto dal p99/massimo dei gap
+normali e dal numero di poll persi documentato. Non è stato introdotto un
+surrogato basato su `last_changed`/valore di potenza né un timeout arbitrario.
+
 ## Pre-mortem
 
 - Picco transitorio: soglia ON a 80 W e conferma dopo un minuto continuo sopra soglia;
