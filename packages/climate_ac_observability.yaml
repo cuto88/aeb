@@ -134,6 +134,7 @@ template:
           {% endif %}
         icon: mdi:air-conditioner
 
+sensor:
   - platform: statistics
     name: t_out_effective_mean_24h
     entity_id: sensor.t_out_effective
