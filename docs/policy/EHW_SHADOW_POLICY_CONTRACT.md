@@ -66,6 +66,13 @@ The shadow package must not:
 - At the audit instant the house was importing about 646 W while the calculated
   surplus was about 113 W and `binary_sensor.policy_surplus_ok` was off. This is
   a verified example where production alone must not authorize preheat.
+- A 274-second live-state test showed no `last_reported` advance on the tested
+  `_a` EHW candidates while SDM120 advanced. This does not yet prove failure of
+  the active transport: runtime `doc_0_based` selects the physical `_b` sources.
+  Until those sources pass a greater-than-240-second test, no EHW entity is a
+  validated freshness authority and this package remains undeployed.
+- `binary_sensor.cm_modbus_ehw_ready` is value-presence only; it cannot by
+  itself authorize a shadow decision or establish current transport health.
 
 ## Policy bounds and remaining verification
 
@@ -122,10 +129,59 @@ reports even if its value is unchanged. `last_updated` is only a compatibility
 fallback. Recorder `last_updated` alone must not be used to classify an unchanged
 setpoint as stale.
 
+The branch-only M63 transport hardening candidate applies a stricter 240-second
+gate to the three physical `_b` raw sources for addresses 2020, 2021 and 1104.
+The shadow policy's configurable 300-second limit remains an outer limit; the
+transport readiness gate must already be true before any policy decision can be
+proposed.
+
 Recorder persistence is not the freshness authority: a `NULL`
 `last_reported_ts` means `last_reported == last_updated` for that stored row, and
 unchanged reports may not create a new history row. Pre-deploy validation must
 therefore read `last_reported` from the live Home Assistant state object.
+
+The live state-object test on 2026-09-24 observed no `last_reported` advance for
+the tested `_a` candidates or derived EHW entities over 274 seconds, while
+SDM120 advanced. EHW freshness remains a blocker, but the active `_b` transport
+path still requires validation before diagnosing a transport failure.
+`binary_sensor.cm_modbus_ehw_ready` must not override this block because its
+current implementation is value-presence only, not age-aware.
+
+A subsequent 282-second test validated `doc_0_based` routing and confirmed that
+the selected raw inputs for addresses 2020, 2021 and 1104 did not advance,
+while address 2019 and SDM120 did. This closes the deployment gate as
+`BLOCK_DATA_STALE`. The transport contains duplicate entity declarations per
+physical address; matching aliases and Modbus logs must be audited before any
+mapping change. Until then, no EHW temperature or setpoint source is a validated
+freshness authority for this policy.
+
+The duplicate-pair follow-up showed identical behavior within each shared
+address: both aliases of 2019 advanced, while both aliases of 2020, 2021 and
+1104 did not. The current classification is therefore `REGISTER_PATH_STALE`,
+not duplicate-alias scheduling. Duplicate transport declarations should still
+be removed eventually, but only after passive polling coverage identifies the
+actual failure boundary.
+
+The subsequent 727-second matrix confirmed degraded, non-uniform polling:
+addresses 2019 and 2024 advanced slowly, addresses 2020 through 2023 remained
+stale, and every observed parameter from 1082 through 1109, including setpoint
+1104, remained stale. There is no simple sequential cutoff and no EHW source
+currently qualifies as freshness authority. The shadow deployment gate remains
+closed with `BLOCK_DATA_STALE`.
+
+The synchronized 777-second REST/log observation classified the fault as
+`SILENT_POLL_FAILURE`: only T05 advanced, the required temperature/setpoint
+chain remained stale, the EHW socket existed, and the available logs contained
+no correlated error. Repeating the same passive audit is no longer a promotion
+gate. Transport hardening and a successful post-change freshness test are now
+prerequisites; the shadow package itself remains undeployed and non-actuating.
+
+The prepared hardening candidate does not remove or rename entities. It retains
+legacy `_a` raw sensors at a six-hour diagnostic cadence, keeps only 2020/2021/
+1104 at the 180-second decision cadence, and makes EHW readiness age-aware.
+This avoids an unverified entity-registry migration while materially reducing
+polling load. It is not runtime evidence until separately authorized and
+deployed.
 
 ## Decision priority
 
