@@ -45,3 +45,27 @@ The owner approved the 45/50/55 degC shadow bounds on 2026-09-24. The package is
 not authorized for deployment yet: the remaining pre-deploy gate is validation
 of its freshness logic against `last_reported`. Missing `g01..g04` blocks live promotion and any
 attempt to control treatment; it does not justify inventing Modbus registers.
+
+## Freshness follow-up — Recorder interpretation
+
+A DS-XPS read-only observation from `2026-09-24T06:19:18Z` to
+`2026-09-24T06:22:55Z` found `last_reported_ts = NULL` on the recorded EHW and
+derived grid rows, while the raw SDM120 row had an explicit timestamp.
+
+This does **not** prove a failed report. Home Assistant Recorder intentionally
+stores `last_reported_ts` as `NULL` when `last_reported == last_updated`; the
+effective report timestamp for that row is therefore `last_updated_ts`. Recorder
+also cannot by itself demonstrate repeated unchanged reports when no new state
+row is persisted. The SQL test is classified `INCONCLUSIVE`, not `FAIL`.
+
+Observed facts retained:
+
+- raw SDM120 reports were visible at about 30 second intervals;
+- EHW bottom changed during the window and produced a fresh row;
+- EHW top and setpoint did not produce a new Recorder row during the 217 second
+  window;
+- runtime writes remained zero.
+
+The remaining gate must inspect the live Home Assistant state object's
+`last_reported` before and after a poll, rather than interpreting nullable
+Recorder columns directly.
