@@ -108,11 +108,14 @@ Executed through Home Assistant `/api/template` using synthetic values only; no 
 
 No M64-specific template, climate, or actuator errors were found in the post-restart filtered logs. The runtime log contained unrelated/pre-existing Modbus and Meross timeouts, duplicate template unique-ID messages, and unavailable external sensors; these are recorded as environmental noise and were not introduced by the M64 files.
 
-## Publication status
+## Publication and closeout status
 
-- Audit updated locally.
-- Commit/PR: not created; local Git mutation remains disabled by repository policy.
-- `CHAT_PORTFOLIO`: not updated, pending the user's requested publication workflow.
-- No credentials, tokens, or HA secret values are recorded.
+- Audit published through PR #487.
+- Merge commit on `main`: `16d72baad854f9b6b8cf2cfa4dcc68973058ac92`.
+- CI quality gates: PASS.
+- PR #487 modified only this audit file; the five M64 implementation files were already equivalent to `origin/main` and were not reapplied.
+- `CHAT_PORTFOLIO`: M64 updated to `ARCHIVED` on 2026-09-24 with this audit as SSOT link.
+- The next real humidity-only event remains a non-blocking operational observation; it does not prevent closeout.
+- No credentials, tokens, or Home Assistant secret values are recorded.
 
-**Task status: NON ARCHIVIABILE.** Runtime deployment and verification are complete, but the audit still requires publication through the approved branch/PR workflow before archival.
+**Task status: ARCHIVIABILE.** Implementation, runtime deployment, reversible commissioning, audit publication, backlog reconciliation, and chat registry closeout are complete.
