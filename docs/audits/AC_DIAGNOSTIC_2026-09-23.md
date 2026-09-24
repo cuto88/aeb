@@ -226,8 +226,9 @@ timestamp di: switch/proxy OFF, primo valore stabilmente sotto 30 W,
 `ac_branch_power_confirmed=off` e `ac_branch_operating_state=off`.
 
 La conferma ON resta dimostrata. La conferma OFF è osservata nello stato
-finale entro le 22:57:07, ma il suo ritardo non è dimostrato; M65 resta
-`ACTIVE`. La banda 30–80 W non è stata osservata runtime. La funzione
+finale entro le 22:57:07, ma il suo ritardo non è dimostrato; questo limite è
+registrato nella chiusura senza presentare il timer come misurato. La banda
+30–80 W non è stata osservata runtime. La funzione
 post-OFF e il consumo intermedio sono descritti separatamente nella sezione
 manuale seguente e non vengono inferiti dai soli watt osservati.
 
