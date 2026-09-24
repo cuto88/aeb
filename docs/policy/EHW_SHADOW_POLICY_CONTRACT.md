@@ -4,7 +4,7 @@ Status: DRAFT / SAFE-BLOCKED
 Owner chat: M63  
 AEB ID: AEB-DHW-001  
 Scope: Casa Mercurio ACS / EHW  
-Last reviewed: 2026-09-23
+Last reviewed: 2026-09-24
 
 ## Outcome
 
@@ -59,24 +59,37 @@ The shadow package must not:
   `binary_sensor.policy_grid_importing_now` and `sensor.policy_grid_power_w`.
 - The tariff/grid layer is disabled by default and the real electricity contract
   is not yet documented.
+- A read-only runtime audit at `2026-09-24T05:58:00Z` confirmed Modbus readiness,
+  both tank temperatures, setpoint feedback, EHW power/state, SolarEdge/PV,
+  SDM120 grid direction and the existing ClimateOps dry-run/write gates. Runtime
+  writes during the audit: zero.
+- At the audit instant the house was importing about 646 W while the calculated
+  surplus was about 113 W and `binary_sensor.policy_surplus_ok` was off. This is
+  a verified example where production alone must not authorize preheat.
 
-## Unverified policy bounds
+## Policy bounds and remaining verification
 
-The following values remain provisional and cannot authorize even a shadow
-recommendation until explicitly verified:
+The owner approved the following shadow-only bounds on 2026-09-24:
 
-- minimum comfort temperature;
-- normal operating target;
-- maximum normal/preheat target;
+- minimum comfort temperature: 45 degC;
+- normal target: 50 degC;
+- maximum preheat target: 55 degC.
+
+They remain non-authoritative for live actuation. The manufacturer limit is
+60 degC and is not an autonomous normal target.
+
+The following evidence remains open:
+
 - current installed values of `g01..g04` and the resulting native legionella
   schedule/state;
-- acceptable input freshness at runtime;
+- a runtime-validated freshness signal based on the state object's
+  `last_reported` timestamp;
 - user draw profile.
 
-`input_boolean.ehw_shadow_limits_verified` and
-`input_boolean.ehw_shadow_legionella_verified` therefore default to `off`.
-While either is off, the required result is `BLOCK_LIMITS_UNVERIFIED` or
-`BLOCK_LEGIONELLA_UNVERIFIED`.
+`input_boolean.ehw_shadow_limits_verified` defaults to `on` for the approved
+shadow bounds. `input_boolean.ehw_shadow_legionella_verified` remains `off` and
+is exposed as context. Because the package has no write authority, this does not
+block observation or proposed shadow decisions; it remains a mandatory LIVE gate.
 
 ## Inputs
 
@@ -94,7 +107,8 @@ While either is off, the required result is `BLOCK_LIMITS_UNVERIFIED` or
 | `input_boolean.ehw_shadow_legionella_active` | observed/manual pass-through flag | hold |
 
 Freshness is evaluated independently for tank top, tank bottom, setpoint, raw grid
-direction and raw grid power. Default threshold is 180 seconds and is configurable. A stale or missing
+direction and raw grid power. The default threshold is 300 seconds, matching the
+180 second EHW Modbus scan interval plus bounded jitter, and is configurable. A stale or missing
 temperature/setpoint input blocks the policy. A stale grid input prevents PV
 preheat but does not prevent comfort recovery.
 
@@ -103,18 +117,22 @@ The shadow package intentionally does not use the periodically refreshed
 than the underlying meter sample. It also does not accept PV production alone as
 proof of export.
 
+Freshness uses Home Assistant `last_reported`, which advances when a source
+reports even if its value is unchanged. `last_updated` is only a compatibility
+fallback. Recorder `last_updated` alone must not be used to classify an unchanged
+setpoint as stale.
+
 ## Decision priority
 
 1. Shadow disabled.
 2. Policy limits unverified.
-3. Legionella authority unverified.
-4. Manual override.
-5. Legionella pass-through active.
-6. Modbus/EHW not ready.
-7. Temperature or setpoint data missing/stale.
-8. Comfort recovery required.
-9. Stable measured export and surplus permit preheat.
-10. Otherwise maintain current target.
+3. Manual override.
+4. Legionella pass-through active.
+5. Modbus/EHW not ready.
+6. Temperature or setpoint data missing/stale.
+7. Comfort recovery required.
+8. Stable measured export and surplus permit preheat.
+9. Otherwise maintain current target.
 
 ## Output contract
 
@@ -134,7 +152,6 @@ dashboard is required.
 
 - `SHADOW_DISABLED`
 - `BLOCK_LIMITS_UNVERIFIED`
-- `BLOCK_LEGIONELLA_UNVERIFIED`
 - `HOLD_MANUAL_OVERRIDE`
 - `HOLD_LEGIONELLA_PASS_THROUGH`
 - `BLOCK_MODBUS_NOT_READY`
