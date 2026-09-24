@@ -3,7 +3,7 @@
 Status: ACTIVE  
 Owner chat: M60 — AEB Control Room  
 Scope: Casa Mercurio / AEB  
-Last reviewed: 2026-09-22
+Last reviewed: 2026-09-24
 
 ## Rules
 
@@ -23,7 +23,7 @@ Classification values: `CLOSED`, `COVERED`, `BACKLOG_ONLY`, `NEW_CHAT_REQUIRED`,
 | AEB-STAT-001 | Current repo/runtime/docs checkpoint | audit reconciliation | Later runtime evidence supersedes the May checkpoint in several areas. | M60 | BACKLOG_ONLY | — | Refresh only when needed by an active decision. | P1 |
 | AEB-DR-001 | Portability / disaster recovery MVP | P0 portability + restore audits, June 2026 | Portability blockers closed; restore drill PASS; scheduled backup PASS. | — | CLOSED | — | — | CLOSED |
 | AEB-DR-002 | Backup retention / pruning | scheduled backup follow-up | Core backup works; retention/pruning is optional follow-up. | — | BACKLOG_ONLY | — | Define preview-first retention policy only when storage pressure/maintenance justifies it. | P3 |
-| AEB-AC-001 | Whole-home AC comfort / humidity control | STEP123/124/125/130 | Runtime fixes and regression gates completed. | — | CLOSED | — | Reopen only on regression. | CLOSED |
+| AEB-AC-001 | Whole-home AC comfort / humidity control | STEP123/124/125/130 + M64 runtime closeout | Automatic DRY for humidity-only demand and COOL priority for thermal/combined demand deployed and commissioned on 2026-09-24. Config checks, runtime hashes, rollback control and reversible test matrix passed; audit published through PR #487. Real-event E2E observation is non-blocking. | M64 | CLOSED | — | Reopen only on regression or evidence that automatic real-event promotion diverges from the verified policy. | CLOSED |
 | AEB-TV-001 | TV-first AEB HMI | CHAT_PORTFOLIO / PR #468 | Functional baseline exists; polish remains. | M06 | COVERED | User/WIP priority | Complete v2.0.1 polish, TCL test, then close legacy PR path. | P2 |
 | AEB-PR-001 | Legacy PR/branch hygiene | open PR/branch inventory | Many old branches/PRs are likely superseded. | M60 | BACKLOG_ONLY | Needs batch review | Close/archive only after evidence that each is superseded by main. | P2 |
 | AEB-ENER-001 | Whole-house energy monitoring truth | M51 + ENERGY_STATE_RECONCILIATION | Monitoring baseline verified. | M51 | CLOSED | — | — | CLOSED |
@@ -85,3 +85,18 @@ Evidence verified on 2026-09-22:
 Residual review: `/config/secrets.yaml` was observed as `root:root` mode `744`. This is non-blocking for the closed AEB-SEC-001 outcome and should be handled only as a separate hardening review if prioritized.
 
 Result: `AEB-SEC-001 = CLOSED`. The next P1 execution workstream remains `AEB-ENER-003 — Billing reconciliation + load allocation`.
+
+## 2026-09-24 M64 AC DRY closeout
+
+M64 introduced governed automatic DRY selection for humidity-only demand while preserving COOL priority for thermal or combined demand.
+
+Closeout evidence:
+
+- Implementation merged through PR #479 at `29b8f56df557340c4590d1fc4655d9e2af0b7024`.
+- Surgical runtime deploy was limited to the three authorized package files; backup: `/config/backups/aeb_m64_dry_20260924_090205/`.
+- Pre/post configuration checks, deployed hashes, rollback guard, structural matrix, and reversible DRY-to-COOL actuation passed.
+- The deployment audit was published through PR #487 and merged at `16d72baad854f9b6b8cf2cfa4dcc68973058ac92`.
+- `CHAT_PORTFOLIO` records M64 as `ARCHIVED` with the deployment audit as SSOT.
+- Observation of the next real humidity-only event is useful operational follow-up but is non-blocking for archival.
+
+Result: `AEB-AC-001 = CLOSED` and M64 is `ARCHIVIABILE`.
