@@ -122,6 +122,11 @@ reports even if its value is unchanged. `last_updated` is only a compatibility
 fallback. Recorder `last_updated` alone must not be used to classify an unchanged
 setpoint as stale.
 
+Recorder persistence is not the freshness authority: a `NULL`
+`last_reported_ts` means `last_reported == last_updated` for that stored row, and
+unchanged reports may not create a new history row. Pre-deploy validation must
+therefore read `last_reported` from the live Home Assistant state object.
+
 ## Decision priority
 
 1. Shadow disabled.
