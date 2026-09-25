@@ -170,11 +170,13 @@ template:
           {% set sp = states.sensor.ehw_setpoint %}
           {% set grid = states.sensor.grid_power_w %}
           {% set direction = states.sensor.grid_direction %}
+          {% set pv = states.sensor.pv_power_now %}
           {% set top_age = (as_timestamp(now()) - as_timestamp(top.last_reported, 0)) if top is not none else 999999 %}
           {% set bottom_age = (as_timestamp(now()) - as_timestamp(bottom.last_reported, 0)) if bottom is not none else 999999 %}
           {% set sp_age = (as_timestamp(now()) - as_timestamp(sp.last_reported, 0)) if sp is not none else 999999 %}
           {% set grid_age = (as_timestamp(now()) - as_timestamp(grid.last_reported, 0)) if grid is not none else 999999 %}
           {% set direction_age = (as_timestamp(now()) - as_timestamp(direction.last_reported, 0)) if direction is not none else 999999 %}
+          {% set pv_age = (as_timestamp(now()) - as_timestamp(pv.last_reported, 0)) if pv is not none else 999999 %}
           {% set ehw_missing = not has_value('sensor.ehw_tank_top') or not has_value('sensor.ehw_tank_bottom') or not has_value('sensor.ehw_setpoint') %}
           {% set ehw_stale = top_age > max_age or bottom_age > max_age or sp_age > max_age %}
           {% set top_c = states('sensor.ehw_tank_top') | float(default=none) %}
@@ -189,8 +191,10 @@ template:
           {% elif is_state('input_boolean.policy_enable_tariff_grid', 'on')
             and not is_state('binary_sensor.contract_tariff_grid_policy_ready', 'on') %}BLOCK_TARIFF_UNAVAILABLE
           {% elif is_state('binary_sensor.ehw_shadow_preheat_eligible', 'on') %}PREHEAT_PV_SURPLUS
-          {% elif not has_value('sensor.grid_power_w') or not has_value('sensor.grid_direction') %}BLOCK_DATA_STALE
-          {% elif grid_age > max_age or direction_age > max_age %}BLOCK_DATA_STALE
+          {% elif (not has_value('sensor.grid_power_w')
+            or not has_value('sensor.grid_direction')
+            or not has_value('sensor.pv_power_now')) %}BLOCK_DATA_STALE
+          {% elif grid_age > max_age or direction_age > max_age or pv_age > max_age %}BLOCK_DATA_STALE
           {% elif (states('sensor.grid_direction') | lower) in ['import', 'importing', 'prelievo', 'prelevando', 'from_grid', 'forward'] %}BLOCK_GRID_IMPORT
           {% elif not is_state('binary_sensor.policy_surplus_ok', 'on') %}HOLD_NO_SURPLUS
           {% else %}HOLD_TARGET_REACHED
@@ -223,11 +227,13 @@ template:
           {% set sp = states.sensor.ehw_setpoint %}
           {% set grid = states.sensor.grid_power_w %}
           {% set direction = states.sensor.grid_direction %}
+          {% set pv = states.sensor.pv_power_now %}
           {% set top_age = (as_timestamp(now()) - as_timestamp(top.last_reported, 0)) if top is not none else 999999 %}
           {% set bottom_age = (as_timestamp(now()) - as_timestamp(bottom.last_reported, 0)) if bottom is not none else 999999 %}
           {% set sp_age = (as_timestamp(now()) - as_timestamp(sp.last_reported, 0)) if sp is not none else 999999 %}
           {% set grid_age = (as_timestamp(now()) - as_timestamp(grid.last_reported, 0)) if grid is not none else 999999 %}
           {% set direction_age = (as_timestamp(now()) - as_timestamp(direction.last_reported, 0)) if direction is not none else 999999 %}
+          {% set pv_age = (as_timestamp(now()) - as_timestamp(pv.last_reported, 0)) if pv is not none else 999999 %}
           {% if not is_state('input_boolean.ehw_shadow_limits_verified', 'on') %}
             UNVERIFIED
           {% elif (not has_value('sensor.ehw_tank_top')
@@ -235,7 +241,10 @@ template:
             or not has_value('sensor.ehw_setpoint')
             or top_age > max_age or bottom_age > max_age or sp_age > max_age) %}
             EHW_STALE
-          {% elif not has_value('sensor.grid_power_w') or not has_value('sensor.grid_direction') or grid_age > max_age or direction_age > max_age %}
+          {% elif (not has_value('sensor.grid_power_w')
+            or not has_value('sensor.grid_direction')
+            or not has_value('sensor.pv_power_now')
+            or grid_age > max_age or direction_age > max_age or pv_age > max_age) %}
             ENERGY_STALE
           {% else %}
             READY
@@ -253,6 +262,9 @@ template:
             {{ ((as_timestamp(now()) - as_timestamp(s.last_reported, 0)) | round(0)) if s is not none else none }}
           grid_power_age_s: >-
             {% set s = states.sensor.grid_power_w %}
+            {{ ((as_timestamp(now()) - as_timestamp(s.last_reported, 0)) | round(0)) if s is not none else none }}
+          pv_power_age_s: >-
+            {% set s = states.sensor.pv_power_now %}
             {{ ((as_timestamp(now()) - as_timestamp(s.last_reported, 0)) | round(0)) if s is not none else none }}
           grid_direction_age_s: >-
             {% set s = states.sensor.grid_direction %}
