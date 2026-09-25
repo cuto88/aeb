@@ -186,8 +186,17 @@ Uso operativo:
 
 - Su profilo runtime `190/unit3`, i registri `56/57/60` non sono affidabili per stato macchina e possono risultare non disponibili.
 - Le temperature utili provengono dal blocco `2019..2024` e dai parametri `1082/1088/1089/1104/1106`.
-- In caso di transport instability (`transaction_id mismatch`), il package riduce il polling
-  dei registri diagnostici (T01..T06 + setpoint raw) a 180s per ridurre rumore Modbus.
+- M63 mantiene a 180s solo i raw decisionali `2020`, `2021` e `1104`.
+  I raw `_b` diagnostici sono a 900s, i parametri non decisionali a 1800s e i
+  candidati legacy `_a` a 21600s. Gli entity-id restano registrati per evitare
+  una migrazione non verificata dell'entity registry.
+- `binary_sensor.cm_modbus_ehw_ready` e` fail-closed: richiede che i raw fisici
+  `_b` di `2020`, `2021` e `1104` abbiano `last_reported` non piu` vecchio di
+  240s. La presenza storica del valore non e` readiness.
+- `binary_sensor.cm_modbus_ready` resta un indicatore di presenza, distinto dal
+  gate decisionale. I binary sensor `ehw_tank_top_raw_fresh`,
+  `ehw_tank_bottom_raw_fresh` e `ehw_setpoint_raw_fresh` espongono il dettaglio
+  age-aware per registro.
 - `binary_sensor.ehw_running` non deve essere usato come prova di assorbimento elettrico.
   Usare `binary_sensor.ehw_power_confirmed` o `sensor.ehw_operation_state`.
 

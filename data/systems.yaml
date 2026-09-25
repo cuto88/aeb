@@ -261,12 +261,13 @@ systems:
       confidence: documented_family_not_exact_unit
       source: dropbox:MULTI U2.pdf
     indoor_possible_models_ducted:
-      - RAS-M07U2DVG-E
-      - RAS-M10U2DVG-E
-      - RAS-M13U2DVG-E
-      - RAS-M16U2DVG-E
-      - RAS-M22U2DVG-E
-      - RAS-M24U2DVG-E
+      values:
+        - RAS-M07U2DVG-E
+        - RAS-M10U2DVG-E
+        - RAS-M13U2DVG-E
+        - RAS-M16U2DVG-E
+        - RAS-M22U2DVG-E
+        - RAS-M24U2DVG-E
       confidence: documented_family_not_exact_unit
       source: dropbox:20210602_IM_E0X7200601-2_R32_RAS-M_U2DVG-E_Ducted_07-24_EN.pdf
     zones:
@@ -297,12 +298,56 @@ systems:
       source: aeb_repo
     product_family:
       value: Eco Hot Water
-      possible_models:
-        - EQ 2021
-        - EQ 3021 ES
-      confidence: documented_family_not_exact_unit
-      source: dropbox:Ecohotwater.pdf
-    nominal_specs_from_manual:
+      installed_model: EQ 3018 ES
+      nominal_capacity_l: 300
+      confidence: documented
+      source: data/assets.yaml#asset.dhw.ehw
+    installed_model_manual:
+      document_id: E7000670C
+      applies_to:
+        - EQ 2018
+        - EQ 3018 ES
+      source: https://areariservata.emmeti.com/it/vfm/Documenti/Documenti%20tecnici/Manuali%20uso%20e%20installazione/E7000670C.pdf
+      confidence: documented_model_specific
+      operating_limits:
+        water_temperature_c:
+          min: 9
+          max: 60
+        user_setpoint_c:
+          min: 10
+          max: 60
+          step: 0.5
+        manual_overtemperature_trip_c_approx: 85
+      legionella_factory_parameters:
+        g01:
+          meaning: thermal_treatment_setpoint_c
+          default: 60
+          min: 30
+          max: 70
+        g02:
+          meaning: thermal_treatment_duration_min
+          default: 0
+          min: 0
+          max: 90
+        g03:
+          meaning: thermal_treatment_start_hour
+          default: 0
+          min: 0
+          max: 23
+        g04:
+          meaning: thermal_treatment_interval_days
+          default: 7
+          min: 7
+          max: 99
+      notes: >-
+        g02=0 min disables the factory treatment by default. Current installed
+        g01..g04 values remain runtime evidence, not inferred from defaults.
+    family_reference_manual:
+      note: >-
+        Ecohotwater.pdf Rev. A 04.2021 covers EQ 2021 and EQ 3021 ES, not the
+        installed EQ 3018 ES. Values below are family/reference evidence only
+        and must not be promoted to installed-unit limits without a
+        model-specific source.
       EQ_2021:
         useful_volume_l: 190
         tank_material: S235 JR steel with inorganic enamel internal treatment
@@ -323,7 +368,15 @@ systems:
         refrigerant: R134a
         compressor: rotary
         fan: centrifugal
-      confidence: documented_family_not_exact_unit
+      legionella_reference:
+        function: configurable thermal ACS treatment
+        default_state: disabled
+        parameters:
+          - g01
+          - g02
+          - g03
+          - g04
+      confidence: documented_reference_models_not_installed_unit
       source: dropbox:Ecohotwater.pdf
     known_runtime:
       - telemetry_read_path
@@ -331,8 +384,7 @@ systems:
       - governed_writer_path
       - reversible_setpoint_write_on_register_1104_validated
     missing_for_policy:
-      - exact_installed_model_EQ2021_or_EQ3021ES
-      - legionella_policy
+      - current_installed_g01_g02_g03_g04_values
       - min_comfort_temperature
       - max_safe_setpoint
       - user_draw_profile

@@ -80,20 +80,68 @@ template:
         unique_id: cm_modbus_ready
         icon: mdi:check-network
         state: >-
-          {% if has_value('sensor.ehw_setpoint_raw_calc') or has_value('sensor.ehw_t02_raw_a') %}
-            on
+          {{ has_value('sensor.ehw_t02_raw_b')
+            or has_value('sensor.ehw_t03_raw_b')
+            or has_value('sensor.ehw_setpoint_1104_raw_b') }}
+
+      - name: "EHW tank top raw fresh"
+        unique_id: ehw_tank_top_raw_fresh
+        icon: mdi:clock-check-outline
+        state: >-
+          {% set matches = states
+            | selectattr('entity_id', 'equalto', 'sensor.ehw_t03_raw_b')
+            | list %}
+          {% if matches | count == 0 %}
+            false
           {% else %}
-            off
+            {% set item = matches[0] %}
+            {% set reported = as_timestamp(item.last_reported, 0) %}
+            {% set age = as_timestamp(now()) - reported %}
+            {{ item.state not in ['unknown', 'unavailable', 'none', 'None', '']
+              and reported > 0 and age >= 0 and age <= 240 }}
           {% endif %}
+
+      - name: "EHW tank bottom raw fresh"
+        unique_id: ehw_tank_bottom_raw_fresh
+        icon: mdi:clock-check-outline
+        state: >-
+          {% set matches = states
+            | selectattr('entity_id', 'equalto', 'sensor.ehw_t02_raw_b')
+            | list %}
+          {% if matches | count == 0 %}
+            false
+          {% else %}
+            {% set item = matches[0] %}
+            {% set reported = as_timestamp(item.last_reported, 0) %}
+            {% set age = as_timestamp(now()) - reported %}
+            {{ item.state not in ['unknown', 'unavailable', 'none', 'None', '']
+              and reported > 0 and age >= 0 and age <= 240 }}
+          {% endif %}
+
+      - name: "EHW setpoint raw fresh"
+        unique_id: ehw_setpoint_raw_fresh
+        icon: mdi:clock-check-outline
+        state: >-
+          {% set matches = states
+            | selectattr('entity_id', 'equalto', 'sensor.ehw_setpoint_1104_raw_b')
+            | list %}
+          {% if matches | count == 0 %}
+            false
+          {% else %}
+            {% set item = matches[0] %}
+            {% set reported = as_timestamp(item.last_reported, 0) %}
+            {% set age = as_timestamp(now()) - reported %}
+            {{ item.state not in ['unknown', 'unavailable', 'none', 'None', '']
+              and reported > 0 and age >= 0 and age <= 240 }}
+          {% endif %}
+
       - name: "CM Modbus EHW ready"
         unique_id: cm_modbus_ehw_ready
         icon: mdi:check-network
         state: >-
-          {% if has_value('sensor.ehw_t02_raw_a') or has_value('sensor.ehw_setpoint_raw_calc') %}
-            on
-          {% else %}
-            off
-          {% endif %}
+          {{ is_state('binary_sensor.ehw_tank_top_raw_fresh', 'on')
+            and is_state('binary_sensor.ehw_tank_bottom_raw_fresh', 'on')
+            and is_state('binary_sensor.ehw_setpoint_raw_fresh', 'on') }}
 
       - name: "EHW status bit 0x0100"
         unique_id: ehw_status_bit_0100
@@ -292,12 +340,7 @@ template:
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
-          {% set v = none %}
-          {% if is_state('input_select.ehw_address_mode', 'doc_1_based') %}
-            {% set v = states('sensor.ehw_setpoint_raw_a') | float(default=none) %}
-          {% else %}
-            {% set v = states('sensor.ehw_setpoint_raw_a') | float(default=none) %}
-          {% endif %}
+          {% set v = states('sensor.ehw_setpoint_1104_raw_b') | float(default=none) %}
           {% if v is none %}
             {{ none }}
           {% else %}
