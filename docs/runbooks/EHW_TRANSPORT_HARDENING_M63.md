@@ -32,6 +32,20 @@ Do not deploy or enable `packages/ehw_shadow_policy.yaml`. Do not modify
 6. Perform one controlled Home Assistant restart only if separately authorized.
 7. Confirm API recovery and verify writer gates remain dry-run/off.
 
+The configuration gate is exit-code authoritative. Use
+`ops/ha_config_check.ps1` with its default timeout of at least 300 seconds.
+Capture stdout and stderr separately, record both SSH and remote exit codes,
+duration and timeout state. The informational line
+`Testing configuration at /config` is not itself a PASS or FAIL signal.
+
+Classify a check as `CONFIG_CHECK_PASS` only when the process terminates, both
+exit codes are zero, no recognized configuration error is present on stderr,
+and no timeout occurred. Classify non-zero exits or explicit configuration
+errors as `CONFIG_CHECK_FAIL`. Classify an unfinished process, exit 124 or an
+equivalent timeout as `CONFIG_CHECK_TIMEOUT`. Do not launch a second check
+while the first is active; preserve sanitized stdout/stderr and terminate only
+the audit-started local process on timeout when safe.
+
 ## Post-deploy observation
 
 After a restart, wait for the Home Assistant container and API to recover
