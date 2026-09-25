@@ -40,7 +40,7 @@ function Invoke-ConfigCheck {
   )
   if ($TimeoutSeconds -lt 300) { throw 'TimeoutSec must be at least 300 seconds.' }
   $sshPath = (Get-Command ssh -ErrorAction Stop).Source
-  $remoteCommand = 'docker exec ' + $ContainerName + ' hass --script check_config --config ' + $Path + '; rc=$?; printf "`n__M63_REMOTE_EXIT__=%s`n" "$rc"; exit "$rc"'
+  $remoteCommand = 'docker exec ' + $ContainerName + ' hass --script check_config --config ' + $Path + '; rc=$?; printf ''%s\n'' "__M63_REMOTE_EXIT__=$rc"; exit "$rc"'
   $psi = [Diagnostics.ProcessStartInfo]::new()
   $psi.FileName = $sshPath
   foreach ($arg in @('-o','BatchMode=yes',$Target,$remoteCommand)) { [void]$psi.ArgumentList.Add($arg) }

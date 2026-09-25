@@ -6,6 +6,8 @@ if ($source -notmatch 'TimeoutSec\s*=\s*300') { throw 'Default timeout must be a
 if ($source -notmatch 'StandardOutput|RedirectStandardOutput') { throw 'stdout capture missing.' }
 if ($source -notmatch 'StandardError|RedirectStandardError') { throw 'stderr capture missing.' }
 if ($source -notmatch 'RemoteExitCode') { throw 'remote exit-code propagation missing.' }
+if ($source -notmatch '__M63_REMOTE_EXIT__=\$rc') { throw 'remote exit marker missing.' }
+if ($source -match '`n__M63_REMOTE_EXIT__') { throw 'shell-unsafe marker quoting found.' }
 if ($source -match '(?i)StdOut\s+-match.*PASS|PASS.*StdOut\s+-match') { throw 'Fragile PASS-text gate found.' }
 if ($source -notmatch 'CONFIG_CHECK_TIMEOUT|CONFIG_CHECK_FAIL|CONFIG_CHECK_PASS') { throw 'Result classification missing.' }
 [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $scriptPath), [ref]$null, [ref]$null)

@@ -46,6 +46,11 @@ equivalent timeout as `CONFIG_CHECK_TIMEOUT`. Do not launch a second check
 while the first is active; preserve sanitized stdout/stderr and terminate only
 the audit-started local process on timeout when safe.
 
+The wrapper propagates the remote exit code with a shell-safe sentinel emitted
+by the same remote command. Marker quoting must not use PowerShell backticks in
+a single-quoted remote command, because the remote shell can interpret them as
+command substitution and make a successful check appear unclassified.
+
 ## Post-deploy observation
 
 After a restart, wait for the Home Assistant container and API to recover
