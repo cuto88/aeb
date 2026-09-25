@@ -63,6 +63,11 @@ non-2xx HTTP responses. It reports `API_REACHABLE` separately from
 store is absent or invalid, stop with
 `API_CREDENTIAL_PROVISIONING_REQUIRED`; do not create or copy a token.
 
+The separately authorized M63 shadow enable uses `ops/ha_service_call.ps1`.
+That client has an exact endpoint/entity allowlist, performs one POST at most,
+and confirms the resulting helper state with bounded GET polling. It is not a
+generic Home Assistant service client and does not retry the POST.
+
 ## Service-call contract
 
 For an explicitly authorized call such as
