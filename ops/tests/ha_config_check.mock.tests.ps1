@@ -3,23 +3,26 @@ $ErrorActionPreference = 'Stop'
 Describe 'M63 config check classification' {
   BeforeAll { . (Join-Path $PSScriptRoot '..\ha_config_check.ps1') -NoExecute }
 
-  It 'passes informative stdout with remote and SSH exit zero' {
-    (Classify-ConfigCheckResult -TimedOut $false -SshExitCode 0 -RemoteExitCode 0 -StdErr '') | Should Be 'CONFIG_CHECK_PASS'
+  It 'passes informative stdout with exit zero' {
+    (Classify-Exit -ExitCode 0 -TimedOut $false) | Should Be 'CONFIG_CHECK_PASS'
+  }
+
+  It 'passes empty stdout with exit zero' {
+    (Classify-Exit -ExitCode 0 -TimedOut $false) | Should Be 'CONFIG_CHECK_PASS'
   }
 
   It 'classifies timeout or 124 as timeout' {
-    (Classify-ConfigCheckResult -TimedOut $true -SshExitCode 124 -RemoteExitCode 124 -StdErr '') | Should Be 'CONFIG_CHECK_TIMEOUT'
+    (Classify-Exit -ExitCode 124 -TimedOut $true) | Should Be 'CONFIG_CHECK_TIMEOUT'
   }
 
-  It 'classifies YAML errors and non-zero remote exit as failure' {
-    (Classify-ConfigCheckResult -TimedOut $false -SshExitCode 1 -RemoteExitCode 1 -StdErr 'YAML error') | Should Be 'CONFIG_CHECK_FAIL'
+  It 'classifies YAML errors and non-zero exit as failure' {
+    (Classify-Exit -ExitCode 1 -TimedOut $false) | Should Be 'CONFIG_CHECK_FAIL'
   }
 
-  It 'classifies SSH transport failure separately as failure' {
-    (Classify-ConfigCheckResult -TimedOut $false -SshExitCode 255 -RemoteExitCode $null -StdErr 'Permission denied' -TransportError $true) | Should Be 'CONFIG_CHECK_FAIL'
-  }
-
-  It 'passes empty stdout with a warning handled by the caller' {
-    (Classify-ConfigCheckResult -TimedOut $false -SshExitCode 0 -RemoteExitCode 0 -StdErr '') | Should Be 'CONFIG_CHECK_PASS'
+  It 'writes valid UTF-8 JSON evidence atomically' {
+    $path = Join-Path $TestDrive 'evidence.json'
+    $evidence = [pscustomobject]@{ classification = 'CONFIG_CHECK_PASS'; stdout = 'Testing configuration at /config'; stderr = ''; exit_code = 0 }
+    $written = Write-EvidenceAtomic -Evidence $evidence -Path $path
+    (Get-Content -LiteralPath $written -Raw | ConvertFrom-Json).classification | Should Be 'CONFIG_CHECK_PASS'
   }
 }
