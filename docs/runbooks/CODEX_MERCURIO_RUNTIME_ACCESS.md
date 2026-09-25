@@ -48,6 +48,21 @@ the two dimensions separately:
 Never include tokens, Authorization headers, cookies, or credential values in
 reports. A 401 or 403 is not API authentication success.
 
+The canonical local client is `ops/ha_api_preflight.ps1`. It reads `HA_URL`
+and `HA_TOKEN` from the existing local `.env` secret store, excluded from Git,
+and supports GET only. The token is kept in memory, never printed, and never
+written to repository output. Example:
+
+```powershell
+pwsh -File .\ops\ha_api_preflight.ps1 -EnvPath .\.env -Endpoint /api/
+```
+
+The client exits non-zero for missing credentials, transport errors, or
+non-2xx HTTP responses. It reports `API_REACHABLE` separately from
+`API_AUTHENTICATED` and emits only a sanitized status. If the local credential
+store is absent or invalid, stop with
+`API_CREDENTIAL_PROVISIONING_REQUIRED`; do not create or copy a token.
+
 ## Service-call contract
 
 For an explicitly authorized call such as
