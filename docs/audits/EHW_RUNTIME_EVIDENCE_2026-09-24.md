@@ -272,3 +272,37 @@ absence of new Modbus writes and `git diff --check`. No runtime validation,
 commit, push or deployment occurred. Repository instructions prohibit local Git
 mutation in this workspace, so the candidate remains an uncommitted review
 diff pending publication through an authorized working copy or connector.
+
+## Final transport hardening evidence — PASS
+
+On `2026-09-25`, commit `d65fc192c771204942547dd6617a697bb99be962` was deployed
+after backup, configuration check and one controlled restart. The backup was
+`/opt/data/homeassistant/backups/aeb_m63_ehw_redeploy_20260925_071435/` and the
+live window was `2026-09-25T07:17:10Z` to `07:32:27Z`.
+
+All three decision raw sources advanced five times, with maximum observed
+cadence approximately 180.2 seconds. Freshness was simultaneously valid,
+readiness matched the AND, the derived chain was numeric, SDM120 advanced and
+writer safety remained off/on/off/off. No M63 errors, rollback or Modbus writes
+were observed. Result: **`TRANSPORT_HARDENING_PASS`**.
+
+This is transport evidence only; it does not declare `SHADOW_PASS` or
+`LIVE_READY`.
+
+## Shadow package final readiness audit
+
+The package is read-only: no service calls, writer invocation, setpoint mutation
+or Modbus write path is present. Its inputs are the validated EHW chain,
+age-aware `cm_modbus_ehw_ready`, grid direction/power and the existing surplus
+and PV abstractions. Forecast is not used because it is not required for the
+deterministic shadow decision.
+
+The audit required a minimal patch before readiness could be claimed. The patch
+hard-bounds 45/50/55 degC, uses `last_reported` without a `last_updated`
+freshness fallback, adds direct PV freshness to preheat gating, and aligns
+reason codes with the M63 contract. KPI remain recorder-derived from
+action/reason/data-quality history; no stateful writer is introduced.
+
+Known gaps remain: installed `g01..g04` and native legionella behavior, PM4 ACS
+measurement, and tariff/accounting. These block LIVE/economic claims and are
+not evidence of legionella safety.

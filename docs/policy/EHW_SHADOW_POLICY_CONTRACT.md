@@ -112,6 +112,7 @@ block observation or proposed shadow decisions; it remains a mandatory LIVE gate
 | `sensor.grid_power_w` | raw/canonical SDM120 power | hold |
 | `input_boolean.ehw_shadow_manual_override` | user authority | hold |
 | `input_boolean.ehw_shadow_legionella_active` | observed/manual pass-through flag | hold |
+| `sensor.pv_power_now` | direct PV freshness cross-check | block preheat |
 
 Freshness is evaluated independently for tank top, tank bottom, setpoint, raw grid
 direction and raw grid power. The default threshold is 300 seconds, matching the
@@ -125,9 +126,9 @@ than the underlying meter sample. It also does not accept PV production alone as
 proof of export.
 
 Freshness uses Home Assistant `last_reported`, which advances when a source
-reports even if its value is unchanged. `last_updated` is only a compatibility
-fallback. Recorder `last_updated` alone must not be used to classify an unchanged
-setpoint as stale.
+reports even if its value is unchanged. `last_updated` is not a freshness
+fallback for this package. Recorder timestamps alone must not classify an
+unchanged setpoint as fresh or stale.
 
 The branch-only M63 transport hardening candidate applies a stricter 240-second
 gate to the three physical `_b` raw sources for addresses 2020, 2021 and 1104.
@@ -212,19 +213,16 @@ dashboard is required.
 ## Reason codes
 
 - `SHADOW_DISABLED`
-- `BLOCK_LIMITS_UNVERIFIED`
-- `HOLD_MANUAL_OVERRIDE`
-- `HOLD_LEGIONELLA_PASS_THROUGH`
+- `BLOCK_SAFETY`
+- `BLOCK_MANUAL_OVERRIDE`
 - `BLOCK_MODBUS_NOT_READY`
-- `BLOCK_EHW_DATA_MISSING`
-- `BLOCK_EHW_DATA_STALE`
-- `RECOVER_COMFORT_LOW_TOP_TEMP`
-- `PREHEAT_STABLE_GRID_EXPORT`
-- `HOLD_ENERGY_DATA_MISSING`
-- `HOLD_ENERGY_DATA_STALE`
-- `HOLD_GRID_IMPORTING`
+- `BLOCK_DATA_STALE`
+- `HOLD_COMFORT`
+- `PREHEAT_PV_SURPLUS`
+- `BLOCK_GRID_IMPORT`
 - `HOLD_NO_SURPLUS`
-- `HOLD_AT_CURRENT_TARGET`
+- `HOLD_TARGET_REACHED`
+- `BLOCK_TARIFF_UNAVAILABLE` (only when an economic decision requires tariff data)
 
 ## KPI contract
 
@@ -257,6 +255,18 @@ All conditions are mandatory:
 - benefit is measurable and not merely theoretical;
 - safe writer remains single authority and immediate rollback is documented;
 - explicit user authorization for live promotion.
+
+## Final M63 transport evidence and shadow boundary
+
+`TRANSPORT_HARDENING_PASS` was recorded on 2026-09-25 after five advances of
+each decision raw source, approximately 180.2 s maximum cadence, simultaneous
+freshness/readiness/derived PASS, SDM120 PASS, writer safety PASS and zero
+Modbus writes. This does not declare shadow pass or LIVE readiness.
+
+The shadow package hard-bounds comfort/normal targets to 45–50 degC and
+preheat to 50–55 degC. It does not modify native legionella settings. Missing
+`g01..g04` and PM4 ACS/tariff accounting remain explicit LIVE/economic gaps;
+they must never be described as legionella safety or measured savings proof.
 
 ## Pre-mortem gates
 

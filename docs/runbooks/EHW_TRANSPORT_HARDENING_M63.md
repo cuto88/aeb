@@ -82,3 +82,13 @@ Rollback immediately if any required raw source:
 3. Perform one controlled restart only if authorized and required.
 4. Verify API recovery, writer dry-run/off and restoration of prior entities.
 5. Record the failed gate and retain `SHADOW DEPLOYMENT: BLOCKED`.
+
+## Shadow-only readiness boundary
+
+The completed transport result is `TRANSPORT_HARDENING_PASS`, not shadow pass.
+Before a separate shadow-only deployment, the package must pass YAML,
+unique-ID, dependency, no-side-effect, freshness, reason-code, limit and
+scenario tests. Shadow output may propose a target and estimate energy only;
+it must never call the writer or modify a setpoint. Missing `g01..g04`, PM4 ACS
+measurement and tariff/accounting remain explicit gaps and block LIVE/economic
+claims.
