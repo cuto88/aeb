@@ -1,6 +1,6 @@
 # M63 EHW shadow deploy audit — 2026-09-25
 
-Status: `SHADOW_DEPLOY_FAIL_ROLLED_BACK`  
+Status: `SHADOW_DEPLOY_FAIL_ROLLED_BACK`
 AEB ID: `AEB-DHW-001`
 
 ## Scope and provenance
