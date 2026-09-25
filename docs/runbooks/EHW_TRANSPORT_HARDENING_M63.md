@@ -34,6 +34,12 @@ Do not deploy or enable `packages/ehw_shadow_policy.yaml`. Do not modify
 
 ## Post-deploy observation
 
+After a restart, wait for the Home Assistant container and API to recover
+before evaluating entity state. Allow a stabilization grace period of at
+least 300 seconds, then observe for a total of at least 15 minutes. During
+grace, readiness off and derived entities unavailable are expected startup
+states; after grace they are failures if the required raw sources are fresh.
+
 Observe live REST `last_reported` for at least 15 minutes:
 
 - `sensor.ehw_t02_raw_b` — address 2020;
@@ -48,9 +54,15 @@ Observe live REST `last_reported` for at least 15 minutes:
 - `sensor.ehw_setpoint`;
 - `sensor.sdm120_ch2_active_power_w_raw` as external control.
 
-PASS requires all three EHW raw sources to advance at least twice, no interval
-greater than 240 seconds, readiness coherent with source age, zero Modbus errors
-and zero EHW writes. This transport PASS does not authorize shadow deployment.
+PASS requires all three EHW raw sources to advance at least twice after
+stabilization, no interval greater than 240 seconds, readiness equal to the
+AND of the three age-aware freshness entities, derived values available, zero
+new Modbus errors and zero EHW writes. This transport PASS does not authorize
+shadow deployment.
+
+If any freshness or derived entity remains `unknown`/`unavailable` after the
+stabilization grace period, or a required raw source does not advance, fail the
+gate and roll back. Do not roll back on the first post-restart sample alone.
 
 ## Rollback triggers
 

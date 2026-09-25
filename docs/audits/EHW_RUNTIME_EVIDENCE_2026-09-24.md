@@ -225,6 +225,31 @@ public compatibility where required, reduce duplicate physical polling, add
 per-register age-aware health, and define an exact backup/rollback and
 post-deploy test. No deployment, reload or restart is authorized.
 
+## First controlled deployment — rolled back
+
+Commit `89b6194373a78a01053daa1b28e0633149e23f6e` was deployed in an isolated
+controlled run to the two approved EHW packages only. Backup, configuration
+check and one restart completed; the runtime was then rolled back because the
+new freshness, readiness and derived entities were `unknown` despite raw EHW
+reports advancing. The backup restore and recovery configuration check passed.
+No Modbus write, service call, shadow deployment or unrelated package change
+occurred.
+
+The failure was startup-time template evaluation: the freshness templates
+dereferenced `states.sensor.<entity>.last_reported` before every referenced raw
+entity was available. The resulting template setup failure propagated to the
+freshness, readiness and derived chain. The entity registry showed each M63
+unique ID exactly once, with no numeric suffix or collision; therefore registry
+collision is not the root cause. Home Assistant Core `2026.4.4` exposes
+`last_reported` on the live state objects, and the raw EHW sources were observed
+with usable timestamps after rollback.
+
+The corrected branch candidate uses a validated null-safe lookup pattern:
+filter `states` by `entity_id`, test the match count, and access `last_reported`
+only in the present-entity branch. `cm_modbus_ehw_ready` is fail-closed and is
+the AND of the three age-aware freshness entities. This revision is not
+deployed; runtime writes remain zero and shadow remains blocked.
+
 ## Branch-only hardening candidate
 
 A local, non-deployed candidate was prepared after the passive diagnosis:
