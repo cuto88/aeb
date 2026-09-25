@@ -92,3 +92,7 @@ scenario tests. Shadow output may propose a target and estimate energy only;
 it must never call the writer or modify a setpoint. Missing `g01..g04`, PM4 ACS
 measurement and tariff/accounting remain explicit gaps and block LIVE/economic
 claims.
+
+Runtime access, authenticated API preflight and the service-call confirmation
+contract are defined in
+`docs/runbooks/CODEX_MERCURIO_RUNTIME_ACCESS.md`.
