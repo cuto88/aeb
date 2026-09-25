@@ -1,6 +1,6 @@
 # Codex Mercurio runtime access and Home Assistant API checks
 
-Status: operational runbook  
+Status: operational runbook
 Scope: M63 / AEB-DHW-001
 
 ## Execution lane
