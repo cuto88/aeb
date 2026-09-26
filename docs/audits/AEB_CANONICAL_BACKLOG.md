@@ -3,7 +3,7 @@
 Status: ACTIVE  
 Owner chat: M60 — AEB Control Room  
 Scope: Casa Mercurio / AEB  
-Last reviewed: 2026-09-24
+Last reviewed: 2026-09-26
 
 ## Rules
 
@@ -26,6 +26,7 @@ Classification values: `CLOSED`, `COVERED`, `BACKLOG_ONLY`, `NEW_CHAT_REQUIRED`,
 | AEB-AC-001 | Whole-home AC comfort / humidity control | STEP123/124/125/130 + M64 runtime closeout | Automatic DRY for humidity-only demand and COOL priority for thermal/combined demand deployed and commissioned on 2026-09-24. Config checks, runtime hashes, rollback control and reversible test matrix passed; audit published through PR #487. Real-event E2E observation is non-blocking. | M64 | CLOSED | — | Reopen only on regression or evidence that automatic real-event promotion diverges from the verified policy. | CLOSED |
 | AEB-TV-001 | TV-first AEB HMI | CHAT_PORTFOLIO / PR #468 | Functional baseline exists; polish remains. | M06 | COVERED | User/WIP priority | Complete v2.0.1 polish, TCL test, then close legacy PR path. | P2 |
 | AEB-PR-001 | Legacy PR/branch hygiene | open PR/branch inventory | Many old branches/PRs are likely superseded. | M60 | BACKLOG_ONLY | Needs batch review | Close/archive only after evidence that each is superseded by main. | P2 |
+| AEB-OPS-001 | GitHub Actions deploy pipeline to mercurio-edge | M60 follow-up after manual UI deploy 2026-09-26 | Manual deploy path is proven; reusable GitHub→runtime deployment is not yet implemented. Desired contract: manual workflow_dispatch, file allowlist, dedicated SSH secret with host-key pinning, pre-deploy backup, hash/API verification, no automatic restart, explicit rollback. | M60 | BACKLOG_ONLY | Security/runtime access design | Implement only when reducing repeated manual deploy friction justifies a dedicated execution workstream. | P2 |
 | AEB-ENER-001 | Whole-house energy monitoring truth | M51 + ENERGY_STATE_RECONCILIATION | Monitoring baseline verified. | M51 | CLOSED | — | — | CLOSED |
 | AEB-ENER-002 | SolarEdge local resilience | ENERGY roadmap / CHAT_PORTFOLIO | Local Modbus follow-up remains. | M52 | COVERED | Physical/UI verification | Verify SetApp Modbus TCP status/port/device ID without changing config. | P2 |
 | AEB-ENER-003 | Billing reconciliation + load allocation | ENERGY_INTELLIGENCE_ROADMAP | Not yet executed as a complete accounting baseline. | — | NEW_CHAT_REQUIRED | Billing/contract period data | Reconcile one billing period, then map measured loads and residual. | P1 |
@@ -100,3 +101,23 @@ Closeout evidence:
 - Observation of the next real humidity-only event is useful operational follow-up but is non-blocking for archival.
 
 Result: `AEB-AC-001 = CLOSED` and M64 is `ARCHIVIABILE`.
+
+
+## 2026-09-26 M60 dashboard UI deploy closeout
+
+The M60 micro-follow-up for AEB dashboard observability and compact climate navigation was deployed successfully to the Home Assistant runtime.
+
+Evidence reported after deployment:
+
+- Runtime target: `dscomparin@mercurio-edge`; container `homeassistant` running with bind `/opt/data/homeassistant -> /config`.
+- Home Assistant API remained available with HTTP 200.
+- Deployed files were limited to `/config/lovelace/01_eclss_casa.yaml` and `/config/lovelace/02_air_loop.yaml`.
+- Runtime hashes matched the corresponding source blobs from remote `main` at `ee1bcfd7660f6217c016ef9412b49a3aa78fbe42`.
+- Backup completed under `/config/backups/aeb_m60_ui_20260926_113902/`; backup hashes matched the pre-deploy runtime versions.
+- YAML validation passed.
+- `01_eclss_casa.yaml` contains the three-column climate navigation.
+- `02_air_loop.yaml` contains requested AC mode/reason, Auto DRY, and branch electrical state observability.
+- No Home Assistant restart or server-side reload was performed; UI refresh is sufficient for YAML dashboard changes.
+- No packages, automations, secrets, or other runtime files were modified.
+
+Result: the dashboard micro-task is CLOSED/ARCHIVABLE. A reusable GitHub Actions deployment path is tracked separately as `AEB-OPS-001` and does not block current AEB execution.
