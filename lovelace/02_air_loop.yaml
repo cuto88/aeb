@@ -42,6 +42,30 @@ views:
       - type: grid
         cards:
           - type: heading
+            heading: "Climatizzazione AC"
+            icon: mdi:air-conditioner
+          - type: tile
+            entity: sensor.ac_giorno_requested_hvac_mode
+            name: "AC giorno - modalità richiesta"
+          - type: tile
+            entity: sensor.ac_giorno_comfort_reason
+            name: "AC giorno - motivo"
+          - type: tile
+            entity: sensor.ac_notte_requested_hvac_mode
+            name: "AC notte - modalità richiesta"
+          - type: tile
+            entity: sensor.ac_notte_comfort_reason
+            name: "AC notte - motivo"
+          - type: tile
+            entity: input_boolean.ac_auto_dry_enabled
+            name: "Auto DRY"
+          - type: tile
+            entity: sensor.ac_branch_operating_state
+            name: "Ramo AC - stato elettrico"
+
+      - type: grid
+        cards:
+          - type: heading
             heading: "Zona giorno"
             icon: mdi:sofa
             badges:
